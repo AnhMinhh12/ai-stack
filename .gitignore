@@ -1,0 +1,8 @@
+# Environment & local state
+.env
+*.log
+
+# Docker data mounts (if any created locally)
+qdrant_data/
+redis_data/
+langfuse_db_data/

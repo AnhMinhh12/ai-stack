@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  # 1. vLLM Inference Engine (High-Throughput OpenAI API Compatible Engine)
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: vllm-engine
+    restart: always
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - /var/lib/vllm/models:/root/.cache/huggingface
+    environment:
+      - HF_HUB_OFFLINE=0
+      - OMP_NUM_THREADS=8
+      - VLLM_ATTENTION_BACKEND=FLASH_ATTN
+    command: >
+      --model Qwen/Qwen2.5-14B-Instruct
+      --host 0.0.0.0
+      --port 8000
+      --gpu-memory-utilization 0.90
+      --max-model-len 16384
+      --max-num-seqs 64
+      --quantization fp8
+      --kv-cache-dtype fp8
+      --enable-prefix-caching
+      --served-model-name qwen2.5-14b qwen2.5-72b
+      --enable-auto-tool-choice
+      --tool-call-parser hermes
+
+  # 2. Giao diện Người dùng & Quản lý RAG (Open WebUI)
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: always
+    ports:
+      - "3000:8080"
+    environment:
+      - OPENAI_API_BASE_URLS=http://vllm:8000/v1
+      - OPENAI_API_KEY=EMPTY
+      - WEBUI_SECRET_KEY=EnterpriseSuperSecretKey2026_GB10
+      - ENABLE_RAG_WEB_SEARCH=False
+      - VECTOR_DB=qdrant
+      - QDRANT_URI=http://qdrant:6333
+      - REDIS_URL=redis://:EnterpriseRedisSecret2026@redis:6379/0
+      - ENABLE_SIGNUP=True
+      - DEFAULT_USER_ROLE=user
+    volumes:
+      - open-webui-data:/app/backend/data
+    depends_on:
+      - vllm
+      - qdrant
+      - redis
+
+  # 3. Qdrant Vector Database (Vector Search hiệu năng cao bằng Rust)
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant-vector-db
+    restart: always
+    ports:
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+
+  # 4. Redis Server (Message Broker cho Celery & Semantic LLM Cache)
+  redis:
+    image: redis:7-alpine
+    container_name: redis-broker-cache
+    restart: always
+    command: redis-server --appendonly yes --requirepass EnterpriseRedisSecret2026
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis-data:/data
+
+  # 5. Langfuse Postgres Database (Lưu dữ liệu Tracing LLM)
+  langfuse-db:
+    image: postgres:15-alpine
+    container_name: langfuse-db
+    restart: always
+    environment:
+      - POSTGRES_USER=langfuse
+      - POSTGRES_PASSWORD=LangfuseSecretPassword2026
+      - POSTGRES_DB=langfuse
+    volumes:
+      - langfuse-db-data:/var/lib/postgresql/data
+
+  # 6. Langfuse Web Server (Giao diện Observability & Trace LLM Agent)
+  langfuse-web:
+    image: ghcr.io/langfuse/langfuse:2
+    container_name: langfuse-server
+    restart: always
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      - DATABASE_URL=postgresql://langfuse:LangfuseSecretPassword2026@langfuse-db:5432/langfuse
+      - NEXTAUTH_SECRET=EnterpriseNextAuthSecretKey2026
+      - SALT=EnterpriseLangfuseSaltKey2026
+      - ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      - NEXTAUTH_URL=http://localhost:3001
+      - TELEMETRY_ENABLED=false
+    depends_on:
+      - langfuse-db
+
+volumes:
+  open-webui-data:
+    driver: local
+  qdrant-data:
+    driver: local
+  redis-data:
+    driver: local
+  langfuse-db-data:
+    driver: local
