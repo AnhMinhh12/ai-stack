@@ -1,642 +1,646 @@
-# TÀI LIỆU KỸ THUẬT: TRIỂN KHAI VÀ VẬN HÀNH HỆ THỐNG LOCAL AI
-## TRÊN NỀN TẢNG MÁY CHỦ UBUNTU (MSI EDGEXPERT - NVIDIA GRACE BLACKWELL GB10)
+# LOCAL AI STACK TRÊN NVIDIA GB10
+
+## Kiến trúc, triển khai, bảo mật và vận hành
+
+> **Tài liệu chuẩn duy nhất (canonical runbook)**
+>
+> Cập nhật: **2026-09-03**
+>
+> Phạm vi: `/home/admin/ai-stack`
+>
+> Nền tảng đã xác minh: `aarch64`, Ubuntu 24.04.4 LTS, NVIDIA GB10, driver 580.173.02
+>
+> Trạng thái: **đang chạy thử nghiệm; chưa đạt production readiness**
+
+Tài liệu này hợp nhất nội dung hữu ích từ tài liệu triển khai cũ và
+`Software_Engineering_AI_Stack.md`. Cấu hình chạy thực tế nằm trong
+`docker-compose.yml`; tài liệu này giải thích quyết định, quy trình và tiêu chí
+nghiệm thu, không lặp lại toàn bộ Compose để tránh sai lệch theo thời gian.
+
+## Mục lục
+
+1. [Cách sử dụng và nguồn sự thật](#1-cach-su-dung-va-nguon-su-that)
+2. [Đánh giá hiện trạng](#2-danh-gia-hien-trang)
+3. [Kiến trúc hệ thống](#3-kien-truc-he-thong)
+4. [Yêu cầu và SLO](#4-yeu-cau-va-slo)
+5. [Nền tảng và cấu hình chuẩn](#5-nen-tang-va-cau-hinh-chuan)
+6. [Triển khai và xác minh](#6-trien-khai-va-xac-minh)
+7. [Bảo mật và quản trị dữ liệu](#7-bao-mat-va-quan-tri-du-lieu)
+8. [Hiệu năng và capacity planning](#8-hieu-nang-va-capacity-planning)
+9. [Quan sát, sao lưu và vận hành](#9-quan-sat-sao-luu-va-van-hanh)
+10. [Kiểm thử khả năng phục hồi](#10-kiem-thu-kha-nang-phuc-hoi)
+11. [Xử lý sự cố](#11-xu-ly-su-co)
+12. [Checklist đưa vào production](#12-checklist-dua-vao-production)
+13. [Tài liệu tham khảo và changelog](#13-tai-lieu-tham-khao-va-changelog)
 
 ---
 
-## 📋 NỘI DUNG CHÍNH
-1. [Tổng Quan & Cấu Hình Phần Cứng Chuyên Sâu](#1-tổng-quan--cấu-hình-phần-cứng-chuyên-sâu)
-2. [Kiến Trúc Hệ Thống & Luồng Dữ Liệu](#2-kiến-trúc-hệ-thống--luồng-dữ-liệu)
-3. [Chuẩn Bị Môi Trường Nền Tảng (Ubuntu ARM64)](#3-chuẩn-bị-môi-trường-nền-tảng-ubuntu-arm64)
-4. [Triển Khai AI Core Engine (vLLM High-Throughput Engine)](#4-triển-khai-ai-core-engine-vllm-high-throughput-engine)
-5. [Quản Lý & Tối Ưu Mô Hình AI trên 128GB Unified Memory](#5-quản-lý--tối-ưu-mô-hình-ai-trên-128gb-unified-memory)
-6. [Triển Khai Giao Diện Người Dùng & RAG (Open WebUI)](#6-triển-khai-giao-diện-người-dùng--rag-open-webui)
-7. [Cấu Hình Mạng, Nginx Reverse Proxy & An Ninh Bảo Mật](#7-cấu-hình-mạng-nginx-reverse-proxy--an-ninh-bảo-mật)
-8. [Tối Ưu Hàng Đợi, Giám Sát Tài Nguyên & Xử Lý Sự Cố](#8-tối-ưu-hàng-đợi-giám-sát-tài-nguyên--xử-lý-sự-cố)
-9. [Phụ Lục: Mẫu Docker-Compose & Tra Cứu Nhanh](#9-phụ-lục-mẫu-docker-compose--tra-cứu-nhanh)
+<a id="1-cach-su-dung-va-nguon-su-that"></a>
+## 1. Cách sử dụng và nguồn sự thật
+
+Thứ tự ưu tiên khi thông tin mâu thuẫn:
+
+1. Runtime đã kiểm tra: image digest, model root, log khởi động và kết quả test.
+2. `docker-compose.yml`: dịch vụ, port, volume và tham số dự kiến.
+3. `.env` hoặc secret manager: giá trị bí mật; không được commit.
+4. Tài liệu này: kiến trúc, quy trình, SLO, tiêu chí chấp nhận và roadmap.
+5. Tài liệu nhà cung cấp đúng với phiên bản đã pin.
+
+Mỗi thay đổi về image, model, context length, quantization, port, storage hoặc auth
+phải cập nhật bảng hiện trạng, chạy lại smoke test và benchmark liên quan. Không
+gọi cấu hình là "production" nếu checklist mục 12 chưa có bằng chứng.
+
+### Quy ước trạng thái
+
+| Trạng thái | Ý nghĩa |
+| --- | --- |
+| `target` | Mục tiêu kỹ thuật, chưa phải kết quả đo |
+| `configured` | Đã khai báo trong cấu hình, chưa chắc runtime hoạt động |
+| `verified` | Đã kiểm tra bằng lệnh/test và lưu bằng chứng |
+| `blocked` | Chưa đủ điều kiện đưa vào production |
 
 ---
 
-## 1. TỔNG QUAN & CẤU HÌNH PHẦN CỨNG CHUYÊN SÂU
+<a id="2-danh-gia-hien-trang"></a>
+## 2. Đánh giá hiện trạng
 
-Tài liệu này hướng dẫn chi tiết quy trình triển khai và vận hành hệ thống AI Local phục vụ nội bộ doanh nghiệp trên máy chủ chuyên dụng **MSI EdgeXpert-55SVN**. Hệ thống kết hợp giữa nền tảng phần cứng kiến trúc **NVIDIA Grace Blackwell (GB10 Superchip)** và giải pháp phần mềm mã nguồn mở chuẩn Doanh nghiệp (vLLM, Open WebUI, Qdrant, Redis, Langfuse, Docker, Nginx).
+Kiểm tra ngày 2026-09-03 cho thấy sáu container đang chạy: vLLM, Open WebUI,
+Qdrant, Redis, Langfuse v2 và PostgreSQL của Langfuse. Endpoint health của vLLM,
+Open WebUI, Qdrant và Langfuse đều phản hồi. Đây chỉ là bằng chứng dịch vụ đang
+hoạt động, không phải bằng chứng về bảo mật, RAG, tracing, tải hay phục hồi.
 
-### 1.1. Bảng Thông Số Kỹ Thuật Chi Tiết
+`docker compose config --quiet` pass, nhưng cảnh báo top-level
+`version: '3.8'` đã obsolete.
 
-| Thành phần | Thông số chi tiết | Đánh giá & Vai trò trong hệ thống Local AI |
-| :--- | :--- | :--- |
-| **Model Máy chủ** | MSI EdgeXpert-55SVN (`9S6-C9311-55S`) | Thiết kế Mini Server công nghiệp (150mm x 150mm x 50.5mm), hoạt động bền bỉ 24/7. |
-| **Vi xử lý (CPU)** | Arm 20-core CPU | Đảm nhiệm tác vụ hệ điều hành, điều phối container, xử lý logic RAG và dữ liệu đầu vào. |
-| **Hệ thống AI (GPU)** | NVIDIA GB10 Grace Blackwell Superchip | Kiến trúc Blackwell thế hệ mới, đạt **1 PFLOPS hiệu năng FP4 AI**, tối ưu cho LLM thế hệ mới. |
-| **Bộ nhớ (RAM/VRAM)** | **128GB Coherent Unified System Memory** | **Điểm mấu chốt:** Bộ nhớ đồng nhất (Unified Memory) cho phép CPU và GPU chia sẻ toàn bộ 128GB. Giúp load các mô hình AI lớn đến **70B - 72B Parameters** trực tiếp mà không bị giới hạn PCIe bus. |
-| **Ổ cứng lưu trữ** | **4TB NVMe M.2 SSD** (Self-Encrypting - SED) | Tốc độ đọc/ghi dữ liệu siêu nhanh, hỗ trợ mã hóa phần cứng bảo vệ trọng số AI Model và CSDL nội bộ. |
-| **Card mạng (NIC)** | **NVIDIA ConnectX-7 SmartNIC** + Wi-Fi/BT | Chuẩn kết nối băng thông siêu cao, sẵn sàng cho hạ tầng mạng doanh nghiệp / RDMA clustering. |
-| **Cổng giao tiếp** | 4x USB-C, 1x HDMI | Hỗ trợ kết nối thiết bị ngoại vi và hiển thị màn hình giám sát trực tiếp. |
-| **Hệ điều hành & License** | **NVIDIA DGX OS** (Nền Ubuntu Server 22.04 LTS ARM64) + 90 ngày NVIDIA AI Enterprise | Tích hợp sẵn bộ driver NVIDIA CUDA, NeMo & Container Toolkit chuẩn hóa cho Grace Blackwell. |
+### 2.1. Các trở ngại đối với production
+
+| ID | Mức | Bằng chứng hiện tại | Việc cần làm | Điều kiện đóng |
+| --- | --- | --- | --- | --- |
+| SEC-01 | P0 | Secret đang được hard-code trong Compose | Thay tất cả secret, chuyển sang secret store hoặc `.env` với quyền `0600` | Không còn secret trong Git; secret cũ đã được rotate |
+| SEC-02 | P0 | Open WebUI publish `3000:8080` trên IPv4 và IPv6 | Chỉ bind `127.0.0.1:3000:8080` sau Nginx/VPN | Quét port từ máy trong LAN không truy cập được backend |
+| REL-01 | P0 | Image dùng `latest`, `main`; Langfuse v2.95.11 | Pin phiên bản/digest; lập kế hoạch migrate Langfuse theo hướng dẫn chính thức | Upgrade và rollback pass trên staging |
+| AI-01 | P0 | Hai alias `qwen2.5-14b` và `qwen2.5-72b` cùng trỏ tới model 14B | Chỉ công bố tên model đúng với model root | `/v1/models` không còn alias sai |
+| OBS-01 | P0 | Có Langfuse nhưng không có instrumentation/credential kết nối | Thêm SDK, OpenTelemetry hoặc proxy được hỗ trợ và test end-to-end | Một request test có trace, user/session và latency đúng |
+| GOV-01 | P0 | RBAC phòng ban mới chỉ là tuyên bố trong tài liệu | Cấu hình group/knowledge ACL và test chéo tenant | Bộ test không rò rỉ tài liệu đạt 100% |
+| DR-01 | P0 | Chưa có backup, restore test, RPO/RTO | Định nghĩa và thử phục hồi từng kho dữ liệu | Restore trên môi trường sạch đạt RPO/RTO |
+| REL-02 | P1 | Phần lớn service không có healthcheck; `depends_on` chỉ đảm bảo thứ tự start | Thêm readiness/healthcheck và dependency `service_healthy` | Restart toàn stack từ cold state pass |
+| OPS-01 | P1 | Chưa pin retention/log rotation/alert | Đặt rotation, dashboard và alert có owner | Test alert và dung lượng log pass |
+| NET-01 | P1 | Nginx/TLS/rate limit được mô tả nhưng không có file trong repo | Version-control cấu hình gateway và quy trình certificate | `nginx -t`, TLS scan và load test pass |
+| DATA-01 | P1 | Qdrant không có API key; Redis dùng một mật khẩu chung | Auth service-to-service, ACL và network nội bộ | Truy cập không có credential bị từ chối |
+| HOST-01 | P1 | Redis cảnh báo `vm.overcommit_memory` chưa bật | Xác minh trên host, bật `vm.overcommit_memory=1` và lưu cấu hình sysctl sau kiểm thử | Cảnh báo biến mất sau reboot; persistence test pass |
+| AI-02 | P1 | vLLM cảnh báo FP8 KV scale đang dùng giá trị mặc định `1.0`, chưa được hiệu chuẩn | Hiệu chuẩn scale theo recipe hoặc tắt FP8 KV cache; chạy A/B quality | Quality gate và load test pass với cấu hình đã pin |
+| REL-03 | P1 | `--model` sắp deprecated, revision vẫn là `main` và truy cập Hugging Face gặp lỗi DNS | Cập nhật tham số theo phiên bản vLLM đã pin, pin model revision và ổn định đường tải model | Cold start lặp lại được, không phụ thuộc revision moving và không còn lỗi DNS |
+| RAG-01 | P1 | Compose không đặt `RAG_EMBEDDING_MODEL`; tuyên bố dùng `BAAI/bge-m3` chưa có bằng chứng | Lưu bằng chứng về persisted config, model và dimension thực; backup rồi chạy reindex test | Model/dimension được ghi nhận và upload-reindex-retrieve pass |
+| PERF-01 | P2 | Runtime cảnh báo `OMP_NUM_THREADS=8` có thể gây contention | Benchmark các mức thread với workload chuẩn và pin giá trị phù hợp | Giá trị thread đã pin; latency/throughput đạt SLO mà không có contention đáng kể |
+
+### 2.2. Các nhận định cũ đã được sửa
+
+- `--max-model-len` chỉ giới hạn context; nó không tự cắt lịch sử. Request vượt
+  giới hạn có thể bị từ chối. Open WebUI/middleware phải budget prompt, RAG và
+  output.
+- `--max-num-seqs 64` là giới hạn scheduler, không bảo đảm 64 người dùng với
+  context 16K và không bảo đảm "zero OOM".
+- Prefix caching tái sử dụng KV của prefix token trùng khớp; nó không phải
+  semantic response cache và không trả lại câu trả lời đã cache.
+- `REDIS_URL` của Open WebUI phục vụ application state/session và phối hợp
+  WebSocket. Repo không có Celery worker hay semantic cache.
+- Việc cài Langfuse cùng Compose không tự động tạo trace. Phải có instrumentation và
+  một bài test xác nhận.
+- `ipc: host` chia sẻ IPC namespace; nó không tạo "zero-bus latency".
+- FP8 và AWQ INT4 không có cùng kích thước. Không ước lượng RAM từ số parameter;
+  dùng kích thước checkpoint và profile runtime thực.
+- Redis dùng cho session/token revocation phải ưu tiên `noeviction`. Nếu cần
+  response cache, tách instance và eviction policy riêng.
+- Không dùng `docker system prune -f` như tác vụ định kỳ. Lệnh này có thể xóa
+  artifact cần cho rollback và không mặc định xóa volume.
+- "Fail open" không phù hợp với dependency tham gia auth/authorization. Các luồng
+  nhạy cảm phải fail closed.
 
 ---
 
-## 2. KIẾN TRÚC HỆ THỐNG & LUỒNG DỮ LIỆU
+<a id="3-kien-truc-he-thong"></a>
+## 3. Kiến trúc hệ thống
 
-Hệ thống được thiết kế theo mô hình kiến trúc Enterprise AI Agent 5 tầng độc lập, khép kín hoàn toàn trong mạng nội bộ Doanh nghiệp, kết hợp giữa AI Core Engine và Hệ sinh thái Hạ tầng Production (Qdrant, Langfuse, Celery + Redis, WebSocket):
-
-### 2.1. Sơ Đồ Khối Trực Quan (Visual Architecture Diagram)
-
-```text
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ 1. TẦNG NGƯỜI DÙNG & GIAO TIẾP (CLIENTS & REAL-TIME INTERACTION)                       │
-│    [🖥️ Web App / Mobile]      [⚙️ ERP / CRM API]      [🔌 WebSocket Client]              │
-└───────────────────────────────────┬────────────────────────────────────────────────────┘
-                                    │ (Kết nối HTTP / HTTPS & Real-time WebSockets qua LAN)
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ 2. TẦNG MẠNG & CỔNG GIAO TIẾP (GATEWAY & AN NINH)                                      │
-│    [🔒 UFW Firewall]  ──►  [🌐 Nginx Reverse Proxy (SSL, WebSocket Upgrades & Buffering Off)]│
-└───────────────────────────────────┬────────────────────────────────────────────────────┘
-                                    │ (Định tuyến API & Stream Token real-time)
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ 3. TẦNG ĐIỀU PHỐI AGENT & XỬ LÝ BẤT ĐỒNG BỘ (AGENT ECOSYSTEM & TASK QUEUE)             │
-│    [💬 Open WebUI / Agent API] ◄──► [⚡ Celery Workers + Redis (Queue, Cache, Session)] │
-└─────────┬───────────────────────────────┬───────────────────────────────┬──────────────┘
-          │                               │                               │
-          ▼                               ▼                               ▼
-┌───────────────────┐           ┌───────────────────┐           ┌───────────────────┐
-│ 4A. VECTOR SEARCH │           │ 4B. OBSERVABILITY │           │ 4C. AI INFERENCE  │
-│ [🔍 Qdrant DB]    │           │ [📊 Langfuse]     │           │ [🧠 vLLM Engine]  │
-│ (Rust Vector DB,  │           │ (Trace LLM Calls, │           │ (LLM 72B AWQ/FP8  │
-│  RAG & Memory)    │           │  Latency & Cost)  │           │  PagedAttention)  │
-└───────────────────┘           └───────────────────┘           └─────────┬─────────┘
-                                                                          │
-                                                                          ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ 5. TẦNG PHẦN CỨNG & BỘ NHỚ ĐỒNG NHẤT (HARDWARE LAYER)                                  │
-│    [🚀 Grace Blackwell GPU (1 PFLOPS)]  ◄───►  [💾 128GB Unified Memory / 4TB NVMe SSD]  │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
-
-### 2.2. Sơ Đồ Luồng Dữ Liệu Xử Lý (Enterprise Agent Data Flow)
+### 3.1. Kiến trúc mục tiêu
 
 ```mermaid
 flowchart TD
-    A["💻 Người dùng / ERP Client"] -->|1. Gửi Yêu cầu / Stream WS| B["🌐 Nginx Proxy (WebSocket/HTTPS)"]
-    B -->|2. Forward Request| C["💬 Agent Service / Open WebUI"]
-    
-    subgraph Async_Queue["⚡ Task Queuing & Caching Layer"]
-        C -->|3a. Check Cache / Queue Task| D["🔴 Redis Cache & Message Broker"]
-        D -->|3b. Pick Task| E["⚙️ Celery Worker (Async Agent Execution)"]
-    end
-    
-    subgraph Knowledge_Retrieval["🔍 Vector Search & RAG"]
-        E -->|4. Query High-Speed HNSW| F["🦀 Qdrant Vector Database"]
-        F -->|5. Trả về Context/Memory| E
-    end
-
-    subgraph LLM_Inference["🧠 Hardware Inference Engine"]
-        E -->|6. Gửi Prompt + Context| G["🧠 vLLM High-Throughput Engine"]
-        G -->|7. Phục vụ trên GPU 1 PFLOPS| H["⚡ Grace Blackwell (128GB RAM)"]
-        H -->|8. Stream Tokens trả về| E
-    end
-
-    subgraph Observability_Tracing["📊 LLMOps & Monitoring"]
-        E -.->|9. Log Trace, Tokens, Latency| I["📊 Langfuse Server"]
-    end
-
-    E -->|10. Stream Tokens qua WebSocket| B
-    B -->|11. Real-time Output trên màn hình| A
+    U["Người dùng / API client"] -->|HTTPS| G["Nginx / Gateway"]
+    G -->|Loopback| W["Open WebUI"]
+    W -->|OpenAI-compatible API| V["vLLM"]
+    W -->|RAG| Q["Qdrant"]
+    W -->|State / token revocation / WebSocket| R["Redis"]
+    W -.->|SDK / OTel / supported proxy| O["Langfuse"]
+    O --> P["PostgreSQL"]
+    O --> C["ClickHouse"]
+    O --> B["Blob storage"]
+    O --> LR["Redis / queue"]
 ```
+
+### 3.2. Ranh giới hiện tại
+
+| Thành phần | Hiện tại | Mục tiêu |
+| --- | --- | --- |
+| Gateway | Chưa có cấu hình version-control trong repo | Nginx/Caddy có TLS, streaming, security headers và rate limit |
+| Open WebUI | Một replica, SQLite volume, port 3000 public | Pin version, loopback, HTTPS, auth hardening; Postgres nếu cần scale |
+| vLLM | Qwen2.5-14B, FP8 runtime/KV, context 16K, 64 seq | Model/profile theo NVIDIA DGX Spark recipe và benchmark nội bộ |
+| Qdrant | Community integration, loopback, chưa có API key | Private network, API key/TLS khi qua network, snapshot và upgrade test |
+| Redis | Open WebUI state, AOF, password chung | `noeviction`, ACL, memory alert; tách khỏi cache/queue khác |
+| Langfuse | v2 + PostgreSQL, chưa nối trace | Migrate theo release được hỗ trợ; đầy đủ web/worker/data stores |
+| Monitoring | Lệnh thủ công | Metrics, dashboard, alert và retention |
+
+Không thêm Celery, LiteLLM, Prometheus, Grafana hoặc một model thứ hai vào sơ đồ
+"hiện tại" cho đến khi service đó tồn tại trong cấu hình và có smoke test.
 
 ---
 
-## 3. CHUẨN BỊ MÔI TRƯỜNG NỀN TẢNG (UBUNTU ARM64)
+<a id="4-yeu-cau-va-slo"></a>
+## 4. Yêu cầu và SLO
 
-### 3.1. Cập Nhật Hệ Thống & Cài Đặt Package Cơ Bản
-Truy cập qua SSH vào server DGX OS / Ubuntu ARM64 và thực hiện cập nhật toàn bộ package:
+Mỗi SLO phải kèm profile workload, percentile và cửa sổ đo. Các giá trị dưới đây
+là **target tạm thời** kế thừa từ tài liệu cũ, chưa phải kết quả benchmark.
+
+### 4.1. Profile đo chuẩn
+
+| Thuộc tính | Giá trị khởi đầu |
+| --- | --- |
+| Prompt | 2,048 input tokens |
+| Output | 256 tokens |
+| Streaming | Bật |
+| Model | Dùng chính xác `root`, revision và quantization của runtime |
+| Mẫu đo | Cold start, warm không cache, warm có prefix hit |
+| Tải | Ramp 1, 4, 8, 16 request/s; sau đó thử 8, 16, 32, 64 client |
+| Báo cáo | p50, p95, p99; success rate; queue time; throughput; peak memory |
+
+### 4.2. SLO tạm thời
+
+| Chỉ số | Target | Ghi chú |
+| --- | --- | --- |
+| Availability | 99.9%/tháng | Một node không thể chịu lỗi phần cứng; đây là service target, không phải HA guarantee |
+| TTFT p95 | < 1.5 s | Chỉ đánh giá với profile và tải đã công bố |
+| ITL p95 | < 50 ms/token | Tách khỏi TTFT và queue time |
+| Request thành công | >= 99% | Loại request bị validation từ chối; OOM và 5xx tính là lỗi |
+| Cross-tenant RAG leak | 0 case | Bộ dữ liệu adversarial bắt buộc |
+| RPO/RTO | TBD bởi owner | Phải quyết định trước production |
+
+Concurrency không phải một con số cấu hình cố định. Mức được phê duyệt là mức cao
+nhất vẫn đồng thời đạt TTFT, ITL, error rate và headroom bộ nhớ.
+
+### 4.3. Business rules
+
+- Admin và user không đủ để bảo đảm cách ly dữ liệu. Mỗi knowledge base phải có
+  owner, group được đọc/ghi, retention và kiểm thử truy cập bị từ chối.
+- Prompt, RAG context và output phải có token budget riêng. Nếu vượt ngân sách,
+  ứng dụng phải summarize/truncate có chủ đích và báo lỗi rõ ràng.
+- Tool/agent phải dùng allowlist, least privilege, timeout, output validation và
+  audit. Không đưa secret vào prompt.
+- Tài liệu truy xuất là dữ liệu không tin cậy. Không coi "chặn prompt injection"
+  là một bộ lọc tuyệt đối; cần phân tách instruction/data và kiểm soát tool.
+- Rate limit tại gateway chỉ là lớp bảo vệ. Công bằng theo user/tenant cần được
+  thực thi tại lớp đã xác thực.
+
+---
+
+<a id="5-nen-tang-va-cau-hinh-chuan"></a>
+## 5. Nền tảng và cấu hình chuẩn
+
+### 5.1. Phần cứng đã xác minh
+
+| Hạng mục | Giá trị |
+| --- | --- |
+| Nền tảng | MSI GB10 dựa trên NVIDIA DGX Spark |
+| CPU/GPU | Arm 20-core + NVIDIA GB10 Grace Blackwell |
+| Bộ nhớ | 128 GB coherent unified memory |
+| Kiến trúc OS | `aarch64` |
+| OS trên máy | Ubuntu 24.04.4 LTS |
+| GPU monitoring | `nvidia-smi` nhận GPU, nhưng `memory.total` trả `N/A` trên iGPU này |
+
+DGX OS đã cài sẵn Docker và NVIDIA Container Toolkit. Chỉ cài lại theo hướng dẫn
+của NVIDIA khi preflight thất bại; không chạy một chuỗi cài Docker chung chung trên
+máy đang vận hành.
+
+### 5.2. Preflight
 
 ```bash
-# Cập nhật danh sách gói tin và nâng cấp hệ thống
-sudo apt update && sudo apt upgrade -y
-
-# Cài đặt các công cụ bổ trợ hệ thống cần thiết
-sudo apt install -y curl wget git build-essential htop nvtop net-tools ufw ca-certificates gnupg lsbrelease
-```
-
-### 3.2. Cấu Hình Tối Ưu Kernel Cho Kiến Trúc Grace Blackwell 128GB RAM
-Bổ sung các tham số tối ưu cho bộ nhớ và tiến trình xử lý nặng:
-
-```bash
-# Mở file sysctl.conf
-sudo nano /etc/sysctl.d/99-ai-performance.conf
-```
-
-Chèn nội dung cấu hình:
-```ini
-# Tăng giới hạn số lượng tiến trình và kết nối mạng
-fs.file-max = 2097152
-vm.max_map_count = 1048576
-net.core.somaxconn = 4096
-
-# Tối ưu hóa việc giải phóng RAM (Swapiness thấp để ưu tiên RAM/Unified Memory)
-vm.swappiness = 10
-```
-
-Áp dụng cấu hình ngay lập tức:
-```bash
-sudo sysctl --system
-```
-
-### 3.3. Cài Đặt Docker Engine & NVIDIA Container Toolkit (ARM64)
-
-Máy chủ MSI EdgeXpert chạy kiến trúc **ARM64 (`aarch64`)**. Tiến hành cài đặt Docker chuẩn ARM64:
-
-```bash
-# Khởi tạo GPG Key và Repository cho Docker
-sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
-
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-# Cài đặt Docker
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-# Phân quyền cho User hiện tại chạy Docker không cần sudo
-sudo usermod -aG docker $USER
-sudo systemctl enable --now docker
-```
-
-Kiểm tra NVIDIA Driver & CUDA Container Toolkit:
-```bash
-# Kiểm tra nhận diện GPU Grace Blackwell
+uname -m
+cat /etc/os-release
 nvidia-smi
-
-# Cấu hình NVIDIA Container Runtime cho Docker
-sudo nvidia-ctk runtime configure --runtime=docker
-sudo systemctl restart docker
+docker version
+docker compose version
+docker info
+df -h
+free -h
 ```
+
+Kết quả tối thiểu: `aarch64`, GPU GB10 được nhận, Docker daemon hoạt động, còn
+đủ dung lượng cho image/model/backup và không có lỗi runtime NVIDIA.
+
+### 5.3. Profile vLLM
+
+Không tồn tại một cấu hình "tối ưu tuyệt đối". Bắt đầu bảo thủ và tăng dần sau
+benchmark:
+
+| Tham số | Baseline để thử | Điều kiện thay đổi |
+| --- | --- | --- |
+| Model/image | Recipe DGX Spark đã được NVIDIA/vLLM test | Pin tag/digest và model revision |
+| `gpu-memory-utilization` | 0.70 | Tăng từng bước nếu có headroom; unified memory dễ OOM khi đặt quá cao |
+| `max-model-len` | 16,384 | Chỉ tăng khi workload cần và long-context test pass |
+| `max-num-seqs` | 8 hoặc 16 | Tăng lên 32/64 nếu SLO và memory headroom pass |
+| Weight quantization | Dùng format của checkpoint/recipe | Không ép `--quantization fp8` nếu model/image không hỗ trợ |
+| `kv-cache-dtype fp8` | Tắt trong baseline chất lượng | Bật sau A/B quality và load test; calibrate scale nếu recipe yêu cầu |
+| Prefix caching | Bật cho prefix dùng chung đã kiểm soát | Cách ly/salt theo trust group; đánh giá timing side-channel |
+| Tool parser | Khớp model/chat template | Qwen2.5 có thể dùng Hermes với phiên bản vLLM hỗ trợ |
+| Speculative decoding | Tắt | Chỉ bật nếu A/B cho thấy workload thực được cải thiện mà không giảm throughput |
+
+Biến `VLLM_ATTENTION_BACKEND=FLASH_ATTN` trong runtime hiện tại bị vLLM 0.28.0
+báo không nhận diện; engine đang tự chọn backend. Xóa biến hoặc thay theo tài liệu
+của image đã pin sau khi xác minh log.
+
+Mỗi model root chỉ nên có một served name phản ánh đúng model. Không đặt alias 72B cho
+checkpoint 14B.
+
+### 5.4. Yêu cầu tối thiểu cho Compose
+
+- Bỏ top-level `version` obsolete.
+- Pin image bằng version, tốt hơn là digest sau khi staging pass.
+- Đọc secret qua secret store/`.env`; `.gitignore` không mã hóa secret và
+  không xử lý secret từng commit.
+- Chỉ expose gateway. Backend dùng Docker internal network hoặc loopback nếu host
+  cần truy cập.
+- Thêm healthcheck, `depends_on.condition: service_healthy`, log rotation,
+  resource reservation/limit phù hợp và shutdown grace period.
+- Tách network frontend/backend/data. Đặt `internal: true` cho data network nếu
+  không cần egress.
+- Ghi model revision, image digest và tham số runtime vào artifact của mỗi lần
+  benchmark.
+
+Danh sách secret tối thiểu cần quản lý gồm `WEBUI_SECRET_KEY`,
+`REDIS_PASSWORD`, `QDRANT_API_KEY`, `POSTGRES_PASSWORD`,
+`NEXTAUTH_SECRET`, `SALT`, `ENCRYPTION_KEY` và các key Langfuse. Tên biến
+chỉ có tác dụng sau khi Compose đã được sửa để tham chiếu chúng.
+
+### 5.5. Langfuse
+
+Langfuse v2 đã hết cập nhật bảo mật. Không nâng cấp bằng cách chỉ đổi image tag.
+Quy trình mục tiêu:
+
+1. Backup và test restore PostgreSQL hiện tại.
+2. Lập staging và theo đúng migration guide v2 -> v3.
+3. Bổ sung worker, ClickHouse, Redis và blob storage theo official Compose.
+4. Xác minh ingestion/read path, sau đó theo migration guide v3 -> v4 nếu chọn v4.
+5. Pin release, test rollback, rồi mới chuyển production.
+
+Nếu chưa migrate, giới hạn Langfuse v2 trên loopback/VPN và coi observability là
+`blocked`, không phải security control.
 
 ---
 
-## 4. TRIỂN KHAI AI CORE ENGINE (vLLM HIGH-THROUGHPUT ENGINE)
+<a id="6-trien-khai-va-xac-minh"></a>
+## 6. Triển khai và xác minh
 
-Để phục vụ môi trường Production đa người dùng với hiệu năng cao nhất, hệ thống sử dụng **vLLM** — AI Inference Engine chuẩn Enterprise tích hợp công nghệ **PagedAttention** và **Continuous Batching**, giúp tận dụng tối đa 1 PFLOPS hiệu năng GPU Grace Blackwell.
+### 6.1. Trước khi thay đổi
 
-### 4.1. Cài Đặt vLLM Engine Native / Container trên Linux ARM64
+1. Ghi lại `docker compose images`, image digest, model root/revision và
+   `docker compose config` đã redact.
+2. Backup các kho dữ liệu bị ảnh hưởng và xác minh đọc được backup.
+3. Chạy thay đổi trên staging hoặc một Compose project/port riêng.
+4. Định nghĩa lệnh rollback và ngưỡng abort trước khi bắt đầu.
 
-Triển khai vLLM Server thông qua Python venv hoặc Docker Container chuyên dụng cho NVIDIA Grace Blackwell:
-
-```bash
-# 1. Cài đặt HuggingFace CLI để tải model weights
-pip install -U "huggingface_hub[cli]" vllm
-
-# 2. Tạo thư mục chứa Model Weights từ HuggingFace trên SSD 4TB
-sudo mkdir -p /var/lib/vllm/models
-sudo chown -R $USER:$USER /var/lib/vllm
-```
-
-### 4.2. Cấu Hình & Khởi Chạy vLLM OpenAI API Server
-
-Khởi chạy vLLM API Server tương thích với chuẩn OpenAI API (`http://0.0.0.0:8000/v1`):
+### 6.2. Kiểm tra cấu hình
 
 ```bash
-# Lệnh khởi chạy vLLM tối ưu cho Qwen2.5 72B AWQ từ local weights
-python3 -m vllm.entrypoints.openai.api_server \
-    --model /var/lib/vllm/models/Qwen2.5-72B-Instruct-AWQ \
-    --quantization awq \
-    --host 0.0.0.0 \
-    --port 8000 \
-    --tensor-parallel-size 1 \
-    --gpu-memory-utilization 0.85 \
-    --max-model-len 32768 \
-    --max-num-seqs 32 \
-    --served-model-name qwen2.5-72b
-```
-
-> **📌 Phân Tích Cấu Hình Tối Ưu Cho Grace Blackwell 128GB RAM:**
-> * `--quantization awq`: Khai báo chính xác phương pháp định lượng AWQ (INT4) giúp tối ưu bộ nhớ VRAM/Unified Memory.
-> * `--gpu-memory-utilization 0.85`: Tối ưu dành 85% bộ nhớ Coherent Unified Memory cho VRAM/KV Cache của vLLM.
-> * `--max-model-len 32768`: Mở rộng cửa sổ ngữ cảnh (Context Window) 32K tokens cho RAG văn bản dài.
-> * `--max-num-seqs 32`: Giới hạn tối đa 32 câu thoại xử lý đồng thời trong 1 batch mà không làm bùng nổ latency hoặc ngắt kết nối client.
-> * `Continuous Batching & PagedAttention`: vLLM tự động gộp hàng chục câu hỏi từ các nhân viên khác nhau vào 1 batch duy nhất để xử lý đồng thời.
-
----
-
-## 5. QUẢN LÝ & TỐI ƯU MÔ HÌNH AI TRÊN 128GB UNIFIED MEMORY (vLLM & HUGGINGFACE)
-
-Khác với máy chủ thông thường bị giới hạn bởi VRAM GPU ngắn, **MSI EdgeXpert Grace Blackwell GB10 có 128GB Coherent Unified Memory**. Điều này cho phép vLLM nạp mượt mà mô hình 72B tham số và quản lý hàng nghìn KV Cache PagedAttention cùng lúc.
-
-### 5.1. Bảng Khuyến Nghị Lựa Chọn Mô Hình Chuẩn Enterprise (AWQ / FP8)
-
-| Tên Mô Hình (HuggingFace ID) | Định dạng Weights | Dung lượng RAM chiếm | Thế mạnh & Ứng dụng thực tế |
-| :--- | :--- | :--- | :--- |
-| **`Qwen/Qwen2.5-72B-Instruct-AWQ`** | AWQ (INT4) | ~42 GB | **Mô hình Doanh nghiệp Toàn diện (Chính):** Vua Tiếng Việt, RAG văn bản pháp lý, gọi tool agent. |
-| **`Qwen/Qwen2.5-32B-Instruct-AWQ`** | AWQ (INT4) | ~20 GB | **Siêu Tốc Độ (High-Speed):** Nhanh gấp 2.5 lần bản 72B, thích hợp làm Trợ lý Chat tức thì. |
-| **`deepseek-ai/DeepSeek-R1-Distill-Qwen-32B`** | FP8 / AWQ | ~22 GB | **Mô hình Suy luận (Reasoning):** Phân tích dữ liệu kỹ thuật, lập kế hoạch multi-step Agent. |
-| **`BAAI/bge-m3`** | FP32 / FP16 | ~1.2 GB | **Embedding Model:** Đa ngôn ngữ (Phục vụ tra cứu Vector RAG trên Qdrant). |
-
-### 5.2. Lệnh Tải Trọng Số Mô Hình Về SSD 4TB Local
-
-Tải trước các model trọng tâm từ HuggingFace để chạy offline hoàn toàn:
-
-```bash
-# 1. Tải mô hình Qwen2.5-72B AWQ (Tối ưu cho vLLM)
-huggingface-cli download Qwen/Qwen2.5-72B-Instruct-AWQ --local-dir /var/lib/vllm/models/Qwen2.5-72B-Instruct-AWQ
-
-# 2. Tải mô hình siêu tốc Qwen2.5-32B AWQ
-huggingface-cli download Qwen/Qwen2.5-32B-Instruct-AWQ --local-dir /var/lib/vllm/models/Qwen2.5-32B-Instruct-AWQ
-
-# 3. Tải mô hình suy luận DeepSeek-R1 32B
-huggingface-cli download deepseek-ai/DeepSeek-R1-Distill-Qwen-32B --local-dir /var/lib/vllm/models/DeepSeek-R1-32B
-```
-
----
-
-## 6. TRIỂN KHAI GIAO DIỆN NGƯỜI DÙNG & HỆ SINH THÁI PRODUCTION (FULL ENTERPRISE STACK)
-
-Để hệ thống vận hành chuẩn Production, ngoài giao diện Open WebUI, cần triển khai bộ dịch vụ bổ trợ bao gồm: **Qdrant** (Vector Search hiệu năng cao), **Redis** (Celery Broker & Caching), và **Langfuse** (Tracing & Observability).
-
-### 6.1. Cấu Hình Docker Compose Cho Enterprise AI Stack
-
-Tạo thư mục làm việc cho dịch vụ:
-```bash
-mkdir -p ~/ai-stack && cd ~/ai-stack
-nano docker-compose.yml
-```
-
-Dán nội dung `docker-compose.yml` tối chuẩn bên dưới:
-
-```yaml
-version: '3.8'
-
-services:
-  # 1. vLLM Inference Engine (High-Throughput OpenAI API Compatible Engine)
-  vllm:
-    image: vllm/vllm-openai:latest
-    container_name: vllm-engine
-    restart: always
-    ipc: host
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-    ports:
-      - "127.0.0.1:8000:8000"
-    volumes:
-      - /var/lib/vllm/models:/root/.cache/huggingface
-    environment:
-      - HF_HUB_OFFLINE=1
-    command: >
-      --model mesolitica/Qwen2.5-72B-Instruct-FP8
-      --host 0.0.0.0
-      --port 8000
-      --gpu-memory-utilization 0.85
-      --max-model-len 16384
-      --max-num-seqs 16
-      --enable-prefix-caching
-      --served-model-name qwen2.5-72b
-      --enable-auto-tool-choice
-      --tool-call-parser hermes
-
-  # 2. Giao diện Người dùng & Quản lý RAG (Open WebUI)
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:main
-    container_name: open-webui
-    restart: always
-    ports:
-      - "127.0.0.1:3000:8080"
-    environment:
-      - OPENAI_API_BASE_URLS=http://vllm:8000/v1
-      - OPENAI_API_KEY=EMPTY
-      - WEBUI_SECRET_KEY=EnterpriseSuperSecretKey2026_GB10
-      - ENABLE_RAG_WEB_SEARCH=False
-      - VECTOR_DB=qdrant
-      - QDRANT_URI=http://qdrant:6333
-      - REDIS_URL=redis://:EnterpriseRedisSecret2026@redis:6379/0
-      - ENABLE_SIGNUP=True
-      - DEFAULT_USER_ROLE=user
-    volumes:
-      - open-webui-data:/app/backend/data
-    depends_on:
-      - vllm
-      - qdrant
-      - redis
-
-  # 3. Qdrant Vector Database (Vector Search hiệu năng cao bằng Rust)
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: qdrant-vector-db
-    restart: always
-    ports:
-      - "127.0.0.1:6333:6333"
-      - "127.0.0.1:6334:6334"
-    volumes:
-      - qdrant-data:/qdrant/storage
-
-  # 4. Redis Server (Message Broker cho Celery & Semantic LLM Cache)
-  redis:
-    image: redis:7-alpine
-    container_name: redis-broker-cache
-    restart: always
-    command: redis-server --appendonly yes --requirepass EnterpriseRedisSecret2026
-    ports:
-      - "127.0.0.1:6379:6379"
-    volumes:
-      - redis-data:/data
-
-  # 5. Langfuse Postgres Database (Lưu dữ liệu Tracing LLM)
-  langfuse-db:
-    image: postgres:15-alpine
-    container_name: langfuse-db
-    restart: always
-    environment:
-      - POSTGRES_USER=langfuse
-      - POSTGRES_PASSWORD=LangfuseSecretPassword2026
-      - POSTGRES_DB=langfuse
-    volumes:
-      - langfuse-db-data:/var/lib/postgresql/data
-
-  # 6. Langfuse Web Server (Giao diện Observability & Trace LLM Agent)
-  langfuse-web:
-    image: ghcr.io/langfuse/langfuse:2
-    container_name: langfuse-server
-    restart: always
-    ports:
-      - "127.0.0.1:3001:3000"
-    environment:
-      - DATABASE_URL=postgresql://langfuse:LangfuseSecretPassword2026@langfuse-db:5432/langfuse
-      - NEXTAUTH_SECRET=EnterpriseNextAuthSecretKey2026
-      - SALT=EnterpriseLangfuseSaltKey2026
-      - ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
-      - NEXTAUTH_URL=http://localhost:3001
-      - TELEMETRY_ENABLED=false
-    depends_on:
-      - langfuse-db
-
-volumes:
-  open-webui-data:
-    driver: local
-  qdrant-data:
-    driver: local
-  redis-data:
-    driver: local
-  langfuse-db-data:
-    driver: local
-```
-
-Khởi chạy toàn bộ Container Stack:
-```bash
+docker compose config --quiet
+docker compose pull
 docker compose up -d
+docker compose ps
 ```
 
-Kiểm tra trạng thái container:
+Không `pull` tag moving trong production nếu chưa ghi lại digest và chưa có
+backup. `depends_on` chỉ bảo đảm thứ tự khởi động nếu không có healthcheck.
+
+### 6.3. Smoke test
+
+```bash
+curl -fsS http://127.0.0.1:8000/health
+curl -fsS http://127.0.0.1:8000/v1/models
+curl -fsS http://127.0.0.1:3000/health
+curl -fsS http://127.0.0.1:6333/healthz
+docker compose ps
+```
+
+Sau health check, phải test thêm:
+
+1. Một request chat streaming và một request chat non-streaming.
+2. Context sát giới hạn và context vượt giới hạn có lỗi dự kiến.
+3. Upload, index, retrieve và xóa một tài liệu RAG test.
+4. User không có quyền không thể tìm thấy nội dung của group khác.
+5. Một request có trace đầy đủ trong Langfuse.
+6. Restart từng dependency và toàn stack.
+
+### 6.4. Rollback
+
+- Rollback image/model/config theo digest/revision đã ghi, không theo tag moving.
+- Không hạ schema database nếu chưa có thủ tục được nhà cung cấp hỗ trợ.
+- Nếu migration data không backward-compatible, restore vào project/volume mới
+  và chuyển traffic sau khi smoke test.
+- Ghi thời gian, lý do, metric và kết quả vào change record.
+
+---
+
+<a id="7-bao-mat-va-quan-tri-du-lieu"></a>
+## 7. Bảo mật và quản trị dữ liệu
+
+### 7.1. Port và trust boundary
+
+| Port | Service | Chính sách |
+| --- | --- | --- |
+| 443 | Gateway | Mở cho LAN/VPN được phép; TLS bắt buộc |
+| 80 | Gateway | Chỉ redirect sang HTTPS nếu cần |
+| 22 | SSH | Chỉ admin subnet/VPN, key auth, không mở rộng toàn LAN |
+| 3000 | Open WebUI | Loopback để Nginx proxy; không public trực tiếp |
+| 8000 | vLLM | Internal/loopback; thêm API auth nếu có consumer khác |
+| 6333/6334 | Qdrant | Internal; API key và TLS nếu đi qua network |
+| 6379 | Redis | Internal; ACL/password; không public |
+| 3001 | Langfuse | Loopback/VPN/admin gateway |
+| 5432 và data ports | Databases | Internal only |
+
+Nginx cần truyền `Host`, `X-Forwarded-*`, WebSocket upgrade; tắt proxy
+buffering cho SSE; đặt timeout, upload limit, security headers và rate limit.
+`WEBUI_URL` và CORS phải trùng domain HTTPS. Chứng chỉ self-signed chỉ phù hợp
+với lab nếu CA/SAN chưa được quản lý trên client.
+
+### 7.2. Authentication và authorization
+
+- Tạo admin trong cửa sổ bootstrap, sau đó tắt public signup hoặc đặt user mới ở
+  trạng thái pending.
+- Bật password validation, secure cookie, token revocation và session timeout.
+- Dùng SSO/OIDC nếu doanh nghiệp có IdP; hạn chế domain và mapping group.
+- Kiểm thử authorization tại API và retrieval layer, không chỉ ẩn nút trên UI.
+- Qdrant collection/payload phải mang tenant/group identity và query filter bắt
+  buộc. Test deny-by-default.
+- Prefix/cache dùng chung giữa các tenant phải được isolate hoặc salt theo trust group.
+
+### 7.3. Secrets và dữ liệu
+
+- Secret từng xuất hiện trong file tracked phải được rotate, kể cả khi repo private.
+- `.env` đặt quyền `0600`, không backup chung với artifact công khai và không
+  đưa vào log/support bundle.
+- SED chỉ bảo vệ dữ liệu khi ở trên đĩa; phải xác minh nó đã được enable và quản lý recovery
+  key. Nó không thay thế TLS hay application-level access control.
+- Xác định retention cho chat, file gốc, vector, trace, log và backup; hỗ trợ xóa
+  theo user/tenant.
+- Không vận hành bằng đường dẫn
+  `/var/lib/docker/volumes/<ten-co-dinh>`. Lấy tên/mountpoint thực bằng
+  `docker volume ls` và `docker volume inspect <volume>`.
+
+---
+
+<a id="8-hieu-nang-va-capacity-planning"></a>
+## 8. Hiệu năng và capacity planning
+
+### 8.1. Nguyên tắc
+
+- Bộ nhớ 128 GB là unified memory của cả CPU và GPU, không phải 128 GB riêng cho
+  weights/KV cache. Phải chừa headroom cho OS, Open WebUI, database và spike.
+- Long context, concurrency và KV cache nhân với nhau. Tăng một tham số có thể làm
+  giảm giới hạn của tham số khác.
+- Continuous batching tăng throughput trong nhiều workload nhưng không có hệ số
+  cải thiện cố định.
+- FP8 KV cache và speculative decoding là tối ưu có trade-off; đánh giá chất
+  lượng và throughput, không chỉ tokens/s.
+- Prefix hit chỉ so sánh với warm no-cache và phải báo cáo hit rate.
+
+### 8.2. Benchmark có thể lặp lại
+
+Dùng CLI của chính phiên bản vLLM đã pin:
+
+```bash
+vllm bench serve \
+  --backend openai-chat \
+  --base-url http://127.0.0.1:8000 \
+  --endpoint /v1/chat/completions \
+  --model <served-model-name> \
+  --dataset-name random \
+  --random-input-len 2048 \
+  --random-output-len 256 \
+  --request-rate 4 \
+  --num-prompts 200 \
+  --save-result \
+  --save-detailed \
+  --result-dir benchmark-results
+```
+
+Chạy lại với request rate 1/4/8/16, context ngắn/dài và các cấp
+`max-num-seqs`. Mỗi kết quả phải kèm:
+
+- OS, driver, vLLM image digest và model revision.
+- Tất cả engine arguments và biến môi trường có ảnh hưởng.
+- Dataset/seed, input/output token distribution và warm-up.
+- TTFT/ITL/E2E/queue p50-p95-p99, request throughput, token throughput, error.
+- Peak system memory, GPU utilization, nhiệt độ, power, preemption và OOM.
+- Kết quả quality/eval khi thay quantization, KV dtype, parser hoặc speculative
+  decoding.
+
+Chọn profile có goodput cao nhất trong SLO, không chọn profile có throughput tổng
+cao nhất nếu tail latency hoặc error rate vượt ngưỡng.
+
+---
+
+<a id="9-quan-sat-sao-luu-va-van-hanh"></a>
+## 9. Quan sát, sao lưu và vận hành
+
+### 9.1. Tín hiệu tối thiểu
+
+| Lớp | Metric/log cần có |
+| --- | --- |
+| Gateway | RPS, active connections, 4xx/5xx, upstream latency, TLS expiry |
+| vLLM | TTFT, ITL, E2E, queue time, running/waiting requests, tokens/s, preemption |
+| Host | CPU, `free`/PSI memory, disk/inode, temperature, power, network |
+| Open WebUI | Login failure, 5xx, websocket error, upload/index latency |
+| Qdrant | Query latency/error, collection size, snapshot age |
+| Redis | Memory, rejected connection, persistence error, eviction (target 0) |
+| Langfuse/data stores | Ingestion lag/error, worker queue, DB health, storage growth |
+| Backup | Last successful backup, restore-test age, RPO breach |
+
+vLLM có Prometheus `/metrics`; Langfuse phục vụ trace/eval sau khi instrumentation
+hoạt động. `nvidia-smi` và `htop` là công cụ chẩn đoán, không thay thế monitoring
+và alert liên tục. Trên GB10 hiện tại, `nvidia-smi` không báo total GPU memory,
+vì vậy cần kết hợp DGX Dashboard, system/cgroup metrics và metric của engine.
+
+Lệnh kiểm tra nhanh:
+
 ```bash
 docker compose ps
-docker logs -f open-webui
+docker compose logs --tail 200 vllm
+docker compose logs --tail 200 open-webui
+docker compose logs --tail 200 qdrant
+docker compose logs --tail 200 redis
+docker compose logs --tail 200 langfuse-web
+curl -fsS http://127.0.0.1:8000/metrics
 ```
 
-### 6.2. Cấu Hình Tài Khoản Admin & Hệ Thống RAG Trực Quan
-1. Mở trình duyệt truy cập: `http://<IP-SERVER-UBUNTU>` (hoặc `http://ai.yourcompany.local` qua Nginx Reverse Proxy).
-2. **Tài khoản khởi tạo đầu tiên** sẽ tự động trở thành **Admin (Quản trị viên)**.
-3. Trong **Admin Panel -> Settings -> Connections**: Xác nhận kết nối OpenAI API Endpoint chỉ đến `http://vllm:8000/v1`, hệ thống hiển thị model `qwen2.5-72b`.
-4. **Tải tài liệu RAG:** Vào mục **Documents**, tải lên các file PDF/Word quy trình công ty. Khi nhân viên chat chỉ cần gõ `#Tên_Tài_Liệu`, Open WebUI sẽ tự động kích hoạt pipeline Vector Search với model `BAAI/bge-m3` để tra cứu ngữ cảnh chính xác.
+### 9.2. Backup và restore
 
-### 6.3. Quản Lý Vị Trí Lưu Trữ & Giới Hạn Tải Lên Dữ Liệu RAG
+| Dữ liệu | Phương pháp |
+| --- | --- |
+| Open WebUI | Backup database + uploads theo tài liệu phiên bản; đảm bảo snapshot nhất quán |
+| Qdrant | Dùng Qdrant snapshot API; không chỉ copy file khi đang ghi |
+| PostgreSQL | `pg_dump`/base backup phù hợp; kiểm tra restore |
+| Langfuse mới | Backup PostgreSQL, ClickHouse và blob storage theo cùng recovery point |
+| Redis | AOF/RDB nếu state cần phục hồi; không xem Redis là bản backup chính |
+| Model/config | Lưu manifest model revision, image digest và config; weights có thể tải lại nếu nguồn còn tồn tại |
 
-#### 1. Vị Trí Lưu Trữ Dữ Liệu RAG Trực Tiếp Trên Server
-Khi người dùng tải tài liệu (PDF, DOCX, Excel...) lên Open WebUI, dữ liệu được lưu trữ hoàn toàn nội bộ trên máy chủ Ubuntu tại các đường dẫn:
-* **File gốc & Vector Database (Qdrant DB):**
-  Lưu trữ trong Docker Volume `qdrant-data` và `open-webui-data` trên Host Ubuntu:
-  * Thư mục file gốc WebUI: `/var/lib/docker/volumes/open-webui-data/_data/uploads/`
-  * Thư mục Qdrant Vector Storage & HNSW Index: `/var/lib/docker/volumes/qdrant-data/_data/`
-* **Mô hình Embedding (`bge-m3`):**
-  Model băm nhỏ văn bản thành Vector được Open WebUI tải và lưu trữ trực tiếp trong cache container Open WebUI: `/var/lib/docker/volumes/open-webui-data/_data/cache/huggingface/`
+Backup chưa được coi là thành công cho đến khi restore trên môi trường sạch và
+smoke test pass. Mã hóa backup, tách quyền truy cập và giữ ít nhất một bản ngoài
+host.
 
-#### 2. Phân Tích Giới Hạn Dung Lượng & Khả Năng Tải Lên
-Do là hệ thống Local AI hoàn toàn độc lập, khả năng tải dữ liệu **không bị giới hạn bởi dịch vụ bên thứ 3 hay chi phí Cloud**. Tuy nhiên, khả năng vận hành thực tế phụ thuộc vào 2 nhóm giới hạn:
-* **Giới hạn cấu hình Phần mềm (Có thể tùy chỉnh nâng lên):**
-  * **Cấu hình Nginx (`client_max_body_size`):** Mặc định trong tài liệu thiết lập `500M` (Mục 7.2) cho mỗi file upload. Bạn có thể sửa thành `2G` hoặc `0` (không giới hạn) trong file Nginx config nếu cần upload các file cực lớn.
-  * **Timeout xử lý (`proxy_read_timeout`):** Cấu hình `600s` (10 phút) để đảm bảo kết nối không bị ngắt khi GPU nạp model `bge-m3` phân tích các bộ tài liệu hàng nghìn trang.
-* **Giới hạn Phần cứng Máy chủ (Vật lý):**
-  * **Ổ cứng 4TB NVMe SSD:** Đủ dung lượng lưu trữ hàng triệu trang tài liệu nội bộ và hệ thống Vector DB.
-  * **128GB Unified Memory & Grace Blackwell GPU:** Đảm bảo nạp toàn bộ Vector Index vào RAM để truy vấn siêu tốc và không lo sập dịch vụ do tràn bộ nhớ (Out of Memory).
+### 9.3. Bảo trì và upgrade
+
+1. Đọc release notes/security advisory của từng thành phần.
+2. Backup và test staging với version/digest cũ và mới.
+3. Chạy smoke, RAG ACL, benchmark ngắn và restore test liên quan.
+4. Canary/chuyển traffic trong maintenance window.
+5. Theo dõi SLO và rollback nếu vượt ngưỡng abort.
+6. Cập nhật bảng hiện trạng, bằng chứng và changelog.
+
+Không auto-update image moving tag trong production.
 
 ---
 
-## 7. CẤU HÌNH MẠNG, NGINX REVERSE PROXY & AN NINH BẢO MẬT
+<a id="10-kiem-thu-kha-nang-phuc-hoi"></a>
+## 10. Kiểm thử khả năng phục hồi
 
-### 7.1. Cấu Hình Firewall UFW Bảo Vệ Máy Chủ
-Áp dụng nguyên tắc bảo mật tối thiểu (**Zero Trust / Least Privilege**): Chỉ mở các cổng giao tiếp thực sự cần thiết, khóa trực tiếp các cổng backend `8000` (vLLM API), `6333` (Qdrant), `6379` (Redis) khỏi mạng bên ngoài để tránh bị truy cập trái phép. Tất cả kết nối của người dùng đều bắt buộc đi qua Nginx Reverse Proxy (Cổng 80/443).
+| Case | Cách thử | Kết quả mong đợi |
+| --- | --- | --- |
+| Quá tải | Ramp đến trên capacity đã phê duyệt | Backpressure/429 có giới hạn; không OOM; hệ thống hồi phục |
+| Prompt vượt context | Gửi prompt + RAG + output vượt budget | 4xx/response rõ ràng; không 500; không cắt im lặng |
+| Client ngắt stream | Đóng kết nối khi đang generate | Work được hủy trong timeout đã đặt và slot được giải phóng |
+| RAG rỗng/file lỗi | Upload file rỗng, hỏng và không hỗ trợ | Lỗi hữu ích; không index rác; có audit |
+| Qdrant/Redis mất | Stop từng dependency | Luồng nhạy cảm fail closed; health/alert kích hoạt |
+| Langfuse mất | Stop telemetry stack | Inference theo policy đã định; không mất kiểm soát auth; có alert |
+| Restart host | Reboot trong maintenance test | Service khởi động đúng thứ tự và data còn nguyên |
+| Disk sắp đầy | Mô phỏng threshold an toàn | Alert sớm; ingestion bị giới hạn có kiểm soát |
+| Backup hỏng | Thử restore bản gần nhất | Phát hiện trước production; fallback theo retention |
 
-```bash
-# 1. Chặn toàn bộ kết nối đi VÀO (Incoming) mặc định để bảo vệ hệ thống
-sudo ufw default deny incoming
-
-# 2. Cho phép kết nối đi RA (Outgoing) để cập nhật hệ thống, tải Docker Image và AI Models
-sudo ufw default allow outgoing
-
-# 3. Cho phép SSH quản trị hệ thống từ xa (Cổng 22)
-sudo ufw allow 22/tcp
-
-# 4. Cho phép lưu lượng Web Nginx Proxy (HTTP Cổng 80 & HTTPS Cổng 443)
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-
-# 5. Kích hoạt UFW Firewall (Tự khởi động cùng hệ thống)
-sudo ufw enable
-
-# 6. Kiểm tra bảng trạng thái tường lửa chi tiết
-sudo ufw status verbose
-```
-
-> **🔒 Phân Tích Bảo Mật, Chống Bỏ Qua UFW & Chống Tràn GPU:**  
-> * **Lưu ý Cực Kỳ Quan Trọng về Docker & UFW:** Mặc định Docker tự động can thiệp vào `iptables` của Linux, bỏ qua (bypass) toàn bộ quy tắc chặn cổng của UFW. Nếu trong `docker-compose.yml` bạn khai báo `ports: "8000:8000"`, cổng vLLM sẽ bị công khai ra ngoài mạng LAN bất chấp UFW! Do đó, tất cả dịch vụ backend trong `docker-compose.yml` bắt buộc phải bind vào `127.0.0.1:` (ví dụ: `127.0.0.1:8000:8000`, `127.0.0.1:3000:8080`).
-> * **Nếu mở trực tiếp cổng 8000 (API vLLM):** Cổng này không có xác thực mặc định. Bất kỳ máy nào trong LAN cũng có thể gửi request trực tiếp, làm rò rỉ dữ liệu hoặc chiếm dụng tài nguyên GPU.  
-> * **Khi bắt buộc truy cập qua Nginx -> Open WebUI (Cổng 80 / 443):**  
->   1. **Định danh & Kiểm soát:** Người dùng bắt buộc phải đăng nhập tài khoản. Admin dễ dàng kiểm duyệt log và khóa tài khoản nếu phát hiện bất thường.  
->   2. **Cơ chế Hàng Đợi & Continuous Batching:** Kết hợp tham số `--max-num-seqs 32` của vLLM, khi có hàng chục người cùng gửi câu hỏi, vLLM tự động xếp hàng và batch các request một cách tối ưu. GPU Grace Blackwell luôn hoạt động đạt đỉnh hiệu năng mà **tuyệt đối không bị tràn RAM/VRAM**.
-
-### 7.2. Triển Khai Nginx Reverse Proxy & Mã Hóa SSL/TLS
-Nginx là một phần mềm máy chủ web (web server) mã nguồn mở cực kỳ phổ biến, nổi tiếng với hiệu suất cao, tốc độ xử lý nhanh, độ ổn định và khả năng tiêu thụ tài nguyên cực kỳ tiết kiệm.
-
-Nginx đóng vai trò làm **Reverse Proxy (Trạm trung chuyển truy cập)** đứng ở trước Open WebUI. Giải pháp này giúp chuyển đổi địa chỉ IP:Port khó nhớ thành tên miền nội bộ thân thiện (`http://ai.yourcompany.local`), đồng thời quản lý việc upload file RAG dung lượng lớn và tối ưu luồng hiển thị gõ chữ thời gian thực (Streaming SSE) từ AI.
-
-#### 1. Cài Đặt Nginx & Khởi Tạo File Cấu Hình
-```bash
-# Cài đặt dịch vụ Nginx Web Server
-sudo apt install -y nginx
-
-# Tạo file cấu hình Virtual Host riêng cho AI Server
-sudo nano /etc/nginx/sites-available/ai-local.conf
-```
-
-#### 2. Chi Tiết File Cấu Hình Nginx Tối Ưu Cho AI Stack (HTTP & HTTPS SSL)
-Dán nội dung cấu hình bên dưới:
-
-```nginx
-server {
-    listen 80;
-    server_name ai.yourcompany.local;
-    return 301 https://$host$request_uri; # Tự động chuyển hướng HTTP sang HTTPS
-}
-
-server {
-    listen 443 ssl;
-    server_name ai.yourcompany.local;
-
-    # Cấu hình Chứng chỉ SSL/TLS (Self-signed hoặc CA Doanh nghiệp)
-    ssl_certificate /etc/ssl/certs/ai-local.crt;
-    ssl_certificate_key /etc/ssl/private/ai-local.key;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-
-    # Cho phép tải lên file dữ liệu RAG tối đa 500MB (Tránh lỗi "413 Request Entity Too Large")
-    client_max_body_size 500M; 
-
-    location / {
-        # Điều hướng toàn bộ truy cập từ Nginx sang Open WebUI đang chạy ở port 3000 (bind 127.0.0.1)
-        proxy_pass http://127.0.0.1:3000;
-        
-        # Bắt buộc sử dụng HTTP 1.1 và duy trì kết nối WebSocket thời gian thực
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        
-        # Giữ nguyên thông tin tên miền và IP gốc của người dùng để Open WebUI ghi log chính xác
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-
-        # --- 🚀 TỐI ƯU CỰC KỲ QUAN TRỌNG CHO AI CHAT ---
-        # Tắt bộ đệm (Buffering) để phản hồi được Streaming từng từ một (Hiệu ứng gõ chữ real-time như ChatGPT)
-        proxy_buffering off;
-        
-        # Nâng thời gian chờ lên 10 phút (600s) tránh bị ngắt kết nối khi AI suy luận các câu hỏi khó (Lỗi 504 Gateway Timeout)
-        proxy_read_timeout 600s;
-        proxy_send_timeout 600s;
-    }
-}
-```
-
-> **💡 Mẹo Khởi Tạo SSL Self-Signed Nhanh:**
-> ```bash
-> sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
->   -keyout /etc/ssl/private/ai-local.key \
->   -out /etc/ssl/certs/ai-local.crt \
->   -subj "/CN=ai.yourcompany.local"
-> ```
-
-#### 3. Kích Hoạt Cấu Hình & Khởi Động Dịch Vụ
-```bash
-# Tạo liên kết để kích hoạt cấu hình site vào danh sách đang chạy
-sudo ln -s /etc/nginx/sites-available/ai-local.conf /etc/nginx/sites-enabled/
-
-# Kiểm tra cú pháp cấu hình Nginx xem có bị lỗi không trước khi reload
-sudo nginx -t
-
-# Khởi động lại Nginx để áp dụng ngay cài đặt mới
-sudo systemctl restart nginx
-```
+Lưu ngày test, version, người thực hiện và link log/result. Không đánh dấu pass
+chỉ dựa trên mô tả của nhà cung cấp.
 
 ---
 
-## 8. TỐI ƯU HÀNG ĐỢI, GIÁM SÁT TÀI NGUYÊN & XỬ LÝ SỰ CỐ
+<a id="11-xu-ly-su-co"></a>
+## 11. Xử lý sự cố
 
-### 8.1. Cơ Chế Giới Hạn Hàng Đợi (Queue Concurrency) & Multi-Model Routing
-Khi nhiều người dùng cùng tạo câu hỏi, vLLM Engine trên GPU Grace Blackwell sẽ xử lý song song nhờ thuật toán PagedAttention và Continuous Batching (giới hạn `--max-num-seqs 32`).
+### vLLM OOM hoặc bị kill
 
-- **Trường hợp quá tải yêu cầu:** Các request vượt quá giới hạn concurrency tự động được vLLM xếp hàng chờ (Memory Queue Buffer) mà không bị sập container hay tràn RAM.
-- **Multi-Model Routing (Chuyển luồng mô hình):** Để phục vụ đồng thời nhiều mô hình (VD: Qwen2.5-72B cho công việc chung và DeepSeek-R1-32B cho suy luận chuyên sâu), có thể chạy thêm container `vllm-engine-reasoning` ở cổng `8001` hoặc sử dụng **LiteLLM Proxy** làm trạm điều phối trung gian phía trước Open WebUI.
+1. Kiểm tra `docker compose logs --tail 300 vllm`, `free -h`, PSI memory và
+   kernel OOM log.
+2. Giảm `gpu-memory-utilization`, `max-num-seqs` và/hoặc
+   `max-model-len`; chỉ thay đổi một biến mỗi lần.
+3. Tắt speculative decoding/FP8 KV cache để quay về baseline đã biết.
+4. Chạy lại smoke + benchmark; không kết luận từ việc container chỉ "Up".
 
-### 8.2. Lệnh Giám Sát Tài Nguyên Thực Thời (Real-time Monitoring & Observability)
+### Alias/model sai
 
-```bash
-# 1. Giám sát GPU NVIDIA Grace Blackwell (Xung nhịp, Nhiệt độ, Điện năng, VRAM)
-watch -n 1 nvidia-smi
+So sánh `id` và `root` trong `/v1/models`. Nếu khác quy mô/model được công
+bố, sửa `--served-model-name`, restart và xóa alias sai khỏi client.
 
-# 2. Giám sát trực quan CPU 20 Cores và 128GB RAM
-htop
+### Open WebUI không kết nối vLLM
 
-# 3. Giám sát Log hệ thống vLLM Inference Core
-docker logs -f vllm-engine
+Kiểm tra service DNS `vllm`, endpoint `http://vllm:8000/v1`, model name và log
+hai container. Từ host dùng loopback; từ container dùng service name, không dùng
+`localhost`.
 
-# 4. Giám sát trạng thái toàn bộ Enterprise Stack Containers
-docker compose ps
+### RAG sai hoặc mất dữ liệu
 
-# 5. Giám sát Tracing LLM & Latency trên giao diện Langfuse UI
-# Truy cập trình duyệt: http://<IP-SERVER-UBUNTU>:3001
+Xác minh embedding model/dimension không đổi, Qdrant collection/filter đúng
+tenant và file gốc còn tồn tại. Backup snapshot trước khi reindex. Qdrant chỉ lưu
+vector/index; không mặc định là nơi duy nhất chứa file gốc.
 
-# 6. Xem Log thời gian thực của từng dịch vụ trong Stack
-docker logs -f open-webui       # WebUI & Agent Interface
-docker logs -f qdrant-vector-db  # Qdrant Vector Search Engine
-docker logs -f redis-broker-cache# Redis Queue & Cache
-docker logs -f langfuse-server  # Langfuse Observability Server
-```
+### Không có trace Langfuse
 
-### 8.3. Xử Lý Sự Cố Thường Gặp (Troubleshooting Guide)
+Health của Langfuse không đủ. Kiểm tra instrumentation, endpoint, public/secret
+key, worker/queue/data store và trace ID từ request test.
 
-#### ❓ Sự cố 1: vLLM Container ngắt ngẫu nhiên hoặc báo lỗi CUDA Memory / Out of Memory (OOM)
-* **Nguyên nhân:** Tham số `--gpu-memory-utilization` quá cao (vượt quá dung lượng RAM khả dụng khi các dịch vụ khác như Qdrant/Langfuse khởi chạy) hoặc Context Length (`--max-model-len`) đặt quá xa.
-* **Cách khắc phục:**
-  ```bash
-  # 1. Kiểm tra log chi tiết của vLLM
-  docker logs --tail 100 vllm-engine
-  
-  # 2. Hạ --gpu-memory-utilization từ 0.85 xuống 0.75 - 0.80 trong docker-compose.yml
-  # 3. Chạy lại container:
-  docker compose up -d vllm
-  ```
+### WebSocket/streaming chậm
 
-#### ❓ Sự cố 2: Langfuse Container báo lỗi "ENCRYPTION_KEY must be set"
-* **Nguyên nhân:** Langfuse v2+ yêu cầu chuỗi Hex 256-bit để mã hóa credentials lưu trong PostgreSQL.
-* **Cách khắc phục:** Đảm bảo biến môi trường `ENCRYPTION_KEY` đã được khai báo trong `docker-compose.yml` (như mẫu ở Mục 6.1).
-
-#### ❓ Sự cố 3: Không kết nối được WebUI từ máy tính nhân viên trong LAN
-* **Nguyên nhân:** UFW chưa cho phép cổng 80/443 hoặc Nginx Reverse Proxy chưa khởi chạy.
-* **Cách khắc phục:**
-  ```bash
-  sudo ufw allow 80/tcp
-  sudo ufw allow 443/tcp
-  sudo systemctl status nginx
-  ip a # Kiểm tra lại IP tĩnh của máy chủ
-  ```
+Kiểm tra Nginx `proxy_buffering off`, HTTP/1.1 upgrade headers, CORS,
+`WEBUI_URL`, timeout và proxy compression. Đo riêng gateway latency và vLLM
+TTFT.
 
 ---
 
-## 9. PHỤ LỤC: MẪU DOCKER-COMPOSE & TRA CỨU NHANH
+<a id="12-checklist-dua-vao-production"></a>
+## 12. Checklist đưa vào production
 
-### 9.1. Bảng Tra Cứu Câu Lệnh Thường Dùng (Quick Cheat Sheet)
+### P0 - Bắt buộc
 
-```bash
-# --- vLLM ENGINE & HUGGINGFACE ---
-huggingface-cli download Qwen/Qwen2.5-72B-Instruct-AWQ # Tải model AWQ từ HuggingFace
-docker logs -f vllm-engine                             # Xem log inference thực tế của vLLM
-curl http://localhost:8000/v1/models                   # Kiểm tra API models đang serve trên vLLM
+- [ ] Rotate mọi secret đang có trong `docker-compose.yml`; scan Git history.
+- [ ] Chuyển secret ra khỏi Compose và đặt access/rotation procedure.
+- [ ] Đóng port 3000 trên LAN/IPv6; chỉ công bố HTTPS gateway.
+- [ ] Pin tất cả image/model revision; loại alias `qwen2.5-72b` sai.
+- [ ] Quyết định và thực hiện migration Langfuse khỏi v2.
+- [ ] Kết nối tracing end-to-end hoặc bỏ Langfuse khỏi kiến trúc được tuyên bố.
+- [ ] Cấu hình và test RBAC/RAG isolation theo group/tenant.
+- [ ] Định nghĩa RPO/RTO; backup và restore test pass.
+- [ ] Chạy benchmark có thể lặp lại; phê duyệt capacity và SLO thực đo.
 
-# --- SYSTEM & SERVICES ---
-sudo systemctl restart nginx   # Khởi động lại Web Reverse Proxy Nginx
-watch -n 1 nvidia-smi          # Giám sát GPU Grace Blackwell (VRAM, GPU Usage)
+### P1 - Reliability và operations
 
-# --- DOCKER ENTERPRISE STACK ---
-docker compose up -d           # Khởi chạy toàn bộ Enterprise AI Stack ngầm
-docker compose down            # Dừng toàn bộ hệ thống
-docker compose ps              # Trạng thái các container (vllm, open-webui, qdrant, redis, langfuse)
-docker logs --tail 100 open-webui # Xem 100 dòng log mới nhất của WebUI
-```
+- [ ] Thêm healthcheck/readiness, startup ordering và graceful shutdown.
+- [ ] Version-control Nginx/TLS/rate-limit config; test `nginx -t`.
+- [ ] Đặt Redis `noeviction`, memory alert và ACL; tách workload nếu cần.
+- [ ] Bật Qdrant authentication và snapshot policy.
+- [ ] Thêm log rotation, metrics, dashboard, alerts và owner.
+- [ ] Test overload, dependency failure, client disconnect, restart và disk pressure.
+- [ ] Tài liệu hóa upgrade, rollback, data retention và incident procedure.
 
-### 9.2. Tổng Kết Quy Trình Đưa Vào Vận Hành Doanh Nghiệp
-1. **Thiết lập phần cứng:** Đặt máy chủ MSI EdgeXpert-55SVN tại phòng Server, cắm dây mạng LAN RJ45/ConnectX-7, gán **IP Tĩnh (Static IP)** trên Router.
-2. **Khởi tạo OS & Core:** Chạy toàn bộ lệnh ở **Mục 3 & 4** để cài đặt NVIDIA Container Runtime & sẵn sàng vLLM API Engine.
-3. **Tải AI Models:** Nạp các mô hình chuẩn AWQ/FP8 (`Qwen2.5-72B-Instruct-AWQ`, `Qwen2.5-32B-Instruct-AWQ`) về SSD 4TB theo **Mục 5**.
-4. **Khởi chạy Enterprise Stack:** Chạy Docker Compose **Mục 6** để bật đồng thời `vLLM`, `Open WebUI`, `Qdrant Vector DB`, `Redis Broker`, `Langfuse Tracing`.
-5. **Ủy quyền & Phân quyền:** Phân quyền Admin/User trên Open WebUI, cung cấp địa chỉ IP/Domain cho các phòng ban truy cập và khai thác hiệu quả.
+### Production gate
+
+Chỉ chuyển trạng thái tài liệu từ `đang chạy thử nghiệm` sang `production` khi:
+
+1. Tất cả P0 hoàn tất và có bằng chứng.
+2. Không còn backend public ngoài gateway.
+3. SLO đạt trong soak test dài hơn peak business window.
+4. Restore và rollback đã thực hiện thành công.
+5. Owner vận hành, security và data đã phê duyệt.
 
 ---
-*Tài liệu được biên soạn chuẩn hóa cho hệ thống AI Local Doanh nghiệp trên nền tảng MSI EdgeXpert GB10 Grace Blackwell 128GB RAM.*
+
+<a id="13-tai-lieu-tham-khao-va-changelog"></a>
+## 13. Tài liệu tham khảo và changelog
+
+Tài liệu chính thức, kiểm tra ngày 2026-09-03:
+
+- [MSI EdgeExpert GB10 datasheet](https://download-2.msi.com/archive/mnu_exe/ipc/EdgeXpert_DM_dm.pdf)
+- [NVIDIA DGX Spark User Guide](https://docs.nvidia.com/dgx/dgx-spark/)
+- [NVIDIA: Serve LLMs with vLLM on DGX Spark](https://build.nvidia.com/spark/vllm)
+- [NVIDIA vLLM release notes](https://docs.nvidia.com/deeplearning/frameworks/vllm-release-notes/)
+- [vLLM Docker deployment](https://docs.vllm.ai/en/stable/deployment/docker/)
+- [vLLM engine arguments](https://docs.vllm.ai/en/latest/configuration/engine_args/)
+- [vLLM security và cache salting](https://docs.vllm.ai/en/latest/usage/security/)
+- [vLLM tool calling](https://docs.vllm.ai/en/latest/features/tool_calling/)
+- [vLLM benchmark CLI](https://docs.vllm.ai/en/latest/cli/bench/serve/)
+- [Open WebUI environment variables](https://docs.openwebui.com/reference/env-configuration/)
+- [Open WebUI hardening](https://docs.openwebui.com/getting-started/advanced-topics/hardening/)
+- [Open WebUI scaling](https://docs.openwebui.com/getting-started/advanced-topics/scaling/)
+- [Open WebUI HTTPS/reverse proxy](https://docs.openwebui.com/reference/https/)
+- [Open WebUI Redis/WebSocket](https://docs.openwebui.com/tutorials/integrations/redis/)
+- [Langfuse self-hosting](https://langfuse.com/self-hosting)
+- [Langfuse migration v2 -> v3](https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v2-to-v3)
+- [Langfuse migration v3 -> v4](https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4)
+- [Qdrant security](https://qdrant.tech/documentation/security/)
+- [Redis security](https://redis.io/docs/latest/operate/oss_and_stack/management/security/)
+- [Docker Compose startup order](https://docs.docker.com/compose/how-tos/startup-order/)
+- [Docker Compose `version` field](https://docs.docker.com/reference/compose-file/version-and-name/)
+
+### Changelog
+
+| Ngày | Thay đổi |
+| --- | --- |
+| 2026-09-03 | Hợp nhất hai tài liệu; đổi từ mô tả marketing sang runbook có bằng chứng |
+| 2026-09-03 | Đồng bộ hiện trạng 14B/16K/64, Ubuntu 24.04.4 và các container đang chạy |
+| 2026-09-03 | Bỏ Celery/semantic-cache/fail-open khỏi kiến trúc hiện tại |
+| 2026-09-03 | Thêm production blockers, SLO, RBAC, benchmark, backup/restore và production gate |
+
+Việc hợp nhất tài liệu không tự động sửa `docker-compose.yml`. Các mục chưa
+hoàn thành trong checklist là backlog cần triển khai và kiểm thử riêng.

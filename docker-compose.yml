@@ -50,6 +50,11 @@ services:
       - ENABLE_RAG_WEB_SEARCH=False
       - VECTOR_DB=qdrant
       - QDRANT_URI=http://qdrant:6333
+      - RAG_EMBEDDING_ENGINE=huggingface
+      - RAG_EMBEDDING_MODEL=BAAI/bge-m3
+      - ENABLE_RAG_HYBRID_SEARCH=True
+      - RAG_TOP_K=5
+      - RAG_RELEVANCE_THRESHOLD=0.3
       - REDIS_URL=redis://:EnterpriseRedisSecret2026@redis:6379/0
       - ENABLE_SIGNUP=True
       - DEFAULT_USER_ROLE=user
