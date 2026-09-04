@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 1. vLLM Inference Engine (High-Throughput OpenAI API Compatible Engine)
   vllm:
@@ -32,9 +30,15 @@ services:
       --quantization fp8
       --kv-cache-dtype fp8
       --enable-prefix-caching
-      --served-model-name qwen2.5-14b qwen2.5-72b
+      --served-model-name qwen2.5-14b
       --enable-auto-tool-choice
       --tool-call-parser hermes
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 180s
 
   # 2. Giao diện Người dùng & Quản lý RAG (Open WebUI)
   open-webui:
@@ -42,28 +46,38 @@ services:
     container_name: open-webui
     restart: always
     ports:
-      - "3000:8080"
+      - "127.0.0.1:3000:8080"
     environment:
       - OPENAI_API_BASE_URLS=http://vllm:8000/v1
       - OPENAI_API_KEY=EMPTY
-      - WEBUI_SECRET_KEY=EnterpriseSuperSecretKey2026_GB10
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
       - ENABLE_RAG_WEB_SEARCH=False
       - VECTOR_DB=qdrant
       - QDRANT_URI=http://qdrant:6333
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
       - RAG_EMBEDDING_ENGINE=huggingface
       - RAG_EMBEDDING_MODEL=BAAI/bge-m3
       - ENABLE_RAG_HYBRID_SEARCH=True
       - RAG_TOP_K=5
       - RAG_RELEVANCE_THRESHOLD=0.3
-      - REDIS_URL=redis://:EnterpriseRedisSecret2026@redis:6379/0
-      - ENABLE_SIGNUP=True
-      - DEFAULT_USER_ROLE=user
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - ENABLE_SIGNUP=${ENABLE_SIGNUP:-False}
+      - DEFAULT_USER_ROLE=${DEFAULT_USER_ROLE:-user}
     volumes:
       - open-webui-data:/app/backend/data
     depends_on:
-      - vllm
-      - qdrant
-      - redis
+      vllm:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
 
   # 3. Qdrant Vector Database (Vector Search hiệu năng cao bằng Rust)
   qdrant:
@@ -73,19 +87,35 @@ services:
     ports:
       - "127.0.0.1:6333:6333"
       - "127.0.0.1:6334:6334"
+    environment:
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY}
     volumes:
       - qdrant-data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/6333 && echo -e \"GET /healthz HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\" >&3 && cat <&3 | grep -q \"200 OK\"' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   # 4. Redis Server (Message Broker cho Celery & Semantic LLM Cache)
   redis:
     image: redis:7-alpine
     container_name: redis-broker-cache
     restart: always
-    command: redis-server --appendonly yes --requirepass EnterpriseRedisSecret2026
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     ports:
       - "127.0.0.1:6379:6379"
     volumes:
       - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep PONG || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   # 5. Langfuse Postgres Database (Lưu dữ liệu Tracing LLM)
   langfuse-db:
@@ -93,11 +123,17 @@ services:
     container_name: langfuse-db
     restart: always
     environment:
-      - POSTGRES_USER=langfuse
-      - POSTGRES_PASSWORD=LangfuseSecretPassword2026
-      - POSTGRES_DB=langfuse
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - langfuse-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-langfuse}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   # 6. Langfuse Web Server (Giao diện Observability & Trace LLM Agent)
   langfuse-web:
@@ -107,14 +143,42 @@ services:
     ports:
       - "127.0.0.1:3001:3000"
     environment:
-      - DATABASE_URL=postgresql://langfuse:LangfuseSecretPassword2026@langfuse-db:5432/langfuse
-      - NEXTAUTH_SECRET=EnterpriseNextAuthSecretKey2026
-      - SALT=EnterpriseLangfuseSaltKey2026
-      - ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@langfuse-db:5432/${POSTGRES_DB}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - SALT=${SALT}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - NEXTAUTH_URL=http://localhost:3001
       - TELEMETRY_ENABLED=false
     depends_on:
-      - langfuse-db
+      langfuse-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'const os=require(\"os\"); require(\"http\").get(\"http://\" + os.hostname() + \":3000/api/public/health\", (res) => { process.exit(res.statusCode === 200 ? 0 : 1); });'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+
+  # 7. Nginx Gateway (TLS/SSL Reverse Proxy & SSE Streaming)
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-gateway
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      open-webui:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider --no-check-certificate -q https://localhost/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
 volumes:
   open-webui-data:

@@ -1,6 +1,8 @@
 # Environment & local state
 .env
 *.log
+backups/
+nginx/certs/
 
 # Docker data mounts (if any created locally)
 qdrant_data/

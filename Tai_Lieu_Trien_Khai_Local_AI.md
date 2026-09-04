@@ -4,7 +4,7 @@
 
 > **Tài liệu chuẩn duy nhất (canonical runbook)**
 >
-> Cập nhật: **2026-09-03**
+> Cập nhật: **2026-09-04**
 >
 > Phạm vi: `/home/admin/ai-stack`
 >
@@ -64,34 +64,39 @@ gọi cấu hình là "production" nếu checklist mục 12 chưa có bằng ch�
 <a id="2-danh-gia-hien-trang"></a>
 ## 2. Đánh giá hiện trạng
 
-Kiểm tra ngày 2026-09-03 cho thấy sáu container đang chạy: vLLM, Open WebUI,
-Qdrant, Redis, Langfuse v2 và PostgreSQL của Langfuse. Endpoint health của vLLM,
-Open WebUI, Qdrant và Langfuse đều phản hồi. Đây chỉ là bằng chứng dịch vụ đang
-hoạt động, không phải bằng chứng về bảo mật, RAG, tracing, tải hay phục hồi.
+Kiểm tra ngày 2026-09-04 cho thấy bảy container đang chạy và báo `healthy`:
+vLLM, Open WebUI, Qdrant, Redis, Langfuse v2, PostgreSQL của Langfuse và Nginx.
+`docker compose config --quiet` và `nginx -t` pass. Các backend được bind vào
+loopback; Nginx công bố cổng 80/443 trên IPv4 và IPv6. Đây là bằng chứng về cấu
+hình và service health, không phải bằng chứng đầy đủ về tracing, phân quyền RAG,
+khả năng chịu tải, backup/restore hoặc production readiness.
 
-`docker compose config --quiet` pass, nhưng cảnh báo top-level
-`version: '3.8'` đã obsolete.
+Cuộc rà soát cùng ngày phát hiện một số kết quả trước đó đã bị đánh dấu `verified`
+quá sớm. Image vẫn dùng moving tag; benchmark chấm sai percentile/ngưỡng; bài test
+RAG bỏ qua tầng xác thực của ứng dụng; backup Open WebUI dùng sai tên volume
+Compose; restore chưa được thực hiện trên môi trường sạch. Các kết quả này phải
+được chạy lại trước khi đóng P0.
 
 ### 2.1. Các trở ngại đối với production
 
 | ID | Mức | Bằng chứng hiện tại | Việc cần làm | Điều kiện đóng |
 | --- | --- | --- | --- | --- |
-| SEC-01 | P0 | Secret đang được hard-code trong Compose | Thay tất cả secret, chuyển sang secret store hoặc `.env` với quyền `0600` | Không còn secret trong Git; secret cũ đã được rotate |
-| SEC-02 | P0 | Open WebUI publish `3000:8080` trên IPv4 và IPv6 | Chỉ bind `127.0.0.1:3000:8080` sau Nginx/VPN | Quét port từ máy trong LAN không truy cập được backend |
+| SEC-01 | P0 | Compose đã tham chiếu `.env` quyền `0600`, nhưng script RAG còn credential fallback; chưa có bằng chứng scan history/rotation; backup chứa `.env` plaintext | Xóa credential fallback, scan history, rotate secret đã lộ và bảo vệ backup | Không còn secret trong file tracked/log; có change record rotation; backup được mã hóa và giới hạn quyền |
+| SEC-02 | P0 | Backend đã bind loopback trong Compose; Nginx mở 80/443 | Quét từ máy khác trên LAN/VPN và kiểm tra IPv4/IPv6/firewall | Chỉ gateway truy cập được từ mạng được phép; lưu kết quả quét |
 | REL-01 | P0 | Image dùng `latest`, `main`; Langfuse v2.95.11 | Pin phiên bản/digest; lập kế hoạch migrate Langfuse theo hướng dẫn chính thức | Upgrade và rollback pass trên staging |
-| AI-01 | P0 | Hai alias `qwen2.5-14b` và `qwen2.5-72b` cùng trỏ tới model 14B | Chỉ công bố tên model đúng với model root | `/v1/models` không còn alias sai |
+| AI-01 | P0 | Compose chỉ còn served name `qwen2.5-14b`; chưa lưu output runtime làm bằng chứng | Xác minh model root/revision và `/v1/models` | Artifact cho thấy chỉ còn alias đúng và revision đã pin |
 | OBS-01 | P0 | Có Langfuse nhưng không có instrumentation/credential kết nối | Thêm SDK, OpenTelemetry hoặc proxy được hỗ trợ và test end-to-end | Một request test có trace, user/session và latency đúng |
-| GOV-01 | P0 | RBAC phòng ban mới chỉ là tuyên bố trong tài liệu | Cấu hình group/knowledge ACL và test chéo tenant | Bộ test không rò rỉ tài liệu đạt 100% |
-| DR-01 | P0 | Chưa có backup, restore test, RPO/RTO | Định nghĩa và thử phục hồi từng kho dữ liệu | Restore trên môi trường sạch đạt RPO/RTO |
-| REL-02 | P1 | Phần lớn service không có healthcheck; `depends_on` chỉ đảm bảo thứ tự start | Thêm readiness/healthcheck và dependency `service_healthy` | Restart toàn stack từ cold state pass |
+| GOV-01 | P0 | Test hiện tại gọi Qdrant trực tiếp và tự gắn tenant filter; chưa test Open WebUI/API với user/group thật | Cấu hình ACL deny-by-default và test end-to-end chéo tenant | User trái quyền không thể list/retrieve/generate từ tài liệu bị cấm; có audit |
+| DR-01 | P0 | Có script và checksum, nhưng Open WebUI dùng sai volume; restore chấp nhận thiếu artifact, parse sai collection có `_`, RPO chưa xác định | Sửa script, mã hóa/off-host và phục hồi toàn bộ trên Compose project sạch | Restore sạch đạt RPO/RTO, đối chiếu record/file/collection và smoke test pass |
+| REL-02 | P1 | Healthcheck và `service_healthy` đã cấu hình; chưa test cold restart hoặc graceful shutdown | Bổ sung shutdown grace period và chạy restart/failure test | Cold restart, dependency restart và shutdown không mất dữ liệu; có log |
 | OPS-01 | P1 | Chưa pin retention/log rotation/alert | Đặt rotation, dashboard và alert có owner | Test alert và dung lượng log pass |
-| NET-01 | P1 | Nginx/TLS/rate limit được mô tả nhưng không có file trong repo | Version-control cấu hình gateway và quy trình certificate | `nginx -t`, TLS scan và load test pass |
-| DATA-01 | P1 | Qdrant không có API key; Redis dùng một mật khẩu chung | Auth service-to-service, ACL và network nội bộ | Truy cập không có credential bị từ chối |
+| NET-01 | P1 | Nginx config tồn tại và `nginx -t` pass; chưa có rate limit, chứng chỉ production hoặc vòng đời certificate | Thêm rate limit, TLS policy, certificate issuance/renewal và test streaming | TLS scan, renewal drill, WebSocket/SSE và load/rate-limit test pass |
+| DATA-01 | P1 | Qdrant API key đã cấu hình; Redis dùng một mật khẩu chung; mọi service còn chung default network | Test Qdrant negative-auth, thêm Redis ACL và network nội bộ | Truy cập không credential bị từ chối; data network không có egress ngoài nhu cầu |
 | HOST-01 | P1 | Redis cảnh báo `vm.overcommit_memory` chưa bật | Xác minh trên host, bật `vm.overcommit_memory=1` và lưu cấu hình sysctl sau kiểm thử | Cảnh báo biến mất sau reboot; persistence test pass |
 | AI-02 | P1 | vLLM cảnh báo FP8 KV scale đang dùng giá trị mặc định `1.0`, chưa được hiệu chuẩn | Hiệu chuẩn scale theo recipe hoặc tắt FP8 KV cache; chạy A/B quality | Quality gate và load test pass với cấu hình đã pin |
 | REL-03 | P1 | `--model` sắp deprecated, revision vẫn là `main` và truy cập Hugging Face gặp lỗi DNS | Cập nhật tham số theo phiên bản vLLM đã pin, pin model revision và ổn định đường tải model | Cold start lặp lại được, không phụ thuộc revision moving và không còn lỗi DNS |
-| RAG-01 | P1 | Compose không đặt `RAG_EMBEDDING_MODEL`; tuyên bố dùng `BAAI/bge-m3` chưa có bằng chứng | Lưu bằng chứng về persisted config, model và dimension thực; backup rồi chạy reindex test | Model/dimension được ghi nhận và upload-reindex-retrieve pass |
-| PERF-01 | P2 | Runtime cảnh báo `OMP_NUM_THREADS=8` có thể gây contention | Benchmark các mức thread với workload chuẩn và pin giá trị phù hợp | Giá trị thread đã pin; latency/throughput đạt SLO mà không có contention đáng kể |
+| RAG-01 | P1 | Compose đặt `BAAI/bge-m3`, nhưng persisted config/dimension và reindex chưa được xác minh | Lưu bằng chứng model/dimension thực; backup rồi chạy reindex test | Upload-reindex-retrieve-delete pass và dữ liệu cũ không bị orphan |
+| PERF-01 | P0 | Benchmark dùng mean/minimum thay cho p95, sai ngưỡng, mẫu 10-32 request và không fail khi parser lỗi; báo cáo hiện tại không chứng minh SLO | Sửa harness, lưu raw output và đo đúng workload/percentile | TTFT/ITL/error/goodput đạt SLO ở tải công bố; report có digest/revision và raw result |
 
 ### 2.2. Các nhận định cũ đã được sửa
 
@@ -572,37 +577,74 @@ TTFT.
 <a id="12-checklist-dua-vao-production"></a>
 ## 12. Checklist đưa vào production
 
+Quy tắc đánh dấu:
+
+- `[x]` chỉ dùng khi cấu hình/runtime đã được kiểm tra và bằng chứng phù hợp với
+  đúng tiêu chí được lưu lại.
+- Có script hoặc health endpoint chưa đủ để đánh dấu pass cho hành vi end-to-end.
+- Bằng chứng phải ghi ngày, owner, image digest, model revision, cấu hình đã
+  redact, lệnh/test case, raw result và kết luận. Lưu theo change/test ID trong
+  thư mục artifact không chứa secret.
+- Nếu test không parse được kết quả, thiếu artifact hoặc thiếu dependency, test
+  phải fail; không được warning rồi tiếp tục báo thành công.
+
 ### P0 - Bắt buộc
 
-- [ ] Rotate mọi secret đang có trong `docker-compose.yml`; scan Git history.
-- [ ] Chuyển secret ra khỏi Compose và đặt access/rotation procedure.
-- [ ] Đóng port 3000 trên LAN/IPv6; chỉ công bố HTTPS gateway.
-- [ ] Pin tất cả image/model revision; loại alias `qwen2.5-72b` sai.
-- [ ] Quyết định và thực hiện migration Langfuse khỏi v2.
-- [ ] Kết nối tracing end-to-end hoặc bỏ Langfuse khỏi kiến trúc được tuyên bố.
-- [ ] Cấu hình và test RBAC/RAG isolation theo group/tenant.
-- [ ] Định nghĩa RPO/RTO; backup và restore test pass.
-- [ ] Chạy benchmark có thể lặp lại; phê duyệt capacity và SLO thực đo.
+- [x] Compose đọc secret từ `.env`; `.env` có quyền `0600` và được Git ignore.
+- [ ] Xóa credential fallback khỏi file tracked; scan Git history, rotate secret
+  từng lộ và lưu change record không chứa giá trị secret.
+- [ ] Mã hóa backup, giới hạn quyền, giữ ít nhất một bản ngoài host và không lưu
+  `.env` plaintext trong backup dữ liệu thông thường.
+- [ ] Quét từ một máy khác trên LAN/VPN qua IPv4 và IPv6; xác nhận chỉ gateway
+  được công bố và lưu kết quả.
+- [ ] Pin mọi image bằng version/digest và pin model bằng revision bất biến; test
+  upgrade/rollback trên staging.
+- [ ] Xác minh `/v1/models` chỉ công bố tên 14B đúng với model root/revision.
+- [x] Langfuse v2 được bind loopback như biện pháp hạn chế tạm thời.
+- [ ] Kết nối tracing end-to-end; một request phải có trace, user/session, model,
+  latency, status và error đúng. Healthcheck Langfuse không thay thế mục này.
+- [ ] Cấu hình ACL RAG deny-by-default và test qua Open WebUI/API bằng ít nhất hai
+  user/group thật; test phải bao phủ list, retrieve, generate và delete.
+- [ ] Định nghĩa RPO/RTO; sửa backup/restore và phục hồi trên Compose project sạch,
+  bao gồm đối chiếu database, file gốc, Qdrant collection và smoke test.
+- [ ] Sửa benchmark để đo đúng p95/p99, fail-closed và lưu raw output; phê duyệt
+  capacity theo achieved load/goodput, không theo offered load hoặc throughput tổng.
 
 ### P1 - Reliability và operations
 
-- [ ] Thêm healthcheck/readiness, startup ordering và graceful shutdown.
-- [ ] Version-control Nginx/TLS/rate-limit config; test `nginx -t`.
-- [ ] Đặt Redis `noeviction`, memory alert và ACL; tách workload nếu cần.
-- [ ] Bật Qdrant authentication và snapshot policy.
-- [ ] Thêm log rotation, metrics, dashboard, alerts và owner.
-- [ ] Test overload, dependency failure, client disconnect, restart và disk pressure.
-- [ ] Tài liệu hóa upgrade, rollback, data retention và incident procedure.
+- [x] Healthcheck và dependency `service_healthy` đã có trong Compose.
+- [x] Nginx config tồn tại trong workspace và `nginx -t` pass.
+- [ ] Đưa `nginx/nginx.conf` vào version control; tiếp tục ignore private key và
+  certificate sinh riêng cho môi trường.
+- [ ] Thêm graceful shutdown/startup ordering còn thiếu; test cold restart và
+  restart từng dependency.
+- [ ] Thêm gateway rate limit, certificate production/internal CA, quy trình
+  issuance/renewal, TLS scan và test WebSocket/SSE.
+- [ ] Đặt Redis `noeviction`, ACL, memory/persistence alert; tách workload nếu cần.
+- [ ] Test Qdrant từ chối request không có/sai API key; đặt snapshot policy.
+- [ ] Tách network frontend/backend/data; dùng `internal: true` nơi không cần egress.
+- [ ] Thêm log rotation, metrics, dashboard, alerts, retention và owner/on-call.
+- [ ] Xác minh `vm.overcommit_memory=1` tồn tại sau reboot.
+- [ ] Xác minh embedding model/dimension, rồi chạy upload-reindex-retrieve-delete.
+- [ ] Chạy A/B quality cho FP8 weights/KV cache; benchmark `OMP_NUM_THREADS`,
+  context và concurrency trước khi pin profile.
+- [ ] Test overload, context overflow, client disconnect, dependency failure,
+  restart host, disk pressure và backup hỏng.
+- [ ] Tài liệu hóa upgrade, rollback, data retention/deletion và incident procedure.
+- [ ] Lập và thử migration Langfuse v2 sang release được hỗ trợ.
 
 ### Production gate
 
 Chỉ chuyển trạng thái tài liệu từ `đang chạy thử nghiệm` sang `production` khi:
 
-1. Tất cả P0 hoàn tất và có bằng chứng.
-2. Không còn backend public ngoài gateway.
-3. SLO đạt trong soak test dài hơn peak business window.
-4. Restore và rollback đã thực hiện thành công.
-5. Owner vận hành, security và data đã phê duyệt.
+1. Tất cả P0 hoàn tất và mỗi mục có artifact bằng chứng.
+2. Không còn backend public ngoài gateway; negative-auth và cross-tenant test pass.
+3. SLO đạt trong soak test dài hơn peak business window, với workload và ngưỡng
+   abort được định nghĩa trước.
+4. Restore trên môi trường sạch và rollback release đã thực hiện thành công.
+5. Không còn P1 ảnh hưởng trực tiếp đến confidentiality, integrity, availability
+   hoặc khả năng khôi phục.
+6. Owner vận hành, security và data ký phê duyệt, kèm ngày hết hạn của bằng chứng.
 
 ---
 
@@ -637,6 +679,8 @@ Tài liệu chính thức, kiểm tra ngày 2026-09-03:
 
 | Ngày | Thay đổi |
 | --- | --- |
+| 2026-09-04 | Hiệu chỉnh audit sau khi đối chiếu runtime và artifact: giữ trạng thái thử nghiệm; hạ các kết quả benchmark, RAG và restore về chưa nghiệm thu; ghi nhận healthcheck, loopback binding, Qdrant API key và Nginx đã được cấu hình |
+| 2026-09-04 | Rà soát production readiness ban đầu; xác định các blocker P0/P1 cần khắc phục trong cấu hình và quy trình |
 | 2026-09-03 | Hợp nhất hai tài liệu; đổi từ mô tả marketing sang runbook có bằng chứng |
 | 2026-09-03 | Đồng bộ hiện trạng 14B/16K/64, Ubuntu 24.04.4 và các container đang chạy |
 | 2026-09-03 | Bỏ Celery/semantic-cache/fail-open khỏi kiến trúc hiện tại |
