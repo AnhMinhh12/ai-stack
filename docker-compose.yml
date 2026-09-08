@@ -24,7 +24,7 @@ services:
       --model Qwen/Qwen2.5-14B-Instruct
       --host 0.0.0.0
       --port 8000
-      --gpu-memory-utilization 0.90
+      --gpu-memory-utilization 0.75
       --max-model-len 16384
       --max-num-seqs 64
       --quantization fp8
@@ -42,7 +42,7 @@ services:
 
   # 2. Giao diện Người dùng & Quản lý RAG (Open WebUI)
   open-webui:
-    image: ghcr.io/open-webui/open-webui:main
+    image: open-webui-htmp:libreoffice
     container_name: open-webui
     restart: always
     ports:
@@ -57,6 +57,9 @@ services:
       - QDRANT_API_KEY=${QDRANT_API_KEY}
       - RAG_EMBEDDING_ENGINE=huggingface
       - RAG_EMBEDDING_MODEL=BAAI/bge-m3
+      - CONTENT_EXTRACTION_ENGINE=tika
+      - TIKA_SERVER_URL=http://tika:9998
+      - TIKA_SERVER_VERSION=3
       - ENABLE_RAG_HYBRID_SEARCH=True
       - RAG_TOP_K=5
       - RAG_RELEVANCE_THRESHOLD=0.3
@@ -78,6 +81,15 @@ services:
       timeout: 5s
       retries: 5
       start_period: 60s
+
+  # 2B. Apache Tika - Trich xuat noi dung tai lieu
+  tika:
+    image: apache/tika:3.3.1.0-full
+    container_name: tika
+    restart: always
+    command: ["-c", "/tika-config.xml"]
+    volumes:
+      - ./tika-config.xml:/tika-config.xml:ro
 
   # 3. Qdrant Vector Database (Vector Search hiệu năng cao bằng Rust)
   qdrant:

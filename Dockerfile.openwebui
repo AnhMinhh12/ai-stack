@@ -1,0 +1,11 @@
+FROM ghcr.io/open-webui/open-webui:main
+
+USER root
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        libreoffice-core \
+        libreoffice-writer \
+        libreoffice-calc \
+        libreoffice-impress && \
+    rm -rf /var/lib/apt/lists/*
