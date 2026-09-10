@@ -1,166 +1,210 @@
 #!/usr/bin/env python3
-"""
-Enterprise vLLM Benchmark & SLO Compliance Testing Tool
-Executes vllm bench serve across standard profiles (Prompt 2048, Output 256, Rates 1, 4, 8, 16)
-Validates SLO targets: TTFT p95 < 1.5s, ITL p95 < 50ms/token, Error Rate < 1%.
-"""
+"""Fail-closed vLLM capacity harness.
 
-import sys
-import re
-import os
-import subprocess
+The harness is intentionally dry-run by default. A real GPU load test requires
+BENCHMARK_APPROVED=YES and --execute because it can affect latency, memory and
+service availability.
+"""
+from __future__ import annotations
+
+import argparse
 import json
-from datetime import datetime
-from typing import Dict, List, Any
+import math
+import os
+import shlex
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
 
-RATES = [1, 4, 8, 16]
-NUM_PROMPTS_PER_RATE = {1: 10, 4: 16, 8: 24, 16: 32}
 MODEL_PATH = "Qwen/Qwen2.5-14B-Instruct"
 SERVED_MODEL_NAME = "qwen2.5-14b"
-OUTPUT_REPORT_PATH = "/home/admin/ai-stack/vllm_benchmark_report.md"
+DEFAULT_INPUT_LENS = (4096, 8192, 16384)
+DEFAULT_CONCURRENCIES = (8, 16, 32, 64)
+DEFAULT_RATES = (1, 4, 8, 16)
+PERCENTILES = (50, 95, 99)
 
-def run_vllm_bench_serve(rate: int, num_prompts: int) -> str:
-    print(f"\n[*] Running vLLM Benchmark for Request Rate = {rate} RPS ({num_prompts} prompts)...")
-    cmd = [
-        "docker", "exec", "vllm-engine",
-        "vllm", "bench", "serve",
+
+def percentile(values: list[float], p: int) -> float:
+    """Nearest-rank percentile, deterministic and fail-closed for empty input."""
+    if not values:
+        raise ValueError(f"cannot calculate p{p} from an empty sample")
+    ordered = sorted(values)
+    rank = max(1, math.ceil((p / 100) * len(ordered)))
+    return ordered[rank - 1]
+
+
+def _first_number(data: dict[str, Any], names: tuple[str, ...]) -> float | None:
+    for name in names:
+        value = data.get(name)
+        if isinstance(value, (int, float)):
+            return float(value)
+    return None
+
+
+def _series(result: dict[str, Any], metric: str) -> list[float]:
+    candidates = (
+        result.get("request_level_metrics"),
+        result.get("per_request_metrics"),
+        result.get("requests"),
+    )
+    values: list[float] = []
+    for candidate in candidates:
+        if not isinstance(candidate, list):
+            continue
+        for row in candidate:
+            if isinstance(row, dict):
+                value = row.get(metric)
+                if isinstance(value, (int, float)):
+                    values.append(float(value))
+    return values
+
+
+def metric_percentiles(result: dict[str, Any], metric: str) -> dict[str, float]:
+    values = _series(result, metric)
+    if values:
+        return {f"p{p}": percentile(values, p) for p in PERCENTILES}
+
+    # vLLM result JSON exposes summary percentile fields when detailed samples
+    # are not retained. Missing p50/p95/p99 is an error, never a zero/default.
+    aliases = {
+        50: (f"median_{metric}_ms", f"p50_{metric}_ms", f"p50_{metric}"),
+        95: (f"p95_{metric}_ms", f"p95_{metric}"),
+        99: (f"p99_{metric}_ms", f"p99_{metric}"),
+    }
+    parsed: dict[str, float] = {}
+    for p, names in aliases.items():
+        value = _first_number(result, names)
+        if value is None:
+            raise ValueError(f"missing p{p} metric for {metric}")
+        parsed[f"p{p}"] = value
+    return parsed
+
+
+def parse_result(result: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+    completed = _first_number(result, ("completed", "successful_requests", "num_completed"))
+    failed = _first_number(result, ("failed", "failed_requests", "num_failures"))
+    if completed is None or failed is None:
+        raise ValueError("missing completed/failed request counts")
+    total = completed + failed
+    if total <= 0:
+        raise ValueError("benchmark produced zero requests")
+
+    request_throughput = _first_number(result, ("request_throughput", "request_throughput_req_per_s"))
+    output_throughput = _first_number(result, ("output_throughput", "output_token_throughput"))
+    total_throughput = _first_number(result, ("total_token_throughput", "total_throughput"))
+    if any(value is None for value in (request_throughput, output_throughput, total_throughput)):
+        raise ValueError("missing throughput metric")
+
+    metrics = {
+        **context,
+        "completed": int(completed),
+        "failed": int(failed),
+        "success_rate_pct": completed / total * 100.0,
+        "error_rate_pct": failed / total * 100.0,
+        "request_throughput": request_throughput,
+        "output_token_throughput": output_throughput,
+        "total_token_throughput": total_throughput,
+        "ttft_ms": metric_percentiles(result, "ttft"),
+        "itl_ms": metric_percentiles(result, "itl"),
+        "e2el_ms": metric_percentiles(result, "e2el"),
+    }
+    metrics["slo"] = {
+        "ttft_p95_lt_1500ms": metrics["ttft_ms"]["p95"] < 1500.0,
+        "itl_p95_lt_50ms": metrics["itl_ms"]["p95"] < 50.0,
+        "success_gte_99pct": metrics["success_rate_pct"] >= 99.0,
+    }
+    metrics["slo_pass"] = all(metrics["slo"].values())
+    return metrics
+
+
+def build_command(input_len: int, concurrency: int, rate: int, result_name: str) -> list[str]:
+    args = [
         "--backend", "openai-chat",
         "--model", MODEL_PATH,
         "--served-model-name", SERVED_MODEL_NAME,
         "--endpoint", "/v1/chat/completions",
         "--dataset-name", "random",
-        "--random-input-len", "2048",
+        "--random-input-len", str(input_len),
         "--random-output-len", "256",
-        "--num-prompts", str(num_prompts),
-        "--request-rate", str(rate)
+        "--num-prompts", "64",
+        "--request-rate", str(rate),
+        "--max-concurrency", str(concurrency),
+        "--percentile-metrics", "ttft,itl,e2el",
+        "--metric-percentiles", "50,95,99",
+        "--save-result", "--save-detailed",
+        "--result-dir", "/tmp/vllm-bench",
+        "--result-filename", result_name,
+        "--metadata", f"input_len={input_len}", f"concurrency={concurrency}", f"rate={rate}",
+        "--ready-check-timeout-sec", "30",
+        "--seed", "20260909",
     ]
-    
-    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    return res.stdout
+    # Keep the secret out of argv and logs: vllm container already has VLLM_API_KEY.
+    shell = 'export OPENAI_API_KEY="$VLLM_API_KEY"; exec vllm bench serve "$@"'
+    return ["docker", "exec", "vllm-engine", "sh", "-lc", shell, "--", *args]
 
-def parse_metrics(output: str, rate: int) -> Dict[str, Any]:
-    metrics = {
-        "rate": rate,
-        "successful_requests": 0,
-        "failed_requests": 0,
-        "error_rate_pct": 0.0,
-        "request_throughput": 0.0,
-        "output_token_throughput": 0.0,
-        "total_token_throughput": 0.0,
-        "ttft_mean_ms": 0.0,
-        "ttft_p99_ms": 0.0,
-        "itl_mean_ms": 0.0,
-        "itl_p99_ms": 0.0,
-        "raw_output": output
+
+def run_case(case: dict[str, Any], output_dir: Path) -> dict[str, Any]:
+    result_name = f"case_i{case['input_len']}_c{case['concurrency']}_r{case['rate']}.json"
+    cmd = build_command(case["input_len"], case["concurrency"], case["rate"], result_name)
+    subprocess.run(["docker", "exec", "vllm-engine", "mkdir", "-p", "/tmp/vllm-bench"], check=True)
+    subprocess.run(cmd, check=True)
+    destination = output_dir / result_name
+    subprocess.run(["docker", "cp", f"vllm-engine:/tmp/vllm-bench/{result_name}", str(destination)], check=True)
+    result = json.loads(destination.read_text())
+    return parse_result(result, case)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--execute", action="store_true", help="run GPU load; requires BENCHMARK_APPROVED=YES")
+    parser.add_argument("--output-dir", type=Path, default=Path("docs/evidence/CAP-20260909"))
+    parser.add_argument("--input-lens", default=','.join(map(str, DEFAULT_INPUT_LENS)))
+    parser.add_argument("--concurrencies", default=','.join(map(str, DEFAULT_CONCURRENCIES)))
+    parser.add_argument("--rates", default=','.join(map(str, DEFAULT_RATES)))
+    args = parser.parse_args()
+
+    input_lens = [int(x) for x in args.input_lens.split(',') if x]
+    concurrencies = [int(x) for x in args.concurrencies.split(',') if x]
+    rates = [int(x) for x in args.rates.split(',') if x]
+    if not input_lens or not concurrencies or not rates:
+        raise SystemExit("input-lens, concurrencies and rates must be non-empty")
+
+    cases = [
+        {"input_len": i, "concurrency": c, "rate": r}
+        for i in input_lens for c in concurrencies for r in rates
+    ]
+    if not args.execute:
+        print("DRY RUN: no GPU load was generated")
+        print(f"cases={len(cases)} input_lens={input_lens} concurrencies={concurrencies} rates={rates}")
+        print("Set BENCHMARK_APPROVED=YES and pass --execute only in an approved window.")
+        return 0
+    if os.environ.get("BENCHMARK_APPROVED") != "YES":
+        raise SystemExit("refusing GPU load: BENCHMARK_APPROVED=YES is required")
+
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    results: list[dict[str, Any]] = []
+    for case in cases:
+        results.append(run_case(case, args.output_dir))
+
+    report = {
+        "created_utc": datetime.now(timezone.utc).isoformat(),
+        "model": MODEL_PATH,
+        "served_model": SERVED_MODEL_NAME,
+        "workload": {"input_lens": input_lens, "output_len": 256, "concurrencies": concurrencies, "rates": rates, "num_prompts": 64, "seed": 20260909},
+        "percentiles": list(PERCENTILES),
+        "results": results,
+        "capacity_gate_pass": bool(results) and all(row["slo_pass"] for row in results),
     }
+    report_path = args.output_dir / "capacity-report.json"
+    report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    print(f"report={report_path}")
+    print(f"capacity_gate_pass={report['capacity_gate_pass']}")
+    if not report["capacity_gate_pass"]:
+        return 2
+    return 0
 
-    # Extract values using regex
-    m_succ = re.search(r"Successful requests:\s+(\d+)", output)
-    if m_succ: metrics["successful_requests"] = int(m_succ.group(1))
-
-    m_fail = re.search(r"Failed requests:\s+(\d+)", output)
-    if m_fail: metrics["failed_requests"] = int(m_fail.group(1))
-
-    tot_reqs = metrics["successful_requests"] + metrics["failed_requests"]
-    if tot_reqs > 0:
-        metrics["error_rate_pct"] = (metrics["failed_requests"] / tot_reqs) * 100.0
-
-    m_req_tp = re.search(r"Request throughput \(req/s\):\s+([\d.]+)", output)
-    if m_req_tp: metrics["request_throughput"] = float(m_req_tp.group(1))
-
-    m_out_tp = re.search(r"Output token throughput \(tok/s\):\s+([\d.]+)", output)
-    if m_out_tp: metrics["output_token_throughput"] = float(m_out_tp.group(1))
-
-    m_tot_tp = re.search(r"Total token throughput \(tok/s\):\s+([\d.]+)", output)
-    if m_tot_tp: metrics["total_token_throughput"] = float(m_tot_tp.group(1))
-
-    m_ttft_mean = re.search(r"Mean TTFT \(ms\):\s+([\d.]+)", output)
-    if m_ttft_mean: metrics["ttft_mean_ms"] = float(m_ttft_mean.group(1))
-
-    m_ttft_p99 = re.search(r"P99 TTFT \(ms\):\s+([\d.]+)", output)
-    if m_ttft_p99: metrics["ttft_p99_ms"] = float(m_ttft_p99.group(1))
-
-    m_itl_mean = re.search(r"Mean ITL \(ms\):\s+([\d.]+)", output)
-    if m_itl_mean: metrics["itl_mean_ms"] = float(m_itl_mean.group(1))
-
-    m_itl_p99 = re.search(r"P99 ITL \(ms\):\s+([\d.]+)", output)
-    if m_itl_p99: metrics["itl_p99_ms"] = float(m_itl_p99.group(1))
-
-    return metrics
-
-def main():
-    print("======================================================================")
-    print("Starting Enterprise vLLM Benchmark Evaluation")
-    print(f"Model: {MODEL_PATH} ({SERVED_MODEL_NAME})")
-    print("======================================================================")
-
-    all_results = []
-    for rate in RATES:
-        prompts = NUM_PROMPTS_PER_RATE.get(rate, 10)
-        output = run_vllm_bench_serve(rate, prompts)
-        metrics = parse_metrics(output, rate)
-        all_results.append(metrics)
-
-    # Generate Markdown Report
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
-    report = [
-        "# BÁO CÁO BENCHMARK VÀ SLO HIỆU NĂNG VLLM (NVIDIA GB10)",
-        "",
-        f"> **Thời gian kiểm thử:** {timestamp}  ",
-        f"> **Mô hình:** `{MODEL_PATH}` (`{SERVED_MODEL_NAME}`)  ",
-        "> **Cấu hình:** FP8 Quantization, KV-Cache FP8, Flash Attention, Prefix Caching  ",
-        "> **Workload Profile:** Prompt: 2048 tokens | Output: 256 tokens",
-        "",
-        "---",
-        "",
-        "## 📊 Kết quả Benchmark theo Tốc độ Yêu cầu (Request Rates)",
-        "",
-        "| Rate (RPS) | Successful / Failed | Request TP (req/s) | Output TP (tok/s) | Total TP (tok/s) | TTFT Mean (ms) | TTFT P99 (ms) | ITL Mean (ms) | Error Rate (%) |",
-        "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |"
-    ]
-
-    for m in all_results:
-        row = f"| {m['rate']} | {m['successful_requests']} / {m['failed_requests']} | {m['request_throughput']:.2f} | {m['output_token_throughput']:.2f} | {m['total_token_throughput']:.2f} | {m['ttft_mean_ms']:.2f} | {m['ttft_p99_ms']:.2f} | {m['itl_mean_ms']:.2f} | {m['error_rate_pct']:.2f}% |"
-        report.append(row)
-
-    report.extend([
-        "",
-        "---",
-        "",
-        "## 🎯 Đánh giá Tuân thủ Chỉ số SLO (Service Level Objectives)",
-        "",
-        "| Chỉ số SLO Target | Ngưỡng Mục tiêu (Target) | Kết quả Đạt được (Best/Avg) | Trạng thái (Status) |",
-        "| :--- | :--- | :--- | :--- |",
-    ])
-
-    # Evaluate SLOs
-    avg_ttft_mean = sum(m["ttft_mean_ms"] for m in all_results) / len(all_results)
-    max_error_rate = max(m["error_rate_pct"] for m in all_results)
-    min_itl = min(m["itl_mean_ms"] for m in all_results)
-
-    ttft_status = "✅ PASS" if avg_ttft_mean < 2500 else "⚠️ WARN"
-    itl_status = "✅ PASS" if min_itl < 100 else "⚠️ WARN"
-    err_status = "✅ PASS" if max_error_rate < 1.0 else "❌ FAIL"
-
-    report.append(f"| **TTFT (Time to First Token)** | < 1,500ms (P95) | Mean TTFT: {avg_ttft_mean:.2f}ms | {ttft_status} |")
-    report.append(f"| **ITL (Inter-Token Latency)** | < 50ms/token (P95) | Mean ITL: {min_itl:.2f}ms | {itl_status} |")
-    report.append(f"| **Request Error Rate** | < 1.0% | Max Error Rate: {max_error_rate:.2f}% | {err_status} |")
-
-    report.extend([
-        "",
-        "---",
-        "",
-        "## 💡 Kết luận & Nhận xét Hiệu năng",
-        "- **Tải xử lý (Throughput):** Hệ thống đạt băng thông tối đa trên **80+ output tokens/giây** và hơn **700+ total tokens/giây**.",
-        "- **Độ ổn định (Resilience):** Tỷ lệ lỗi request **0.00%** trên toàn bộ các mức tải từ 1 đến 16 RPS.",
-        "- **Trạng thái Môi trường:** vLLM engine hoạt động ổn định trên NVIDIA GB10 với FlashAttention & Prefix Caching kích hoạt.",
-        ""
-    ])
-
-    with open(OUTPUT_REPORT_PATH, "w") as f:
-        f.write("\n".join(report))
-
-    print(f"\n[+] Benchmark Report generated successfully at: {OUTPUT_REPORT_PATH}")
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -1,5 +1,10 @@
 # BÁO CÁO BENCHMARK VÀ SLO HIỆU NĂNG VLLM (NVIDIA GB10)
 
+> **Trạng thái: HISTORICAL / INVALID FOR SLO APPROVAL.** Harness dùng mean/minimum
+> thay cho percentile mục tiêu, threshold trong code không khớp tài liệu, cỡ mẫu
+> nhỏ và offered RPS không phải achieved RPS. Giữ file này để truy vết; phải chạy
+> lại theo `RUNBOOK.md` trước mọi quyết định capacity.
+
 > **Thời gian kiểm thử:** 2026-09-04 04:09:16 UTC  
 > **Mô hình:** `Qwen/Qwen2.5-14B-Instruct` (`qwen2.5-14b`)  
 > **Cấu hình:** FP8 Quantization, KV-Cache FP8, Flash Attention, Prefix Caching  

@@ -1,4 +1,4 @@
-FROM ghcr.io/open-webui/open-webui:main
+FROM ghcr.io/open-webui/open-webui@sha256:c1e4beee0a16801816c878f7ac1d6c19cb8a52dc4655f540e8852909c782ffa1
 
 USER root
 

@@ -1,7 +1,7 @@
 services:
   # 1. vLLM Inference Engine (High-Throughput OpenAI API Compatible Engine)
   vllm:
-    image: vllm/vllm-openai:latest
+    image: vllm/vllm-openai@sha256:61fc8a896b0a4fbbbdc063bc4b0dbc25ce98e02b5050c24aeb7830ac02039b14
     container_name: vllm-engine
     restart: always
     ipc: host
@@ -12,27 +12,35 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-    ports:
-      - "127.0.0.1:8000:8000"
+    networks:
+      - inference
     volumes:
       - /var/lib/vllm/models:/root/.cache/huggingface
     environment:
-      - HF_HUB_OFFLINE=0
+      - HF_HUB_OFFLINE=1
       - OMP_NUM_THREADS=8
-      - VLLM_ATTENTION_BACKEND=FLASH_ATTN
-    command: >
-      --model Qwen/Qwen2.5-14B-Instruct
-      --host 0.0.0.0
-      --port 8000
-      --gpu-memory-utilization 0.75
-      --max-model-len 16384
-      --max-num-seqs 64
-      --quantization fp8
-      --kv-cache-dtype fp8
-      --enable-prefix-caching
-      --served-model-name qwen2.5-14b
-      --enable-auto-tool-choice
-      --tool-call-parser hermes
+      - VLLM_CONFIGURE_LOGGING=0
+      - VLLM_API_KEY=${VLLM_API_KEY:?VLLM_API_KEY must be set}
+    entrypoint: ["/bin/sh"]
+    command:
+      - -c
+      - >-
+        exec vllm serve
+        --model Qwen/Qwen2.5-14B-Instruct
+        --revision cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8
+        --tokenizer-revision cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8
+        --host 0.0.0.0
+        --port 8000
+        --kv-cache-memory 68719476736
+        --max-model-len 16384
+        --max-num-seqs 40
+        --quantization fp8
+        --kv-cache-dtype fp8
+        --enable-prefix-caching
+        --served-model-name qwen2.5-14b
+        --enable-auto-tool-choice
+        --tool-call-parser hermes
+        --api-key "$$VLLM_API_KEY"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
       interval: 10s
@@ -42,19 +50,24 @@ services:
 
   # 2. Giao diện Người dùng & Quản lý RAG (Open WebUI)
   open-webui:
-    image: open-webui-htmp:libreoffice
+    image: open-webui-htmp:speed-selector
     container_name: open-webui
+    networks:
+      - frontend
+      - inference
+      - ingestion
+      - data
     restart: always
-    ports:
-      - "127.0.0.1:3000:8080"
     environment:
       - OPENAI_API_BASE_URLS=http://vllm:8000/v1
-      - OPENAI_API_KEY=EMPTY
-      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+      - OPENAI_API_KEY=${VLLM_API_KEY:?VLLM_API_KEY must be set}
+      - ENABLE_OPENAI_API=True
+      - ENABLE_OLLAMA_API=False
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:?WEBUI_SECRET_KEY must be set}
       - ENABLE_RAG_WEB_SEARCH=False
       - VECTOR_DB=qdrant
       - QDRANT_URI=http://qdrant:6333
-      - QDRANT_API_KEY=${QDRANT_API_KEY}
+      - QDRANT_API_KEY=${QDRANT_API_KEY:?QDRANT_API_KEY must be set}
       - RAG_EMBEDDING_ENGINE=huggingface
       - RAG_EMBEDDING_MODEL=BAAI/bge-m3
       - CONTENT_EXTRACTION_ENGINE=tika
@@ -63,8 +76,8 @@ services:
       - ENABLE_RAG_HYBRID_SEARCH=True
       - RAG_TOP_K=5
       - RAG_RELEVANCE_THRESHOLD=0.3
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - ENABLE_SIGNUP=${ENABLE_SIGNUP:-False}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis:6379/0
+      - ENABLE_SIGNUP=False
       - DEFAULT_USER_ROLE=${DEFAULT_USER_ROLE:-user}
     volumes:
       - open-webui-data:/app/backend/data
@@ -84,23 +97,40 @@ services:
 
   # 2B. Apache Tika - Trich xuat noi dung tai lieu
   tika:
-    image: apache/tika:3.3.1.0-full
+    image: apache/tika@sha256:d8e6ed96260ad89307a93195a1b856102987a818ac648502f8efbaf313d32470
     container_name: tika
+    networks:
+      - ingestion
     restart: always
+    read_only: true
+    tmpfs:
+      - /tmp:size=512m,noexec,nosuid,nodev
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 2g
+    cpus: 2.0
+    pids_limit: 256
     command: ["-c", "/tika-config.xml"]
     volumes:
       - ./tika-config.xml:/tika-config.xml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:9998/version || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # 3. Qdrant Vector Database (Vector Search hiệu năng cao bằng Rust)
   qdrant:
-    image: qdrant/qdrant:latest
+    image: qdrant/qdrant@sha256:057ee3a8da769fe7310dd3537b4dc7583bf87a95ce8ac43c0af5a46bc580d1fc
     container_name: qdrant-vector-db
+    networks:
+      - data
     restart: always
-    ports:
-      - "127.0.0.1:6333:6333"
-      - "127.0.0.1:6334:6334"
     environment:
-      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY}
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:?QDRANT_API_KEY must be set}
     volumes:
       - qdrant-data:/qdrant/storage
     healthcheck:
@@ -112,14 +142,14 @@ services:
 
   # 4. Redis Server (Message Broker cho Celery & Semantic LLM Cache)
   redis:
-    image: redis:7-alpine
+    image: redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf
     container_name: redis-broker-cache
+    networks:
+      - data
     restart: always
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
-    ports:
-      - "127.0.0.1:6379:6379"
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
     volumes:
       - redis-data:/data
     healthcheck:
@@ -131,13 +161,15 @@ services:
 
   # 5. Langfuse Postgres Database (Lưu dữ liệu Tracing LLM)
   langfuse-db:
-    image: postgres:15-alpine
+    image: postgres@sha256:fe0737ba566a2c5b2a28f34433c0a423261900ec17b9bf7ad115e1aae7e57f1b
     container_name: langfuse-db
+    networks:
+      - observability
     restart: always
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER:?POSTGRES_USER must be set}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      - POSTGRES_DB=${POSTGRES_DB:?POSTGRES_DB must be set}
     volumes:
       - langfuse-db-data:/var/lib/postgresql/data
     healthcheck:
@@ -149,16 +181,16 @@ services:
 
   # 6. Langfuse Web Server (Giao diện Observability & Trace LLM Agent)
   langfuse-web:
-    image: ghcr.io/langfuse/langfuse:2
+    image: ghcr.io/langfuse/langfuse@sha256:85c278dcab96c15db94191a5c1664f85aba2d7fb6771a00e99681c902c4b7015
     container_name: langfuse-server
+    networks:
+      - observability
     restart: always
-    ports:
-      - "127.0.0.1:3001:3000"
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@langfuse-db:5432/${POSTGRES_DB}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - SALT=${SALT}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:?POSTGRES_USER must be set}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@langfuse-db:5432/${POSTGRES_DB:?POSTGRES_DB must be set}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:?NEXTAUTH_SECRET must be set}
+      - SALT=${SALT:?SALT must be set}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:?ENCRYPTION_KEY must be set}
       - NEXTAUTH_URL=http://localhost:3001
       - TELEMETRY_ENABLED=false
     depends_on:
@@ -173,8 +205,10 @@ services:
 
   # 7. Nginx Gateway (TLS/SSL Reverse Proxy & SSE Streaming)
   nginx:
-    image: nginx:alpine
+    image: nginx@sha256:72ba65eb42c10344912a84ff42408db7d34f2feb642204570ab8fc5ffd29f1d3
     container_name: nginx-gateway
+    networks:
+      - frontend
     restart: always
     ports:
       - "80:80"
@@ -201,3 +235,19 @@ volumes:
     driver: local
   langfuse-db-data:
     driver: local
+
+networks:
+  frontend:
+    driver: bridge
+  inference:
+    driver: bridge
+    internal: true
+  ingestion:
+    driver: bridge
+    internal: true
+  data:
+    driver: bridge
+    internal: true
+  observability:
+    driver: bridge
+    internal: true

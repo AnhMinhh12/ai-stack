@@ -1,0 +1,15 @@
+wave_id: WAVE-001
+status: blocked
+user_group: TBD
+data_classification: public/internal after approval
+owner: TBD
+approvers: [TBD]
+quota: TBD
+acl_review: pending
+release_manifest: docs/evidence/REL-20260909-r2/release-manifest.yaml
+backup_id: pending clean-room-valid backup
+rollback_command: TBD
+capacity_headroom: pending step-6 evidence
+abort_threshold: docs/pilot-scope.md#tiêu-chí-tạm-thời-cần-owner-ký
+review_24h_utc: TBD
+review_7d_utc: TBD

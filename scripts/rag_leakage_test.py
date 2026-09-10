@@ -6,28 +6,17 @@ Validates strict 0% data leakage between isolated tenant contexts in Qdrant Vect
 
 import sys
 import json
-import time
+import os
 import urllib.request
-import urllib.parse
-from typing import Dict, List, Any
+from typing import Dict
 
-# Configurations
-QDRANT_URL = "http://127.0.0.1:6333"
-ENV_PATH = "/home/admin/ai-stack/.env"
-
-def get_env_key(key_name: str, default: str = "") -> str:
-    try:
-        with open(ENV_PATH, "r") as f:
-            for line in f:
-                line = line.strip()
-                if line.startswith(f"{key_name}="):
-                    return line.split("=", 1)[1].strip()
-    except Exception:
-        pass
-    return default
-
-QDRANT_API_KEY = get_env_key("QDRANT_API_KEY", "Qdrant_S3cur3_API_K3y_2026_GB10")
+# Runtime configuration. Credentials must come from the environment/secret manager.
+QDRANT_URL = os.environ.get("QDRANT_URL", "")
+QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
 TEST_COLLECTION = "test_tenant_rag_isolation"
+
+if not QDRANT_URL or not QDRANT_API_KEY:
+    raise SystemExit("FAIL CLOSED: QDRANT_URL and QDRANT_API_KEY must be provided by the runtime secret mechanism")
 
 def qdrant_request(endpoint: str, method: str = "GET", payload: Dict = None) -> Dict:
     url = f"{QDRANT_URL}{endpoint}"

@@ -298,6 +298,11 @@ components:
     padding: 64px
 ---
 
+> **ARCHIVED — không phải tài liệu vận hành.** Đây là bản phân tích design system
+> tham khảo; repository hiện không có frontend source sử dụng thiết kế này. Không
+> dùng file này làm yêu cầu cho Local AI Stack. Nguồn tài liệu chuẩn là
+> [`README.md`](../../README.md) và [`RUNBOOK.md`](../../RUNBOOK.md).
+
 ## Overview
 
 Claude.com is the warmest, most editorial interface in the AI-product category. The base atmosphere is a **tinted cream canvas** (`{colors.canvas}` — #faf9f5) — distinctly warm, deliberately not the cool gray-white that every other AI brand uses. Headlines run a **slab-serif display** ("Copernicus" / Tiempos Headline) at weight 400 with negative letter-spacing, paired with **StyreneB / Inter** body sans. The combination feels like a literary publication, not a SaaS marketing page.

@@ -1,0 +1,5 @@
+FROM open-webui-htmp:libreoffice
+
+COPY build /app/build
+
+LABEL org.opencontainers.image.description="HTMP Open WebUI with a Speed selector"

@@ -8,3 +8,6 @@ nginx/certs/
 qdrant_data/
 redis_data/
 langfuse_db_data/
+
+.secrets/
+__pycache__/
