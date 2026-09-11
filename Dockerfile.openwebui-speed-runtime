@@ -1,7 +1,7 @@
 # Immutable, source-reproducible HTMP Open WebUI release image.
 ARG NODE_IMAGE
 
-FROM ghcr.io/open-webui/open-webui@sha256:c1e4beee0a16801816c878f7ac1d6c19cb8a52dc4655f540e8852909c782ffa1 AS runtime
+FROM localhost:5443/ai/open-webui-base@sha256:193feec28e872a39218617207119fc6ca3ca2c2a8e1fe79905f3c0638d36b98a AS runtime
 
 USER root
 RUN apt-get update && \
