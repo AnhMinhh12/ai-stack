@@ -1,16 +1,15 @@
 """
-title: HTMP Fast RAG
+title: HTMP Technical RAG
 author: HTMP Platform
-version: 1.1.0
+version: 1.0.0
 required_open_webui_version: 0.6.0
 """
 
-"""Per-model vector-only RAG profile for the HTMP knowledge base.
+"""Per-model hybrid RAG profile for the HTMP knowledge base.
 
-This filter runs only when attached to the HTMP Nhanh workspace model.  It
-uses Open WebUI's access-checked retrieval helper, injects the resulting
-context with the platform RAG template, then removes file attachments so the
-global hybrid/reranker path cannot run a second time.
+This filter runs only when attached to the HTMP Kỹ workspace model. It
+uses access-checked hybrid retrieval and reranking before injecting the
+resulting context.
 """
 
 from open_webui.models.users import UserModel
@@ -53,7 +52,7 @@ class Filter:
                     "type": "status",
                     "data": {
                         "action": "knowledge_search",
-                        "description": "Đang tra cứu nhanh tài liệu nội bộ",
+                        "description": "Đang tra cứu kỹ tài liệu nội bộ",
                         "done": False,
                     },
                 }
@@ -66,12 +65,18 @@ class Filter:
             embedding_function=lambda query, prefix: __request__.app.state.EMBEDDING_FUNCTION(
                 query, prefix=prefix, user=user
             ),
-            k=6,
-            reranking_function=None,
-            k_reranker=0,
-            r=0.0,
-            hybrid_bm25_weight=0.0,
-            hybrid_search=False,
+            k=10,
+            reranking_function=(
+                (lambda query, documents: __request__.app.state.RERANKING_FUNCTION(
+                    query, documents, user=user
+                ))
+                if __request__.app.state.RERANKING_FUNCTION
+                else None
+            ),
+            k_reranker=5,
+            r=0.3,
+            hybrid_bm25_weight=0.5,
+            hybrid_search=True,
             user=user,
         )
 
@@ -92,7 +97,7 @@ class Filter:
                     "type": "status",
                     "data": {
                         "action": "knowledge_search",
-                        "description": "Đã tra cứu nhanh tài liệu nội bộ",
+                        "description": "Đã tra cứu kỹ tài liệu nội bộ",
                         "done": True,
                     },
                 }

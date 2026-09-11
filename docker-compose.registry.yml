@@ -1,0 +1,21 @@
+# Lightweight OCI registry for the current single-host deployment.
+# It is deliberately loopback-only: employees never access this service directly.
+services:
+  registry:
+    image: htmp/registry-service:sha-a3d8aaa63ed8681a604f1dea0aa03f100d5895b6a58ace528858a7b332415373
+    container_name: htmp-oci-registry
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5443:5000"
+    volumes:
+      - ./registry/config.yml:/etc/docker/registry/config.yml:ro
+      - ${HTMP_REGISTRY_DATA_DIR:?HTMP_REGISTRY_DATA_DIR must be an absolute protected path}:/var/lib/registry
+      - ${HTMP_REGISTRY_TLS_DIR:?HTMP_REGISTRY_TLS_DIR must contain registry.crt and registry.key}:/certs:ro
+      - ${HTMP_REGISTRY_AUTH_DIR:?HTMP_REGISTRY_AUTH_DIR must contain htpasswd}:/auth:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -S --spider --no-check-certificate https://127.0.0.1:5000/v2/ 2>&1 | grep -Eq \"HTTP/[0-9.]+ 401\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+

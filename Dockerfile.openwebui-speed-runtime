@@ -1,5 +1,35 @@
-FROM open-webui-htmp:libreoffice
+# Immutable, source-reproducible HTMP Open WebUI release image.
+FROM ghcr.io/open-webui/open-webui@sha256:c1e4beee0a16801816c878f7ac1d6c19cb8a52dc4655f540e8852909c782ffa1 AS runtime
 
-COPY build /app/build
+USER root
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        libreoffice-core libreoffice-writer libreoffice-calc libreoffice-impress && \
+    rm -rf /var/lib/apt/lists/* && \
+    python3 -m pip install --no-cache-dir psycopg[binary]==3.2.10
 
-LABEL org.opencontainers.image.description="HTMP Open WebUI with a Speed selector"
+ARG NODE_IMAGE
+FROM ${NODE_IMAGE} AS frontend
+ARG OPENWEBUI_SOURCE_REV=d3e8bf3405e848cfba377814d0aa7ba7290e414d
+ARG BUILD_HASH
+WORKDIR /src
+RUN apk add --no-cache git perl && \
+    git init && \
+    git remote add origin https://github.com/open-webui/open-webui.git && \
+    git fetch --depth 1 origin "$OPENWEBUI_SOURCE_REV" && \
+    git checkout --detach FETCH_HEAD && \
+    test "$(git rev-parse HEAD)" = "$OPENWEBUI_SOURCE_REV"
+COPY scripts/patch_openwebui_speed_selector.pl /tmp/patch_openwebui_speed_selector.pl
+RUN selector="$(find src -type f -path '*ModelSelector.svelte' | head -n 1)" && \
+    test -n "$selector" && \
+    test "$(find src -type f -path '*ModelSelector.svelte' | wc -l)" = 1 && \
+    perl /tmp/patch_openwebui_speed_selector.pl "$selector"
+RUN npm ci --force
+ENV APP_BUILD_HASH=$BUILD_HASH
+RUN npm run build
+
+FROM runtime
+COPY --from=frontend /src/build /app/build
+LABEL org.opencontainers.image.description="HTMP Open WebUI with immutable Speed selector source" \
+      org.opencontainers.image.source="https://github.com/open-webui/open-webui" \
+      org.opencontainers.image.revision="d3e8bf3405e848cfba377814d0aa7ba7290e414d"

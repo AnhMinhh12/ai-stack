@@ -1,0 +1,7 @@
+status: pending
+baseline_image: registry.htmp.internal/ai/open-webui-htmp@sha256:ROLLBACK_BASELINE
+candidate_image: registry.htmp.internal/ai/open-webui-htmp@sha256:CANDIDATE
+command: docker compose --env-file .env.release up -d --no-deps open-webui
+staging_smoke: pending
+owner: Ho Anh Minh
+approver: Security

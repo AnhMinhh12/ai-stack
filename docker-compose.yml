@@ -50,7 +50,9 @@ services:
 
   # 2. Giao diện Người dùng & Quản lý RAG (Open WebUI)
   open-webui:
-    image: open-webui-htmp:speed-selector
+    # Release deployments must set HTMP_OPEN_WEBUI_IMAGE to a registry digest.
+    # Lab fallback is not permitted by the release gate.
+    image: ${HTMP_OPEN_WEBUI_IMAGE:?HTMP_OPEN_WEBUI_IMAGE must be an immutable registry digest}
     container_name: open-webui
     networks:
       - frontend
@@ -79,6 +81,13 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis:6379/0
       - ENABLE_SIGNUP=False
       - DEFAULT_USER_ROLE=${DEFAULT_USER_ROLE:-user}
+      - HTMP_DB_HOST=${HTMP_DB_HOST:?HTMP_DB_HOST must be set}
+      - HTMP_DB_PORT=${HTMP_DB_PORT:-5410}
+      - HTMP_DB_NAME=${HTMP_DB_NAME:-3SERP_HTMP_DATA}
+      - HTMP_DB_USER=${HTMP_DB_USER:?HTMP_DB_USER must be set}
+      - HTMP_DB_PASSWORD=${HTMP_DB_PASSWORD:?HTMP_DB_PASSWORD must be set}
+      - HTMP_DB_MAX_ROWS=${HTMP_DB_MAX_ROWS:-200}
+      - HTMP_DB_STATEMENT_TIMEOUT_MS=${HTMP_DB_STATEMENT_TIMEOUT_MS:-15000}
     volumes:
       - open-webui-data:/app/backend/data
     depends_on:

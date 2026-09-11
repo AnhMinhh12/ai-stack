@@ -1,0 +1,10 @@
+policy_version: 1
+status: proposed_pending_security_approval
+owner: Ho Anh Minh
+approver: Security
+expires_utc: TBD
+vulnerabilities:
+  critical: deny
+  high: require_security_exception_with_expiry
+licenses:
+  decision: require_security_or_legal_allowlist_or_exception

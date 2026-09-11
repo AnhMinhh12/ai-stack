@@ -1,0 +1,20 @@
+# Optional OIDC overlay. It is intentionally unusable until the IdP values are supplied.
+# Run only with: docker compose -f docker-compose.yml -f docker-compose.oidc.yml --env-file /protected/oidc.env up -d
+services:
+  open-webui:
+    environment:
+      ENABLE_OAUTH: "True"
+      ENABLE_OAUTH_SIGNUP: "False"
+      ENABLE_OAUTH_PERSISTENT_CONFIG: "False"
+      OAUTH_PROVIDER_NAME: "HTMP SSO"
+      OPENID_PROVIDER_URL: ${OIDC_ISSUER_URL:?OIDC_ISSUER_URL must be set}
+      OAUTH_CLIENT_ID: ${OIDC_CLIENT_ID:?OIDC_CLIENT_ID must be set}
+      OAUTH_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:?OIDC_CLIENT_SECRET must be resolved by the secret manager}
+      OAUTH_GROUPS_CLAIM: ${OIDC_GROUP_CLAIM:?OIDC_GROUP_CLAIM must be set}
+      ENABLE_OAUTH_GROUP_MANAGEMENT: "True"
+      ENABLE_OAUTH_GROUP_CREATION: "False"
+      ENABLE_OAUTH_ROLE_MANAGEMENT: "False"
+      OAUTH_MERGE_ACCOUNTS_BY_EMAIL: "False"
+      REQUESTS_CA_BUNDLE: ${OIDC_CA_BUNDLE_PATH:?OIDC_CA_BUNDLE_PATH must point to an internal-CA bundle}
+    volumes:
+      - ${OIDC_CA_BUNDLE_HOST_PATH:?OIDC_CA_BUNDLE_HOST_PATH must point to a read-only internal-CA bundle}:${OIDC_CA_BUNDLE_PATH:?OIDC_CA_BUNDLE_PATH must be set}:ro

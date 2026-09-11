@@ -1,0 +1,18 @@
+status: blocked
+request_correlation:
+  gateway_header: X-Request-ID
+  app_propagation: required
+  retrieval_propagation: required
+  inference_propagation: required
+tracing:
+  backend: Langfuse
+  prompt_content: prohibited
+  auth_headers: prohibited
+  user_identity: pseudonymous_only
+alerts:
+  owner: TBD
+  notification_reference: TBD
+  runbook: RUNBOOK.md
+retention:
+  trace_days: TBD
+  audit_days: TBD

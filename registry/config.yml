@@ -1,0 +1,24 @@
+version: 0.1
+log:
+  fields:
+    service: htmp-oci-registry
+storage:
+  delete:
+    enabled: true
+  filesystem:
+    rootdirectory: /var/lib/registry
+http:
+  addr: :5000
+  tls:
+    certificate: /certs/registry.crt
+    key: /certs/registry.key
+auth:
+  htpasswd:
+    realm: HTMP Internal Registry
+    path: /auth/htpasswd
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3
+

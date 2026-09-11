@@ -1,0 +1,49 @@
+release_id: REL-YYYYMMDD-N
+status: candidate
+captured_utc: TBD
+owner: Ho Anh Minh
+approver: Security
+git:
+  commit: TBD
+  signed_tag: TBD
+platform:
+  os_arch: linux/arm64
+  host: TBD
+  gpu: NVIDIA GB10
+  driver: TBD
+images:
+  open_webui:
+    repository: registry.htmp.internal/ai/open-webui-htmp
+    reference: registry.htmp.internal/ai/open-webui-htmp@sha256:REPLACE_AFTER_PUSH
+    platform: linux/arm64
+  vllm: {repository: vllm/vllm-openai, digest: TBD}
+  qdrant: {repository: qdrant/qdrant, digest: TBD}
+  redis: {repository: redis, digest: TBD}
+  postgres: {repository: postgres, digest: TBD}
+  langfuse: {repository: ghcr.io/langfuse/langfuse, digest: TBD}
+  nginx: {repository: nginx, digest: TBD}
+  tika: {repository: apache/tika, digest: TBD}
+model:
+  root: Qwen/Qwen2.5-14B-Instruct
+  revision: cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8
+  tokenizer_revision: cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8
+  served_model_name: qwen2.5-14b
+  quantization: fp8
+  kv_cache_dtype: fp8
+embedding:
+  root: BAAI/bge-m3
+  revision: 5617a9f61b028005a4858fdac845db406aefb181
+bootstrap:
+  config: config/htmp-rag-models.json
+  functions: [htmp_fast_rag, htmp_technical_rag]
+runtime:
+  backup_id: TBD
+  rollback_target: registry.htmp.internal/ai/open-webui-htmp@sha256:ROLLBACK_BASELINE
+supply_chain:
+  policy: scan-policy.yaml
+  sbom: pending
+  cve_scan: pending
+  license_scan: pending
+promotion_gate:
+  passed: false
+  blockers: [registry digest, scan artifacts, security approval, signed release tag, rollback evidence]

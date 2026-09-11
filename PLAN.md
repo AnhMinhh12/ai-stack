@@ -11,6 +11,25 @@
 - `HTMP Nhanh` dùng filter theo từng model (`htmp_fast_rag`), không phải sửa cấu hình RAG dùng chung. Filter gọi helper có kiểm tra quyền truy cập của Open WebUI, rồi loại attachment đã xử lý để ngăn pipeline global chạy lại hybrid search lần hai. Vì vậy mode Nhanh và Kỹ không làm thay đổi nhau.
 - Đã kiểm tra sau restart: 8/8 service healthy; hai model active, knowledge gắn sẵn và filter nạp được. Chưa coi đây là kết quả SLO: cần người dùng thử cùng một câu hỏi đại diện ở cả hai mode, ghi TTFT/E2E và đánh giá câu trả lời trước khi chốt ngưỡng cho khoảng 50 người dùng.
 
+## Cập nhật pilot-ready — 2026-09-11
+
+**Kết luận:** các kiểm soát có thể xây/kiểm tra trong workspace cho Bước 0–7 đã được triển khai hoặc kiểm tra lại; **không có bước nào được promotion**. Mọi dependency ngoại vi và approval vẫn `blocked` fail-closed. Evidence: [PILOT-20260911](docs/evidence/PILOT-20260911/steps0-7.md), [REL-20260911](docs/evidence/REL-20260911/step1.md).
+
+- **Bước 0:** baseline/runtime staging vẫn healthy; owner, scope/risk acceptance, SLO/RPO/RTO và capacity approval đều `TBD`, nên gate `blocked`.
+- **Bước 1:** Registry OCI nhẹ chạy trên chính host tại localhost:5443, TLS/auth/Robot Account/healthcheck pass; image Registry được tải qua IPv4 và checksum xác minh do Docker daemon không có IPv6 egress. Image Open WebUI hiện hành đã được push/pull theo rollback digest sha256:9b03fd56826d76cd503a5f4c126db919537dc5ea7490265fdd5bb12c6ba63cdd. Evidence: docs/evidence/REG-20260911/step1-registry.md. Custom candidate build/publish, SBOM/CVE/license scan, signed tag, Security approval và staging rollback test vẫn là blocker.
+- **Bước 2:** thêm `config/pilot-contract.env.example` và checker để từ chối secret reference/backup/alert/on-call/retention trống hoặc placeholder. Secret manager, rotation record, firewall/certificate và off-host immutable storage chưa có; `blocked`.
+- **Bước 3:** scope đã đổi sang một kho tri thức chung cho toàn công ty; phân quyền chi tiết, OIDC/MFA và RAG ACL được hoãn, không bỏ. Public signup vẫn khóa và tài khoản nội bộ được quản trị thủ công. Không được đưa dữ liệu cần phân quyền vào kho chung. Xem docs/company-wide-access-scope.md.
+- **Bước 4:** request ID gateway/RAG profile smoke có pass; hai filter RAG chỉ chuyển opaque request ID và profile, không đưa prompt/tài liệu/header xác thực/email vào hook. Observability contract cấm các dữ liệu đó. Chưa có Langfuse trace E2E, retention enforcement, notification endpoint hay on-call owner; `blocked`.
+- **Bước 5:** thêm clean-room archive verifier chỉ dùng `RESTORE_MODE=clean-room` và Docker volume tạm, không ghi production. Negative test chặn do thiếu `BACKUP_GPG_RECIPIENT`; không tạo backup không mã hóa. Clean-room service recovery, off-host immutable copy và DR approval chưa có; `blocked`.
+- **Bước 6:** giữ GPU-load lock; dry-run 48 case đã pass, nhưng không chạy benchmark thật/soak. Cần window, workload, SLO/headroom và abort threshold được duyệt; `blocked`.
+- **Bước 7:** staging smoke pass Compose, 8 service, auth, bootstrap và cả HTMP Nhanh/Kỹ với citation config. Upload→parse→retrieve→generate bằng dữ liệu clean-room, citation content assertion, context-limit, trace/authorization E2E và promotion đều chờ upstream gates; `blocked`.
+
+**Recheck cuối:** 2026-09-11T03:10:49Z — bootstrap apply/check, RAG profile, staging smoke và `git diff --check` đều pass sau khi đồng bộ hook request-ID.
+
+**Lệnh tái kiểm tra:** `bash -n scripts/{backup,restore,clean_room_verify,build_release_image,supply_chain_scan}.sh`; `python3 -m py_compile scripts/*.py functions/*.py`; `python3 scripts/staging_smoke_check.py`; `env -i PATH=/usr/local/bin:/usr/bin:/bin python3 scripts/pilot_contract_check.py --strict --oidc` (phải exit 2 khi chưa có handoff); `python3 scripts/release_gate.py --manifest docs/evidence/REL-TEMPLATE/release-manifest.yaml --evidence-dir docs/evidence/REL-TEMPLATE` (phải exit 2 khi artifact/approval thiếu).
+
+
+
 # Kế hoạch triển khai Local AI Stack
 
 > Căn cứ: `README.md` và `RUNBOOK.md`  
