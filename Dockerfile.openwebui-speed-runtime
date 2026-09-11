@@ -26,6 +26,7 @@ RUN selector="$(find src -type f -path '*ModelSelector.svelte' | head -n 1)" && 
     test -n "$selector" && \
     test "$(find src -type f -path '*ModelSelector.svelte' | wc -l)" = 1 && \
     perl /tmp/patch_openwebui_speed_selector.pl "$selector"
+ENV NODE_OPTIONS=--max-old-space-size=8192
 RUN npm ci --force
 ENV APP_BUILD_HASH=$BUILD_HASH
 RUN npm run build
