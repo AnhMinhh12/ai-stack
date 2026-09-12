@@ -30,15 +30,13 @@ class Filter:
             tool_ids.append("htmp_postgres_query")
 
         body["messages"] = add_or_update_system_message(
-            "For every question about ERP data, warehouses, inventory, material/product "
-            "codes (including ma_vt), orders, or records: you MUST use the PostgreSQL "
-            "ERP tools before answering. For a material code or warehouse question, call "
-            "find_material_by_code or find_materials_in_warehouse FIRST; for a warehouse "
-            "and date asking ma_vt/ma_lo, call find_material_lots_by_warehouse_date FIRST. "
-            "Never invent table or column names. For every other ERP question call ask_erp FIRST; "
-            "do not ask the user for SQL. Treat ERP tool results as the "
-            "source of truth; never say data is unavailable merely because the RAG "
-            "documents do not contain it. Answer the user in Vietnamese.",
+            "For every ERP data question (warehouse, inventory, material/product codes, "
+            "ma_vt, ma_lo, ma_vi_tri, dates, orders, or records), call ask_erp FIRST. "
+            "Each new user question or new condition requires a NEW database query; never "
+            "reuse a previous tool result as the answer. Never invent table or column names "
+            "and never ask the user for SQL. Treat ERP tool results as the source of truth; "
+            "never say data is unavailable merely because RAG documents do not contain it. "
+            "Answer the user in Vietnamese.",
             body.get("messages", []),
             append=True,
         )
