@@ -23,6 +23,12 @@ class Filter:
     async def inlet(
         self, body, __request__, __user__, __model__=None, __event_emitter__=None
     ):
+        # Regular Open WebUI chats do not inherit a model's toolIds. Attach the
+        # read-only ERP tool before middleware resolves tools for this request.
+        tool_ids = body.setdefault("tool_ids", [])
+        if "htmp_postgres_query" not in tool_ids:
+            tool_ids.append("htmp_postgres_query")
+
         user = UserModel(**__user__)
         files = body.get("files") or []
         model_meta = ((__model__ or {}).get("info") or {}).get("meta") or {}

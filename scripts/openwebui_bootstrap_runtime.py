@@ -29,23 +29,38 @@ def main() -> int:
         if not row:
             fail(f"required Knowledge Base missing: {name}")
         knowledge.append({"id": row[0], "name": row[1], "type": "collection", "description": row[2]})
-    expected_functions = {item["id"] for item in cfg["functions"]}
+    function_items = [item for item in cfg["functions"] if item.get("type", "filter") != "tool"]
+    tool_items = [item for item in cfg["functions"] if item.get("type") == "tool"]
+    expected_functions = {item["id"] for item in function_items}
+    expected_tools = {item["id"] for item in tool_items}
     expected_models = {item["id"] for item in cfg["models"]}
     if args.check:
         found_functions = {row[0] for row in conn.execute("select id from function where is_active=1")}
+        found_tools = {row[0] for row in conn.execute("select id from tool")}
         found_models = {row[0] for row in conn.execute("select id from model where is_active=1")}
-        missing = sorted((expected_functions - found_functions) | (expected_models - found_models))
+        missing = sorted((expected_functions - found_functions) | (expected_tools - found_tools) | (expected_models - found_models))
         if missing:
             fail("bootstrap objects missing: " + ", ".join(missing))
         print("bootstrap check: PASS")
         return 0
     now = str(int(time.time()))
-    for item in cfg["functions"]:
+    for item in function_items:
         content = (Path(args.source_dir) / item["source"]).read_text()
         conn.execute(
             "insert into function (id,user_id,name,type,content,meta,valves,is_active,is_global,updated_at,created_at) values (?,?,?,?,?,?,?,?,?,?,?) "
             "on conflict(id) do update set user_id=excluded.user_id,name=excluded.name,type=excluded.type,content=excluded.content,meta=excluded.meta,is_active=1,is_global=excluded.is_global,updated_at=excluded.updated_at",
             (item["id"], owner_id, item["name"], item.get("type", "filter"), content, json.dumps({"description": item["description"]}), None, 1, int(item.get("is_global", False)), now, now),
+        )
+    for item in tool_items:
+        content = (Path(args.source_dir) / item["source"]).read_text()
+        conn.execute(
+            "insert into tool (id,user_id,name,content,specs,meta,valves,updated_at,created_at) values (?,?,?,?,?,?,?,?,?) "
+            "on conflict(id) do update set user_id=excluded.user_id,name=excluded.name,content=excluded.content,specs=excluded.specs,meta=excluded.meta,updated_at=excluded.updated_at",
+            (item["id"], owner_id, item["name"], content, json.dumps(item["specs"]), json.dumps({"description": item["description"]}), None, now, now),
+        )
+        conn.execute(
+            "insert or ignore into access_grant (id,resource_type,resource_id,principal_type,principal_id,permission,created_at) values (lower(hex(randomblob(16))),'tool',?,'user','*','read',?)",
+            (item["id"], now),
         )
     capabilities = {"file_context": True, "file_upload": True, "citations": True, "status_updates": True, "builtin_tools": True, "web_search": False, "memory": False}
     for item in cfg["models"]:

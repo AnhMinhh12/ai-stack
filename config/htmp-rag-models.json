@@ -3,7 +3,7 @@
   "functions": [
     {"id": "htmp_fast_rag", "name": "HTMP Fast RAG", "source": "htmp_fast_rag.py", "description": "Vector-only RAG for HTMP Nhanh"},
     {"id": "htmp_technical_rag", "name": "HTMP Technical RAG", "source": "htmp_technical_rag.py", "description": "Hybrid RAG with reranking for HTMP Kỹ"},
-    {"id": "htmp_postgres_query", "name": "Tra cứu PostgreSQL ERP", "source": "htmp_postgres_query.py", "description": "Read-only ERP PostgreSQL query tool", "type": "tool", "is_global": true}
+    {"id": "htmp_postgres_query", "name": "Tra cứu PostgreSQL ERP", "source": "htmp_postgres_query.py", "description": "Read-only ERP PostgreSQL query tool", "type": "tool", "specs": [{"name": "get_erp_schema", "description": "Use before ERP queries to find tables and columns. Always use this for natural-language ERP questions.", "parameters": {"type": "object", "properties": {"search": {"type": "string", "description": "Business term, table name, or column name."}}, "required": []}}, {"name": "query_erp_database", "description": "Run one read-only SELECT/WITH ERP query after schema lookup.", "parameters": {"type": "object", "properties": {"sql": {"type": "string", "description": "One PostgreSQL SELECT or WITH query."}}, "required": ["sql"]}}]}
   ],
   "models": [
     {"id": "htmp-nhanh", "name": "HTMP Nhanh", "base_model_id": "qwen2.5-14b", "params": {"temperature": 0.2, "max_tokens": 600}, "filter_ids": ["htmp_fast_rag"]},
