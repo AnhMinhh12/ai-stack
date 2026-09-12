@@ -15,7 +15,7 @@ global hybrid/reranker path cannot run a second time.
 
 from open_webui.models.users import UserModel
 from open_webui.retrieval.utils import get_sources_from_items
-from open_webui.utils.middleware import apply_source_context_to_messages
+from open_webui.utils.middleware import add_or_update_system_message, apply_source_context_to_messages
 from open_webui.utils.misc import get_last_user_message
 
 
@@ -28,6 +28,17 @@ class Filter:
         tool_ids = body.setdefault("tool_ids", [])
         if "htmp_postgres_query" not in tool_ids:
             tool_ids.append("htmp_postgres_query")
+
+        body["messages"] = add_or_update_system_message(
+            "For every question about ERP data, warehouses, inventory, material/product "
+            "codes (including ma_vt), orders, or records: you MUST use the PostgreSQL "
+            "ERP tools before answering. First call get_erp_schema, then call "
+            "query_erp_database with a read-only query. Treat ERP tool results as the "
+            "source of truth; never say data is unavailable merely because the RAG "
+            "documents do not contain it. Answer the user in Vietnamese.",
+            body.get("messages", []),
+            append=True,
+        )
 
         user = UserModel(**__user__)
         files = body.get("files") or []
