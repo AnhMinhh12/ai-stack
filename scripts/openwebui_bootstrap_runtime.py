@@ -44,7 +44,7 @@ def main() -> int:
         content = (Path(args.source_dir) / item["source"]).read_text()
         conn.execute(
             "insert into function (id,user_id,name,type,content,meta,valves,is_active,is_global,updated_at,created_at) values (?,?,?,?,?,?,?,?,?,?,?) "
-            "on conflict(id) do update set user_id=excluded.user_id,name=excluded.name,content=excluded.content,meta=excluded.meta,is_active=1,is_global=0,updated_at=excluded.updated_at",
+            "on conflict(id) do update set user_id=excluded.user_id,name=excluded.name,type=excluded.type,content=excluded.content,meta=excluded.meta,is_active=1,is_global=excluded.is_global,updated_at=excluded.updated_at",
             (item["id"], owner_id, item["name"], item.get("type", "filter"), content, json.dumps({"description": item["description"]}), None, 1, int(item.get("is_global", False)), now, now),
         )
     capabilities = {"file_context": True, "file_upload": True, "citations": True, "status_updates": True, "builtin_tools": True, "web_search": False, "memory": False}
@@ -53,7 +53,7 @@ def main() -> int:
             fail(f"base model missing: {item['base_model_id']}")
         row = conn.execute("select meta from model where id=?", (item["id"],)).fetchone()
         meta = json.loads(row[0]) if row else {}
-        meta.update({"description": "HTMP internal RAG profile", "capabilities": capabilities, "knowledge": knowledge, "filterIds": item["filter_ids"]})
+        meta.update({"description": "HTMP internal RAG profile", "capabilities": capabilities, "knowledge": knowledge, "filterIds": item["filter_ids"], "toolIds": ["htmp_postgres_query"]})
         conn.execute(
             "insert into model (id,user_id,base_model_id,name,params,meta,updated_at,created_at,is_active) values (?,?,?,?,?,?,?,?,?) "
             "on conflict(id) do update set user_id=excluded.user_id,base_model_id=excluded.base_model_id,name=excluded.name,params=excluded.params,meta=excluded.meta,updated_at=excluded.updated_at,is_active=1",
