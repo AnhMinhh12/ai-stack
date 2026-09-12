@@ -47,7 +47,7 @@ def main() -> int:
             "on conflict(id) do update set user_id=excluded.user_id,name=excluded.name,content=excluded.content,meta=excluded.meta,is_active=1,is_global=0,updated_at=excluded.updated_at",
             (item["id"], owner_id, item["name"], item.get("type", "filter"), content, json.dumps({"description": item["description"]}), None, 1, int(item.get("is_global", False)), now, now),
         )
-    capabilities = {"file_context": True, "file_upload": True, "citations": True, "status_updates": True, "builtin_tools": False, "web_search": False, "memory": False}
+    capabilities = {"file_context": True, "file_upload": True, "citations": True, "status_updates": True, "builtin_tools": True, "web_search": False, "memory": False}
     for item in cfg["models"]:
         if not conn.execute("select 1 from model where id=?", (item["base_model_id"],)).fetchone():
             fail(f"base model missing: {item['base_model_id']}")
