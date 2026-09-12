@@ -33,8 +33,9 @@ class Filter:
             "For every question about ERP data, warehouses, inventory, material/product "
             "codes (including ma_vt), orders, or records: you MUST use the PostgreSQL "
             "ERP tools before answering. For a material code or warehouse question, call "
-            "find_material_by_code or find_materials_in_warehouse FIRST; never invent "
-            "table or column names. Use get_erp_schema/query_erp_database only for other "
+            "find_material_by_code or find_materials_in_warehouse FIRST; for a warehouse "
+            "and date asking ma_vt/ma_lo, call find_material_lots_by_warehouse_date FIRST. "
+            "Never invent table or column names. Use get_erp_schema/query_erp_database only for other "
             "questions after schema lookup. Treat ERP tool results as the "
             "source of truth; never say data is unavailable merely because the RAG "
             "documents do not contain it. Answer the user in Vietnamese.",
@@ -64,6 +65,10 @@ class Filter:
         erp_markers = ("ma_vt", "mã vt", "mã vật tư", "ma kho", "mã kho", "kho ", "tồn kho", "ton kho")
         looks_like_erp_data = any(marker in prompt_lower for marker in erp_markers)
         if looks_like_erp_data:
+            # Legacy tool calling attaches model Knowledge before filter inlets.
+            # Clear it here so the generic RAG handler cannot inject manuals.
+            body.pop("files", None)
+            body.setdefault("metadata", {}).pop("files", None)
             return body
 
         # Native tool calling keeps model Knowledge out of body["files"].

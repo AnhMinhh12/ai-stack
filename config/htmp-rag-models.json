@@ -24,6 +24,27 @@
       "type": "tool",
       "specs": [
         {
+          "name": "find_material_lots_by_warehouse_date",
+          "description": "FIRST choice for questions requesting ma_vt and ma_lo in a ma_kho on a particular date. Uses real ma_kho, ma_vt, ma_lo, date0 columns; never invent SQL tables.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "ma_kho": {
+                "type": "string",
+                "description": "Exact warehouse code, e.g. KHO-HANG-LE."
+              },
+              "ngay": {
+                "type": "string",
+                "description": "Date in dd/mm/yyyy or yyyy-mm-dd, e.g. 28/04/2026."
+              }
+            },
+            "required": [
+              "ma_kho",
+              "ngay"
+            ]
+          }
+        },
+        {
           "name": "find_material_by_code",
           "description": "FIRST choice for questions asking which warehouse(s) contain a material code (ma_vt). Searches real ma_vt and ma_kho columns; never invent table names.",
           "parameters": {

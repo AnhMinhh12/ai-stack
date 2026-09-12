@@ -162,6 +162,79 @@ class Tools:
         """
         return self._lookup_material_locations(ma_kho, "ma_kho")
 
+    def find_material_lots_by_warehouse_date(self, ma_kho: str, ngay: str) -> str:
+        """Liệt kê ma_vt và ma_lo của kho tại một ngày theo cột ERP thật.
+
+        Dùng ĐẦU TIÊN khi người dùng hỏi ``ma_vt``, ``ma_lo`` cho một ``ma_kho``
+        vào ngày cụ thể. ``ngay`` nhận dd/mm/yyyy hoặc yyyy-mm-dd. Hàm tự tìm
+        bảng có ma_kho, ma_vt, ma_lo, date0; không được đoán bảng SQL.
+        """
+        warehouse = (ma_kho or "").strip()
+        raw_date = (ngay or "").strip()
+        if not warehouse or not raw_date:
+            return "Cần cung cấp cả mã kho và ngày để tra cứu."
+        parsed_date = None
+        for date_format in ("%d/%m/%Y", "%Y-%m-%d"):
+            try:
+                parsed_date = datetime.strptime(raw_date, date_format).date()
+                break
+            except ValueError:
+                pass
+        if parsed_date is None:
+            return "Ngày không hợp lệ. Dùng định dạng dd/mm/yyyy hoặc yyyy-mm-dd."
+        try:
+            import psycopg
+            from psycopg import sql
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute(
+                        """
+                        SELECT table_schema, table_name
+                        FROM information_schema.columns
+                        WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+                          AND column_name IN ('ma_kho', 'ma_vt', 'ma_lo', 'date0')
+                        GROUP BY table_schema, table_name
+                        HAVING count(DISTINCT column_name) = 4
+                        ORDER BY CASE table_name WHEN 'cdvt13' THEN 0 ELSE 1 END, table_schema, table_name
+                        LIMIT 20
+                        """
+                    )
+                    tables = cursor.fetchall()
+                    rows_out = []
+                    seen = set()
+                    for schema, table in tables:
+                        query = sql.SQL(
+                            "SELECT DISTINCT {material}, {lot} FROM {table} "
+                            "WHERE upper(trim({warehouse})) = upper(trim(%s)) "
+                            "AND {date0} = %s LIMIT %s"
+                        ).format(
+                            material=sql.Identifier("ma_vt"),
+                            lot=sql.Identifier("ma_lo"),
+                            table=sql.Identifier(schema, table),
+                            warehouse=sql.Identifier("ma_kho"),
+                            date0=sql.Identifier("date0"),
+                        )
+                        cursor.execute(query, (warehouse, parsed_date, MAX_ROWS + 1))
+                        for material, lot in cursor.fetchmany(MAX_ROWS + 1):
+                            key = (material, lot)
+                            if key in seen:
+                                continue
+                            seen.add(key)
+                            rows_out.append({"source_table": f"{schema}.{table}", "ma_vt": material, "ma_lo": lot})
+                            if len(rows_out) >= MAX_ROWS:
+                                break
+                        if len(rows_out) >= MAX_ROWS:
+                            break
+        except Exception:
+            return "Không thể tra cứu cơ sở dữ liệu ERP. Kiểm tra cấu hình và quyền SELECT của tài khoản DB."
+        return json.dumps(
+            {"lookup": {"ma_kho": warehouse, "date0": parsed_date.isoformat()}, "row_count": len(rows_out), "truncated": len(rows_out) >= MAX_ROWS, "rows": rows_out},
+            ensure_ascii=False,
+            default=str,
+        )
+
     def query_erp_database(self, sql: str) -> str:
         """Chạy đúng một SELECT/WITH chỉ đọc trên ERP, tối đa 200 dòng.
 
