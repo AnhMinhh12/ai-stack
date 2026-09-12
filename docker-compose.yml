@@ -32,8 +32,8 @@ services:
         --host 0.0.0.0
         --port 8000
         --kv-cache-memory 68719476736
-        --max-model-len 16384
-        --max-num-seqs 40
+        --max-model-len 32768
+        --max-num-seqs 20
         --quantization fp8
         --kv-cache-dtype fp8
         --enable-prefix-caching
