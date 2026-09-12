@@ -57,6 +57,14 @@ class Filter:
                 {"request_id": request_id, "retrieval_profile": self.__class__.__module__},
             )
 
+        # ERP questions are answered from PostgreSQL. Skipping document RAG for
+        # these avoids consuming the model context with unrelated long manuals.
+        prompt_lower = prompt.lower()
+        erp_markers = ("ma_vt", "mã vt", "mã vật tư", "ma kho", "mã kho", "kho ", "tồn kho", "ton kho")
+        looks_like_erp_data = any(marker in prompt_lower for marker in erp_markers)
+        if looks_like_erp_data:
+            return body
+
         # Native tool calling keeps model Knowledge out of body["files"].
         # Prefer explicit chat attachments when supplied; otherwise retrieve
         # from every Knowledge Base attached to this model.

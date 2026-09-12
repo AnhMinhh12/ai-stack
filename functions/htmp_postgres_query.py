@@ -15,7 +15,7 @@ from decimal import Decimal
 from typing import Any
 
 MAX_ROWS = int(os.getenv("HTMP_DB_MAX_ROWS", "200"))
-MAX_SCHEMA_TABLES = int(os.getenv("HTMP_DB_MAX_SCHEMA_TABLES", "100"))
+MAX_SCHEMA_TABLES = int(os.getenv("HTMP_DB_MAX_SCHEMA_TABLES", "30"))
 TIMEOUT_MS = int(os.getenv("HTMP_DB_STATEMENT_TIMEOUT_MS", "15000"))
 READ_QUERY = re.compile(r"^\s*(?:select|with)\b", re.I | re.S)
 FORBIDDEN = re.compile(r"\b(?:insert|update|delete|merge|alter|drop|create|grant|revoke|copy|call|do|vacuum|analyze|truncate|listen|notify|execute|prepare|deallocate|set|show|reset|discard|lock)\b", re.I)
