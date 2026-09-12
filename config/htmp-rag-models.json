@@ -1,12 +1,119 @@
 {
-  "knowledge_base_names": ["htmp", "Name: HTMP - Tai lieu dong bo"],
+  "knowledge_base_names": [
+    "htmp",
+    "Name: HTMP - Tai lieu dong bo"
+  ],
   "functions": [
-    {"id": "htmp_fast_rag", "name": "HTMP Fast RAG", "source": "htmp_fast_rag.py", "description": "Vector-only RAG for HTMP Nhanh"},
-    {"id": "htmp_technical_rag", "name": "HTMP Technical RAG", "source": "htmp_technical_rag.py", "description": "Hybrid RAG with reranking for HTMP Kỹ"},
-    {"id": "htmp_postgres_query", "name": "Tra cứu PostgreSQL ERP", "source": "htmp_postgres_query.py", "description": "Read-only ERP PostgreSQL query tool", "type": "tool", "specs": [{"name": "get_erp_schema", "description": "Use before ERP queries to find tables and columns. Always use this for natural-language ERP questions.", "parameters": {"type": "object", "properties": {"search": {"type": "string", "description": "Business term, table name, or column name."}}, "required": []}}, {"name": "query_erp_database", "description": "Run one read-only SELECT/WITH ERP query after schema lookup.", "parameters": {"type": "object", "properties": {"sql": {"type": "string", "description": "One PostgreSQL SELECT or WITH query."}}, "required": ["sql"]}}]}
+    {
+      "id": "htmp_fast_rag",
+      "name": "HTMP Fast RAG",
+      "source": "htmp_fast_rag.py",
+      "description": "Vector-only RAG for HTMP Nhanh"
+    },
+    {
+      "id": "htmp_technical_rag",
+      "name": "HTMP Technical RAG",
+      "source": "htmp_technical_rag.py",
+      "description": "Hybrid RAG with reranking for HTMP Kỹ"
+    },
+    {
+      "id": "htmp_postgres_query",
+      "name": "Tra cứu PostgreSQL ERP",
+      "source": "htmp_postgres_query.py",
+      "description": "Read-only ERP PostgreSQL query tool",
+      "type": "tool",
+      "specs": [
+        {
+          "name": "find_material_by_code",
+          "description": "FIRST choice for questions asking which warehouse(s) contain a material code (ma_vt). Searches real ma_vt and ma_kho columns; never invent table names.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "ma_vt": {
+                "type": "string",
+                "description": "Exact material code, e.g. RC6-8801-000."
+              }
+            },
+            "required": [
+              "ma_vt"
+            ]
+          }
+        },
+        {
+          "name": "find_materials_in_warehouse",
+          "description": "FIRST choice for questions asking material codes in a warehouse. Searches real ma_kho and ma_vt columns; never invent table names.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "ma_kho": {
+                "type": "string",
+                "description": "Exact warehouse code, e.g. KHO-XHLOT2."
+              }
+            },
+            "required": [
+              "ma_kho"
+            ]
+          }
+        },
+        {
+          "name": "get_erp_schema",
+          "description": "Use before ERP queries to find tables and columns. Always use this for natural-language ERP questions.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "search": {
+                "type": "string",
+                "description": "Business term, table name, or column name."
+              }
+            },
+            "required": []
+          }
+        },
+        {
+          "name": "query_erp_database",
+          "description": "Run one read-only SELECT/WITH ERP query after schema lookup.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "sql": {
+                "type": "string",
+                "description": "One PostgreSQL SELECT or WITH query."
+              }
+            },
+            "required": [
+              "sql"
+            ]
+          }
+        }
+      ]
+    }
   ],
   "models": [
-    {"id": "htmp-nhanh", "name": "HTMP Nhanh", "base_model_id": "qwen2.5-14b", "params": {"temperature": 0.2, "max_tokens": 600, "function_calling": "legacy"}, "filter_ids": ["htmp_fast_rag"]},
-    {"id": "htmp-ky", "name": "HTMP Kỹ", "base_model_id": "qwen2.5-14b", "params": {"temperature": 0.15, "max_tokens": 1200, "function_calling": "legacy"}, "filter_ids": ["htmp_technical_rag"]}
+    {
+      "id": "htmp-nhanh",
+      "name": "HTMP Nhanh",
+      "base_model_id": "qwen2.5-14b",
+      "params": {
+        "temperature": 0.2,
+        "max_tokens": 600,
+        "function_calling": "legacy"
+      },
+      "filter_ids": [
+        "htmp_fast_rag"
+      ]
+    },
+    {
+      "id": "htmp-ky",
+      "name": "HTMP Kỹ",
+      "base_model_id": "qwen2.5-14b",
+      "params": {
+        "temperature": 0.15,
+        "max_tokens": 1200,
+        "function_calling": "legacy"
+      },
+      "filter_ids": [
+        "htmp_technical_rag"
+      ]
+    }
   ]
 }

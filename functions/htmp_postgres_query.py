@@ -1,7 +1,7 @@
 """
 title: Tra cứu PostgreSQL ERP
 author: HTMP Platform
-version: 1.1.0
+version: 1.2.0
 required_open_webui_version: 0.6.0
 """
 
@@ -80,6 +80,87 @@ class Tools:
             ensure_ascii=False,
             default=str,
         )
+
+
+    def _lookup_material_locations(self, value: str, lookup_column: str) -> str:
+        """Look up real ERP material/warehouse fields without guessing table names."""
+        needle = (value or "").strip()
+        if not needle:
+            return "Cần cung cấp mã vật tư hoặc mã kho để tra cứu."
+        try:
+            import psycopg
+            from psycopg import sql
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute(
+                        """
+                        SELECT table_schema, table_name
+                        FROM information_schema.columns
+                        WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+                          AND column_name IN ('ma_vt', 'ma_kho')
+                        GROUP BY table_schema, table_name
+                        HAVING count(DISTINCT column_name) = 2
+                        ORDER BY
+                          CASE table_name
+                            WHEN 'cdvt13' THEN 0
+                            WHEN 'cdvt' THEN 1
+                            WHEN 'cdbsp' THEN 2
+                            ELSE 3
+                          END,
+                          table_schema, table_name
+                        LIMIT 12
+                        """
+                    )
+                    tables = cursor.fetchall()
+                    matches = []
+                    seen = set()
+                    for schema, table in tables:
+                        query = sql.SQL(
+                            "SELECT DISTINCT {warehouse}, {material} FROM {table} "
+                            "WHERE upper(trim({lookup})) = upper(trim(%s)) LIMIT %s"
+                        ).format(
+                            warehouse=sql.Identifier("ma_kho"),
+                            material=sql.Identifier("ma_vt"),
+                            table=sql.Identifier(schema, table),
+                            lookup=sql.Identifier(lookup_column),
+                        )
+                        cursor.execute(query, (needle, MAX_ROWS + 1))
+                        rows = cursor.fetchmany(MAX_ROWS + 1)
+                        for warehouse, material in rows[:MAX_ROWS]:
+                            key = (warehouse, material)
+                            if key in seen:
+                                continue
+                            seen.add(key)
+                            matches.append({"source_table": f"{schema}.{table}", "ma_kho": warehouse, "ma_vt": material})
+                            if len(matches) >= MAX_ROWS:
+                                break
+                        if len(matches) >= MAX_ROWS:
+                            break
+        except Exception:
+            return "Không thể tra cứu cơ sở dữ liệu ERP. Kiểm tra cấu hình và quyền SELECT của tài khoản DB."
+        return json.dumps(
+            {"lookup": {lookup_column: needle}, "row_count": len(matches), "truncated": len(matches) >= MAX_ROWS, "rows": matches},
+            ensure_ascii=False,
+            default=str,
+        )
+
+    def find_material_by_code(self, ma_vt: str) -> str:
+        """Tra kho chứa một mã vật tư ERP bằng cột thật ma_vt và ma_kho.
+
+        Dùng ĐẦU TIÊN cho câu hỏi như "mã này ở kho nào?". Không tự đoán bảng
+        hay viết SQL; hàm tự tìm tất cả bảng có đồng thời ma_vt và ma_kho.
+        """
+        return self._lookup_material_locations(ma_vt, "ma_vt")
+
+    def find_materials_in_warehouse(self, ma_kho: str) -> str:
+        """Liệt kê mã vật tư (ma_vt) của một kho ERP bằng cột thật ma_kho.
+
+        Dùng ĐẦU TIÊN cho câu hỏi như "kho X có những mã vật tư nào?". Không tự
+        đoán bảng hay viết SQL; hàm tự tìm tất cả bảng có ma_vt và ma_kho.
+        """
+        return self._lookup_material_locations(ma_kho, "ma_kho")
 
     def query_erp_database(self, sql: str) -> str:
         """Chạy đúng một SELECT/WITH chỉ đọc trên ERP, tối đa 200 dòng.

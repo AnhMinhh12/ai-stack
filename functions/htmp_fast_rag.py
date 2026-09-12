@@ -32,8 +32,10 @@ class Filter:
         body["messages"] = add_or_update_system_message(
             "For every question about ERP data, warehouses, inventory, material/product "
             "codes (including ma_vt), orders, or records: you MUST use the PostgreSQL "
-            "ERP tools before answering. First call get_erp_schema, then call "
-            "query_erp_database with a read-only query. Treat ERP tool results as the "
+            "ERP tools before answering. For a material code or warehouse question, call "
+            "find_material_by_code or find_materials_in_warehouse FIRST; never invent "
+            "table or column names. Use get_erp_schema/query_erp_database only for other "
+            "questions after schema lookup. Treat ERP tool results as the "
             "source of truth; never say data is unavailable merely because the RAG "
             "documents do not contain it. Answer the user in Vietnamese.",
             body.get("messages", []),
