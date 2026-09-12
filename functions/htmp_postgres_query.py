@@ -70,7 +70,7 @@ class Tools:
             with psycopg.connect(**connection_settings(), autocommit=False) as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
-                    cursor.execute("SET LOCAL statement_timeout = %s", (TIMEOUT_MS,))
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
                     cursor.execute(sql, (pattern, pattern, pattern, MAX_SCHEMA_TABLES))
                     rows = cursor.fetchall()
         except Exception:
@@ -97,7 +97,7 @@ class Tools:
             with psycopg.connect(**connection_settings(), autocommit=False) as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
-                    cursor.execute("SET LOCAL statement_timeout = %s", (TIMEOUT_MS,))
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
                     cursor.execute("SELECT * FROM (" + query + ") AS htmp_result LIMIT %s", (MAX_ROWS + 1,))
                     columns = [item.name for item in cursor.description]
                     rows = cursor.fetchmany(MAX_ROWS + 1)
