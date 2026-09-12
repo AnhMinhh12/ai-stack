@@ -24,6 +24,22 @@
       "type": "tool",
       "specs": [
         {
+          "name": "ask_erp",
+          "description": "FIRST choice for any ERP question not covered by a specialized lookup. Accepts Vietnamese natural language; automatically reads the real schema, makes a safe read-only SQL query and retries corrections.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "question": {
+                "type": "string",
+                "description": "The full ERP question in Vietnamese."
+              }
+            },
+            "required": [
+              "question"
+            ]
+          }
+        },
+        {
           "name": "find_material_lots_by_warehouse_date",
           "description": "FIRST choice for questions requesting ma_vt and ma_lo in a ma_kho on a particular date. Uses real ma_kho, ma_vt, ma_lo, date0 columns; never invent SQL tables.",
           "parameters": {

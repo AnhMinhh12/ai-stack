@@ -10,6 +10,8 @@ required_open_webui_version: 0.6.0
 import json
 import os
 import re
+import urllib.error
+import urllib.request
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
@@ -17,6 +19,8 @@ from typing import Any
 MAX_ROWS = int(os.getenv("HTMP_DB_MAX_ROWS", "200"))
 MAX_SCHEMA_TABLES = int(os.getenv("HTMP_DB_MAX_SCHEMA_TABLES", "30"))
 TIMEOUT_MS = int(os.getenv("HTMP_DB_STATEMENT_TIMEOUT_MS", "15000"))
+PLANNER_TABLES = int(os.getenv("HTMP_DB_PLANNER_TABLES", "180"))
+PLANNER_ATTEMPTS = int(os.getenv("HTMP_DB_PLANNER_ATTEMPTS", "3"))
 READ_QUERY = re.compile(r"^\s*(?:select|with)\b", re.I | re.S)
 FORBIDDEN = re.compile(r"\b(?:insert|update|delete|merge|alter|drop|create|grant|revoke|copy|call|do|vacuum|analyze|truncate|listen|notify|execute|prepare|deallocate|set|show|reset|discard|lock)\b", re.I)
 
@@ -235,17 +239,33 @@ class Tools:
             default=str,
         )
 
-    def query_erp_database(self, sql: str) -> str:
-        """Chạy đúng một SELECT/WITH chỉ đọc trên ERP, tối đa 200 dòng.
-
-        Chỉ gọi sau ``get_erp_schema`` để dùng đúng tên bảng/cột. Tool này được
-        model dùng nội bộ để trả lời câu hỏi tiếng Việt; người dùng không cần SQL.
+    def _schema_catalog(self) -> str:
+        """Return a compact, data-free catalog for the internal SQL planner."""
+        query = """
+            SELECT table_schema, table_name,
+                   string_agg(column_name || ':' || data_type, ', ' ORDER BY ordinal_position) AS columns
+            FROM information_schema.columns
+            WHERE table_schema = 'public'
+            GROUP BY table_schema, table_name
+            ORDER BY CASE table_name
+                WHEN 'cdvt13' THEN 0 WHEN 'cdvt' THEN 1 WHEN 'cdbsp' THEN 2 ELSE 3 END,
+                table_name
+            LIMIT %s
         """
-        query = (sql or "").strip().removesuffix(";").rstrip()
+        import psycopg
+        with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SET TRANSACTION READ ONLY")
+                cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                cursor.execute(query, (PLANNER_TABLES,))
+                return "\n".join(f"{schema}.{table}({columns})" for schema, table, columns in cursor.fetchall())
+
+    def _execute_read_query(self, query: str) -> tuple[dict | None, str | None]:
+        query = (query or "").strip().removesuffix(";").rstrip()
         if not query or ";" in query or not READ_QUERY.match(query):
-            return "Chỉ chấp nhận đúng một câu lệnh SELECT hoặc WITH."
+            return None, "SQL phải là đúng một câu SELECT hoặc WITH."
         if FORBIDDEN.search(query) or re.search(r"\bselect\b[\s\S]*\binto\b", query, re.I):
-            return "Câu lệnh chứa thao tác không được phép. Tool này chỉ đọc dữ liệu."
+            return None, "SQL chứa thao tác không được phép."
         try:
             import psycopg
             with psycopg.connect(**connection_settings(), autocommit=False) as conn:
@@ -255,7 +275,83 @@ class Tools:
                     cursor.execute("SELECT * FROM (" + query + ") AS htmp_result LIMIT %s", (MAX_ROWS + 1,))
                     columns = [item.name for item in cursor.description]
                     rows = cursor.fetchmany(MAX_ROWS + 1)
-        except Exception:
-            return "Không thể truy vấn cơ sở dữ liệu. Kiểm tra cấu hình và quyền SELECT của tài khoản DB."
+        except Exception as exc:
+            # Give the internal planner a concise PostgreSQL error so it can
+            # correct its table/column choice; never expose connection details.
+            return None, f"PostgreSQL rejected the query: {str(exc)[:500]}"
         result = [dict(zip(columns, (json_value(value) for value in row))) for row in rows[:MAX_ROWS]]
-        return json.dumps({"row_count": len(result), "truncated": len(rows) > MAX_ROWS, "rows": result}, ensure_ascii=False, default=str)
+        return {"row_count": len(result), "truncated": len(rows) > MAX_ROWS, "rows": result}, None
+
+    def ask_erp(self, question: str) -> str:
+        """Trả lời câu hỏi ERP bất kỳ bằng tiếng Việt, không cần người dùng biết SQL.
+
+        Dùng ĐẦU TIÊN cho câu ERP chưa có hàm chuyên biệt. Hàm tự đọc catalog
+        bảng/cột, nhờ model nội bộ lập SELECT an toàn, chạy truy vấn chỉ đọc và
+        tự sửa SQL tối đa ba lần khi tên bảng/cột chưa đúng.
+        """
+        question = (question or "").strip()
+        if not question:
+            return "Cần cung cấp câu hỏi ERP để tra cứu."
+        try:
+            catalog = self._schema_catalog()
+        except Exception:
+            return "Không thể đọc catalog ERP. Kiểm tra cấu hình và quyền SELECT của tài khoản DB."
+
+        base_url = (os.getenv("OPENAI_API_BASE_URLS") or "http://vllm:8000/v1").split(",")[0].rstrip("/")
+        api_key = os.getenv("OPENAI_API_KEY", "")
+        history = ""
+        last_error = ""
+        for _ in range(PLANNER_ATTEMPTS):
+            planner_prompt = f"""Bạn là bộ lập kế hoạch SQL PostgreSQL cho ERP nội bộ. Trả về DUY NHẤT JSON hợp lệ dạng {{"sql": "SELECT ..."}}.
+
+Yêu cầu người dùng: {question}
+
+Catalog thật (chỉ dùng chính xác tên bảng/cột trong catalog, không bịa tên):
+{catalog}
+
+Quy tắc: chỉ một SELECT/WITH; dùng schema public khi cần; tối đa 200 dòng; với ngày dd/mm/yyyy đổi thành DATE 'yyyy-mm-dd'; nếu câu hỏi cần dữ liệu mà không xác định được bảng/cột, trả {{"sql": null, "reason": "..."}}. {history}"""
+            payload = json.dumps({
+                "model": os.getenv("HTMP_DB_PLANNER_MODEL", "qwen2.5-14b"),
+                "temperature": 0,
+                "max_tokens": 700,
+                "messages": [{"role": "system", "content": planner_prompt}],
+            }).encode()
+            request = urllib.request.Request(
+                base_url + "/chat/completions", data=payload,
+                headers={"Content-Type": "application/json", **({"Authorization": "Bearer " + api_key} if api_key else {})},
+                method="POST",
+            )
+            try:
+                with urllib.request.urlopen(request, timeout=75) as response:
+                    content = json.loads(response.read().decode())["choices"][0]["message"].get("content", "")
+                match = re.search(r"\{[\s\S]*\}", content)
+                plan = json.loads(match.group(0)) if match else {}
+                planned_sql = plan.get("sql")
+            except Exception as exc:
+                return f"Không thể lập truy vấn ERP nội bộ: {str(exc)[:300]}"
+            if not isinstance(planned_sql, str) or not planned_sql.strip():
+                return "Không thể xác định truy vấn an toàn từ catalog ERP. Hãy nêu rõ thêm trường hoặc điều kiện cần xem."
+            result, error = self._execute_read_query(planned_sql)
+            if result is not None:
+                if result["row_count"] > 0 or _ == PLANNER_ATTEMPTS - 1:
+                    result["planned_sql"] = planned_sql
+                    return json.dumps(result, ensure_ascii=False, default=str)
+                history = (
+                    f"Lần trước SQL trả 0 dòng: {planned_sql}. Không kết luận là không có dữ liệu; "
+                    "hãy thử bảng/cột tương đương khác trong catalog, đặc biệt bảng snapshot có hậu tố _YYYYMMDD."
+                )
+                continue
+            last_error = error or "Lỗi SQL không xác định"
+            history = f"Lần trước SQL bị lỗi: {last_error}. Hãy sửa bằng catalog thật và chỉ trả JSON mới."
+        return f"Không thể chạy truy vấn ERP sau {PLANNER_ATTEMPTS} lần thử: {last_error}"
+
+    def query_erp_database(self, sql: str) -> str:
+        """Chạy đúng một SELECT/WITH chỉ đọc trên ERP, tối đa 200 dòng.
+
+        Chỉ gọi sau ``get_erp_schema`` để dùng đúng tên bảng/cột. Tool này được
+        model dùng nội bộ để trả lời câu hỏi tiếng Việt; người dùng không cần SQL.
+        """
+        result, error = self._execute_read_query(sql)
+        if result is None:
+            return error or "Không thể truy vấn cơ sở dữ liệu ERP."
+        return json.dumps(result, ensure_ascii=False, default=str)

@@ -34,8 +34,8 @@ class Filter:
             "ERP tools before answering. For a material code or warehouse question, call "
             "find_material_by_code or find_materials_in_warehouse FIRST; for a warehouse "
             "and date asking ma_vt/ma_lo, call find_material_lots_by_warehouse_date FIRST. "
-            "Never invent table or column names. Use get_erp_schema/query_erp_database only for other "
-            "questions after schema lookup. Treat ERP tool results as the "
+            "Never invent table or column names. For every other ERP question call ask_erp FIRST; "
+            "do not ask the user for SQL. Treat ERP tool results as the "
             "source of truth; never say data is unavailable merely because the RAG "
             "documents do not contain it. Answer the user in Vietnamese.",
             body.get("messages", []),
