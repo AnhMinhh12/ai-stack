@@ -11,6 +11,91 @@
 - `HTMP Nhanh` dùng filter theo từng model (`htmp_fast_rag`), không phải sửa cấu hình RAG dùng chung. Filter gọi helper có kiểm tra quyền truy cập của Open WebUI, rồi loại attachment đã xử lý để ngăn pipeline global chạy lại hybrid search lần hai. Vì vậy mode Nhanh và Kỹ không làm thay đổi nhau.
 - Đã kiểm tra sau restart: 8/8 service healthy; hai model active, knowledge gắn sẵn và filter nạp được. Chưa coi đây là kết quả SLO: cần người dùng thử cùng một câu hỏi đại diện ở cả hai mode, ghi TTFT/E2E và đánh giá câu trả lời trước khi chốt ngưỡng cho khoảng 50 người dùng.
 
+## Router truy vấn ERP theo thực thể và ngữ cảnh chat — 2026-09-16
+
+**Mục tiêu:** người dùng hỏi theo ngôn ngữ tự nhiên và follow-up trong cùng chat;
+không cấu hình theo từng câu hỏi, không để LLM tự sinh SQL/kết luận dữ liệu ERP.
+
+### Quyết định kỹ thuật
+
+- Router chung trích `mã vật tư`, `số chứng từ`, ngày, kho, khách hàng và chỉ tiêu
+  từ câu hiện tại. Mọi cặp `mã vật tư + số chứng từ` phải dùng truy vấn SQL cố định,
+  tham số hóa; không rơi vào SQL planner.
+- Tool nhận thêm `context` do model truyền từ các lượt trước. Với câu follow-up chỉ
+  có “chi tiết”, “thì sao”, “của nó”, model phải hợp nhất context thành một câu truy
+  vấn hoàn chỉnh trước khi gọi tool. Không hỏi lại các điều kiện đã xuất hiện trong chat.
+- Manifest vẫn là cấu hình một lần theo màn hình ERP. Từ điển thực thể, resolver
+  ngữ cảnh và router dùng chung cho mọi report; không thêm nhánh theo cách diễn đạt
+  cụ thể của người dùng.
+- Kết quả tool mang metadata nguồn, filter hiệu lực, hàng chi tiết và aggregate.
+  LLM chỉ trình bày kết quả; không được thay thế hoặc phủ nhận kết quả tool.
+
+### Hạng mục thực hiện và acceptance
+
+| ID | Hạng mục | Điều kiện pass | Trạng thái |
+| --- | --- | --- | --- |
+| ERP-R1 | Entity extractor chung | Nhận mã chữ-số/hyphen, số chứng từ, ngày, tên vật tư và các cột UI không phụ thuộc câu chữ | `partial — unit test pass; exact-name resolver runtime pass` |
+| ERP-R2 | Context resolver | Follow-up kế thừa mã/số CT/ngày/kho từ context đã truyền; thiếu dữ kiện thật mới hỏi lại | `partial — runtime tool + injected chat_id pass` |
+| ERP-R3 | Deterministic router | Có `ma_vt + so_ct` hoặc `ma_vt + ngày` thì chỉ chạy SQL cố định đúng điều kiện; không gọi planner | `partial — runtime query pass` |
+| ERP-R4 | Output contract | Trả detail + aggregate + filter hiệu lực; không xuất JSON/tool instruction cho người dùng | `partial — validated payload runtime pass` |
+| ERP-R5 | Eval regression | Fixture gồm VGU1A423, VGU1A527, VGW1A610-1, tên vật tư, chứng từ tồn tại/không tồn tại và follow-up | `partial — 10 unit tests pass; runtime name/date test pass` |
+| ERP-R6 | Runtime rollout | Bootstrap, test tool thật read-only, kiểm thử UI multi-turn và rollback artifact | `partial — bootstrap + tool state test pass; UI binding pending` |
+
+**Không chấp nhận:** sửa code/manifest chỉ để nhận một câu hỏi mới. Nếu câu hỏi mới
+không qua router, bổ sung rule ở entity extractor/router chung và fixture regression.
+**Giới hạn còn mở:** `chat_id` đã được Open WebUI inject server-side vào tool và runtime state test đã pass. Cần kiểm thử UI multi-turn thực tế, persistence qua restart và thay thế in-memory state bằng Redis trước khi chạy nhiều replica.
+**Sửa nguồn dữ liệu 2026-09-16:** `Mã VV` của Nhật ký nhập xuất tồn là `ct70.ma_vv`, không phải `dmvt.ma_vv`. Câu hỏi theo cột UI nay chọn cột từ manifest và truy vấn nguồn giao dịch; khi thiếu ngày/số chứng từ, kết quả trả các giá trị phân biệt kèm số dòng và nêu rõ không thể kết luận một dòng duy nhất.
+
+**Cập nhật 2026-09-16 — danh mục vật tư:** Bổ sung intent `material_master` chung: một mã vật tư không kèm ngày/chứng từ trả toàn bộ record `dmvt` bằng SQL read-only cố định. Vì vậy các cột như mã vụ việc, tên, tài khoản, đơn vị tính… dùng cùng một luồng, không tạo handler theo từng cột. Runtime đã xác minh `VGU1A532Z` có `ma_vv = 5197210103000S`.
+
+**Cập nhật 2026-09-16 — tên vật tư + ngày:** Bổ sung resolver danh mục dùng chung `tên vật tư → ma_vt` theo đối sánh chính xác (0 kết quả hoặc nhiều mã trả trạng thái rõ ràng, không đoán). Cặp `ma_vt + ngày` luôn vào SQL read-only cố định và giữ lại trong state chat. Runtime ERP đã xác minh `FRONTAL COVER 6 PUSHBUTTON 4,3` → `1014082003`, ngày 03/09/2026 trả 6 dòng, tổng xuất `2.661 PCS`; follow-up cùng chat giữ nguyên mã/ngày.
+
+**Cập nhật 2026-09-16:** Router semantic đã chạy cho cặp `ma_vt + so_ct`; Open WebUI inject `__chat_id__` vào tool nên follow-up cùng chat kế thừa filter tự động. Runtime read-only đã xác minh VGY1A053/001-2609-000008 trả 2 dòng, tổng xuất 66 PCS.
+
+## Cập nhật ERP schema discovery — 2026-09-14
+
+- `htmp_postgres_query` không còn gửi catalog theo thứ tự cố định cho model. Với mỗi câu hỏi, tool tự đọc metadata schema `public`, chuẩn hóa tiếng Việt không dấu, mở rộng một từ điển nghiệp vụ chung (nhập/xuất/kho/tồn/số lượng/vật tư/sản xuất) và chỉ gửi tối đa 12 bảng phù hợp nhất cho SQL planner. Không đọc giá trị dữ liệu để xếp hạng và không cần khai báo thủ công từng cột hoặc tab ERP.
+- Khi planner thấy khái niệm chưa đủ rõ, ví dụ `giao hàng` chưa xác định là xuất bán hay chuyển kho, tool trả câu hỏi làm rõ thay vì chạy truy vấn đoán. Các truy vấn vẫn bị giới hạn một `SELECT/WITH`, transaction read-only, timeout và số dòng tối đa.
+- Đây là baseline connector DB read-only cho từng khách ERP. Bước kế tiếp là test trên bộ câu hỏi thật của từng ERP và bổ sung học mapping đã được người dùng xác nhận, nhưng không đưa toàn bộ schema hoặc dữ liệu mẫu vào prompt.
+
+## Kiến trúc cấu hình báo cáo ERP theo màn hình — 2026-09-15
+
+**Quyết định:** không cấu hình chatbot theo từng bảng PostgreSQL và không để model tự đoán bảng/cột từ tiếng Việt. Đơn vị cấu hình là một **màn hình hoặc nghiệp vụ ERP**. Một màn hình có thể lấy dữ liệu từ nhiều bảng, cột tính toán và các quy tắc nghiệp vụ riêng.
+
+### Bố cục mục tiêu
+
+```text
+config/erp-reports/
+  nhat-ky-nhap-xuat-ton.json
+  bao-gia-nha-cung-cap.json
+  bao-cao-hang-nhap-mua.json
+  ton-kho.json
+sql/erp-reports/
+  nhat-ky-nhap-xuat-ton.sql
+  bao-gia-nha-cung-cap.sql
+  bao-cao-hang-nhap-mua.sql
+  ton-kho.sql
+tests/erp-reports/
+  nhat-ky-nhap-xuat-ton.json
+  ...
+```
+
+Mỗi manifest khai báo: `id`, các cụm từ nghiệp vụ tiếng Việt, tham số đầu vào (ngày, mã vật tư, kho, đơn vị cơ sở), danh sách nguồn DB, SQL template đã kiểm chứng, mapping cột output và dữ liệu kiểm thử. Tool chung chỉ làm ba việc: nhận diện report, trích điều kiện, rồi thực thi SQL template tham số hóa. Khi thêm report mới chỉ thêm manifest, SQL và test; không thêm nhánh xử lý theo từng câu hỏi vào tool.
+
+### Report đầu tiên đã đối chiếu: Nhật ký nhập xuất tồn
+
+- UI gọi `POST /INAPI/api/Reports/INBCNhatKyNXTAPI/GetData` với `gridid=INBCNhatKyNXT`, khoảng ngày, mã vật tư, mã kho, đơn vị cơ sở và phân trang.
+- Backend ERP gọi function `public.inbcnknxt(params)`. Function dùng `ct70` làm nguồn chính, join `dmvt`, `dmkh`, `userinfo`, `sys_dmtt`, `ph74`, `ph84`; đồng thời tính cột ngoại tệ, dòng tổng cộng, phân trang và quyền UI.
+- Connector hiện có truy vấn read-only trực tiếp các nguồn đã đối chiếu cho câu hỏi Nhật ký nhập xuất tồn. Khi refactor sang manifest, SQL của report này phải giữ các mapping đã xác nhận: `ct70` cho giao dịch, `dmvt` cho tên vật tư/TK doanh thu, `dmkh` cho khách hàng, `userinfo` cho người tạo/sửa, `sys_dmtt` cho tên trạng thái, `ph74/ph84` cho mã loại nhập xuất.
+- Phân biệt rõ output: `STT`, `total`, `gia_nt`, `tien_nhap_nt`, `tien_xuat_nt` là cột tính; `NT` nghĩa là **ngoại tệ**, `TK GV` là tài khoản giá vốn và `TK DT` là tài khoản doanh thu.
+
+### Quy tắc an toàn và kiểm thử
+
+- SQL chỉ đọc, tham số hóa; không ghép input người dùng vào SQL.
+- Không mượn hoặc hard-code quyền của tài khoản UI. Connector DB sử dụng tài khoản read-only đã cấp; nếu cần mô phỏng chính xác quyền UI thì dùng service account được phê duyệt riêng.
+- Mỗi report phải có fixture từ request/response UI thực tế, tối thiểu gồm: một dòng giao dịch, một cột join, một cột tính toán, trường hợp 0 dòng và kiểm tra tổng số lượng/giá trị.
+- Với đại từ tham chiếu như “mã này/của nó”, resolver chỉ mang identifier từ lịch sử chat; không tự bịa điều kiện còn thiếu. Nếu report cần khoảng ngày mà không có, trả câu hỏi làm rõ ngắn.
+
 ## Cập nhật pilot-ready — 2026-09-11
 
 **Kết luận:** các kiểm soát có thể xây/kiểm tra trong workspace cho Bước 0–7 đã được triển khai hoặc kiểm tra lại; **không có bước nào được promotion**. Mọi dependency ngoại vi và approval vẫn `blocked` fail-closed. Evidence: [PILOT-20260911](docs/evidence/PILOT-20260911/steps0-7.md), [REL-20260911](docs/evidence/REL-20260911/step1.md).
@@ -596,3 +681,4 @@ embedding, schema, config hoặc data policy phải tạo release/evidence mới
 - Đo request RAG thực tế: Qdrant trả kết quả sau khoảng 5 giây; local reranker hoàn tất khoảng 45 giây sau đó. Bottleneck là reranker CPU, không phải số lượng 1,500 tài liệu hoặc Qdrant.
 - Cấu hình hiện tại: hybrid search bật, `top_k=20`, `top_k_reranker=10`, `chunk_size=1500`, `chunk_overlap=200`, local `BAAI/bge-reranker-v2-m3`.
 - Đề xuất baseline latency: tắt hybrid reranking, giữ vector search `bge-m3` và giảm `top_k` xuống 8; đo lại bằng bộ câu hỏi nội bộ có đáp án. Nếu cần độ chính xác rerank cao, cần chuyển reranker sang GPU/service riêng thay vì CPU của Open WebUI.
+Thiết kế và tiêu chuẩn triển khai ERP: [erp.md](docs/erp.md).

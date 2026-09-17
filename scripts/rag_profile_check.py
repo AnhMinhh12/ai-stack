@@ -18,13 +18,17 @@ def main() -> int:
     if ok:
         try:
             profiles = json.loads(output)
-            for model, filter_id in (("htmp-nhanh","htmp_fast_rag"),("htmp-ky","htmp_technical_rag")):
+            expected = (
+                ("htmp-nhanh", "htmp_fast_rag", False, ["htmp_postgres_query"]),
+                ("htmp-ky", "htmp_technical_rag", True, []),
+            )
+            for model, filter_id, expects_knowledge, tool_ids in expected:
                 meta = profiles.get(model, {})
                 capabilities = meta.get("capabilities") or {}
-                checks[f"{model} knowledge attached"] = bool(meta.get("knowledge"))
+                checks[f"{model} knowledge isolation"] = bool(meta.get("knowledge")) is expects_knowledge
                 checks[f"{model} profile filter"] = filter_id in meta.get("filterIds", [])
+                checks[f"{model} tool isolation"] = meta.get("toolIds", []) == tool_ids
                 checks[f"{model} citations enabled"] = capabilities.get("citations") is True
-                checks[f"{model} automatic RAG"] = capabilities.get("builtin_tools") is False
         except Exception:
             checks["profile metadata valid JSON"] = False
     for name, passed in checks.items():

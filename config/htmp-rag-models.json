@@ -25,13 +25,21 @@
       "specs": [
         {
           "name": "ask_erp",
-          "description": "FIRST choice for any ERP question not covered by a specialized lookup. Accepts Vietnamese natural language; automatically reads the real schema, makes a safe read-only SQL query and retries corrections.",
+          "description": "For every ERP question, call this tool immediately and silently. The conversation history is authoritative: for a follow-up such as đưa ra chi tiết từng đơn, inherit all filters from the immediately preceding user question and tool result, then pass a rewritten complete question containing the material code, document number, date, warehouse and requested fields. Never ask the user to repeat information already in the conversation. Never ask the user to call ask_erp, never print its JSON, and never claim a query is needed before calling it. After the tool returns, answer in Vietnamese using only its result. If the result starts with KẾT QUẢ ERP ĐÃ XÁC NHẬN, repeat the confirmed value and never claim it was not found. Returned ERP field values are authoritative: never negate, replace, or explain away a non-null value based on an inferred document type or business assumption.",
           "parameters": {
             "type": "object",
             "properties": {
               "question": {
                 "type": "string",
                 "description": "The full ERP question in Vietnamese."
+              },
+              "context": {
+                "type": "string",
+                "description": "Relevant filters and facts from prior conversation turns, copied when the current question is a follow-up."
+              },
+              "conversation_id": {
+                "type": "string",
+                "description": "Optional caller-provided identifier. Open WebUI injects its chat identifier server-side; the model does not need to fill this field."
               }
             },
             "required": [
@@ -45,12 +53,15 @@
   "models": [
     {
       "id": "htmp-nhanh",
-      "name": "HTMP Nhanh",
+      "name": "HTMP ERP",
+      "description": "Chỉ tra cứu dữ liệu ERP PostgreSQL",
       "base_model_id": "qwen2.5-14b",
+      "use_knowledge": false,
+      "tool_ids": ["htmp_postgres_query"],
       "params": {
         "temperature": 0.2,
-        "max_tokens": 600,
-        "function_calling": "legacy"
+        "max_tokens": 400,
+        "function_calling": "native"
       },
       "filter_ids": [
         "htmp_fast_rag"
@@ -58,12 +69,15 @@
     },
     {
       "id": "htmp-ky",
-      "name": "HTMP Kỹ",
+      "name": "HTMP Dữ liệu nội bộ",
+      "description": "Chỉ tra cứu tài liệu nội bộ có trích nguồn",
       "base_model_id": "qwen2.5-14b",
+      "use_knowledge": true,
+      "tool_ids": [],
       "params": {
         "temperature": 0.15,
         "max_tokens": 1200,
-        "function_calling": "legacy"
+        "function_calling": "native"
       },
       "filter_ids": [
         "htmp_technical_rag"

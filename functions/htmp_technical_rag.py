@@ -1,5 +1,5 @@
 """
-title: HTMP Technical RAG
+title: HTMP Dữ liệu nội bộ
 author: HTMP Platform
 version: 1.0.0
 required_open_webui_version: 0.6.0
@@ -7,7 +7,7 @@ required_open_webui_version: 0.6.0
 
 """Per-model hybrid RAG profile for the HTMP knowledge base.
 
-This filter runs only when attached to the HTMP Kỹ workspace model. It
+This filter runs only when attached to the HTMP Dữ liệu nội bộ workspace model. It
 uses access-checked hybrid retrieval and reranking before injecting the
 resulting context.
 """
@@ -22,20 +22,10 @@ class Filter:
     async def inlet(
         self, body, __request__, __user__, __model__=None, __event_emitter__=None
     ):
-        # Regular Open WebUI chats do not inherit a model's toolIds. Attach the
-        # read-only ERP tool before middleware resolves tools for this request.
-        tool_ids = body.setdefault("tool_ids", [])
-        if "htmp_postgres_query" not in tool_ids:
-            tool_ids.append("htmp_postgres_query")
-
         body["messages"] = add_or_update_system_message(
-            "For every ERP data question (warehouse, inventory, material/product codes, "
-            "ma_vt, ma_lo, ma_vi_tri, dates, orders, or records), call ask_erp FIRST. "
-            "Each new user question or new condition requires a NEW database query; never "
-            "reuse a previous tool result as the answer. Never invent table or column names "
-            "and never ask the user for SQL. Treat ERP tool results as the source of truth; "
-            "never say data is unavailable merely because RAG documents do not contain it. "
-            "Answer the user in Vietnamese.",
+            "You are HTMP Dữ liệu nội bộ. Answer only from the retrieved internal documents "
+            "and cite the sources. Do not call ERP tools and do not claim that an ERP lookup "
+            "was performed. If the documents do not contain the answer, say so plainly. Answer in Vietnamese.",
             body.get("messages", []),
             append=True,
         )
@@ -55,18 +45,6 @@ class Filter:
                 "htmp_observability",
                 {"request_id": request_id, "retrieval_profile": self.__class__.__module__},
             )
-
-        # ERP questions are answered from PostgreSQL. Skipping document RAG for
-        # these avoids consuming the model context with unrelated long manuals.
-        prompt_lower = prompt.lower()
-        erp_markers = ("ma_vt", "mã vt", "mã vật tư", "ma kho", "mã kho", "kho ", "tồn kho", "ton kho")
-        looks_like_erp_data = any(marker in prompt_lower for marker in erp_markers)
-        if looks_like_erp_data:
-            # Legacy tool calling attaches model Knowledge before filter inlets.
-            # Clear it here so the generic RAG handler cannot inject manuals.
-            body.pop("files", None)
-            body.setdefault("metadata", {}).pop("files", None)
-            return body
 
         # Native tool calling keeps model Knowledge out of body["files"].
         # Prefer explicit chat attachments when supplied; otherwise retrieve

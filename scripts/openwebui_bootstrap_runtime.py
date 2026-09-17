@@ -68,7 +68,13 @@ def main() -> int:
             fail(f"base model missing: {item['base_model_id']}")
         row = conn.execute("select meta from model where id=?", (item["id"],)).fetchone()
         meta = json.loads(row[0]) if row else {}
-        meta.update({"description": "HTMP internal RAG profile", "capabilities": capabilities, "knowledge": knowledge, "filterIds": item["filter_ids"], "toolIds": ["htmp_postgres_query"]})
+        meta.update({
+            "description": item.get("description", "HTMP profile"),
+            "capabilities": capabilities,
+            "knowledge": knowledge if item.get("use_knowledge", True) else [],
+            "filterIds": item["filter_ids"],
+            "toolIds": item.get("tool_ids", []),
+        })
         conn.execute(
             "insert into model (id,user_id,base_model_id,name,params,meta,updated_at,created_at,is_active) values (?,?,?,?,?,?,?,?,?) "
             "on conflict(id) do update set user_id=excluded.user_id,base_model_id=excluded.base_model_id,name=excluded.name,params=excluded.params,meta=excluded.meta,updated_at=excluded.updated_at,is_active=1",
