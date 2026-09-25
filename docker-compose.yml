@@ -63,6 +63,7 @@ services:
     environment:
       - OPENAI_API_BASE_URLS=http://vllm:8000/v1
       - OPENAI_API_KEY=${VLLM_API_KEY:?VLLM_API_KEY must be set}
+      - VLLM_API_KEY=${VLLM_API_KEY:?VLLM_API_KEY must be set}
       - ENABLE_OPENAI_API=True
       - ENABLE_OLLAMA_API=False
       - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:?WEBUI_SECRET_KEY must be set}
