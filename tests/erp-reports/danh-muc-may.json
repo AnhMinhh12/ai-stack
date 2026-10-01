@@ -1,0 +1,1 @@
+{"report_id":"danh-muc-may","status":"pending_ui_validation","required_comparisons":3,"cases":[{"question":"Máy theo mã","expected_result":null,"ui_assertions":["cột danh mục khớp UI"]},{"question":"Lọc ĐVCS/trạng thái","expected_result":null,"ui_assertions":["filter có hiệu lực"]},{"question":"Quyền ĐVCS","expected_result":null,"ui_assertions":["ds_branchs giới hạn dữ liệu"]}]}

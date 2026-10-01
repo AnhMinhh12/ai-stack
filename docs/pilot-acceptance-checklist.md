@@ -34,3 +34,11 @@
 
 Không coi `docker compose ps` healthy là pilot acceptance; mọi checkbox cần evidence
 ID, UTC timestamp, owner, raw result, expiry và approval.
+
+## Bổ sung CAD MCP local
+
+- [ ] FreeCAD MCP inventory/owner, Tailscale ACL và xác thực bridge đã review; không
+  có endpoint/key trong evidence.
+- [ ] CAD path/tool allowlist, audit redacted, backup/restore/export owner và retention đã ký.
+- [ ] Chat/profile có FreeCAD tool attachment; create/save/reopen test pass. Bridge
+  denied/offline, FreeCAD busy/crash, timeout và export fail có behavior an toàn.

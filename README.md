@@ -1,10 +1,18 @@
 # LOCAL AI STACK TRÊN NVIDIA GB10
 
-> Cập nhật: **2026-09-09**
+> Cập nhật: **2026-09-25**
 >
 > Phạm vi: `/home/admin/ai-stack`
 >
 > Trạng thái: **lab/pilot đang hoạt động; chưa đạt production readiness cho toàn công ty**
+
+Một tích hợp CAD đang hoạt động ngoài repository: FreeCAD chạy trên máy local của
+người dùng, được Open WebUI kết nối qua MCP bridge trên mạng Tailscale. Tích hợp này
+có thể cho phép model gọi tool tạo/chỉnh mô hình thay vì chỉ hướng dẫn bằng văn bản.
+Bridge, endpoint, cơ chế xác thực, tool schema và file CAD không nằm trong workspace
+này; repo chưa thể tái tạo, kiểm tra health hoặc sao lưu nó. Xem
+[`docs/freecad-mcp-local.md`](./docs/freecad-mcp-local.md) trước khi vận hành hay mở
+rộng tích hợp này.
 
 ## 1. Mục tiêu và cách đọc tài liệu
 
@@ -53,6 +61,8 @@ flowchart LR
     W -->|"document extraction"| T["Apache Tika"]
     W -->|"RAG"| Q["Qdrant"]
     W -->|"state/WebSocket"| R["Redis"]
+    W -->|"MCP qua tailnet"| M["FreeCAD MCP bridge\n(máy local, ngoài repo)"]
+    M --> F["FreeCAD GUI\n(máy local)"]
     L["Langfuse v2"] --> P["PostgreSQL 15"]
     W -. "chưa có instrumentation trong repo" .-> L
 ```
@@ -68,14 +78,21 @@ Langfuse/PostgreSQL đang chạy nhưng repo chưa có middleware/SDK/OTel nối
 vào Langfuse. Nginx đã có request ID và log redaction baseline; container Langfuse
 healthy vẫn không có nghĩa là đã có tracing end-to-end.
 
+Luồng CAD là một tool integration tách biệt: Open WebUI/model phải được gán đúng MCP
+tool trong chat hoặc model profile; bridge nhận lệnh qua Tailscale và điều khiển
+FreeCAD trên máy local. Mất lịch sử chat không tự chứng minh bridge mất kết nối, nhưng
+chat mới phải được gán tool lại theo cấu hình Open WebUI. Không coi FreeCAD MCP là một
+Docker service trong stack này và không expose endpoint bridge ra Internet công cộng.
+
+
 ## 4. Snapshot hiện trạng
 
-Kiểm tra chỉ đọc ngày 2026-09-09 cho thấy `docker compose config --quiet` pass và
-tám container đang chạy:
+Snapshot Docker có evidence ngày 2026-09-09; Compose hiện hành là nguồn sự thật cho
+cấu hình được commit. Stack Compose có tám service; FreeCAD MCP nằm ngoài Compose.
 
 | Service | Cấu hình/runtime quan sát | Host exposure | Giới hạn hiện tại |
 | --- | --- | --- | --- |
-| vLLM | Runtime image digest pin; model root `Qwen/Qwen2.5-14B-Instruct`; alias `qwen2.5-14b`; FP8 weight/KV; context 16K; max 64 seq; prefix cache | `Docker internal only` | Chưa chứng minh capacity/SLO; model revision chưa được enforce bởi Compose |
+| vLLM | Image digest pin; `Qwen/Qwen2.5-14B-Instruct`; alias `qwen2.5-14b`; revision/tokenizer `cf98f3b…`; FP8 weight/KV; context 32K; `max-num-seqs=20`; prefix cache và native tool calling | `Docker internal only` | Chưa chứng minh capacity/SLO thực tế |
 | Open WebUI | Image local `open-webui-htmp:libreoffice`; không công bố package version; một replica/volume | `Docker internal only` | Chưa có bằng chứng SSO, HA hoặc ACL RAG end-to-end |
 | Tika | Image digest pin; task timeout 15 phút; read-only, tmpfs, cap-drop, memory/CPU/PID limits, healthcheck | Docker network | Chưa có queue, malware quarantine/CDR hoặc egress policy độc lập |
 | Qdrant | Image digest pin; API key; một volume | `Docker internal only` | Một API key không tạo tenant isolation; chưa HA/snapshot restore nghiệm thu |
@@ -83,23 +100,28 @@ tám container đang chạy:
 | Langfuse | Runtime `2.95.11`, image digest pin; một web container | `Docker internal only` | Chưa có trace end-to-end hoặc alerting |
 | PostgreSQL | Runtime image digest pin; một volume | Docker network | Chưa HA/PITR/clean restore |
 | Nginx | Runtime `1.31.5`, image digest pin; TLS, SSE không buffer, upload 100 MB, timeout 600 giây | `0.0.0.0/[::]:80,443` | Chưa HA hoặc lifecycle chứng chỉ; trace E2E chưa nối |
+| FreeCAD MCP bridge | FreeCAD local; bridge qua Tailscale, do operator xác nhận | Tailnet, ngoài Compose/repo | Chưa có manifest, tool allowlist, healthcheck, audit, backup hoặc test evidence trong repo |
 
 Healthcheck chỉ chứng minh process/endpoint sống tại một thời điểm; không chứng
 minh security, high availability, RAG isolation, restore hay tải toàn công ty.
 
 ### Các điểm dễ hiểu sai
 
-- `--max-num-seqs 64` là scheduler limit, không phải 64 user đồng thời được bảo đảm.
+- `--max-num-seqs 20` là scheduler limit, không phải 20 user đồng thời được bảo đảm.
 - Prefix caching tái sử dụng KV của prefix token trùng nhau, không trả lại semantic response.
 - `REDIS_URL` hiện phục vụ state/token revocation/WebSocket coordination; repo
   không có Celery worker hoặc semantic cache.
 - `VLLM_ATTENTION_BACKEND=FLASH_ATTN` thể hiện ý định; startup log/metric mới
   chứng minh backend thực sự được dùng.
 - Speculative decoding chưa được cấu hình.
-- `OPENAI_API_KEY=EMPTY` chỉ chấp nhận được khi vLLM luôn nằm trong trust boundary nội bộ.
+- Open WebUI dùng `VLLM_API_KEY` để gọi vLLM; key này không được ghi vào tài liệu/log.
 - Tika là service thứ tám mới hơn snapshot tài liệu ngày 2026-09-04.
 
 ## 5. State và dữ liệu
+- Compose hiện hành đặt Qwen revision/tokenizer revision `cf98f3b…`, context 32K và
+  `--max-num-seqs=20`; các snapshot trước đó ghi khác là historical evidence.
+- Một model trả lời rằng không thể điều khiển FreeCAD thường là dấu hiệu chat/model chưa
+  được gán MCP tool, không phải bằng chứng bridge hoặc Tailscale đã hỏng.
 
 | Dữ liệu | Nơi lưu hiện tại | Quan tâm khi scale |
 | --- | --- | --- |
@@ -110,9 +132,9 @@ minh security, high availability, RAG isolation, restore hay tải toàn công t
 | Model cache | `/var/lib/vllm/models` trên host | Revision có trong evidence/metadata nhưng Compose chưa enforce; cần manifest/registry |
 | TLS key/cert | `nginx/certs/`, Git ignore | Nguồn cấp, SAN, hạn dùng và renewal chưa được mô tả |
 | Backup | `backups/` cùng host, Git ignore | Mã hóa/checksum/preflight đã có; chưa có off-host immutable copy/clean-room restore nghiệm thu |
+| CAD documents/tool state | Máy FreeCAD local và cấu hình MCP bridge, ngoài repo | Chưa có đường backup, ownership, retention hoặc export policy được ghi nhận |
 
 `.env` có quyền `0600` và được Git ignore; fallback credential đã được xóa và backup mới không còn sao chép giá trị `.env`. Tuy nhiên, Compose vẫn đưa secret vào environment/command của container và `docker compose config` có thể render giá trị đó; đây là rủi ro lộ qua process, diagnostic output hoặc quyền Docker. Secret manager chưa được tích hợp và recovery key vẫn ở local `.secrets`/.
-
 ### Các lỗ hổng/rủi ro còn mở
 
  - Compose chỉ bắt buộc `VLLM_API_KEY`; các secret Qdrant/Redis/DB/WebUI chưa dùng cú pháp parameter-required nên cấu hình thiếu có nguy cơ khởi động với secret rỗng. Cần preflight fail-closed cho toàn bộ secret bắt buộc.
@@ -123,6 +145,9 @@ minh security, high availability, RAG isolation, restore hay tải toàn công t
 - Langfuse chỉ healthy, chưa có trace/metric/audit end-to-end và redaction được enforce bằng backend.
 - Backup có encryption/checksum/fail-closed preflight, nhưng chưa có artifact mới được duyệt, off-host immutable copy hoặc clean-room restore đạt RPO/RTO.
 
+- MCP bridge là đường điều khiển có thể tạo/sửa/xuất file CAD. Nó phải chỉ nghe trên
+  Tailnet, xác thực riêng, giới hạn tool/file path và có audit; không dùng credential
+  Open WebUI/vLLM làm thay cho xác thực bridge.
 ## 6. Những phát hiện quan trọng
 
 ### Benchmark chưa chứng minh capacity
@@ -161,6 +186,7 @@ Các nhận định dưới đây là phát hiện lịch sử trước đợt h
 | P1 | Operations/cost | On-call, incident drill, usage attribution, quota và demand forecast |
 | P2 | AI quality | Eval tiếng Việt/RAG/tool theo use case và human feedback |
 
+| P0 khi mở rộng CAD | FreeCAD MCP | Inventory bridge/tool scope, Tailnet ACL, auth, tool/file allowlist, audit, backup/export và test create/save/recover |
 Chi tiết kiểm thử và điều kiện đóng nằm trong [`RUNBOOK.md`](./RUNBOOK.md).
 
 ## 8. Kiến trúc mục tiêu khi thành shared service

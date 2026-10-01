@@ -1,0 +1,107 @@
+{
+  "id": "gia-han-han-su-dung",
+  "title": "Gia hạn hạn sử dụng",
+  "match_phrases": [
+    "gia hạn hạn sử dụng",
+    "gia hạn hsd",
+    "lô sắp hết hạn"
+  ],
+  "validation": {
+    "status": "pending_ui_validation",
+    "required_ui_comparisons": 3
+  },
+  "inputs": {
+    "required": [],
+    "filters": [
+      {
+        "parameter": "ma_vt",
+        "column": "ma_vt",
+        "aliases": [
+          "mã vật tư",
+          "mã hàng"
+        ],
+        "value_type": "code"
+      },
+      {
+        "parameter": "ma_lo",
+        "column": "ma_lo",
+        "aliases": [
+          "mã lô",
+          "lô"
+        ],
+        "value_type": "code"
+      }
+    ]
+  },
+  "defaults": {
+    "limit": 200
+  },
+  "sources": [
+    "dmlo",
+    "dmvt",
+    "cdvt13",
+    "dmloupdatehsd"
+  ],
+  "query_file": "gia-han-han-su-dung.sql",
+  "columns": [
+    {
+      "field": "ma_vt",
+      "label": "Mã vật tư",
+      "aliases": [
+        "mã hàng"
+      ]
+    },
+    {
+      "field": "ten_vt",
+      "label": "Tên vật tư",
+      "aliases": [
+        "tên hàng"
+      ]
+    },
+    {
+      "field": "ma_lo",
+      "label": "Mã lô",
+      "aliases": [
+        "lô"
+      ]
+    },
+    {
+      "field": "ngay_hhsd",
+      "label": "Ngày hết hạn sử dụng",
+      "aliases": [
+        "ngày hết hạn"
+      ]
+    },
+    {
+      "field": "ngay_con_han",
+      "label": "Ngày còn hạn",
+      "aliases": [
+        "còn hạn"
+      ]
+    },
+    {
+      "field": "ton13",
+      "label": "Tồn",
+      "aliases": [
+        "tồn lô"
+      ]
+    },
+    {
+      "field": "lan_gia_han_cuoi",
+      "label": "Lần gia hạn cuối",
+      "aliases": [
+        "lịch sử gia hạn"
+      ]
+    }
+  ],
+  "output": {
+    "metrics": [
+      "ton13",
+      "ngay_con_han"
+    ]
+  },
+  "execution_context": {
+    "authenticated_user_id": "required_from_session",
+    "permission_scope": "cdvt13.ma_kho via dmkho"
+  }
+}

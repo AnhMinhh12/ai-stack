@@ -200,6 +200,23 @@ def connection_settings() -> dict:
     return settings
 
 
+def trusted_erp_user_id(user: Any) -> int | None:
+    """Resolve an injected Open WebUI identity through a server-owned map only."""
+    try:
+        mapping = json.loads(os.getenv("HTMP_ERP_USER_ID_MAP", "{}"))
+    except json.JSONDecodeError:
+        mapping = {}
+    if isinstance(user, dict) and isinstance(mapping, dict):
+        for identity in (str(user.get("id") or ""), str(user.get("email") or "").lower()):
+            value = mapping.get(identity)
+            if isinstance(value, int) and value > 0:
+                return value
+            if isinstance(value, str) and value.isdecimal() and int(value) > 0:
+                return int(value)
+    shared_user_id = os.getenv("HTMP_ERP_SHARED_USER_ID", "")
+    return int(shared_user_id) if shared_user_id.isdecimal() and int(shared_user_id) > 0 else None
+
+
 def load_report_config(report_id: str) -> dict[str, Any]:
     """Load a versioned, screen-level ERP report manifest."""
     config = json.loads((ERP_REPORTS_DIR / f"{report_id}.json").read_text())
@@ -667,7 +684,7 @@ class Tools:
             default=str,
         )
 
-    def _inventory_movement_journal(self, question: str) -> str | None:
+    def _inventory_movement_journal(self, question: str, authenticated_user_id: int) -> str | None:
         """Execute the manifest-defined Nhật ký nhập xuất tồn report."""
         try:
             report = load_report_config("nhat-ky-nhap-xuat-ton")
@@ -692,9 +709,9 @@ class Tools:
         except Exception:
             return "SQL của báo cáo Nhật ký nhập xuất tồn chưa sẵn sàng."
         parameters = (
-            min(dates), max(dates), report["defaults"]["ma_dvcs"],
-            material_code, material_code, warehouse_code, warehouse_code,
-            creator_code, creator_code, editor_code, editor_code, row_limit + 1,
+            min(dates), max(dates),
+            material_code, warehouse_code, creator_code, editor_code,
+            authenticated_user_id, row_limit + 1,
         )
         try:
             import psycopg
@@ -784,11 +801,20 @@ class Tools:
             ensure_ascii=False, default=str,
         )
 
-    def ask_erp(self, question: str, context: str = "", conversation_id: str = "", __chat_id__: str = "") -> str:
+    def ask_erp(self, question: str, context: str = "", conversation_id: str = "", __chat_id__: str = "", __user__: dict | None = None) -> str:
         """Resolve a natural-language ERP request through the semantic router first."""
         question = (question or "").strip()
         if not question:
             return "Cần cung cấp câu hỏi ERP để tra cứu."
+        try:
+            journal_report = load_report_config("nhat-ky-nhap-xuat-ton")
+            if parse_report_request(question, journal_report)["matches_report"]:
+                authenticated_user_id = trusted_erp_user_id(__user__)
+                if authenticated_user_id is None:
+                    return "Không có mapping ERP hợp lệ cho phiên chat; báo cáo vẫn bị chặn an toàn."
+                return self._inventory_movement_journal(question, authenticated_user_id)
+        except Exception:
+            return "Cấu hình báo cáo Nhật ký nhập xuất tồn chưa sẵn sàng."
         active_conversation = conversation_id or __chat_id__ or ""
         filters = ERP_CONVERSATION_STATE.resolve(active_conversation, question, context)
         if not filters.get("ma_vt"):

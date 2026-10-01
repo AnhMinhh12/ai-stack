@@ -1,0 +1,22 @@
+{
+  "report_id": "bao-cao-thong-tin-sp-theo-ho-so-khuon",
+  "status": "ui_validation_complete",
+  "required_comparisons": 3,
+  "cases": [
+    {
+      "question": "Một khuôn trên UI",
+      "expected_result": "K_FE3-V374-000-11A / 25HI1016 / FE3-V374-000; chu kỳ 32, Chính, cavity 1, Sử dụng.",
+      "ui_assertions": ["Mã/Tên khuôn, Mã/Tên sản phẩm, ID cấp, Chu kỳ, Chính/Phụ, Cavity và Trạng thái khớp."]
+    },
+    {
+      "question": "Lọc Mã sản phẩm FE3-V374-000, Trạng thái Tất cả",
+      "expected_result": "2 dòng: FE3-V374-000-11A (Không sử dụng) và K_FE3-V374-000-11A (Sử dụng).",
+      "ui_assertions": ["Lookup Mã sản phẩm truyền mã vật tư đã chọn; Tất cả không loại trạng thái 0."]
+    },
+    {
+      "question": "Lọc Mã sản phẩm FE3-V374-000, Trạng thái Sử dụng",
+      "expected_result": "1 dòng K_FE3-V374-000-11A, trạng thái Sử dụng.",
+      "ui_assertions": ["Bộ lọc Trạng thái loại bản ghi Không sử dụng."]
+    }
+  ]
+}

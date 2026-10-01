@@ -1,3 +1,24 @@
+## FreeCAD MCP local qua Tailscale — 2026-09-25
+
+**Trạng thái:** `operator-confirmed; repository-unmanaged`.
+
+- FreeCAD chạy trên máy local, không phải container/service của Compose. Open WebUI
+  đã được kết nối tới MCP bridge qua Tailscale để agent có thể gọi tool CAD.
+- Repository không chứa bridge source/configuration, endpoint/identity tailnet, tool
+  schema, version FreeCAD, audit log hay file CAD. Không coi integration này đã được
+  kiểm chứng bởi `docker compose`, backup, smoke test hoặc release gate của repo.
+- Chat/model/profile phải được gán MCP tool. Mất chat history hay model chỉ trả lời
+  hướng dẫn không tự chứng minh bridge lỗi; test lại bằng tool discovery hoặc thao tác
+  tạo document không phá hủy.
+- Trước khi mở rộng ngoài pilot local: chốt owner, Tailnet ACL, xác thực bridge độc lập,
+  allowlist tool/path, audit có correlation ID, backup/retention/export `.FCStd`/`.STEP`,
+  và test offline/deny/busy/crash/timeout/save/recover. Tool có side effect không retry
+  mù quáng.
+
+Tài liệu vận hành chi tiết: [`docs/freecad-mcp-local.md`](docs/freecad-mcp-local.md).
+
+---
+
 ## Cập nhật giao diện HTMP Speed — 2026-09-10
 
 - Open WebUI chạy image nội bộ `open-webui-htmp:speed-selector`. Component chọn model được thay bằng `HTMP` kèm dropdown `Speed`; chọn `Nhanh` ánh xạ tới `htmp-nhanh`, chọn `Kỹ` ánh xạ tới `htmp-ky`. Hai profile dùng cùng Qwen và knowledge `htmp`, không tải thêm model GPU.

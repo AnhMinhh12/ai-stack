@@ -1,0 +1,45 @@
+{
+  "id": "gop-tach-thung",
+  "title": "Gộp, tách thùng",
+  "match_phrases": [
+    "gộp, tách thùng"
+  ],
+  "validation": {
+    "status": "pending_ui_validation",
+    "required_ui_comparisons": 3
+  },
+  "inputs": {
+    "required": [],
+    "filters": []
+  },
+  "execution_context": {
+    "authenticated_user_id": "required_from_session",
+    "permission_scope": "mes_oi_dong_thung.production_order via phlsx.ma_dvcs (confirmed MESBKGopTachThung mapping)"
+  },
+  "defaults": {
+    "limit": 200
+  },
+  "sources": [
+    "intem_carton_log",
+    "intem_log",
+    "mes_oi_dong_thung",
+    "phlsx",
+    "dmvt",
+    "dmdvcs",
+    "userinfo"
+  ],
+  "query_file": "gop-tach-thung.sql",
+  "columns": [
+    {
+      "field": "stt_rec",
+      "label": "Khóa chứng từ",
+      "aliases": []
+    }
+  ],
+  "output": {
+    "metrics": [],
+    "computed": [
+      "total"
+    ]
+  }
+}

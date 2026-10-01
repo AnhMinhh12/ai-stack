@@ -1,0 +1,28 @@
+{
+  "report_id": "gia-han-han-su-dung",
+  "status": "pending_ui_validation",
+  "required_comparisons": 3,
+  "cases": [
+    {
+      "question": "Lô tồn dương và còn hạn",
+      "expected_result": null,
+      "ui_assertions": [
+        "Dòng lô tồn dương, hạn dùng và lần gia hạn gần nhất khớp UI."
+      ]
+    },
+    {
+      "question": "Lô hết hạn: ngày còn hạn âm hoặc bằng 0",
+      "expected_result": null,
+      "ui_assertions": [
+        "Lọc vật tư/lô; total và tổng tồn chỉ phản ánh các kho trong phạm vi."
+      ]
+    },
+    {
+      "question": "Lô có lịch sử gia hạn gần nhất",
+      "expected_result": null,
+      "ui_assertions": [
+        "User không hợp lệ không có dòng; ds_branchs giới hạn cdvt13.ma_kho qua dmkho."
+      ]
+    }
+  ]
+}

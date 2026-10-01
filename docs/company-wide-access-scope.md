@@ -11,6 +11,9 @@
 - The optional `docker-compose.oidc.yml` overlay remains disabled and is not part of the current deployment.
 - This is not a permission boundary. Do not upload HR, payroll, legal, personal-data, customer-restricted, financial, security-sensitive or other documents that need department/person-level access control.
 
+- FreeCAD MCP local không nằm trong shared-knowledge scope. Không dùng nó để chia sẻ
+  hoặc xử lý bản vẽ cần phân quyền cho đến khi bridge có identity, ACL theo file/project,
+  audit và data lifecycle được duyệt.
 ## Required minimum operations
 
 - Maintain an account inventory with creator, employee/contractor status and disable date; remove access when employment ends.

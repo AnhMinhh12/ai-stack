@@ -1,0 +1,16 @@
+{
+  "id": "phieu-nhap-hang",
+  "title": "Phiếu nhập hàng",
+  "match_phrases": ["phiếu nhập hàng", "nhập hàng mua"],
+  "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
+  "inputs": {"required": ["tu_ngay", "den_ngay"], "filters": [{"parameter":"so_ct_tu","column":"so_ct","aliases":["số phiếu từ"],"value_type":"code"},{"parameter":"so_ct_den","column":"so_ct","aliases":["số phiếu đến"],"value_type":"code"},{"parameter":"ma_kh","column":"ma_kh","aliases":["mã nhà cung cấp","mã ncc"],"value_type":"code"},{"parameter":"ma_kho","column":"ma_kho","aliases":["mã kho"],"value_type":"code"},{"parameter":"ma_vt","column":"ma_vt","aliases":["mã vật tư","mã hàng"],"value_type":"code"},{"parameter":"ma_dvcs","column":"ma_dvcs","aliases":["đơn vị cơ sở","đvcs"],"value_type":"code"},{"parameter":"status","column":"status","aliases":["trạng thái"],"value_type":"code"}]},
+  "execution_context": {"authenticated_user_id": "required_from_session", "permission_scope": "userinfo.ds_branchs + dmkho"},
+  "defaults": {"limit": 200},
+  "sources": ["ph77","ct77","ph94","ct94","ph91","ct91","dmkh","dmvt","dmvv","dmbp","sys_dmmagd","sys_dmtt","userinfo","dmkho"],
+  "query_file": "phieu-nhap-hang.sql",
+  "columns": [
+    {"field":"lich_su_cap_nhat","label":"Lịch sử cập nhật","aliases":["cập nhật gần nhất"]}, {"field":"statusname","label":"Trạng thái","aliases":["tình trạng"]}, {"field":"ngay_ct","label":"Ngày CT","aliases":["ngày phiếu"]}, {"field":"so_ct","label":"Số CT","aliases":["số phiếu"]}, {"field":"ngay_hd","label":"Ngày HĐ","aliases":["ngày hóa đơn"]}, {"field":"so_hd","label":"Số HĐ","aliases":["số hóa đơn"]}, {"field":"ma_gd","label":"Mã giao dịch","aliases":["mã gd"]}, {"field":"ten_gd","label":"Tên giao dịch","aliases":[]}, {"field":"ten_kh","label":"Tên NCC","aliases":["tên nhà cung cấp"]}, {"field":"ong_ba","label":"Người giao hàng","aliases":[]}, {"field":"dia_chi","label":"Địa chỉ","aliases":[]}, {"field":"dien_giai","label":"Diễn giải","aliases":[]}, {"field":"ma_nt","label":"Mã NT","aliases":[]}, {"field":"ty_gia","label":"Tỷ giá","aliases":[]}, {"field":"t_so_luong","label":"Tổng số lượng","aliases":[]}, {"field":"t_tien","label":"Tổng tiền","aliases":[]}, {"field":"t_thue","label":"Thuế","aliases":[]}, {"field":"t_tt","label":"Thanh toán","aliases":[]}
+  ],
+  "ui_column_mapping": {"lich_su_cap_nhat":"ph77.date2 + ph77.time2 + userinfo.user_name","statusname":"sys_dmtt.statusname (PR1)","ngay_ct":"ph77.ngay_ct","so_ct":"ph77.so_ct","ngay_hd":"ph77.ngay_hd","so_hd":"ph77.so_hd","ma_gd":"ph77.ma_gd","ten_gd":"sys_dmmagd.ten_gd (ph77.ma_ct, ph77.ma_gd)","ten_kh":"ph77.ten_kh","ong_ba":"ph77.ong_ba","dia_chi":"ph77.dia_chi","dien_giai":"ph77.dien_giai","ma_nt":"ph77.ma_nt","ty_gia":"ph77.ty_gia","t_so_luong":"ph77.t_so_luong","t_tien":"ph77.t_tien","t_thue":"ph77.t_thue","t_tt":"ph77.t_tt"},
+  "output": {"metrics": ["t_so_luong","t_tien","t_thue","t_tt","sl_nhap","tien_nhap","tien_nt"], "computed": ["lich_su_cap_nhat","stt","total"]}
+}

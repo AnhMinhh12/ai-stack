@@ -1,0 +1,8 @@
+{
+  "report_id": "don-hang-hop-dong", "status": "pending_ui_validation", "required_comparisons": 3,
+  "cases": [
+    {"question": "001-2609-009427, ngày 28/09/2026", "expected_result": {"header": {"so_ct": "001-2609-009427", "ngay_ct": "2026-09-28", "ma_kh": "KH0062", "ma_dvcs": "001", "status": "12 - Hoàn thành", "tong_so_luong": 65}, "details": [{"ma_vt": "H132-5F4-A812", "so_luong": 11}, {"ma_vt": "H132-5F4-9812", "so_luong": 26}, {"ma_vt": "H131-TTA-Z730", "so_luong": 28}], "delivery_schedule": [{"ma_vt": "H132-5F4-A812", "ngay_yc_gh": "2026-09-29", "ngay_gh": "2026-09-29", "so_luong": 11}, {"ma_vt": "H132-5F4-9812", "ngay_yc_gh": "2026-09-29", "ngay_gh": "2026-09-29", "so_luong": 26}, {"ma_vt": "H131-TTA-Z730", "ngay_yc_gh": "2026-09-29", "ngay_gh": "2026-09-29", "so_luong": 28}]}, "ui_assertions": ["3 dòng sysorder=7", "3 lịch giao từ ctkhgh", "t_tt = tien2 + thue - ck"]},
+    {"question": "Khách KH0034, ngày 28/09/2026", "expected_result": null, "ui_assertions": ["lọc khách hàng", "lọc khoảng ngày", "ĐVCS và quyền người dùng được áp dụng"]},
+    {"question": "001-2609-009426, ngày 28/09/2026", "expected_result": null, "ui_assertions": ["1 dòng nguồn ct64, 2 lịch giao từ ctkhgh", "2 dòng sysorder=7 sau join lịch giao", "đối chiếu dòng nhóm/tổng cộng khi bật group_yn"]}
+  ]
+}

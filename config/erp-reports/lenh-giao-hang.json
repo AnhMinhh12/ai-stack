@@ -1,0 +1,38 @@
+{
+  "id": "lenh-giao-hang", "title": "Lệnh giao hàng",
+  "match_phrases": ["lệnh giao hàng"],
+  "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
+  "inputs": {"required": ["tu_ngay", "den_ngay"], "filters": [
+    {"parameter": "so_ct", "column": "so_ct", "aliases": ["số lệnh", "số chứng từ"], "value_type": "code"},
+    {"parameter": "ma_kh", "column": "ma_kh", "aliases": ["mã khách hàng", "mã khách"], "value_type": "code"},
+    {"parameter": "ma_vt", "column": "ma_vt", "aliases": ["mã vật tư", "mã hàng"], "value_type": "code"},
+    {"parameter": "ma_dvcs", "column": "ma_dvcs", "aliases": ["đvcs", "đơn vị cơ sở"], "value_type": "code"},
+    {"parameter": "status", "column": "status", "aliases": ["trạng thái"], "value_type": "code"}
+  ]},
+  "execution_context": {"authenticated_user_id": "required_from_session", "permission_scope": "userinfo.ds_branchs + dmkho"},
+  "defaults": {"limit": 200},
+  "sources": ["ph96", "ct96", "ctkhgh", "dmvt", "userinfo", "dmkho"],
+  "query_file": "lenh-giao-hang.sql",
+  "columns": [
+    {"field":"status","label":"Trạng thái","aliases":["tình trạng"]},
+    {"field":"ngay_ct","label":"Ngày CT","aliases":["ngày lệnh"]},
+    {"field":"so_ct","label":"Số CT","aliases":["số lệnh","số chứng từ"]},
+    {"field":"ma_gd","label":"Mã giao dịch","aliases":["mã gd"]},
+    {"field":"ngay_gh","label":"Ngày GH","aliases":["ngày giao"]},
+    {"field":"gio_gh","label":"Giờ GH","aliases":["giờ giao"]},
+    {"field":"ten_gd","label":"Tên giao dịch","aliases":[]},
+    {"field":"ma_kh","label":"Mã khách hàng","aliases":["mã khách"]},
+    {"field":"ten_kh","label":"Tên khách hàng","aliases":["tên khách"]},
+    {"field":"dia_chi","label":"Địa chỉ","aliases":[]},
+    {"field":"ong_ba","label":"Người liên lạc","aliases":[]},
+    {"field":"dien_thoai","label":"Điện thoại","aliases":[]},
+    {"field":"dien_giai","label":"Diễn giải","aliases":[]},
+    {"field":"ma_nt","label":"Mã NT","aliases":["mã ngoại tệ"]},
+    {"field":"ty_gia","label":"Tỷ giá","aliases":[]},
+    {"field":"t_so_luong","label":"Tổng số lượng","aliases":[]}
+  ],
+  "ui_column_mapping": {
+    "status":"sys_dmtt.statusname (ph96.status, ma_ct = TO2)","ngay_ct":"ph96.ngay_ct","so_ct":"ph96.so_ct","ma_gd":"ph96.ma_gd","ngay_gh":"ph96.ngay_gh","gio_gh":"ph96.gio_gh","ten_gd":"sys_dmmagd.ten_gd (ph96.ma_ct, ph96.ma_gd)","ma_kh":"ph96.ma_kh","ten_kh":"ph96.ten_kh","dia_chi":"ph96.dia_chi","ong_ba":"ph96.ong_ba","dien_thoai":"ph96.dien_thoai","dien_giai":"ph96.dien_giai","ma_nt":"ph96.ma_nt","ty_gia":"ph96.ty_gia","t_so_luong":"ph96.t_so_luong"
+  },
+  "output": {"computed": ["t_tt", "total"], "metrics": ["so_luong", "so_luong_cl", "so_luong_ke_hoach", "tien2", "thue", "ck", "t_tt"]}
+}

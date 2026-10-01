@@ -1,0 +1,11 @@
+{
+  "report_id": "phieu-yeu-cau-mua-hang", "status": "pending_ui_validation", "required_comparisons": 3,
+  "cases": [
+    {"question": "Một dòng yêu cầu chưa đặt hàng", "expected_result": null,
+     "ui_assertions": ["ct91 → ph91", "SL còn lại = SL yêu cầu khi chưa có liên kết", "ngày về tiêu chuẩn từ leadtime vật tư"]},
+    {"question": "Một dòng đã có đơn mua và phiếu nhập", "expected_result": null,
+     "ui_assertions": ["SL đặt theo ctkhnh_po1", "SL nhập theo ctkhnh → ct77", "các status đơn mua đúng UI"]},
+    {"question": "Phiếu đóng và người dùng giới hạn chi nhánh/kho", "expected_result": null,
+     "ui_assertions": ["SL đóng/SL còn lại đúng close_yn và status", "lọc ngày/số phiếu/người yêu cầu/vật tư/ĐVCS/trạng thái", "userinfo.ds_branchs + dmkho không rò dữ liệu"]}
+  ]
+}

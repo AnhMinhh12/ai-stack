@@ -1,0 +1,25 @@
+{
+  "id": "bang-ke-lenh-giao-hang",
+  "title": "Bảng kê lệnh giao hàng",
+  "match_phrases": ["bảng kê lệnh giao hàng"],
+  "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
+  "inputs": {"required": ["tu_ngay", "den_ngay"], "filters": [
+    {"parameter": "tu_ngay_gh", "column": "ngay_gh", "aliases": ["từ ngày giao", "ngày giao từ"], "value_type": "date"},
+    {"parameter": "den_ngay_gh", "column": "ngay_gh", "aliases": ["đến ngày giao", "ngày giao đến"], "value_type": "date"},
+    {"parameter": "so_ct", "column": "so_ct", "aliases": ["số chứng từ", "số lệnh"], "value_type": "code"},
+    {"parameter": "ma_kh", "column": "ma_kh", "aliases": ["mã khách hàng", "mã khách"], "value_type": "code"},
+    {"parameter": "ma_vt", "column": "ma_vt", "aliases": ["mã vật tư", "mã hàng"], "value_type": "code"},
+    {"parameter": "ma_dvcs", "column": "ma_dvcs", "aliases": ["đơn vị cơ sở", "đvcs"], "value_type": "code"},
+    {"parameter": "status", "column": "status", "aliases": ["trạng thái"], "value_type": "code"},
+    {"parameter": "loai_chi_thi", "column": "so_luong_cl", "aliases": ["còn lại", "đã chỉ thị"], "value_type": "integer"}
+  ]},
+  "execution_context": {"authenticated_user_id": "required_from_session", "permission_scope": "userinfo.ds_branchs + dmkho"},
+  "defaults": {"limit": 200, "mau_bc": "001"},
+  "sources": ["ph96", "ct96", "ct96lo", "ctkhgh", "ct81", "dmkh", "dmvt", "sys_dmtt", "userinfo", "dmkho"],
+  "query_file": "bang-ke-lenh-giao-hang.sql",
+  "columns": [
+    {"field":"stt","label":"STT","aliases":[]},{"field":"so_ct","label":"Số CT","aliases":[]},{"field":"ngay_ct","label":"Ngày CT","aliases":[]},{"field":"ma_kh","label":"Mã khách hàng","aliases":[]},{"field":"ten_kh","label":"Tên khách hàng","aliases":[]},{"field":"ngay_gh","label":"Ngày GH","aliases":[]},{"field":"gio_gh","label":"Giờ giao","aliases":[]},{"field":"ngay_gh_tt","label":"Ngày giao thực tế","aliases":[]},{"field":"ma_vt","label":"Mã vật tư","aliases":[]},{"field":"ten_vt","label":"Tên vật tư","aliases":[]},{"field":"dvt","label":"ĐVT","aliases":[]},{"field":"ma_kho","label":"Mã kho","aliases":[]},{"field":"so_luong","label":"Số lượng","aliases":[]},{"field":"ma_lo","label":"Mã lô","aliases":[]},{"field":"so_luong_da_lo","label":"SL đã chỉ thị lô","aliases":[]},{"field":"so_luong_cl","label":"Số lượng còn lại","aliases":[]},{"field":"dien_giai","label":"Diễn giải","aliases":[]},{"field":"ghi_chu","label":"Ghi chú","aliases":[]},{"field":"status_name","label":"Trạng thái","aliases":[]},{"field":"ngay_tao","label":"Ngày tạo","aliases":[]},{"field":"gio_tao","label":"Giờ tạo","aliases":[]},{"field":"nguoi_tao","label":"Người tạo","aliases":[]},{"field":"ngay_sua","label":"Ngày sửa","aliases":[]},{"field":"gio_sua","label":"Giờ sửa","aliases":[]},{"field":"nguoi_sua","label":"Người sửa","aliases":[]}
+  ],
+  "ui_column_mapping": {"stt":"row_number()","so_ct":"ph96.so_ct","ngay_ct":"ph96.ngay_ct","ma_kh":"ph96.ma_kh","ten_kh":"dmkh.ten_viet_tat","ngay_gh":"ph96.ngay_gh","gio_gh":"ph96.gio_gh","ngay_gh_tt":"min(ct81.ngay_ct)","ma_vt":"ct96.ma_vt","ten_vt":"dmvt.ten_vt","dvt":"ct96.dvt","ma_kho":"ct96.ma_kho","so_luong":"ct96.so_luong","ma_lo":"ct96lo.ma_lo","so_luong_da_lo":"ct96lo.so_luong","so_luong_cl":"ct96.so_luong_cl","dien_giai":"ph96.dien_giai","ghi_chu":"ctkhgh.ghi_chu","status_name":"sys_dmtt.statusname","ngay_tao":"ph96.date0","gio_tao":"ph96.time0","nguoi_tao":"userinfo.user_name (ph96.user_id0)","ngay_sua":"ph96.date2","gio_sua":"ph96.time2","nguoi_sua":"userinfo.user_name (ph96.user_id2)"},
+  "output": {"computed": ["ngay_gh_tt", "total"], "metrics": ["so_luong", "so_luong_da_lo", "so_luong_cl"]}
+}

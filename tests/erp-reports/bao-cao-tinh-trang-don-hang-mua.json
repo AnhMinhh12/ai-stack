@@ -1,0 +1,28 @@
+{
+  "report_id": "bao-cao-tinh-trang-don-hang-mua",
+  "status": "pending_ui_validation",
+  "required_comparisons": 3,
+  "cases": [
+    {
+      "question": "Tình trạng đơn mua theo số đơn và mã vật tư",
+      "expected_result": null,
+      "ui_assertions": [
+        "Dòng ph94/ct94 và các số lượng nhận/hóa đơn/đóng khớp UI."
+      ]
+    },
+    {
+      "question": "SL nhập của một dòng đơn mua đã nhập một phần",
+      "expected_result": null,
+      "ui_assertions": [
+        "Lọc ngày, vật tư, NCC; số dòng total và tổng các số lượng khớp UI."
+      ]
+    },
+    {
+      "question": "SL đóng của một dòng đơn đã đóng",
+      "expected_result": null,
+      "ui_assertions": [
+        "User không hợp lệ không có dòng; ds_branchs giới hạn ph94.ma_dvcs và kho ct94 qua dmkho."
+      ]
+    }
+  ]
+}

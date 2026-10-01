@@ -1,0 +1,90 @@
+{
+  "id": "oqc-xac-nhan-chat-luong",
+  "title": "OQC xác nhận chất lượng",
+  "match_phrases": [
+    "oqc xác nhận chất lượng",
+    "xác nhận chất lượng oqc"
+  ],
+  "validation": {
+    "status": "pending_ui_validation",
+    "required_ui_comparisons": 3
+  },
+  "inputs": {
+    "required": [],
+    "filters": [
+      {
+        "parameter": "id_tem",
+        "column": "id_tem",
+        "aliases": [
+          "id tem",
+          "mã tem"
+        ],
+        "value_type": "code"
+      },
+      {
+        "parameter": "ma_vt",
+        "column": "ma_vt",
+        "aliases": [
+          "mã vật tư",
+          "mã hàng"
+        ],
+        "value_type": "code"
+      }
+    ]
+  },
+  "defaults": {
+    "limit": 200
+  },
+  "sources": [
+    "intem_log",
+    "mes_oi_dong_thung",
+    "palletct",
+    "dmvt",
+    "sys_listoptions"
+  ],
+  "query_file": "oqc-xac-nhan-chat-luong.sql",
+  "columns": [
+    {
+      "field": "id_tem",
+      "label": "ID tem",
+      "aliases": [
+        "mã tem"
+      ]
+    },
+    {
+      "field": "ma_vt",
+      "label": "Mã vật tư",
+      "aliases": [
+        "mã hàng"
+      ]
+    },
+    {
+      "field": "ten_vt",
+      "label": "Tên vật tư",
+      "aliases": [
+        "tên hàng"
+      ]
+    },
+    {
+      "field": "status_qc",
+      "label": "Mã trạng thái OQC",
+      "aliases": [
+        "trạng thái"
+      ]
+    },
+    {
+      "field": "status_name",
+      "label": "Trạng thái OQC",
+      "aliases": [
+        "tình trạng oqc"
+      ]
+    }
+  ],
+  "output": {
+    "metrics": []
+  },
+  "execution_context": {
+    "authenticated_user_id": "required_from_session",
+    "permission_scope": "intem_log.ma_kho via dmkho"
+  }
+}

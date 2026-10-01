@@ -1,0 +1,28 @@
+{
+  "report_id": "phan-bo-thoi-gian-dung-chuyen",
+  "status": "pending_ui_validation",
+  "required_comparisons": 3,
+  "cases": [
+    {
+      "question": "Một dòng UI",
+      "expected_result": null,
+      "ui_assertions": [
+        "Chọn một phân bổ có đủ OI; khóa/cột, line và thời lượng khớp UI."
+      ]
+    },
+    {
+      "question": "Filter UI",
+      "expected_result": null,
+      "ui_assertions": [
+        "Xác nhận semantics dfrom/dto và từ giờ/đến giờ (bao gồm bản ghi qua ngày); line, OI, classification và operation_code có hiệu lực."
+      ]
+    },
+    {
+      "question": "Quyền UI",
+      "expected_result": null,
+      "ui_assertions": [
+        "User không hợp lệ không có dòng; ds_branchs qua mes_oi_confirm.branch_code, và xác nhận quy tắc phân bổ khi oi_id1/oi_id2 thuộc các branch khác nhau."
+      ]
+    }
+  ]
+}

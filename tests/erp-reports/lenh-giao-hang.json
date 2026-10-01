@@ -1,0 +1,8 @@
+{
+  "report_id": "lenh-giao-hang", "status": "pending_ui_validation", "required_comparisons": 3,
+  "cases": [
+    {"question": "Một lệnh có nhiều dòng vật tư", "expected_result": null},
+    {"question": "Lọc khách hàng và khoảng ngày", "expected_result": null},
+    {"question": "Một dòng có liên kết lịch giao qua stt_rec_gh và ln_gh", "expected_result": null}
+  ]
+}

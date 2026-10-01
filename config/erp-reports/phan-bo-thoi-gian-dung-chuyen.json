@@ -1,0 +1,43 @@
+{
+  "id": "phan-bo-thoi-gian-dung-chuyen",
+  "title": "Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc",
+  "match_phrases": ["phân bổ thời gian dừng chuyền", "bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc"],
+  "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
+  "inputs": {
+    "required": ["tu_ngay", "den_ngay"],
+    "filters": [
+      {"parameter": "tu_gio", "column": "mes_oi_confirm.end_time", "aliases": ["từ giờ"], "value_type": "time"},
+      {"parameter": "den_gio", "column": "mes_oi_confirm.end_time", "aliases": ["đến giờ"], "value_type": "time"},
+      {"parameter": "line_code", "column": "mes_oi_confirm.machine_code", "aliases": ["mã dây chuyền", "dây chuyền"], "value_type": "code"},
+      {"parameter": "id_oi", "column": "mes_oi_confirm.id_oi", "aliases": ["phiên làm việc 1", "phiên", "id oi"], "value_type": "code"},
+      {"parameter": "status", "column": "allocation status", "aliases": ["trạng thái"], "value_type": "code"},
+      {"parameter": "operation_code", "column": "mes_oi_confirm.operation_code", "aliases": ["mã công đoạn", "công đoạn"], "value_type": "code"},
+      {"parameter": "group_yn", "column": "output grouping", "aliases": ["nhóm theo phiếu"], "value_type": "boolean"},
+      {"parameter": "branch_code", "column": "mes_oi_confirm.branch_code", "aliases": ["mã đvcs", "đơn vị cơ sở", "đvcs"], "value_type": "code"}
+    ]
+  },
+  "defaults": {"limit": 200},
+  "sources": ["mes_oi_confirm", "new_oi_cbsx", "mes_oi_allocation_stop_line", "dmnndungmay", "userinfo"],
+  "query_file": "phan-bo-thoi-gian-dung-chuyen.sql",
+  "columns": [
+    {"field": "stt", "label": "Stt", "aliases": []},
+    {"field": "line_code", "label": "Mã dây chuyền", "aliases": []},
+    {"field": "operation_code", "label": "Mã công đoạn", "aliases": []},
+    {"field": "oi_id1", "label": "Phiên làm việc 1", "aliases": ["phiên"]},
+    {"field": "end_date", "label": "Ngày kết thúc", "aliases": []},
+    {"field": "end_time", "label": "Giờ kết thúc", "aliases": []},
+    {"field": "oi_id2", "label": "Phiên làm việc 2", "aliases": []},
+    {"field": "start_date", "label": "Ngày bắt đầu", "aliases": []},
+    {"field": "start_time", "label": "Giờ bắt đầu", "aliases": []},
+    {"field": "thoi_gian_dung", "label": "Thời gian dừng giữa 2 phiên (phút)", "aliases": []},
+    {"field": "ma_loi", "label": "Mã nguyên nhân", "aliases": []},
+    {"field": "ten_loi", "label": "Tên nguyên nhân", "aliases": []},
+    {"field": "start_date_loi", "label": "Ngày bắt đầu", "aliases": []},
+    {"field": "start_time_loi", "label": "Giờ bắt đầu", "aliases": []},
+    {"field": "end_date_loi", "label": "Ngày kết thúc", "aliases": []},
+    {"field": "end_time_loi", "label": "Giờ kết thúc", "aliases": []},
+    {"field": "thoi_gian_dung_loi", "label": "Thời gian dừng (phút)", "aliases": []}
+  ],
+  "output": {"metrics": ["thoi_gian_dung", "thoi_gian_dung_loi"], "computed": ["total"]},
+  "execution_context": {"authenticated_user_id": "required_from_session", "permission_scope": "userinfo.ds_branchs via mes_oi_confirm.branch_code"}
+}

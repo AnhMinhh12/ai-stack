@@ -49,3 +49,12 @@ Stateless Web/API replicas ---- OTel/metrics/log/audit
 Bước 8 chỉ chuyển sang implementation khi bước 7 đã đạt pilot acceptance, có business
 case, availability/SLO/RPO/RTO/cost target được ký và có owner cho từng control plane/data
 plane.
+
+## CAD/MCP external dependency
+
+CAD/MCP không mặc nhiên là một nhánh shared platform. FreeCAD GUI local qua Tailscale
+chỉ là external pilot dependency; một dịch vụ CAD dùng chung cần tool gateway riêng,
+per-user authorization, path/object-storage policy, audit, queue/cancellation và
+backup/restore trước khi đặt sau gateway.
+- Không coi máy desktop FreeCAD, GUI session hoặc tailnet bridge là HA/shared service.
+- Không để model có shell/file-system tool tổng quát khi chỉ cần CAD tool allowlist.

@@ -36,7 +36,7 @@ không đọc được metric hoặc thiếu artifact phải làm test fail.
 | --- | --- | --- |
 | Compose syntax | `verified` tại thời điểm rà soát | `docker compose config --quiet` pass; không lưu output render vào log/evidence nếu chưa redact secret |
 | Runtime | `verified` tại thời điểm rà soát | 8/8 container Up và healthy, gồm Tika; đây không phải security/SLO evidence |
-| Model identity | `configured` | Runtime trả root Qwen2.5-14B, alias `qwen2.5-14b`, context 16K; revision được ghi trong evidence/backup metadata nhưng Compose chưa enforce |
+| Model identity | `configured` | Compose pin root Qwen2.5-14B, alias `qwen2.5-14b`, revision/tokenizer `cf98f3b…`, context 32K và `max-num-seqs=20` |
 | Backend binding | `configured` | Backend bind loopback/inner network; chưa có LAN/VPN IPv4/IPv6 scan |
 | Secret file | `partial` | `.env` quyền `0600`, Git ignore; fallback/backup plaintext đã sửa, nhưng secret vẫn vào rendered Compose/process và chưa có secret manager |
 | Immutable release | `blocked` | Digest đã pin cho registry images; Open WebUI vẫn local tag, model revision/embedding và SBOM/CVE/license evidence chưa đủ |
@@ -44,6 +44,7 @@ không đọc được metric hoặc thiếu artifact phải làm test fail.
 | RAG isolation | `blocked` | Test gọi thẳng Qdrant, không đi qua user/group/application |
 | Backup/restore | `blocked` | Hardening/preflight đã pass; chưa có backup mới, off-host copy hoặc clean-room restore |
 | Performance SLO | `partial` | Harness/parser dry-run/unit pass; chưa chạy GPU load, quality hoặc soak |
+| FreeCAD MCP local | `operator-confirmed; unmanaged` | Bridge/Tailscale/FreeCAD nằm ngoài Compose và repo; chưa có inventory, ACL/auth evidence, audit, backup hoặc DR test |
 
 Snapshot này hết hiệu lực sau bất kỳ thay đổi image/model/config/data schema hoặc
 sau thời hạn evidence do owner quy định.
@@ -69,6 +70,10 @@ sau thời hạn evidence do owner quy định.
 - [ ] **DR-01:** Hardening/preflight đã có; vẫn phải tạo backup mới và chạy clean-room restore đạt RPO/RTO.
 - [ ] **PERF-01:** Harness đã sửa; vẫn phải benchmark/soak theo workload thật và phê duyệt
   achieved goodput còn đạt đồng thời SLO/headroom.
+- [ ] **CAD-01:** Inventory MCP bridge/FreeCAD owner, version, tool schema, Tailnet ACL,
+  endpoint exposure và identity; không ghi endpoint/key vào repo/evidence.
+- [ ] **CAD-02:** Xác thực bridge độc lập, tool/path allowlist, audit correlation và
+  backup/restore/export CAD; test denied/offline/busy/crash/timeout/save failure.
 
 ### P1 - Reliability và vận hành
 

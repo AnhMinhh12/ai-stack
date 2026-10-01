@@ -9,6 +9,11 @@
 - Use case: chat nội bộ, tóm tắt tài liệu và RAG trên tài liệu đã phân loại.
 - Không cho phép `restricted`, dữ liệu có legal hold, dữ liệu khách hàng chưa được phê duyệt, secret/credential, dữ liệu HR nhạy cảm hoặc upload tự do từ Internet.
 - Tạm thời chỉ dùng trong mạng/VPN doanh nghiệp qua gateway; single-host là giới hạn và không cam kết HA.
+- CAD/FreeCAD MCP chỉ là pilot local riêng: máy FreeCAD, bridge và Tailscale là single
+  points of failure; không cam kết HA hay multi-user. Chỉ dùng thư mục CAD được duyệt.
+- Không đưa bản vẽ/file CAD nhạy cảm vào luồng này trước khi có owner, Tailnet ACL,
+  xác thực bridge, audit và backup/retention được duyệt.
+
 
 ## Tiêu chí tạm thời cần owner ký
 
@@ -20,6 +25,7 @@
 | Availability | 99,0% trong pilot; không gọi single-host là HA |
 | RPO/RTO | Draft RPO ≤ 24 h, RTO ≤ 4 h; phải được Operations/Data duyệt |
 | Abort | Cross-tenant leak, secret exposure, backup/restore fail, OOM loop, hoặc SLO fail trong 2 cửa sổ đo liên tiếp |
+| CAD pilot | Tool allowlist/path allowlist, Tailnet ACL, audit và create/save/recover test pass; chưa đủ thì không mở ngoài operator |
 | Retention | Chưa chốt; Data/Legal phải duyệt riêng cho chat, file, vector, trace và backup |
 
 ## Owner/approver bắt buộc

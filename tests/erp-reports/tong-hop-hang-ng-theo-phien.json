@@ -1,0 +1,28 @@
+{
+  "report_id": "tong-hop-hang-ng-theo-phien",
+  "status": "pending_ui_validation",
+  "required_comparisons": 3,
+  "cases": [
+    {
+      "question": "Dòng thật sysorder=5 của một phiên/OI",
+      "expected_result": null,
+      "ui_assertions": [
+        "Dòng chi tiết OI và dòng tổng sysorder=1 khớp UI."
+      ]
+    },
+    {
+      "question": "Dòng tổng cộng sysorder=1",
+      "expected_result": null,
+      "ui_assertions": [
+        "Lọc ngày/OI/sản phẩm; total và các tổng SL khớp UI."
+      ]
+    },
+    {
+      "question": "Lọc theo mã sản phẩm và khoảng thời gian",
+      "expected_result": null,
+      "ui_assertions": [
+        "User không hợp lệ không có dòng; ds_branchs giới hạn mes_oi_confirm.branch_code."
+      ]
+    }
+  ]
+}

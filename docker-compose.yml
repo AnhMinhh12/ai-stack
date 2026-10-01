@@ -89,6 +89,8 @@ services:
       - HTMP_DB_PASSWORD=${HTMP_DB_PASSWORD:?HTMP_DB_PASSWORD must be set}
       - HTMP_DB_MAX_ROWS=${HTMP_DB_MAX_ROWS:-200}
       - HTMP_DB_STATEMENT_TIMEOUT_MS=${HTMP_DB_STATEMENT_TIMEOUT_MS:-15000}
+      - HTMP_ERP_USER_ID_MAP=${HTMP_ERP_USER_ID_MAP:-{}}
+      - HTMP_ERP_SHARED_USER_ID=${HTMP_ERP_SHARED_USER_ID:-}
     volumes:
       - open-webui-data:/app/backend/data
     depends_on:

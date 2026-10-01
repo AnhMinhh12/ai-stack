@@ -10,6 +10,9 @@
   model revision, retrieval outcome, latency, token counters và error class.
 - Không dùng request ID do client tự đặt làm bằng chứng identity; nếu nhận header từ
   client thì gateway phải ghi đè bằng ID server-side.
+- MCP FreeCAD phải giữ hoặc ánh xạ correlation ID qua bridge. Audit tối thiểu gồm actor
+  pseudonymous, document/path ID đã chuẩn hóa, tool/action, outcome, latency và error
+  class; không ghi prompt, bản vẽ, endpoint tailnet hay secret.
 
 ## Redaction và retention
 
@@ -42,3 +45,11 @@ hay alert đã hoạt động.
 - Langfuse container/health endpoint đang healthy nhưng chưa có SDK/OTel hoặc middleware
   nối request AI; chưa có trace end-to-end để xác nhận.
 - Chưa có dashboard/alert backend, owner on-call hoặc test notification trong workspace.
+- Không có telemetry/audit bridge hay mapping correlation ID trong workspace; đây là
+  dependency external cần evidence riêng trước khi dùng CAD ngoài pilot local.
+
+## MCP FreeCAD external dependency
+
+| Signal | Alert condition | Severity | Runbook/owner |
+| --- | --- | --- | --- |
+| FreeCAD MCP | bridge reachability, Tailnet deny, FreeCAD busy/crash, tool timeout, create/save/export failure, audit gap | P1/P2 | CAD owner/Platform |

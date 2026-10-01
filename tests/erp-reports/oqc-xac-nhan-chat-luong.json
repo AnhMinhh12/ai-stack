@@ -1,0 +1,28 @@
+{
+  "report_id": "oqc-xac-nhan-chat-luong",
+  "status": "pending_ui_validation",
+  "required_comparisons": 3,
+  "cases": [
+    {
+      "question": "Trạng thái OQC của một ID tem",
+      "expected_result": null,
+      "ui_assertions": [
+        "ID tem, trạng thái OQC, carton/pallet/OI khớp UI."
+      ]
+    },
+    {
+      "question": "Quy đổi status_qc qua sys_listoptions",
+      "expected_result": null,
+      "ui_assertions": [
+        "Lọc tem/vật tư và total khớp UI."
+      ]
+    },
+    {
+      "question": "Lọc OQC theo mã vật tư",
+      "expected_result": null,
+      "ui_assertions": [
+        "User không hợp lệ không có dòng; kho intem_log.ma_kho bị giới hạn qua dmkho."
+      ]
+    }
+  ]
+}

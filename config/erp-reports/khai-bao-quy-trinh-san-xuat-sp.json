@@ -1,0 +1,125 @@
+{
+  "id": "khai-bao-quy-trinh-san-xuat-sp",
+  "title": "Khai báo quy trình sản xuất SP",
+  "match_phrases": [
+    "khai báo quy trình sản xuất",
+    "quy trình sản xuất sản phẩm",
+    "bom bop"
+  ],
+  "validation": {
+    "status": "ui_validation_complete",
+    "required_ui_comparisons": 3
+  },
+  "inputs": {
+    "required": [],
+    "filters": [
+      {
+        "parameter": "product_code",
+        "column": "product_code",
+        "aliases": [
+          "mã sản phẩm",
+          "mã hàng"
+        ],
+        "value_type": "code"
+      },
+      {
+        "parameter": "routing_code",
+        "column": "routing_code",
+        "aliases": [
+          "mã quy trình"
+        ],
+        "value_type": "code"
+      },
+      {
+        "parameter": "branch_code",
+        "column": "mfbom.branch_list",
+        "aliases": [
+          "mã đvcs",
+          "đơn vị cơ sở",
+          "đvcs"
+        ],
+        "value_type": "code"
+      },
+      {
+        "parameter": "status",
+        "column": "mfbom.status",
+        "aliases": [
+          "trạng thái"
+        ],
+        "value_type": "code"
+      }
+    ]
+  },
+  "defaults": {
+    "limit": 200
+  },
+  "sources": [
+    "mfbom",
+    "mflist_routing",
+    "dmvt"
+  ],
+  "query_file": "khai-bao-quy-trinh-san-xuat-sp.sql",
+  "columns": [
+    {
+      "field": "bom_code",
+      "label": "Mã BOM",
+      "aliases": [
+        "bom"
+      ]
+    },
+    {
+      "field": "product_code",
+      "label": "Mã sản phẩm",
+      "aliases": [
+        "mã hàng"
+      ]
+    },
+    {
+      "field": "ten_vt",
+      "label": "Tên sản phẩm",
+      "aliases": [
+        "tên hàng"
+      ]
+    },
+    {
+      "field": "routing_code",
+      "label": "Mã quy trình",
+      "aliases": [
+        "quy trình"
+      ]
+    },
+    {
+      "field": "routing_name",
+      "label": "Tên quy trình",
+      "aliases": [
+        "tên quy trình"
+      ]
+    },
+    {
+      "field": "bom_version",
+      "label": "Version",
+      "aliases": [
+        "phiên bản"
+      ]
+    },
+    {
+      "field": "branch_code",
+      "label": "Mã ĐVCS",
+      "aliases": [
+        "đơn vị cơ sở"
+      ]
+    },
+    {
+      "field": "trang_thai",
+      "label": "Trạng thái",
+      "aliases": []
+    }
+  ],
+  "output": {
+    "metrics": []
+  },
+  "execution_context": {
+    "authenticated_user_id": "required_from_session",
+    "permission_scope": "mfbom.branch_list (confirmed primary grid column for MfBomBop)"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "id": "bao-cao-thong-tin-sp-theo-ho-so-khuon",
+  "title": "Báo cáo thông tin sản phẩm theo hồ sơ khuôn",
+  "match_phrases": ["báo cáo thông tin sản phẩm theo hồ sơ khuôn", "thông tin sản phẩm theo hồ sơ khuôn"],
+  "validation": {"status": "ui_validation_complete", "required_ui_comparisons": 3},
+  "inputs": {
+    "required": [],
+    "filters": [
+      {"parameter": "mold_code", "column": "dmhosokhuonsp.ma_khuon", "aliases": ["mã khuôn", "khuôn"], "value_type": "code"},
+      {"parameter": "product_code", "column": "dmhosokhuonsp.ma_sp", "aliases": ["mã sản phẩm", "sản phẩm"], "value_type": "code"},
+      {"parameter": "status", "column": "dmhosokhuon.status", "aliases": ["trạng thái"], "value_type": "code"}
+    ]
+  },
+  "execution_context": {"authenticated_user_id": "required_from_session", "permission_scope": "UI function has no branch predicate; server requires an authenticated ERP identity"},
+  "defaults": {"limit": 200},
+  "sources": ["dmhosokhuonsp", "dmhosokhuon", "dmvt", "userinfo"],
+  "query_file": "bao-cao-thong-tin-sp-theo-ho-so-khuon.sql",
+  "columns": [
+    {"field": "stt", "label": "Stt", "aliases": []},
+    {"field": "mold_code", "label": "Mã khuôn", "aliases": []},
+    {"field": "mold_name", "label": "Tên khuôn", "aliases": []},
+    {"field": "product_code", "label": "Mã sản phẩm", "aliases": []},
+    {"field": "product_name", "label": "Tên sản phẩm", "aliases": []},
+    {"field": "level_id", "label": "ID cấp", "aliases": []},
+    {"field": "cycle_time", "label": "Chu kỳ", "aliases": []},
+    {"field": "chinh_phu", "label": "Chính/phụ", "aliases": []},
+    {"field": "cavity", "label": "Cavity", "aliases": []},
+    {"field": "trang_thai", "label": "Trạng thái", "aliases": []}
+  ],
+  "output": {"metrics": [], "computed": ["total"]}
+}

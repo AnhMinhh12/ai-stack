@@ -14,6 +14,10 @@
   người phê duyệt và audit event.
 - Audit chỉ lưu pseudonymous subject/tenant, action, decision, request ID và
   resource ID; không ghi prompt, output, file content, secret hoặc Authorization header.
+- MCP bridge là boundary quyền riêng: identity từ Open WebUI phải được kiểm tra/ghi audit
+  tại bridge hoặc tool gateway; không suy ra rằng API key model/service tạo per-user CAD
+  authorization. Tool/path quyền tối thiểu và phân tách theo owner/project là bắt buộc.
+
 
 ## Phân loại dữ liệu và use case pilot
 
@@ -57,6 +61,9 @@ với `source_acl` phải khác rỗng; chỉ `active` và đúng retention mớ
 | `platform-admin` | Vận hành hệ thống, không mặc nhiên đọc nội dung tenant |
 | `break-glass` | Quyền tạm thời, MFA, approval, expiry và audit bắt buộc |
 
+- File CAD local, export và audit của MCP chưa có source-of-truth/retention/ACL trong
+  workspace. Không upload/chia sẻ CAD thuộc classification cần kiểm soát trước khi có
+  policy và evidence riêng.
 ## Dependency chưa thể đóng trong workspace
 
 - OIDC/SAML, MFA, group mapping, provisioning/deprovisioning và access review cần

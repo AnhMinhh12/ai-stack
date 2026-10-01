@@ -1,0 +1,16 @@
+{
+  "id": "phieu-yeu-cau-nhap-hang",
+  "title": "Phiếu yêu cầu nhập hàng",
+  "match_phrases": ["phiếu yêu cầu nhập hàng", "yêu cầu nhập hàng"],
+  "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
+  "inputs": {"required": ["tu_ngay", "den_ngay"], "filters": [{"parameter":"so_ct_tu","column":"so_ct","aliases":["số phiếu từ"],"value_type":"code"},{"parameter":"so_ct_den","column":"so_ct","aliases":["số phiếu đến"],"value_type":"code"},{"parameter":"ma_kh","column":"ma_kh","aliases":["mã nhà cung cấp","mã ncc"],"value_type":"code"},{"parameter":"ma_kho","column":"ma_kho","aliases":["mã kho"],"value_type":"code"},{"parameter":"ma_vt","column":"ma_vt","aliases":["mã vật tư","mã hàng"],"value_type":"code"},{"parameter":"ma_dvcs","column":"ma_dvcs","aliases":["đơn vị cơ sở","đvcs"],"value_type":"code"},{"parameter":"status","column":"status","aliases":["trạng thái"],"value_type":"code"}]},
+  "execution_context": {"authenticated_user_id": "required_from_session", "permission_scope": "userinfo.ds_branchs + dmkho"},
+  "defaults": {"limit": 200},
+  "sources": ["phycn","ctycn","ct94","ph94","ct91","ph91","ct71","ctgt30","dmkh","dmvt","dmvv","dmbp","sys_dmmagd","sys_dmtt","userinfo","dmkho"],
+  "query_file": "phieu-yeu-cau-nhap-hang.sql",
+  "columns": [
+    {"field":"lich_su_cap_nhat","label":"Lịch sử cập nhật","aliases":["cập nhật gần nhất"]}, {"field":"statusname","label":"Trạng thái","aliases":["tình trạng"]}, {"field":"ngay_ct","label":"Ngày CT","aliases":["ngày phiếu"]}, {"field":"so_ct","label":"Số CT","aliases":["số phiếu"]}, {"field":"ma_gd","label":"Mã giao dịch","aliases":["mã gd"]}, {"field":"ten_gd","label":"Tên giao dịch","aliases":[]}, {"field":"ngay_nhan_hang","label":"Ngày nhận hàng","aliases":["ngày hứa nhập"]}, {"field":"ten_kh","label":"Tên NCC","aliases":["tên nhà cung cấp"]}, {"field":"ong_ba","label":"Người giao hàng","aliases":[]}, {"field":"dia_chi","label":"Địa chỉ","aliases":[]}, {"field":"dien_giai","label":"Diễn giải","aliases":[]}, {"field":"ma_nt","label":"Mã NT","aliases":[]}, {"field":"ty_gia","label":"Tỷ giá","aliases":[]}, {"field":"t_so_luong","label":"Tổng số lượng","aliases":[]}
+  ],
+  "ui_column_mapping": {"lich_su_cap_nhat":"phycn.date2 + phycn.time2 + userinfo.user_name","statusname":"sys_dmtt.statusname (YCN)","ngay_ct":"phycn.ngay_ct","so_ct":"phycn.so_ct","ma_gd":"phycn.ma_gd","ten_gd":"sys_dmmagd.ten_gd (phycn.ma_ct, phycn.ma_gd)","ngay_nhan_hang":"ctycn.ngay_hua_nh","ten_kh":"phycn.ten_kh","ong_ba":"phycn.ong_ba","dia_chi":"phycn.dia_chi","dien_giai":"phycn.dien_giai","ma_nt":"phycn.ma_nt","ty_gia":"phycn.ty_gia","t_so_luong":"phycn.t_so_luong"},
+  "output": {"metrics": ["t_so_luong","sl_nhap","tien_nhap","tien_nt"], "computed": ["lich_su_cap_nhat","stt","total"]}
+}

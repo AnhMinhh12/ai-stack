@@ -3,6 +3,7 @@ import os
 import unittest
 from decimal import Decimal
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -71,7 +72,7 @@ class InventoryMovementJournalContractTests(unittest.TestCase):
 
     def test_fixed_sql_parameter_contract(self):
         sql = (ROOT / "sql" / "erp-reports" / self.report["query_file"]).read_text()
-        self.assertEqual(sql.count("%s"), 12)
+        self.assertEqual(sql.count("%s"), 8)
         self.assertNotIn("ma_nvgh", sql)
 
     def test_quantity_out_is_a_manifest_metric_for_a_material_code(self):
@@ -125,6 +126,19 @@ class InventoryMovementJournalContractTests(unittest.TestCase):
     def test_report_sql_loads_from_repository_layout(self):
         sql = ERP.load_report_sql(self.report)
         self.assertIn("FROM public.ct70", sql)
+
+    def test_journal_is_fail_closed_without_a_trusted_erp_session_identity(self):
+        result = ERP.Tools().ask_erp("nhật ký nhập xuất tồn ngày 03/09/2026")
+        self.assertIn("bị chặn an toàn", result)
+
+    def test_trusted_erp_user_mapping_accepts_only_injected_identity_keys(self):
+        with patch.dict(os.environ, {"HTMP_ERP_USER_ID_MAP": '{"chat-uuid":42}'}, clear=False):
+            self.assertEqual(ERP.trusted_erp_user_id({"id": "chat-uuid"}), 42)
+            self.assertIsNone(ERP.trusted_erp_user_id({"id": "other", "erp_user_id": 42}))
+
+    def test_shared_erp_identity_is_used_only_when_no_per_user_mapping_matches(self):
+        with patch.dict(os.environ, {"HTMP_ERP_USER_ID_MAP": '{}', "HTMP_ERP_SHARED_USER_ID": "11"}, clear=False):
+            self.assertEqual(ERP.trusted_erp_user_id({"id": "any-chat-user"}), 11)
 
     def test_revenue_account_uses_material_master_lookup(self):
         column = next(item for item in self.report["columns"] if item["field"] == "tk_dt")

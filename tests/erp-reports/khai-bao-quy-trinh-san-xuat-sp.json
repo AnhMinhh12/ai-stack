@@ -1,0 +1,22 @@
+{
+  "report_id": "khai-bao-quy-trinh-san-xuat-sp",
+  "status": "ui_validation_complete",
+  "required_comparisons": 3,
+  "cases": [
+    {
+      "question": "Dòng BOM UI",
+      "expected_result": "003-M69-101-2-1.0 / 003-M69-101-2 / Plate Diaphragm / Version 1.0 / ĐVCS 001 / Sử dụng.",
+      "ui_assertions": ["BOM, sản phẩm, tên, Version, Mã ĐVCS và Trạng thái khớp mfbom."]
+    },
+    {
+      "question": "Lọc Mã sản phẩm 003-M69-101-2",
+      "expected_result": "1 dòng 003-M69-101-2-1.0.",
+      "ui_assertions": ["Lọc cột Mã sản phẩm trên grid có hiệu lực và không đổi ĐVCS/Trạng thái."]
+    },
+    {
+      "question": "Lọc Trạng thái Không sử dụng",
+      "expected_result": "0 dòng.",
+      "ui_assertions": ["UI chỉ nạp BOM Sử dụng; bản ghi status 0 trong bảng gốc không xuất hiện trên grid."]
+    }
+  ]
+}

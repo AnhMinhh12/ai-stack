@@ -1,0 +1,101 @@
+{
+  "id": "tong-hop-hang-ng-theo-phien",
+  "title": "Tổng hợp hàng NG theo phiên",
+  "match_phrases": [
+    "tổng hợp hàng ng theo phiên",
+    "ng theo phiên"
+  ],
+  "validation": {
+    "status": "pending_ui_validation",
+    "required_ui_comparisons": 3
+  },
+  "inputs": {
+    "required": [
+      "tu_ngay",
+      "den_ngay"
+    ],
+    "filters": [
+      {
+        "parameter": "id_oi",
+        "column": "id_oi",
+        "aliases": [
+          "id oi",
+          "phiên"
+        ],
+        "value_type": "code"
+      },
+      {
+        "parameter": "product_code",
+        "column": "product_code",
+        "aliases": [
+          "mã sản phẩm",
+          "mã hàng"
+        ],
+        "value_type": "code"
+      }
+    ]
+  },
+  "defaults": {
+    "limit": 200
+  },
+  "sources": [
+    "mes_oi_confirm",
+    "mes_oi_ng_confirm"
+  ],
+  "query_file": "tong-hop-hang-ng-theo-phien.sql",
+  "columns": [
+    {
+      "field": "sysorder",
+      "label": "Loại dòng",
+      "aliases": [
+        "tổng cộng"
+      ]
+    },
+    {
+      "field": "id_oi",
+      "label": "ID OI",
+      "aliases": [
+        "phiên"
+      ]
+    },
+    {
+      "field": "product_code",
+      "label": "Mã sản phẩm",
+      "aliases": [
+        "mã hàng"
+      ]
+    },
+    {
+      "field": "sl_ke_hoach",
+      "label": "SL kế hoạch",
+      "aliases": [
+        "số lượng kế hoạch"
+      ]
+    },
+    {
+      "field": "sl_thuc_te",
+      "label": "SL thực tế",
+      "aliases": [
+        "số lượng thực tế"
+      ]
+    },
+    {
+      "field": "sl_ng",
+      "label": "SL NG",
+      "aliases": [
+        "số lượng ng"
+      ]
+    }
+  ],
+  "output": {
+    "metrics": [
+      "sl_ke_hoach",
+      "sl_thuc_te",
+      "sl_ng"
+    ]
+  },
+  "execution_context": {
+    "authenticated_user_id": "required_from_session",
+    "permission_scope": "mes_oi_confirm.branch_code"
+  }
+}

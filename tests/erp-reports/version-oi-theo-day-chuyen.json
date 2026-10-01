@@ -1,0 +1,1 @@
+{"report_id":"version-oi-theo-day-chuyen","status":"pending_ui_validation","required_comparisons":3,"cases":[{"question":"Một dòng UI","expected_result":null,"ui_assertions":["khóa và cột hiển thị khớp UI"]},{"question":"Filter UI","expected_result":null,"ui_assertions":["filter có hiệu lực"]},{"question":"Quyền UI","expected_result":null,"ui_assertions":["session bắt buộc"]}]}

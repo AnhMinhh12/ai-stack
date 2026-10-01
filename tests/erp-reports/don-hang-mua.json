@@ -1,0 +1,11 @@
+{
+  "report_id": "don-hang-mua", "status": "pending_ui_validation", "required_comparisons": 3,
+  "cases": [
+    {"question": "Một đơn mua có nhiều dòng vật tư", "expected_result": null,
+     "ui_assertions": ["hạt dữ liệu ct94 → ph94", "số đơn/ngày/NCC/vật tư khớp UI", "tổng số dòng khớp"]},
+    {"question": "Lọc ngày, khoảng số đơn, NCC, vật tư, ĐVCS và trạng thái", "expected_result": null,
+     "ui_assertions": ["mọi filter có hiệu lực", "tên NCC/vật tư và trạng thái là dữ liệu join", "số lượng và tiền đúng dòng chi tiết"]},
+    {"question": "Người dùng bị giới hạn chi nhánh/kho", "expected_result": null,
+     "ui_assertions": ["userinfo.ds_branchs giới hạn ĐVCS", "dmkho giới hạn kho của dòng", "không trả dữ liệu ngoài quyền"]}
+  ]
+}

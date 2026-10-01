@@ -1,0 +1,28 @@
+{
+  "report_id": "tong-hop-nxt-theo-lo",
+  "status": "pending_ui_validation",
+  "required_comparisons": 3,
+  "cases": [
+    {
+      "question": "Tồn đầu của một vật tư/lô đầu kỳ",
+      "expected_result": null,
+      "ui_assertions": [
+        "Tồn đầu, nhập, xuất và tồn cuối của một vật tư/lô khớp UI."
+      ]
+    },
+    {
+      "question": "Nhập xuất của một vật tư/lô trong kỳ",
+      "expected_result": null,
+      "ui_assertions": [
+        "Lọc kỳ/vật tư/lô; total và các tổng NXT khớp UI."
+      ]
+    },
+    {
+      "question": "Tồn cuối của một vật tư/lô cuối kỳ",
+      "expected_result": null,
+      "ui_assertions": [
+        "User không hợp lệ không có dòng; dữ liệu cdbsp và ct70bsp được giới hạn kho qua dmkho trước khi cộng gộp."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "id": "bao-cao-tinh-trang-don-hang-mua",
+  "title": "Báo cáo tình trạng đơn hàng mua",
+  "match_phrases": [
+    "báo cáo tình trạng đơn hàng mua",
+    "tình trạng đơn hàng mua",
+    "po status"
+  ],
+  "validation": {
+    "status": "pending_ui_validation",
+    "required_ui_comparisons": 3
+  },
+  "inputs": {
+    "required": [
+      "tu_ngay",
+      "den_ngay"
+    ],
+    "filters": [
+      {
+        "parameter": "ma_vt",
+        "column": "ma_vt",
+        "aliases": [
+          "mã vật tư",
+          "mã hàng"
+        ],
+        "value_type": "code"
+      },
+      {
+        "parameter": "ma_kh",
+        "column": "ma_kh",
+        "aliases": [
+          "mã nhà cung cấp",
+          "mã ncc"
+        ],
+        "value_type": "code"
+      }
+    ]
+  },
+  "defaults": {
+    "limit": 200
+  },
+  "sources": [
+    "ph94",
+    "ct94",
+    "ct77",
+    "ct71",
+    "dmvt",
+    "dmkh"
+  ],
+  "query_file": "bao-cao-tinh-trang-don-hang-mua.sql",
+  "columns": [
+    {
+      "field": "ngay_ct",
+      "label": "Ngày đơn hàng",
+      "aliases": [
+        "ngày đơn"
+      ]
+    },
+    {
+      "field": "so_ct",
+      "label": "Số đơn hàng",
+      "aliases": [
+        "số đơn"
+      ]
+    },
+    {
+      "field": "ma_kh",
+      "label": "Mã nhà cung cấp",
+      "aliases": [
+        "mã ncc"
+      ]
+    },
+    {
+      "field": "ten_kh",
+      "label": "Tên nhà cung cấp",
+      "aliases": [
+        "tên ncc"
+      ]
+    },
+    {
+      "field": "ma_vt",
+      "label": "Mã vật tư",
+      "aliases": [
+        "mã hàng"
+      ]
+    },
+    {
+      "field": "ten_vt",
+      "label": "Tên vật tư",
+      "aliases": [
+        "tên hàng"
+      ]
+    },
+    {
+      "field": "sl_don",
+      "label": "SL đơn",
+      "aliases": [
+        "số lượng đơn"
+      ]
+    },
+    {
+      "field": "sl_nhap",
+      "label": "SL nhập",
+      "aliases": [
+        "số lượng nhập"
+      ]
+    },
+    {
+      "field": "sl_hoa_don",
+      "label": "SL hóa đơn",
+      "aliases": [
+        "số lượng hóa đơn"
+      ]
+    },
+    {
+      "field": "sl_dong",
+      "label": "SL đóng",
+      "aliases": [
+        "số lượng đóng"
+      ]
+    }
+  ],
+  "output": {
+    "metrics": [
+      "sl_don",
+      "sl_nhap",
+      "sl_hoa_don",
+      "sl_dong"
+    ],
+    "summary": [
+      "tong_sl_don",
+      "tong_sl_nhap",
+      "tong_sl_hoa_don"
+    ]
+  },
+  "execution_context": {
+    "authenticated_user_id": "required_from_session",
+    "permission_scope": "ph94.ma_dvcs and ct94.ma_kho via dmkho"
+  }
+}
