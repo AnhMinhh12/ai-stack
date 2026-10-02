@@ -2,7 +2,7 @@
   "id": "phan-bo-thoi-gian-dung-chuyen",
   "title": "Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc",
   "match_phrases": ["phân bổ thời gian dừng chuyền", "bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc"],
-  "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
+  "validation": {"status": "validated", "required_ui_comparisons": 3},
   "inputs": {
     "required": ["tu_ngay", "den_ngay"],
     "filters": [

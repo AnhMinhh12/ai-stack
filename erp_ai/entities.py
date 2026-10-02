@@ -5,7 +5,13 @@ from typing import Mapping
 
 
 DOCUMENT = re.compile(r"\b\d{3}-\d{4}-\d{6}\b")
-MATERIAL = re.compile(r"\b[a-z]+\d[a-z0-9-]*\b", re.I)
+# Some ERP material codes use a revision suffix, e.g. PNKV1260WA1K115/V1.
+# Treat slash-delimited segments as part of the identifier rather than text
+# separators; otherwise a lookup silently queries a different material.
+MATERIAL = re.compile(
+    r"\b(?=[a-z0-9/-]*\d)(?=[a-z0-9/-]*[a-z])[a-z0-9]+(?:[-/][a-z0-9]+)*\b",
+    re.I,
+)
 NUMERIC_MATERIAL = re.compile(
     r"(?:mã\s*(?:vật\s*tư|vt)|ma\s*(?:vat\s*tu|vt))\s*[:#-]?\s*(\d{6,})\b"
     r"|\b(\d{6,})\b(?=\s+(?:mã\s*)?(?:vật\s*tư|vt)\b)",

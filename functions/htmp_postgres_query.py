@@ -28,6 +28,7 @@ PLANNER_CANDIDATE_TABLES = int(os.getenv("HTMP_DB_CANDIDATE_TABLES", "12"))
 PLANNER_ATTEMPTS = int(os.getenv("HTMP_DB_PLANNER_ATTEMPTS", "3"))
 ERP_CONVERSATION_STATE = ConversationStateStore()
 ERP_REPORTS_DIR = Path(os.getenv("HTMP_ERP_REPORTS_DIR", "/app/backend/data/erp-reports"))
+ERP_BUSINESS_INTENTS_PATH = Path(os.getenv("HTMP_ERP_BUSINESS_INTENTS_PATH", "/app/backend/data/erp-business-intents.json"))
 READ_QUERY = re.compile(r"^\s*(?:select|with)\b", re.I | re.S)
 FORBIDDEN = re.compile(r"\b(?:insert|update|delete|merge|alter|drop|create|grant|revoke|copy|call|do|vacuum|analyze|truncate|listen|notify|execute|prepare|deallocate|set|show|reset|discard|lock)\b", re.I)
 
@@ -66,14 +67,18 @@ def normalize_code_text(value: str) -> str:
     folded = unicodedata.normalize("NFD", value or "")
     folded = "".join(char for char in folded if unicodedata.category(char) != "Mn")
     folded = folded.replace("đ", "d").replace("Đ", "d").lower()
-    return re.sub(r"[^a-z0-9-]+", " ", folded).strip()
+    return re.sub(r"[^a-z0-9/-]+", " ", folded).strip()
 
 
 def extract_erp_entities(text: str) -> dict[str, str]:
     """Extract stable ERP identifiers from natural-language text once."""
     source = text or ""
     document = re.search(r"\b\d{3}-\d{4}-\d{6}\b", source)
-    material = re.search(r"\b[a-z]+\d[a-z0-9-]*\b", source, re.I)
+    material = re.search(
+        r"\b(?=[a-z0-9/-]*\d)(?=[a-z0-9/-]*[a-z])[a-z0-9]+(?:[-/][a-z0-9]+)*\b",
+        source,
+        re.I,
+    )
     numeric_material = re.search(
         r"(?:mã\s*(?:vật\s*tư|vt)|ma\s*(?:vat\s*tu|vt))\s*[:#-]?\s*(\d{6,})\b"
         r"|\b(\d{6,})\b(?=\s+(?:mã\s*)?(?:vật\s*tư|vt)\b)",
@@ -217,6 +222,32 @@ def trusted_erp_user_id(user: Any) -> int | None:
     return int(shared_user_id) if shared_user_id.isdecimal() and int(shared_user_id) > 0 else None
 
 
+def business_intent_matches(intent_id: str, question: str, *, has_material_code: bool = False) -> bool:
+    """Match a versioned business intent, keeping ERP semantics out of code."""
+    try:
+        intents = json.loads(ERP_BUSINESS_INTENTS_PATH.read_text()).get("intents", [])
+        intent = next(item for item in intents if item.get("id") == intent_id)
+    except (OSError, ValueError, StopIteration):
+        return False
+    normalized = normalize_text(question)
+    rules = intent.get("match", {})
+    required = rules.get("all", [])
+    if "ma_vt" in required:
+        required = [term for term in required if term != "ma_vt"]
+        if not has_material_code:
+            return False
+    return all(term in normalized for term in required) and any(term in normalized for term in rules.get("any", []))
+
+
+def production_material_type_codes() -> tuple[str, ...]:
+    """Return versioned BTP/TP material types that must not be called purchases."""
+    try:
+        values = json.loads(ERP_BUSINESS_INTENTS_PATH.read_text()).get("material_classification", {}).get("production_type_codes", [])
+    except (OSError, ValueError):
+        values = []
+    return tuple(str(value) for value in values if str(value))
+
+
 def load_report_config(report_id: str) -> dict[str, Any]:
     """Load a versioned, screen-level ERP report manifest."""
     config = json.loads((ERP_REPORTS_DIR / f"{report_id}.json").read_text())
@@ -307,7 +338,7 @@ def parse_report_request(question: str, report: dict[str, Any]) -> dict[str, Any
         code_pattern = (
             r"([a-z][a-z0-9]*(?:-[a-z0-9]+)*)"
             if parameter == "ma_kho"
-            else r"((?=[a-z0-9-]*\d)[a-z0-9]+(?:-[a-z0-9]+)*)"
+            else r"((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)"
         )
         aliases = sorted(
             (normalize_text(alias) for alias in item.get("aliases", []) if alias),
@@ -684,6 +715,240 @@ class Tools:
             default=str,
         )
 
+    def _purchase_order_history_count(
+        self, question: str, material_code: str, authenticated_user_id: int
+    ) -> str | None:
+        """Return exact purchase-order history and price analytics within user scope."""
+        normalized = normalize_text(question)
+        wants_detail = any(term in normalized for term in ("nhung lan nao", "chi tiet", "danh sach", "lich su")) or (
+            "bao nhieu lan" in normalized and ("gia" in normalized or "nha cung cap" in normalized)
+        )
+        wants_price = "gia" in normalized
+        detail_limit = 50 if wants_detail else (1 if wants_price else 0)
+        summary_query = """
+            WITH access_scope AS (
+                SELECT u.user_id, coalesce(u.ds_branchs, '') AS ds_branchs,
+                       coalesce(u.is_super, 0) = 1
+                         OR (coalesce(u.ds_branchs, '') = '' AND coalesce(u.ds_stocks, '') = '')
+                         AS unrestricted
+                FROM public.userinfo AS u
+                WHERE u.user_id = %s
+            )
+            SELECT count(DISTINCT h.so_ct) AS so_lan_dat,
+                   min(h.ngay_ct) AS lan_dat_dau_tien,
+                   max(h.ngay_ct) AS lan_dat_gan_nhat,
+                   min(d.gia) FILTER (WHERE d.gia > 0) AS gia_mua_thap_nhat,
+                   max(d.gia) FILTER (WHERE d.gia > 0) AS gia_mua_cao_nhat,
+                   avg(d.gia) FILTER (WHERE d.gia > 0) AS gia_mua_trung_binh,
+                   sum(d.tien) FILTER (WHERE d.gia > 0)
+                     / nullif(sum(d.so_luong) FILTER (WHERE d.gia > 0), 0)
+                     AS gia_mua_binh_quan_gia_quyen
+            FROM public.ct94 AS d
+            JOIN public.ph94 AS h ON h.stt_rec = d.stt_rec
+            CROSS JOIN access_scope AS a
+            WHERE upper(trim(d.ma_vt)) = %s
+              AND (a.unrestricted OR a.ds_branchs = ''
+                   OR h.ma_dvcs = ANY(string_to_array(a.ds_branchs, ',')))
+        """
+        detail_query = """
+            WITH access_scope AS (
+                SELECT u.user_id, coalesce(u.ds_branchs, '') AS ds_branchs,
+                       coalesce(u.is_super, 0) = 1
+                         OR (coalesce(u.ds_branchs, '') = '' AND coalesce(u.ds_stocks, '') = '') AS unrestricted
+                FROM public.userinfo AS u WHERE u.user_id = %s
+            )
+            SELECT h.ngay_ct, h.so_ct, h.ma_kh, k.ten_kh, h.ma_nt, h.ty_gia,
+                   d.so_luong, d.dvt, d.gia_nt0 AS gia_ban_dau_nguyen_te,
+                   d.gia_nt AS gia_mua_nguyen_te, d.gia AS gia_mua_vnd,
+                   d.tien_nt AS thanh_tien_nguyen_te, d.tien AS thanh_tien_vnd,
+                   h.status, s.statusname
+            FROM public.ct94 AS d
+            JOIN public.ph94 AS h ON h.stt_rec = d.stt_rec
+            CROSS JOIN access_scope AS a
+            LEFT JOIN public.dmkh AS k ON k.ma_kh = h.ma_kh
+            LEFT JOIN public.sys_dmtt AS s ON s.ma_ct = 'PO1' AND s.status = h.status
+            WHERE upper(trim(d.ma_vt)) = %s
+              AND (a.unrestricted OR a.ds_branchs = ''
+                   OR h.ma_dvcs = ANY(string_to_array(a.ds_branchs, ',')))
+            ORDER BY h.ngay_ct DESC, h.so_ct DESC, d.ln
+            LIMIT %s
+        """
+        supplier_query = """
+            WITH access_scope AS (
+                SELECT u.user_id, coalesce(u.ds_branchs, '') AS ds_branchs,
+                       coalesce(u.is_super, 0) = 1
+                         OR (coalesce(u.ds_branchs, '') = '' AND coalesce(u.ds_stocks, '') = '') AS unrestricted
+                FROM public.userinfo AS u WHERE u.user_id = %s
+            )
+            SELECT h.ma_kh, max(k.ten_kh) AS ten_kh, count(DISTINCT h.so_ct) AS so_don_mua,
+                   min(h.ngay_ct) AS lan_dau_tien, max(h.ngay_ct) AS lan_gan_nhat
+            FROM public.ct94 AS d
+            JOIN public.ph94 AS h ON h.stt_rec = d.stt_rec
+            CROSS JOIN access_scope AS a
+            LEFT JOIN public.dmkh AS k ON k.ma_kh = h.ma_kh
+            WHERE upper(trim(d.ma_vt)) = %s
+              AND (a.unrestricted OR a.ds_branchs = ''
+                   OR h.ma_dvcs = ANY(string_to_array(a.ds_branchs, ',')))
+            GROUP BY h.ma_kh
+            ORDER BY so_don_mua DESC, h.ma_kh
+        """
+        try:
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute(summary_query, (authenticated_user_id, material_code))
+                    columns = [item.name for item in cursor.description]
+                    row = cursor.fetchone()
+                    summary = dict(zip(columns, (json_value(value) for value in row))) if row else {}
+                    if detail_limit:
+                        cursor.execute(detail_query, (authenticated_user_id, material_code, detail_limit + 1))
+                        detail_columns = [item.name for item in cursor.description]
+                        detail_rows = cursor.fetchmany(detail_limit + 1)
+                    else:
+                        detail_columns, detail_rows = [], []
+                    cursor.execute(supplier_query, (authenticated_user_id, material_code))
+                    supplier_columns = [item.name for item in cursor.description]
+                    supplier_rows = cursor.fetchall()
+        except Exception:
+            return "Không thể tra lịch sử đơn hàng mua trong ERP."
+        details = [dict(zip(detail_columns, (json_value(value) for value in item))) for item in detail_rows[:detail_limit]]
+        suppliers = [dict(zip(supplier_columns, (json_value(value) for value in item))) for item in supplier_rows]
+        if details:
+            summary["gia_mua_gan_nhat"] = details[0].get("gia_mua_vnd")
+            summary["ma_nt_gan_nhat"] = details[0].get("ma_nt")
+            summary["ncc_don_mua_gan_nhat"] = {
+                "ma_kh": details[0].get("ma_kh"),
+                "ten_kh": details[0].get("ten_kh"),
+            }
+        catalog_prices: list[dict[str, Any]] = []
+        supplier_match = re.search(r"\b(NCC\d+)\b", question or "", re.I)
+        requested_supplier = supplier_match.group(1).upper() if supplier_match else ""
+        if details:
+            catalog_query = """
+                SELECT DISTINCT ON (p.ma_kh)
+                       p.ma_kh, k.ten_kh, p.ma_nt,
+                       p.gia0 AS gia_truoc_vat, p.gia AS gia_sau_vat,
+                       p.ngay_bd, p.ngay_kt, p.sl_min AS so_luong_toi_thieu,
+                       p.ma_dkthuongmai
+                FROM public.dmgiamuact AS p
+                LEFT JOIN public.dmkh AS k ON k.ma_kh = p.ma_kh
+                WHERE upper(trim(p.ma_vt)) = %s
+                  AND (%s = '' OR upper(trim(p.ma_kh)) = %s)
+                  AND current_date BETWEEN p.ngay_bd AND p.ngay_kt
+                ORDER BY p.ma_kh, p.ngay_bd DESC
+            """
+            try:
+                import psycopg
+                with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                    with conn.cursor() as cursor:
+                        cursor.execute("SET TRANSACTION READ ONLY")
+                        cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                        cursor.execute(catalog_query, (material_code, requested_supplier, requested_supplier))
+                        catalog_columns = [item.name for item in cursor.description]
+                        catalog_prices = [
+                            dict(zip(catalog_columns, (json_value(value) for value in row)))
+                            for row in cursor.fetchall()
+                        ]
+            except Exception:
+                catalog_prices = []
+        summary["gia_don_mua_gan_nhat"] = summary.pop("gia_mua_gan_nhat", None)
+        summary["gia_danh_muc_ncc_hien_hanh"] = catalog_prices
+        return json.dumps(
+            {
+                "source": "public.ph94 + public.ct94 (Đơn hàng mua)",
+                "lookup": {"ma_vt": material_code, "khoang_thoi_gian": "toàn bộ dữ liệu được phép xem"},
+                "price_definitions": {
+                    "gia_don_mua_gan_nhat": "Giá trên đơn mua gần nhất; là dữ liệu lịch sử.",
+                    "gia_danh_muc_ncc_hien_hanh": "Các giá danh mục đang hiệu lực theo từng NCC; nếu câu hỏi có NCCxxxx thì chỉ trả NCC đó."
+                },
+                "summary": summary,
+                "nha_cung_cap_da_mua": suppliers,
+                "row_count": len(details),
+                "truncated": len(detail_rows) > detail_limit,
+                "rows": details,
+            },
+            ensure_ascii=False,
+            default=str,
+        )
+
+    def _supplier_price_approval(self, material_code: str, question: str) -> str:
+        """Read supplier price catalog by supplier; never mutate approval records."""
+        supplier_match = re.search(r"\b(NCC\d+)\b", question or "", re.I)
+        supplier_code = supplier_match.group(1).upper() if supplier_match else ""
+        query = """
+            SELECT p.ma_kh, k.ten_kh, p.ma_vt, p.ma_nt,
+                   p.gia0 AS gia_truoc_vat, p.gia AS gia_sau_vat,
+                   p.ma_thue, p.thue_suat, p.ngay_bd, p.ngay_kt,
+                   p.sl_min AS so_luong_toi_thieu, p.ma_dkthuongmai,
+                   p.status
+            FROM public.dmgiamuact AS p
+            LEFT JOIN public.dmkh AS k ON k.ma_kh = p.ma_kh
+            WHERE upper(trim(p.ma_vt)) = %s
+              AND (%s = '' OR upper(trim(p.ma_kh)) = %s)
+            ORDER BY p.ma_kh, p.ngay_bd DESC
+            LIMIT %s
+        """
+        try:
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute(query, (material_code, supplier_code, supplier_code, MAX_ROWS + 1))
+                    columns = [item.name for item in cursor.description]
+                    rows = cursor.fetchmany(MAX_ROWS + 1)
+        except Exception:
+            return "Không thể tra trạng thái duyệt giá nhà cung cấp trong ERP."
+        result = [dict(zip(columns, (json_value(value) for value in row))) for row in rows[:MAX_ROWS]]
+        return json.dumps({"source": "public.dmgiamuact (Danh mục giá mua theo nhà cung cấp)", "operation": "read_only", "lookup": {"ma_vt": material_code, "ma_kh": supplier_code or None}, "row_count": len(result), "truncated": len(rows) > MAX_ROWS, "rows": result}, ensure_ascii=False, default=str)
+
+    def _random_purchased_material(self, question: str, authenticated_user_id: int) -> str | None:
+        """Return one material backed by an actual purchase-order line."""
+        if not business_intent_matches("purchased_material_any", question):
+            return None
+        if extract_erp_entities(question)["ma_vt"]:
+            return None
+        query = """
+            WITH access_scope AS (
+                SELECT u.user_id, coalesce(u.ds_branchs, '') AS ds_branchs,
+                       coalesce(u.is_super, 0) = 1
+                         OR (coalesce(u.ds_branchs, '') = '' AND coalesce(u.ds_stocks, '') = '')
+                         AS unrestricted
+                FROM public.userinfo AS u WHERE u.user_id = %s
+            )
+            SELECT d.ma_vt, max(v.ten_vt) AS ten_vt, count(DISTINCT h.so_ct) AS so_lan_dat
+            FROM public.ct94 AS d
+            JOIN public.ph94 AS h ON h.stt_rec = d.stt_rec
+            CROSS JOIN access_scope AS a
+            JOIN public.dmvt AS v ON upper(trim(v.ma_vt)) = upper(trim(d.ma_vt))
+            WHERE coalesce(trim(d.ma_vt), '') <> ''
+              AND coalesce(trim(v.ma_loai_vt), '') <> ALL(%s)
+              AND (a.unrestricted OR a.ds_branchs = ''
+                   OR h.ma_dvcs = ANY(string_to_array(a.ds_branchs, ',')))
+            GROUP BY d.ma_vt
+            ORDER BY max(h.ngay_ct) DESC, d.ma_vt
+            LIMIT 1
+        """
+        try:
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute(query, (authenticated_user_id, list(production_material_type_codes())))
+                    columns = [item.name for item in cursor.description]
+                    row = cursor.fetchone()
+        except Exception:
+            return "Không thể lấy mã hàng đã mua từ ERP."
+        result = dict(zip(columns, (json_value(value) for value in row))) if row else None
+        return json.dumps(
+            {"source": "public.ph94 + public.ct94 (Đơn hàng mua)", "row_count": int(result is not None), "rows": [result] if result else []},
+            ensure_ascii=False,
+            default=str,
+        )
+
     def _inventory_movement_journal(self, question: str, authenticated_user_id: int) -> str | None:
         """Execute the manifest-defined Nhật ký nhập xuất tồn report."""
         try:
@@ -816,6 +1081,16 @@ class Tools:
         except Exception:
             return "Cấu hình báo cáo Nhật ký nhập xuất tồn chưa sẵn sàng."
         active_conversation = conversation_id or __chat_id__ or ""
+        authenticated_user_id = trusted_erp_user_id(__user__)
+        if authenticated_user_id is not None:
+            purchased_material = self._random_purchased_material(question, authenticated_user_id)
+            if purchased_material is not None:
+                try:
+                    selected_code = json.loads(purchased_material).get("rows", [{}])[0].get("ma_vt", "")
+                    ERP_CONVERSATION_STATE.remember(active_conversation, {"ma_vt": selected_code})
+                except (IndexError, TypeError, ValueError):
+                    pass
+                return purchased_material
         filters = ERP_CONVERSATION_STATE.resolve(active_conversation, question, context)
         if not filters.get("ma_vt"):
             material_resolution = self._resolve_material_name(question)
@@ -826,6 +1101,16 @@ class Tools:
                 filters["ma_vt"] = material_code
                 ERP_CONVERSATION_STATE.remember(active_conversation, {"ma_vt": material_code})
         semantic_request = build_request(question, filters)
+        if business_intent_matches("supplier_price_approval", question, has_material_code=bool(filters.get("ma_vt"))):
+            return self._supplier_price_approval(filters["ma_vt"], question)
+        if business_intent_matches("purchase_order_history", question, has_material_code=bool(filters.get("ma_vt"))):
+            authenticated_user_id = trusted_erp_user_id(__user__)
+            if authenticated_user_id is not None:
+                purchase_order_history = self._purchase_order_history_count(
+                    question, filters["ma_vt"], authenticated_user_id
+                )
+                if purchase_order_history is not None:
+                    return purchase_order_history
         journal_field_result = self._execute_manifest_journal_field(question, filters)
         if journal_field_result is not None:
             return journal_field_result
@@ -846,9 +1131,19 @@ class Tools:
         material_details_result = self._material_details(question)
         if material_details_result is not None:
             return material_details_result
-        inventory_journal_result = self._inventory_movement_journal(question)
-        if inventory_journal_result is not None:
-            return inventory_journal_result
+        # The manifest report includes a row-level user predicate. This late
+        # fallback must not call it until it has a trusted identity, while
+        # unrelated requests must continue through the remaining handlers.
+        try:
+            journal_report = load_report_config("nhat-ky-nhap-xuat-ton")
+            is_journal_request = parse_report_request(question, journal_report)["matches_report"]
+        except Exception:
+            is_journal_request = False
+        if is_journal_request:
+            authenticated_user_id = trusted_erp_user_id(__user__)
+            if authenticated_user_id is None:
+                return "Không có mapping ERP hợp lệ cho phiên chat; báo cáo vẫn bị chặn an toàn."
+            return self._inventory_movement_journal(question, authenticated_user_id)
         material_work_code_result = self._material_work_code(question)
         if material_work_code_result is not None:
             return material_work_code_result
@@ -982,7 +1277,7 @@ Quy tắc: chỉ một SELECT/WITH; dùng schema public khi cần; tối đa 200
             return None
         if any(term in normalized for term in ("so luong", "sl xuat", "sl nhap", "ty gia", "ti gia")):
             return None
-        code_match = re.search(r"\b((?=[a-z0-9-]*\d)[a-z0-9]+(?:-[a-z0-9]+)*)\b", question, re.I)
+        code_match = re.search(r"\b((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)\b", question, re.I)
         if not code_match:
             return "Cần mã vật tư để tra cứu."
         material_code = code_match.group(1).upper()
@@ -1018,7 +1313,7 @@ Quy tắc: chỉ một SELECT/WITH; dùng schema public khi cần; tối đa 200
         normalized = normalize_text(question)
         if not any(term in normalized for term in ("ty gia", "ti gia", "so luong xuat", "sl xuat")):
             return None
-        code_match = re.search(r"\b((?=[a-z0-9-]*\d)[a-z0-9]+(?:-[a-z0-9]+)*)\b", question, re.I)
+        code_match = re.search(r"\b((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)\b", question, re.I)
         if not code_match:
             return "Cần mã vật tư để tra tỷ giá hoặc số lượng xuất."
         material_code = code_match.group(1).upper()
@@ -1066,7 +1361,7 @@ Quy tắc: chỉ một SELECT/WITH; dùng schema public khi cần; tối đa 200
     def _material_document_quantity(self, question: str) -> str | None:
         """Read the exact ERP transaction identified by material and document."""
         normalized = normalize_text(question)
-        material_match = re.search(r"\b([a-z]+\d[a-z0-9-]*)\b", question, re.I)
+        material_match = re.search(r"\b([a-z]+\d[a-z0-9-]*(?:/[a-z0-9-]+)*)\b", question, re.I)
         document_match = re.search(r"\b\d{3}-\d{4}-\d{6}\b", question)
         if not material_match or not document_match:
             return None

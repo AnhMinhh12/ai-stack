@@ -2,7 +2,7 @@
   "id": "bao-cao-thong-tin-sp-theo-ho-so-khuon",
   "title": "Báo cáo thông tin sản phẩm theo hồ sơ khuôn",
   "match_phrases": ["báo cáo thông tin sản phẩm theo hồ sơ khuôn", "thông tin sản phẩm theo hồ sơ khuôn"],
-  "validation": {"status": "ui_validation_complete", "required_ui_comparisons": 3},
+  "validation": {"status": "validated", "required_ui_comparisons": 3},
   "inputs": {
     "required": [],
     "filters": [

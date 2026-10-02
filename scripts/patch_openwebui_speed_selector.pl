@@ -16,8 +16,8 @@ $source =~ s{\tlet selector;\n}{\tlet selector;
 	const HTMP_FAST = 'htmp-nhanh';
 	const HTMP_DEEP = 'htmp-ky';
 	const modeItems = [
-		{ value: HTMP_FAST, label: 'ERP' },
-		{ value: HTMP_DEEP, label: 'D\\u1eef li\\u1ec7u n\\u1ed9i b\\u1ed9' }
+		{ value: HTMP_FAST, label: 'Nhanh' },
+		{ value: HTMP_DEEP, label: 'Kỹ' }
 	];
 
 	\$: htmpConfigured = \$models.some((model) => model.id === HTMP_FAST) &&
@@ -36,7 +36,7 @@ my $original = '<div class="flex min-w-0 max-w-full flex-col items-start">';
 my $replacement = <<'SVELTE';
 {#if htmpConfigured}
 	<div class="flex min-w-0 max-w-full flex-col items-start" data-testid="htmp-speed-selector">
-		<div class="flex min-w-0 max-w-full items-center gap-2" aria-label="Nguồn dữ liệu HTMP">
+		<div class="flex min-w-0 max-w-full items-center gap-2" aria-label="Chế độ phản hồi HTMP">
 			<div class="flex h-8 shrink-0 items-center rounded-xl bg-transparent px-1.5 text-[0.8125rem] font-medium text-gray-800 dark:text-gray-100">HTMP</div>
 			<Select
 				value={selectedMode}
@@ -48,7 +48,7 @@ my $replacement = <<'SVELTE';
 			>
 				<svelte:fragment slot="trigger" let:selectedLabel>
 					<span class="min-w-0 truncate">{selectedLabel}</span>
-					<ChevronDown className="ml-1 size-3" strokeWidth="2.5" />
+					<ChevronDown className="ml-1 size-3 rotate-180" strokeWidth="2.5" />
 				</svelte:fragment>
 			</Select>
 		</div>

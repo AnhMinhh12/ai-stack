@@ -53,6 +53,72 @@ class InventoryMovementJournalContractTests(unittest.TestCase):
         )
         self.assertEqual(parsed["filters"], {"ma_vt": "VGW1A610-1"})
 
+    def test_material_code_with_slash_revision_is_not_truncated(self):
+        entities = ERP.extract_erp_entities(
+            "Mã vật tư PNKV1260WA1K115/V1 đã được đặt bao nhiêu lần?"
+        )
+        self.assertEqual(entities["ma_vt"], "PNKV1260WA1K115/V1")
+        from erp_ai import build_request
+        self.assertEqual(
+            build_request("PNKV1260WA1K115/V1 đã đặt bao nhiêu lần", entities).filters["ma_vt"],
+            "PNKV1260WA1K115/V1",
+        )
+
+    def test_material_code_starting_with_digits_is_recognized(self):
+        self.assertEqual(ERP.extract_erp_entities("35K-H2110-0001 đã mua chưa")["ma_vt"], "35K-H2110-0001")
+
+    def test_confirmed_code_is_not_replaced_by_abbreviated_model_context(self):
+        store = ERP.ConversationStateStore()
+        store.remember("chat", {"ma_vt": "35K-H2110-0001"})
+        self.assertEqual(store.resolve("chat", "tổng số lần mua", "ma_vt: H2110")["ma_vt"], "35K-H2110-0001")
+
+    def test_purchase_count_question_does_not_request_detail_rows(self):
+        self.assertNotIn("nhung lan nao", ERP.normalize_text("ABS-260 đã mua bao nhiêu lần rồi"))
+
+    def test_count_and_price_question_requests_purchase_detail(self):
+        normalized = ERP.normalize_text("ABS1303 mua bao nhiêu lần và với giá bao nhiêu")
+        self.assertIn("bao nhieu lan", normalized)
+        self.assertIn("gia", normalized)
+
+    def test_purchase_order_history_intent_is_detected(self):
+        from erp_ai import build_request
+        request = build_request(
+            "Mã hàng PNKV1260WA1K115/V1 đã đặt bao giờ chưa, và bao nhiêu lần rồi?",
+            {"ma_vt": "PNKV1260WA1K115/V1"},
+        )
+        self.assertEqual(request.intent, "purchase_order_history")
+
+    def test_random_purchase_request_does_not_match_a_specific_material_code(self):
+        self.assertEqual(ERP.extract_erp_entities("đưa một mã hàng công ty đã mua bất kỳ")["ma_vt"], "")
+
+    def test_business_intent_file_matches_purchase_requests(self):
+        with patch.object(ERP, "ERP_BUSINESS_INTENTS_PATH", ROOT / "config" / "erp-business-intents.json"):
+            self.assertTrue(ERP.business_intent_matches("purchased_material_any", "đưa một mã công ty đã mua bất kỳ"))
+            self.assertTrue(ERP.business_intent_matches("purchase_order_history", "mã này đã mua bao nhiêu lần", has_material_code=True))
+            self.assertTrue(ERP.business_intent_matches("purchase_order_history", "mã này đã mua bao giờ chưa", has_material_code=True))
+            for question in (
+                "sản phẩm này mua những lần nào",
+                "giá của mã này là bao nhiêu",
+                "giá mua gần nhất",
+                "giá mua thấp nhất và cao nhất",
+                "mua của nhà cung cấp nào",
+            ):
+                with self.subTest(question=question):
+                    self.assertTrue(ERP.business_intent_matches("purchase_order_history", question, has_material_code=True))
+            self.assertTrue(ERP.business_intent_matches("supplier_price_approval", "mã này đã duyệt giá chưa", has_material_code=True))
+            self.assertTrue(ERP.business_intent_matches("supplier_price_approval", "giá mã này trước VAT", has_material_code=True))
+
+    def test_production_material_types_are_versioned_business_rules(self):
+        with patch.object(ERP, "ERP_BUSINESS_INTENTS_PATH", ROOT / "config" / "erp-business-intents.json"):
+            self.assertEqual(ERP.production_material_type_codes(), ("41", "51"))
+
+    def test_price_definitions_keep_purchase_history_distinct_from_catalog_price(self):
+        source = (ROOT / "functions" / "htmp_postgres_query.py").read_text()
+        self.assertIn("gia_don_mua_gan_nhat", source)
+        self.assertIn("gia_danh_muc_ncc_hien_hanh", source)
+        self.assertIn("DISTINCT ON (p.ma_kh)", source)
+        self.assertIn("nha_cung_cap_da_mua", source)
+
     def test_unrelated_dated_question_does_not_route(self):
         parsed = ERP.parse_report_request(
             "công nợ khách hàng ngày 3/9/2026", self.report

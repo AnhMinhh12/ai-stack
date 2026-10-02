@@ -20,7 +20,10 @@ class ConversationStateStore:
             prior = dict(self._states.get(conversation_id, {})) if conversation_id else {}
             context_entities = extract_entities(context)
             question_entities = extract_entities(question)
-            merged = merge_filters(question_entities, merge_filters(context_entities, prior))
+            # Tool-confirmed state is more reliable than model-generated
+            # context, which can abbreviate codes (e.g. 35K-H2110-0001 to
+            # H2110). The user's current explicit input still wins.
+            merged = merge_filters(question_entities, merge_filters(prior, context_entities))
             if conversation_id:
                 self._states[conversation_id] = {key: value for key, value in merged.items() if value}
                 self._states.move_to_end(conversation_id)

@@ -24,4 +24,4 @@ class AllPendingERPReportArtifactTests(unittest.TestCase):
             self.assertEqual(evidence["status"], "pending_ui_validation")
             self.assertEqual(evidence["required_comparisons"], 3)
             self.assertEqual(len(evidence["cases"]), 3)
-        self.assertEqual(len(pending), 68)
+        self.assertEqual(len(pending), 56)

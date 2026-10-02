@@ -2,7 +2,7 @@
   "id": "bang-ke-lenh-giao-hang",
   "title": "Bảng kê lệnh giao hàng",
   "match_phrases": ["bảng kê lệnh giao hàng"],
-  "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
+  "validation": {"status": "validated", "required_ui_comparisons": 3},
   "inputs": {"required": ["tu_ngay", "den_ngay"], "filters": [
     {"parameter": "tu_ngay_gh", "column": "ngay_gh", "aliases": ["từ ngày giao", "ngày giao từ"], "value_type": "date"},
     {"parameter": "den_ngay_gh", "column": "ngay_gh", "aliases": ["đến ngày giao", "ngày giao đến"], "value_type": "date"},

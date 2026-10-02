@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "material_classification": {
+    "production_type_codes": ["41", "51"],
+    "production_labels": {"41": "Bán thành phẩm", "51": "Thành phẩm"},
+    "purchased_material_rule": "ma_loai_vt is not 41 or 51"
+  },
+  "intents": [
+    {
+      "id": "purchased_material_any",
+      "description": "Chọn một mã hàng mua có chứng từ đơn mua thực tế; loại trừ BTP/TP do công ty sản xuất (loại 41/51).",
+      "match": {"all": ["mua", "ma"], "any": ["bat ky", "ma nao", "ngau nhien"]},
+      "source": {"header": "public.ph94", "line": "public.ct94", "kind": "purchase_order"},
+      "access": "authenticated_erp_user",
+      "result": ["ma_vt", "ten_vt", "so_lan_dat"]
+    },
+    {
+      "id": "purchase_order_history",
+      "description": "Phân tích lịch sử đơn mua và giá mua thực tế của một mã vật tư.",
+      "match": {"all": ["ma_vt"], "any": ["da dat", "da mua", "bao nhieu lan", "lich su don hang", "lich su dat hang", "lan mua", "nhung lan nao", "gia", "don mua", "nha cung cap"]},
+      "source": {"header": "public.ph94", "line": "public.ct94", "kind": "purchase_order"},
+      "access": "authenticated_erp_user",
+      "result": ["so_lan_dat", "lan_dat_dau_tien", "lan_dat_gan_nhat", "gia_mua_gan_nhat", "ncc_don_mua_gan_nhat", "gia_mua_thap_nhat", "gia_mua_cao_nhat", "gia_mua_trung_binh", "gia_mua_binh_quan_gia_quyen", "cac_lan_mua"]
+    },
+    {
+      "id": "supplier_price_approval",
+      "description": "Tra giá mua NCC trước/sau VAT, trạng thái duyệt và thời hạn hiệu lực; chỉ đọc, không thực hiện thao tác duyệt.",
+      "match": {"all": ["ma_vt"], "any": ["duyet gia", "gia da duyet", "trang thai gia", "bao gia nha cung cap", "truoc vat", "sau vat", "gia truoc", "gia sau"]},
+      "source": {"line": "public.dmgiamuact", "kind": "supplier_purchase_price_catalog"},
+      "access": "authenticated_erp_user",
+      "result": ["gia_truoc_vat_vnd", "gia_truoc_vat_nguyen_te", "ma_thue", "thue_suat", "ngay_bd", "ngay_kt", "da_duyet", "da_dong"]
+    }
+  ]
+}

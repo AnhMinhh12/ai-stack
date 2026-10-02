@@ -1,6 +1,6 @@
 {
   "report_id": "phan-bo-thoi-gian-dung-chuyen",
-  "status": "pending_ui_validation",
+  "status": "validated",
   "required_comparisons": 3,
   "cases": [
     {

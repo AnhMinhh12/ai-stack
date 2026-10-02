@@ -25,7 +25,7 @@
       "specs": [
         {
           "name": "ask_erp",
-          "description": "For every ERP question, call this tool immediately and silently. The conversation history is authoritative: for a follow-up such as đưa ra chi tiết từng đơn, inherit all filters from the immediately preceding user question and tool result, then pass a rewritten complete question containing the material code, document number, date, warehouse and requested fields. Never ask the user to repeat information already in the conversation. Never ask the user to call ask_erp, never print its JSON, and never claim a query is needed before calling it. After the tool returns, answer in Vietnamese using only its result. If the result starts with KẾT QUẢ ERP ĐÃ XÁC NHẬN, repeat the confirmed value and never claim it was not found. Returned ERP field values are authoritative: never negate, replace, or explain away a non-null value based on an inferred document type or business assumption.",
+          "description": "For every ERP request, make exactly one native call to this tool before replying. Emit no text, JSON, XML, tool markup, or other content before the native tool call. Put the user's complete Vietnamese ERP question in question. After the result, answer in Vietnamese using only returned fields.",
           "parameters": {
             "type": "object",
             "properties": {
@@ -59,7 +59,7 @@
       "use_knowledge": false,
       "tool_ids": ["htmp_postgres_query"],
       "params": {
-        "temperature": 0.2,
+        "temperature": 0,
         "max_tokens": 400,
         "function_calling": "native"
       },

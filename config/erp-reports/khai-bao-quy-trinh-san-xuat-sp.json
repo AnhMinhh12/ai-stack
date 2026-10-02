@@ -7,7 +7,7 @@
     "bom bop"
   ],
   "validation": {
-    "status": "ui_validation_complete",
+    "status": "validated",
     "required_ui_comparisons": 3
   },
   "inputs": {
