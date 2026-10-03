@@ -20,7 +20,11 @@
 
 ## Required handoff
 
-On an approved connected machine, pull and save the exact image named in `docs/single-host-oci-registry.md`, transfer the archive through an approved internal channel, and provide a checksum. Before start, the operator must create TLS/auth/data directories outside Git and schedule Docker CA trust/restart. Off-host backup remains a separate gate.
+On an approved connected machine, pull and save the exact image named in
+`docs/registry-release.md`, transfer the archive through an approved internal
+channel, and provide a checksum. Before start, the operator must create
+TLS/auth/data directories outside Git and schedule Docker CA trust/restart.
+Off-host backup remains a separate gate.
 
 **Expiry:** 2026-09-25T03:10:49Z or on a change to the Registry digest/configuration.
 

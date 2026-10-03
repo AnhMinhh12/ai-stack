@@ -35,6 +35,20 @@ Khi thông tin mâu thuẫn, ưu tiên: runtime đã kiểm tra, Compose hiện 
 manager/`.env`, ba tài liệu chuẩn, sau cùng là tài liệu nhà cung cấp đúng với
 version đã pin.
 
+## Kiểm tra nhanh tài nguyên server
+
+Không cần triển khai thêm dashboard để kiểm tra nhanh host đang quá tải. Chạy tool
+read-only sau ngay trên server:
+
+```bash
+./scripts/resource_status.sh
+./scripts/resource_status.sh --watch 5
+```
+
+Tool hiển thị CPU/load/iowait, RAM/swap, disk, GPU (nếu có), Docker containers và
+số kết nối web. `WARNING`/`CRITICAL` dùng ngưỡng mặc định và exit code lần lượt là
+1/2; cần xem xu hướng tối thiểu 5 phút trước khi kết luận sự cố.
+
 ## 2. Tư duy hiệu năng
 
 LLM chạy chậm không tự động đồng nghĩa với việc phải đổi sang model nhỏ hơn.

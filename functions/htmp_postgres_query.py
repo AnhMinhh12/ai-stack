@@ -80,8 +80,15 @@ def extract_erp_entities(text: str) -> dict[str, str]:
         re.I,
     )
     numeric_material = re.search(
-        r"(?:mã\s*(?:vật\s*tư|vt)|ma\s*(?:vat\s*tu|vt))\s*[:#-]?\s*(\d{6,})\b"
+        r"(?:mã|ma)(?:\s*(?:vật\s*tư|vat\s*tu|vt))?\s*[:#-]?\s*(\d{6,})\b"
         r"|\b(\d{6,})\b(?=\s+(?:mã\s*)?(?:vật\s*tư|vt)\b)",
+        source,
+        re.I,
+    )
+    standalone_numeric_material = re.match(r"^\s*(\d{6,})\s*(?:[?!.…]+)?\s*$", source)
+    labelled_hyphenated_material = re.search(
+        r"(?:mã|ma)(?:\s*(?:vật\s*tư|vat\s*tu|vt))?\s*[:#-]?\s*"
+        r"([a-z][a-z0-9]*(?:[-/][a-z0-9]+)+)\b",
         source,
         re.I,
     )
@@ -95,7 +102,14 @@ def extract_erp_entities(text: str) -> dict[str, str]:
         "ma_vt": (
             material.group(0).upper()
             if material
-            else next((group for group in (numeric_material.groups() if numeric_material else ()) if group), "")
+            else (
+                labelled_hyphenated_material.group(1).upper()
+                if labelled_hyphenated_material
+                else next(
+                    (group for group in (numeric_material.groups() if numeric_material else ()) if group),
+                    standalone_numeric_material.group(1) if standalone_numeric_material else "",
+                )
+            )
         ),
         "so_ct": document.group(0) if document else "",
         "ngay_ct": raw_date.group(0) if raw_date else "",
@@ -823,6 +837,7 @@ class Tools:
                 "ten_kh": details[0].get("ten_kh"),
             }
         catalog_prices: list[dict[str, Any]] = []
+        supplier_quotes: list[dict[str, Any]] = []
         supplier_match = re.search(r"\b(NCC\d+)\b", question or "", re.I)
         requested_supplier = supplier_match.group(1).upper() if supplier_match else ""
         if details:
@@ -853,15 +868,66 @@ class Tools:
                         ]
             except Exception:
                 catalog_prices = []
+        # A supplier quote is not evidence that an order was placed.  It is,
+        # however, the relevant price when the material has not yet appeared
+        # on a purchase order (or when the user is viewing the supplier quote
+        # screen).  Keep it separate from both historic PO prices and the
+        # approved supplier-price catalog.
+        supplier_quote_query = """
+            WITH access_scope AS (
+                SELECT u.user_id, coalesce(u.ds_branchs, '') AS ds_branchs,
+                       coalesce(u.is_super, 0) = 1
+                         OR (coalesce(u.ds_branchs, '') = '' AND coalesce(u.ds_stocks, '') = '') AS unrestricted
+                FROM public.userinfo AS u WHERE u.user_id = %s
+            )
+            SELECT DISTINCT ON (h.ma_kh)
+                   h.ma_kh, h.ten_kh, d.ma_vt, d.dvt, h.ma_nt, h.ty_gia,
+                   d.gia0 AS gia_truoc_vat_vnd, d.gia_nt0 AS gia_truoc_vat_nguyen_te,
+                   d.gia AS gia_sau_vat_vnd, d.gia_nt AS gia_sau_vat_nguyen_te,
+                   d.ma_thue, d.thue_suat, d.ngay_bd, d.ngay_kt,
+                   h.ngay_ct, h.so_ct, d.appr_yn AS da_duyet,
+                   d.close_yn AS da_dong, h.status AS trang_thai_chung_tu
+            FROM public.ctbgncc AS d
+            JOIN public.phbgncc AS h ON h.stt_rec = d.stt_rec
+            CROSS JOIN access_scope AS a
+            WHERE upper(trim(d.ma_vt)) = %s
+              AND (%s = '' OR upper(trim(h.ma_kh)) = %s)
+              AND (a.unrestricted OR a.ds_branchs = ''
+                   OR h.ma_dvcs = ANY(string_to_array(a.ds_branchs, ',')))
+            ORDER BY h.ma_kh, d.ngay_ct DESC, h.so_ct DESC, d.ln DESC
+            LIMIT %s
+        """
+        try:
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute(
+                        supplier_quote_query,
+                        (authenticated_user_id, material_code, requested_supplier, requested_supplier, MAX_ROWS + 1),
+                    )
+                    quote_columns = [item.name for item in cursor.description]
+                    quote_rows = cursor.fetchmany(MAX_ROWS + 1)
+                    supplier_quotes = [
+                        dict(zip(quote_columns, (json_value(value) for value in row)))
+                        for row in quote_rows[:MAX_ROWS]
+                    ]
+        except Exception:
+            # Quotes enrich a purchase-history response; an unavailable quote
+            # table must not hide valid purchase-order data.
+            supplier_quotes = []
         summary["gia_don_mua_gan_nhat"] = summary.pop("gia_mua_gan_nhat", None)
         summary["gia_danh_muc_ncc_hien_hanh"] = catalog_prices
+        summary["bao_gia_ncc_gan_nhat"] = supplier_quotes
         return json.dumps(
             {
-                "source": "public.ph94 + public.ct94 (Đơn hàng mua)",
+                "source": "public.ph94 + public.ct94 (Đơn hàng mua); public.phbgncc + public.ctbgncc (Phiếu báo giá nhà cung cấp)",
                 "lookup": {"ma_vt": material_code, "khoang_thoi_gian": "toàn bộ dữ liệu được phép xem"},
                 "price_definitions": {
                     "gia_don_mua_gan_nhat": "Giá trên đơn mua gần nhất; là dữ liệu lịch sử.",
-                    "gia_danh_muc_ncc_hien_hanh": "Các giá danh mục đang hiệu lực theo từng NCC; nếu câu hỏi có NCCxxxx thì chỉ trả NCC đó."
+                    "gia_danh_muc_ncc_hien_hanh": "Các giá danh mục đang hiệu lực theo từng NCC; nếu câu hỏi có NCCxxxx thì chỉ trả NCC đó.",
+                    "bao_gia_ncc_gan_nhat": "Báo giá NCC gần nhất theo từng NCC, gồm giá trước/sau VAT, hiệu lực và trạng thái; không phải đơn mua thực tế."
                 },
                 "summary": summary,
                 "nha_cung_cap_da_mua": suppliers,
@@ -873,8 +939,10 @@ class Tools:
             default=str,
         )
 
-    def _supplier_price_approval(self, material_code: str, question: str) -> str:
-        """Read supplier price catalog by supplier; never mutate approval records."""
+    def _supplier_price_approval(
+        self, material_code: str, question: str, authenticated_user_id: int
+    ) -> str:
+        """Read supplier catalog and the latest supplier quote, never mutating either."""
         supplier_match = re.search(r"\b(NCC\d+)\b", question or "", re.I)
         supplier_code = supplier_match.group(1).upper() if supplier_match else ""
         query = """
@@ -890,6 +958,30 @@ class Tools:
             ORDER BY p.ma_kh, p.ngay_bd DESC
             LIMIT %s
         """
+        quote_query = """
+            WITH access_scope AS (
+                SELECT u.user_id, coalesce(u.ds_branchs, '') AS ds_branchs,
+                       coalesce(u.is_super, 0) = 1
+                         OR (coalesce(u.ds_branchs, '') = '' AND coalesce(u.ds_stocks, '') = '') AS unrestricted
+                FROM public.userinfo AS u WHERE u.user_id = %s
+            )
+            SELECT DISTINCT ON (h.ma_kh)
+                   h.ma_kh, h.ten_kh, d.ma_vt, d.dvt, h.ma_nt,
+                   d.gia0 AS gia_truoc_vat_vnd, d.gia_nt0 AS gia_truoc_vat_nguyen_te,
+                   d.gia AS gia_sau_vat_vnd, d.gia_nt AS gia_sau_vat_nguyen_te,
+                   d.ma_thue, d.thue_suat, d.ngay_bd, d.ngay_kt,
+                   h.ngay_ct, h.so_ct, d.appr_yn AS da_duyet,
+                   d.close_yn AS da_dong, h.status AS trang_thai_chung_tu
+            FROM public.ctbgncc AS d
+            JOIN public.phbgncc AS h ON h.stt_rec = d.stt_rec
+            CROSS JOIN access_scope AS a
+            WHERE upper(trim(d.ma_vt)) = %s
+              AND (%s = '' OR upper(trim(h.ma_kh)) = %s)
+              AND (a.unrestricted OR a.ds_branchs = ''
+                   OR h.ma_dvcs = ANY(string_to_array(a.ds_branchs, ',')))
+            ORDER BY h.ma_kh, d.ngay_ct DESC, h.so_ct DESC, d.ln DESC
+            LIMIT %s
+        """
         try:
             import psycopg
             with psycopg.connect(**connection_settings(), autocommit=False) as conn:
@@ -899,10 +991,32 @@ class Tools:
                     cursor.execute(query, (material_code, supplier_code, supplier_code, MAX_ROWS + 1))
                     columns = [item.name for item in cursor.description]
                     rows = cursor.fetchmany(MAX_ROWS + 1)
+                    cursor.execute(
+                        quote_query,
+                        (authenticated_user_id, material_code, supplier_code, supplier_code, MAX_ROWS + 1),
+                    )
+                    quote_columns = [item.name for item in cursor.description]
+                    quote_rows = cursor.fetchmany(MAX_ROWS + 1)
         except Exception:
             return "Không thể tra trạng thái duyệt giá nhà cung cấp trong ERP."
         result = [dict(zip(columns, (json_value(value) for value in row))) for row in rows[:MAX_ROWS]]
-        return json.dumps({"source": "public.dmgiamuact (Danh mục giá mua theo nhà cung cấp)", "operation": "read_only", "lookup": {"ma_vt": material_code, "ma_kh": supplier_code or None}, "row_count": len(result), "truncated": len(rows) > MAX_ROWS, "rows": result}, ensure_ascii=False, default=str)
+        quotes = [
+            dict(zip(quote_columns, (json_value(value) for value in row)))
+            for row in quote_rows[:MAX_ROWS]
+        ]
+        return json.dumps(
+            {
+                "source": "public.dmgiamuact (Danh mục giá mua theo nhà cung cấp); public.phbgncc + public.ctbgncc (Phiếu báo giá nhà cung cấp)",
+                "operation": "read_only",
+                "lookup": {"ma_vt": material_code, "ma_kh": supplier_code or None},
+                "row_count": len(result),
+                "truncated": len(rows) > MAX_ROWS,
+                "rows": result,
+                "bao_gia_ncc_gan_nhat": quotes,
+            },
+            ensure_ascii=False,
+            default=str,
+        )
 
     def _random_purchased_material(self, question: str, authenticated_user_id: int) -> str | None:
         """Return one material backed by an actual purchase-order line."""
@@ -1102,7 +1216,10 @@ class Tools:
                 ERP_CONVERSATION_STATE.remember(active_conversation, {"ma_vt": material_code})
         semantic_request = build_request(question, filters)
         if business_intent_matches("supplier_price_approval", question, has_material_code=bool(filters.get("ma_vt"))):
-            return self._supplier_price_approval(filters["ma_vt"], question)
+            authenticated_user_id = trusted_erp_user_id(__user__)
+            if authenticated_user_id is None:
+                return "Không có mapping ERP hợp lệ cho phiên chat; tra giá NCC bị chặn an toàn."
+            return self._supplier_price_approval(filters["ma_vt"], question, authenticated_user_id)
         if business_intent_matches("purchase_order_history", question, has_material_code=bool(filters.get("ma_vt"))):
             authenticated_user_id = trusted_erp_user_id(__user__)
             if authenticated_user_id is not None:

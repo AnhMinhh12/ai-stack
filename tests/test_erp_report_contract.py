@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import os
 import unittest
 from decimal import Decimal
@@ -106,7 +107,33 @@ class InventoryMovementJournalContractTests(unittest.TestCase):
                 with self.subTest(question=question):
                     self.assertTrue(ERP.business_intent_matches("purchase_order_history", question, has_material_code=True))
             self.assertTrue(ERP.business_intent_matches("supplier_price_approval", "mã này đã duyệt giá chưa", has_material_code=True))
+            self.assertTrue(ERP.business_intent_matches("supplier_price_approval", "mã 3003541 đã được duyệt chưa", has_material_code=True))
             self.assertTrue(ERP.business_intent_matches("supplier_price_approval", "giá mã này trước VAT", has_material_code=True))
+
+    def test_purchase_price_intent_declares_supplier_quote_as_a_distinct_source(self):
+        intents = json.loads((ROOT / "config" / "erp-business-intents.json").read_text())["intents"]
+        history = next(item for item in intents if item["id"] == "purchase_order_history")
+        self.assertEqual(history["source"]["supplier_quote"], {"header": "public.phbgncc", "line": "public.ctbgncc"})
+        self.assertIn("bao_gia_ncc_gan_nhat", history["result"])
+
+    def test_erp_profile_does_not_limit_material_codes_to_five_letter_prefixes(self):
+        profile = (ROOT / "functions" / "htmp_fast_rag.py").read_text()
+        self.assertIn("GCCKSC164", profile)
+        self.assertNotIn("[a-z]{1,5}\\d{2,}", profile)
+        self.assertIn("overrides every earlier material code", profile)
+
+    def test_erp_profile_requires_both_vat_prices_for_supplier_quotes(self):
+        profile = (ROOT / "functions" / "htmp_fast_rag.py").read_text()
+        tool_config = (ROOT / "config" / "htmp-rag-models.json").read_text()
+        self.assertIn("summary.bao_gia_ncc_gan_nhat", profile)
+        self.assertIn("before VAT AND after VAT", profile)
+        self.assertIn("prices before and after VAT", tool_config)
+
+    def test_erp_profile_requires_exactly_one_tool_call_for_each_turn(self):
+        profile = (ROOT / "functions" / "htmp_fast_rag.py").read_text()
+        self.assertIn("EXACTLY ONE native call to ask_erp FIRST", profile)
+        self.assertIn("NEVER call ask_erp a second time in the same turn", profile)
+        self.assertNotIn('body["tool_choice"] = "required"', profile)
 
     def test_production_material_types_are_versioned_business_rules(self):
         with patch.object(ERP, "ERP_BUSINESS_INTENTS_PATH", ROOT / "config" / "erp-business-intents.json"):
@@ -116,6 +143,8 @@ class InventoryMovementJournalContractTests(unittest.TestCase):
         source = (ROOT / "functions" / "htmp_postgres_query.py").read_text()
         self.assertIn("gia_don_mua_gan_nhat", source)
         self.assertIn("gia_danh_muc_ncc_hien_hanh", source)
+        self.assertIn("bao_gia_ncc_gan_nhat", source)
+        self.assertIn("public.phbgncc + public.ctbgncc", source)
         self.assertIn("DISTINCT ON (p.ma_kh)", source)
         self.assertIn("nha_cung_cap_da_mua", source)
 
@@ -236,6 +265,19 @@ class InventoryMovementJournalContractTests(unittest.TestCase):
         )
         self.assertEqual(entities["ma_vt"], "1014082003")
         self.assertEqual(entities["so_ct"], "001-2609-000892")
+
+    def test_short_material_label_and_standalone_numeric_code_override_prior_material(self):
+        self.assertEqual(ERP.extract_erp_entities("thế mã\n\n3003541 THÌ SAO")["ma_vt"], "3003541")
+        self.assertEqual(ERP.extract_erp_entities("3003541")["ma_vt"], "3003541")
+        store = ERP.ConversationStateStore()
+        store.remember("chat", {"ma_vt": "PC-3083"})
+        self.assertEqual(store.resolve("chat", "thế mã\n\n3003541 THÌ SAO")["ma_vt"], "3003541")
+
+    def test_explicit_hyphenated_alpha_material_code_overrides_prior_material(self):
+        self.assertEqual(ERP.extract_erp_entities("mã SIDE-PATRIA có giá bao nhiêu")["ma_vt"], "SIDE-PATRIA")
+        store = ERP.ConversationStateStore()
+        store.remember("chat", {"ma_vt": "3003541"})
+        self.assertEqual(store.resolve("chat", "thế còn mã SIDE-PATRIA")["ma_vt"], "SIDE-PATRIA")
 
     def test_exchange_rate_is_a_computed_screen_column(self):
         self.assertIn("ty_gia", self.report["output"]["computed"])

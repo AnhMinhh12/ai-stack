@@ -25,7 +25,7 @@
       "specs": [
         {
           "name": "ask_erp",
-          "description": "For every ERP request, make exactly one native call to this tool before replying. Emit no text, JSON, XML, tool markup, or other content before the native tool call. Put the user's complete Vietnamese ERP question in question. After the result, answer in Vietnamese using only returned fields.",
+          "description": "For every ERP request, make exactly one native call to this tool before replying. Emit no text, JSON, XML, tool markup, or other content before the native tool call. Put the user's complete Vietnamese ERP question in question. If the latest user message contains an explicit material code, it replaces any prior material code: call this tool with the new code immediately and never ask the user to confirm it. For a price result with summary.bao_gia_ncc_gan_nhat, explicitly report its supplier, unit, prices before and after VAT, effective dates, and approval status; do this even when the price matches gia_don_mua_gan_nhat. Call the latter historic purchase price, and do not call a supplier quote an actual purchase. After the result, answer in Vietnamese using only returned fields.",
           "parameters": {
             "type": "object",
             "properties": {

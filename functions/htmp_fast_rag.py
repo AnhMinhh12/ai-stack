@@ -24,7 +24,11 @@ class Filter:
         if last_user_index is not None:
             last_content = messages[last_user_index].get("content")
             normalized_last = re.sub(r"[^a-z0-9]+", " ", str(last_content).lower()).strip()
-            code_pattern = r"\b(?:\d{6,}|[a-z]{1,5}\d{2,})\b"
+            # Do not cap the alphabetic prefix: valid ERP material codes such
+            # as GCCKSC164 have six letters before their digits.  An explicit
+            # code in the current turn must never be treated as a follow-up
+            # referring to the previously remembered material.
+            code_pattern = r"\b(?:\d{6,}|(?=[a-z0-9/-]*\d)(?=[a-z0-9/-]*[a-z])[a-z0-9]+(?:[-/][a-z0-9]+)*)\b"
             followup_words = (
                 "đâu", "nào", "bao nhiêu", "thế", "còn", "thì sao",
                 "gần nhất", "gan nhat", "lấy lần nhất", "lay lan nhat",
@@ -59,8 +63,9 @@ class Filter:
             tool_ids.append("htmp_postgres_query")
 
         body["messages"] = add_or_update_system_message(
-            "You are HTMP ERP. For EVERY user request, call ask_erp FIRST. "
-            "A short follow-up must inherit filters from the relevant prior ERP request and call ask_erp again. Each new user question or new condition requires a NEW database query; never "
+            "You are HTMP ERP. For EVERY user request, make EXACTLY ONE native call to ask_erp FIRST. "
+            "After that call returns, answer immediately from its result; NEVER call ask_erp a second time in the same turn. "
+            "A short follow-up must inherit filters from the relevant prior ERP request and call ask_erp once. An explicit material code in the latest user message is a NEW identifier: it overrides every earlier material code, must be sent to ask_erp immediately, and must never trigger a clarification question. Each new user question or new condition requires a NEW database query; never "
             "reuse a previous tool result as the answer. Never invent table or column names "
             "and never ask the user for SQL. When a follow-up uses a reference such as 'mã này', "
             "include the resolved identifier and the relevant prior request in the ask_erp question. "
@@ -68,6 +73,7 @@ class Filter:
             "never say data is unavailable merely because RAG documents do not contain it. "
             "If ask_erp returns 'KẾT QUẢ ERP ĐÃ XÁC NHẬN', repeat that confirmed result "
             "VERBATIM and stop: add no interpretation, caveat, or commentary. Never replace it with a missing-data statement. "
+            "For a price response, inspect summary.bao_gia_ncc_gan_nhat. When it is non-empty, you MUST state the supplier-quote price before VAT AND after VAT, its unit, effective dates, and approval status. Do not omit either VAT price merely because it equals the latest purchase-order price. Also label the purchase-order price as historic and the supplier quote as a quote; never call a quote an actual purchase. "
             "If the tool returns multiple transaction rows, do not choose one arbitrarily: state the matching rows and ask for a date, receipt, or warehouse if one row is needed. "
             "A follow-up such as 'gần nhất' or 'lấy lần nhất' means query ERP immediately using the inherited identifier; do not ask the user to repeat it. "
             "Answer the user in Vietnamese.",
