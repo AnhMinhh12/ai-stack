@@ -12,7 +12,11 @@ commit="$(git rev-parse --verify HEAD)"
 short_commit="$(git rev-parse --short=12 HEAD)"
 image="${HTMP_REGISTRY}/${HTMP_REGISTRY_NAMESPACE}/open-webui-htmp"
 tag="git-${short_commit}"
-docker buildx build --platform linux/arm64 --provenance=true --sbom=true --push   --build-arg NODE_IMAGE="${NODE_IMAGE}"   --build-arg BUILD_HASH="${commit}"   --tag "${image}:${tag}"   --file Dockerfile.openwebui-speed-runtime .
+docker buildx build --platform linux/arm64 --provenance=true --sbom=false --push \
+  --build-arg NODE_IMAGE="${NODE_IMAGE}" \
+  --build-arg BUILD_HASH="${commit}" \
+  --tag "${image}:${tag}" \
+  --file Dockerfile.openwebui-speed-runtime .
 digest="$(docker buildx imagetools inspect "${image}:${tag}" --format '{{.Digest}}')"
 test -n "${digest}"
 printf 'HTMP_OPEN_WEBUI_IMAGE=%s@%s\nNODE_IMAGE=%s\n' "${image}" "${digest}" "${NODE_IMAGE}" > release-image.env
