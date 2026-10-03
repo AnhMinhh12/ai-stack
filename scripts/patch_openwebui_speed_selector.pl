@@ -15,15 +15,26 @@ $source =~ s{import Selector from './ModelSelector/Selector.svelte';}{import Sel
 $source =~ s{\tlet selector;\n}{\tlet selector;
 	const HTMP_FAST = 'htmp-nhanh';
 	const HTMP_DEEP = 'htmp-ky';
-	const modeItems = [
+	const HTMP_EXTERNAL = 'htmp-ngoai';
+
+	\$: internalIds = [HTMP_FAST, HTMP_DEEP, 'qwen2.5-14b'];
+	\$: externalModels = (\$models ?? []).filter((model) => !internalIds.includes(model.id));
+	\$: modeItems = [
 		{ value: HTMP_FAST, label: 'Nhanh' },
-		{ value: HTMP_DEEP, label: 'Kỹ' }
+		{ value: HTMP_DEEP, label: 'Kỹ' },
+		...(externalModels.length > 0
+			? externalModels.map((model) => ({
+				value: model.id,
+				label: externalModels.length === 1 ? 'Ngoài' : ('Ngoài (' + (model.name || model.id) + ')')
+			}))
+			: [{ value: HTMP_EXTERNAL, label: 'Ngoài' }])
 	];
 
-	\$: htmpConfigured = \$models.some((model) => model.id === HTMP_FAST) &&
-		\$models.some((model) => model.id === HTMP_DEEP);
-	\$: selectedMode = selectedModels[0] === HTMP_DEEP ? HTMP_DEEP : HTMP_FAST;
-	\$: if (htmpConfigured && ![HTMP_FAST, HTMP_DEEP].includes(selectedModels[0] ?? '')) {
+	\$: validModelIds = [HTMP_FAST, HTMP_DEEP, HTMP_EXTERNAL, ...externalModels.map((model) => model.id)];
+	\$: htmpConfigured = (\$models ?? []).some((model) => model.id === HTMP_FAST) &&
+		(\$models ?? []).some((model) => model.id === HTMP_DEEP);
+	\$: selectedMode = validModelIds.includes(selectedModels[0] ?? '') ? selectedModels[0] : HTMP_FAST;
+	\$: if (htmpConfigured && !validModelIds.includes(selectedModels[0] ?? '')) {
 		selectedModels = [HTMP_FAST];
 	}
 

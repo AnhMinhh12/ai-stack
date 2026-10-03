@@ -20,6 +20,8 @@ class OpenWebUISpeedSelectorPatchTests(unittest.TestCase):
 
         self.assertIn("label: 'Nhanh'", patched)
         self.assertIn("label: 'Kỹ'", patched)
+        self.assertIn("label: 'Ngoài'", patched)
+        self.assertIn("externalModels", patched)
         self.assertNotIn(r"\\u1ef9", patched)
         self.assertIn('side="top"', patched)
         self.assertIn('className="ml-1 size-3 rotate-180"', patched)

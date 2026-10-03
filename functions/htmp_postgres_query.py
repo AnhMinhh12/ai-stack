@@ -1275,8 +1275,10 @@ class Tools:
         except Exception:
             return "Không thể đọc catalog ERP. Kiểm tra cấu hình và quyền SELECT của tài khoản DB."
 
-        base_url = (os.getenv("OPENAI_API_BASE_URLS") or "http://vllm:8000/v1").split(",")[0].rstrip("/")
-        api_key = os.getenv("OPENAI_API_KEY", "")
+        urls = [u.strip() for u in (os.getenv("OPENAI_API_BASE_URLS") or "http://vllm:8000/v1").replace(";", ",").split(",") if u.strip()]
+        base_url = urls[0].rstrip("/") if urls else "http://vllm:8000/v1"
+        api_keys = [k.strip() for k in (os.getenv("OPENAI_API_KEYS") or os.getenv("OPENAI_API_KEY") or os.getenv("VLLM_API_KEY") or "").replace(";", ",").split(",") if k.strip()]
+        api_key = api_keys[0] if api_keys else os.getenv("VLLM_API_KEY", "")
         history = ""
         last_error = ""
         for _ in range(PLANNER_ATTEMPTS):
