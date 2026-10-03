@@ -54,6 +54,9 @@ services:
     # Lab fallback is not permitted by the release gate.
     image: ${HTMP_OPEN_WEBUI_IMAGE:?HTMP_OPEN_WEBUI_IMAGE must be an immutable registry digest}
     container_name: open-webui
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     networks:
       - frontend
       - inference

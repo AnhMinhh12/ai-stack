@@ -17,8 +17,8 @@ $source =~ s{\tlet selector;\n}{\tlet selector;
 	const HTMP_DEEP = 'htmp-ky';
 	const HTMP_EXTERNAL = 'htmp-ngoai';
 
-	\$: internalIds = [HTMP_FAST, HTMP_DEEP, 'qwen2.5-14b'];
-	\$: externalModels = (\$models ?? []).filter((model) => !internalIds.includes(model.id));
+	\$: internalIds = [HTMP_FAST, HTMP_DEEP, 'qwen2.5-14b', 'arena-model'];
+	\$: externalModels = (\$models ?? []).filter((model) => !internalIds.includes(model.id) && !model.arena);
 	\$: modeItems = [
 		{ value: HTMP_FAST, label: 'Nhanh' },
 		{ value: HTMP_DEEP, label: 'Kỹ' },
