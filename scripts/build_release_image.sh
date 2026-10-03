@@ -17,7 +17,11 @@ docker buildx build --platform linux/arm64 --provenance=true --sbom=false --push
   --build-arg BUILD_HASH="${commit}" \
   --tag "${image}:${tag}" \
   --file Dockerfile.openwebui-speed-runtime .
-digest="$(docker buildx imagetools inspect "${image}:${tag}" --format '{{.Digest}}')"
+digest="$(docker buildx imagetools inspect "${image}:${tag}" --format '{{.Digest}}' 2>/dev/null || true)"
+if [[ -z "${digest}" ]]; then
+  docker pull -q "${image}:${tag}" >/dev/null
+  digest="$(docker inspect --format='{{index .RepoDigests 0}}' "${image}:${tag}" | cut -d'@' -f2)"
+fi
 test -n "${digest}"
 printf 'HTMP_OPEN_WEBUI_IMAGE=%s@%s\nNODE_IMAGE=%s\n' "${image}" "${digest}" "${NODE_IMAGE}" > release-image.env
 echo "Published ${image}@${digest}"
