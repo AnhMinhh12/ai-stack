@@ -19,7 +19,7 @@ $source =~ s{\tlet selector;\n}{\tlet selector;
 
 	\$: internalIds = [HTMP_FAST, HTMP_DEEP, 'qwen2.5-14b', 'arena-model'];
 	\$: externalModels = (\$models ?? []).filter((model) => !internalIds.includes(model.id) && !model.arena);
-	const cleanModelName = (m) => (m?.name || m?.id || '').replace(/^models\//, '');
+	const cleanModelName = (m) => (m?.name || m?.id || '').replace('models/', '');
 
 	\$: modeItems = [
 		{ value: HTMP_FAST, label: 'Nhanh' },
