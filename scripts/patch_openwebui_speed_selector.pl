@@ -19,15 +19,17 @@ $source =~ s{\tlet selector;\n}{\tlet selector;
 
 	\$: internalIds = [HTMP_FAST, HTMP_DEEP, 'qwen2.5-14b', 'arena-model'];
 	\$: externalModels = (\$models ?? []).filter((model) => !internalIds.includes(model.id) && !model.arena);
+	const cleanModelName = (m) => (m?.name || m?.id || '').replace(/^models\//, '');
+
 	\$: modeItems = [
 		{ value: HTMP_FAST, label: 'Nhanh' },
 		{ value: HTMP_DEEP, label: 'Kỹ' },
 		...(externalModels.length > 0
 			? externalModels.map((model) => ({
 				value: model.id,
-				label: externalModels.length === 1 ? 'Ngoài' : ('Ngoài (' + (model.name || model.id) + ')')
+				label: cleanModelName(model)
 			}))
-			: [{ value: HTMP_EXTERNAL, label: 'Ngoài' }])
+			: [{ value: HTMP_EXTERNAL, label: 'gemini-3.8-flash' }])
 	];
 
 	\$: validModelIds = [HTMP_FAST, HTMP_DEEP, HTMP_EXTERNAL, ...externalModels.map((model) => model.id)];

@@ -20,7 +20,8 @@ class OpenWebUISpeedSelectorPatchTests(unittest.TestCase):
 
         self.assertIn("label: 'Nhanh'", patched)
         self.assertIn("label: 'Kỹ'", patched)
-        self.assertIn("label: 'Ngoài'", patched)
+        self.assertIn("cleanModelName", patched)
+        self.assertIn("label: 'gemini-3.8-flash'", patched)
         self.assertIn("externalModels", patched)
         self.assertNotIn(r"\\u1ef9", patched)
         self.assertIn('side="top"', patched)
