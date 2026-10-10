@@ -17,6 +17,9 @@ class Filter:
     async def inlet(
         self, body, __request__, __user__, __model__=None, __event_emitter__=None
     ):
+        model_id = (__model__ or {}).get("id") or body.get("model")
+        if model_id != "htmp-nhanh":
+            return body
         # Regular Open WebUI chats do not inherit a model's toolIds. Attach the
         # read-only ERP tool before middleware resolves tools for this request.
         messages = body.get("messages", [])

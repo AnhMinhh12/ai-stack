@@ -304,6 +304,17 @@ class InventoryMovementJournalContractTests(unittest.TestCase):
         )
         self.assertEqual(parsed["filters"], {"ma_vt": "1014082003", "ma_kho": "KHO-LAP-RAP"})
 
+    def test_location_stock_request_treats_kho_prefix_as_warehouse_not_material(self):
+        question = "lấy dữ liệu gồm vị trí, mã hàng, số lượng của KHOTP00"
+        self.assertEqual(ERP.extract_location_stock_warehouse(question), "KHOTP00")
+        self.assertEqual(ERP.extract_location_stock_warehouse("mã vật tư KHOTP00 có giá bao nhiêu"), "")
+        report = ERP.load_report_config("bao-cao-ton-lo-theo-vi-tri-kho")
+        self.assertEqual(report["sources"], ["cdbsp", "dmkho", "userinfo"])
+        self.assertEqual(
+            [column["field"] for column in report["columns"]],
+            ["ma_kho", "ma_vi_tri", "ma_vt", "ma_lo", "ton00"],
+        )
+
     def test_numeric_report_values_use_erp_screen_precision(self):
         self.assertEqual(ERP.format_report_field_value("sl_nhap", Decimal("0E-20")), "0.0000")
         self.assertEqual(ERP.format_report_field_value("ty_gia", Decimal("1")), "1.00000")

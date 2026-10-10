@@ -36,6 +36,10 @@ RUN npm run build
 
 FROM runtime
 COPY --from=frontend /src/build /app/build
+# The ERP tool is stored in the Open WebUI database, but its deterministic
+# semantic layer must be present in the runtime image.  Keeping it in the
+# image prevents a recreated container from losing the ``erp_ai`` import.
+COPY erp_ai /app/backend/erp_ai
 LABEL org.opencontainers.image.description="HTMP Open WebUI with immutable Speed selector source" \
       org.opencontainers.image.source="https://github.com/open-webui/open-webui" \
       org.opencontainers.image.revision="d3e8bf3405e848cfba377814d0aa7ba7290e414d"

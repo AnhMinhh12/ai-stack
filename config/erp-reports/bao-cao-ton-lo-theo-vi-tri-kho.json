@@ -1,1 +1,25 @@
-{"id":"bao-cao-ton-lo-theo-vi-tri-kho","title":"Báo cáo tồn lô theo vị trí tất cả kho","match_phrases":["báo cáo tồn lô theo vị trí tất cả kho"],"validation":{"status":"pending_ui_validation","required_ui_comparisons":3},"inputs":{"required":[],"filters":[]},"defaults":{"limit":200},"sources":["ct70"],"query_file":"bao-cao-ton-lo-theo-vi-tri-kho.sql","columns":[{"field":"id_oi","label":"Khóa nghiệp vụ","aliases":[]}],"output":{"metrics":[],"computed":["total"]},"execution_context":{"authenticated_user_id":"required_from_session","permission_scope":"userinfo.ds_branchs"}}
+{
+  "id": "bao-cao-ton-lo-theo-vi-tri-kho",
+  "title": "Báo cáo tồn lô theo vị trí",
+  "match_phrases": ["tồn lô theo vị trí", "vị trí mã hàng số lượng"],
+  "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
+  "inputs": {
+    "required": ["ma_kho"],
+    "filters": [
+      {"parameter": "ma_kho", "column": "cdbsp.ma_kho", "aliases": ["kho", "mã kho"], "value_type": "code"},
+      {"parameter": "ma_vt", "column": "cdbsp.ma_vt", "aliases": ["mã vật tư", "mã hàng"], "value_type": "code"}
+    ]
+  },
+  "execution_context": {"authenticated_user_id": "required_from_session", "permission_scope": "userinfo.ds_branchs + dmkho"},
+  "defaults": {"limit": 200},
+  "sources": ["cdbsp", "dmkho", "userinfo"],
+  "query_file": "bao-cao-ton-lo-theo-vi-tri-kho.sql",
+  "columns": [
+    {"field": "ma_kho", "label": "Mã kho", "aliases": ["kho"]},
+    {"field": "ma_vi_tri", "label": "Vị trí", "aliases": ["vị trí kho"]},
+    {"field": "ma_vt", "label": "Mã hàng", "aliases": ["mã vật tư"]},
+    {"field": "ma_lo", "label": "Mã lô", "aliases": ["lô"]},
+    {"field": "ton00", "label": "Số lượng tồn", "aliases": ["số lượng"]}
+  ],
+  "output": {"metrics": ["ton00", "du00"], "computed": ["total"]}
+}

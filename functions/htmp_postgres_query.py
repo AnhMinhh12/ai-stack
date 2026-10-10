@@ -385,6 +385,32 @@ def merge_report_filters(parsed_filters: dict[str, str], resolved_filters: dict[
     }
 
 
+def extract_location_stock_warehouse(question: str) -> str:
+    """Recognize a warehouse in a location-level stock request.
+
+    Warehouse codes such as ``KHOTP00`` also match the general material-code
+    pattern.  Treat them as warehouses only in the unambiguous request shape
+    that asks for location, item code, and on-hand quantity.
+    """
+    normalized = normalize_text(question)
+    needs_location_stock = (
+        "vi tri" in normalized
+        and ("ma hang" in normalized or "ma vat tu" in normalized)
+        and ("so luong" in normalized or "sl" in normalized)
+    )
+    if not needs_location_stock:
+        return ""
+    compact_code = re.search(r"\b(KHO[A-Z0-9]+(?:[-/][A-Z0-9]+)*)\b", question or "", re.I)
+    if compact_code:
+        return compact_code.group(1).upper()
+    labelled_code = re.search(
+        r"\b(?:ma\s*)?kho\s*[:#-]?\s*([A-Z0-9]+(?:[-/][A-Z0-9]+)*)\b",
+        question or "",
+        re.I,
+    )
+    return labelled_code.group(1).upper() if labelled_code else ""
+
+
 class Tools:
     def get_erp_schema(self, search: str = "") -> str:
         """Tìm bảng và cột ERP trước khi trả lời câu hỏi tự nhiên.
@@ -1155,6 +1181,65 @@ class Tools:
             default=str,
         )
 
+    def _inventory_location_balance(self, question: str, authenticated_user_id: int | None) -> str | None:
+        """Return current location-level balances from the fixed ERP report."""
+        warehouse_code = extract_location_stock_warehouse(question)
+        if not warehouse_code:
+            return None
+        if authenticated_user_id is None:
+            return "Không có mapping ERP hợp lệ cho phiên chat; báo cáo tồn theo vị trí vẫn bị chặn an toàn."
+        try:
+            report = load_report_config("bao-cao-ton-lo-theo-vi-tri-kho")
+            query = load_report_sql(report)
+            configured_limit = int(report.get("defaults", {}).get("limit", MAX_ROWS))
+            row_limit = min(configured_limit, MAX_ROWS)
+        except Exception:
+            return "Cấu hình báo cáo tồn theo vị trí chưa sẵn sàng."
+        year_match = re.search(r"\b(20\d{2})\b", question)
+        inventory_year = int(year_match.group(1)) if year_match else date.today().year
+        try:
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute(query, (inventory_year, warehouse_code, "", authenticated_user_id, row_limit + 1))
+                    columns = [item.name for item in cursor.description]
+                    raw_rows = cursor.fetchmany(row_limit + 1)
+        except Exception:
+            return "Không thể tra tồn kho theo vị trí trong ERP."
+        rows = [
+            dict(zip(columns, (json_value(value) for value in row)))
+            for row in raw_rows[:row_limit]
+        ]
+        result_rows = [
+            {
+                "ma_vi_tri": row.get("ma_vi_tri"),
+                "ma_hang": row.get("ma_vt"),
+                "so_luong": row.get("ton00"),
+            }
+            for row in rows
+        ]
+        return json.dumps(
+            {
+                "report": {"id": report["id"], "title": report["title"]},
+                "source": report["sources"],
+                "query_scope": "manifest_and_fixed_sql_only",
+                "lookup": {"nam": inventory_year, "ma_kho": warehouse_code},
+                "requested_columns": [
+                    {"field": "ma_vi_tri", "label": "Vị trí"},
+                    {"field": "ma_vt", "label": "Mã hàng"},
+                    {"field": "ton00", "label": "Số lượng tồn"},
+                ],
+                "matched_row_count": len(rows),
+                "row_count": len(result_rows),
+                "truncated": len(raw_rows) > row_limit,
+                "rows": result_rows,
+            },
+            ensure_ascii=False,
+            default=str,
+        )
+
     def _material_work_code(self, question: str) -> str | None:
         """Look up the master Mã vụ việc associated with a material."""
         normalized = normalize_text(question)
@@ -1185,10 +1270,13 @@ class Tools:
         question = (question or "").strip()
         if not question:
             return "Cần cung cấp câu hỏi ERP để tra cứu."
+        authenticated_user_id = trusted_erp_user_id(__user__)
+        location_balance = self._inventory_location_balance(question, authenticated_user_id)
+        if location_balance is not None:
+            return location_balance
         try:
             journal_report = load_report_config("nhat-ky-nhap-xuat-ton")
             if parse_report_request(question, journal_report)["matches_report"]:
-                authenticated_user_id = trusted_erp_user_id(__user__)
                 if authenticated_user_id is None:
                     return "Không có mapping ERP hợp lệ cho phiên chat; báo cáo vẫn bị chặn an toàn."
                 return self._inventory_movement_journal(question, authenticated_user_id)

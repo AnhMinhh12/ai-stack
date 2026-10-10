@@ -22,6 +22,10 @@ class Filter:
     async def inlet(
         self, body, __request__, __user__, __model__=None, __event_emitter__=None
     ):
+        model_id = (__model__ or {}).get("id") or body.get("model")
+        if model_id != "htmp-ky":
+            return body
+
         body["messages"] = add_or_update_system_message(
             "You are HTMP Dữ liệu nội bộ. Answer only from the retrieved internal documents "
             "and cite the sources. Do not call ERP tools and do not claim that an ERP lookup "
