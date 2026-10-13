@@ -13,6 +13,12 @@ Hệ thống ERP:
 | 4 | Bảng kê phiếu xuất kho bán hàng | Bán hàng → Bảng kê → Bảng kê phiếu xuất kho bán hàng |
 | 5 | Bảng kê lệnh giao hàng | Bán hàng → Bảng kê → Bảng kê lệnh giao hàng |
 | 6 | Báo cáo tiến độ giao hàng | Bán hàng → Báo cáo → Báo cáo tiến độ giao hàng |
+| 7 | Danh mục bảng giá | Bán hàng → Chính sách bán hàng → Danh mục bảng giá |
+| 8 | Bảng kê đơn hàng bán | Bán hàng → Bảng kê → Bảng kê đơn hàng bán |
+| 9 | Tổng hợp bán hàng | Bán hàng → Báo cáo → Tổng hợp bán hàng |
+| 10 | Doanh số bán hàng theo khách hàng | Bán hàng → Báo cáo → Doanh số bán hàng theo khách hàng |
+| 11 | Danh mục khách hàng | Bán hàng → Danh mục khai báo → Danh mục khách hàng |
+| 12 | Phiếu yêu cầu đổi, trả hàng bán | Bán hàng → Quy trình đổi trả hàng bán → Phiếu yêu cầu đổi, trả hàng bán |
 
 ### Đơn hàng (Hợp đồng) — các cột
 
@@ -169,6 +175,17 @@ Hệ thống ERP:
 | 20 | Ngày GH kế hoạch |
 | 21 | Ngày GH thực tế |
 | 22 | Tình trạng đơn hàng |
+
+### Màn hình bổ sung đã xác nhận từ ERP
+
+| Màn hình | Cột UI đã xác nhận | Trạng thái tích hợp dữ liệu |
+| --- | --- | --- |
+| Danh mục bảng giá | Mã ĐVCS, Mã bảng giá, Tên bảng giá, Loại bán, Loại bảng giá, Trạng thái | Cần lấy API/bảng chi tiết giá theo mã hàng để trả MOQ, giá và hiệu lực. |
+| Bảng kê đơn hàng bán | Ngày, Mã ĐVCS, Số CT, Số PO KH, Mã/Tên vật tư, ĐVT, Mã kho, ngày yêu cầu/giao hàng, số lượng, giá chuẩn, giá bán, tiền bán, chiết khấu, thuế, thanh toán, trạng thái | Đã ánh xạ vào artifact `don-hang-hop-dong` (`ph64`/`ct64`). |
+| Tổng hợp bán hàng | Mã/Tên vật tư, ĐVT, Số lượng, Nhóm VT 1–5 | Cần xác minh nguồn và chỉ số tiền trước khi dùng cho doanh thu. |
+| Doanh số bán hàng theo khách hàng | Mã/Tên khách hàng, Mã/Tên vật tư, số lượng, doanh số theo kỳ | Cần lấy API/bảng nguồn và bộ lọc kỳ. |
+| Danh mục khách hàng | Mã/Tên khách hàng, tên viết tắt, liên hệ, điện thoại, email, địa chỉ, nhân viên phụ trách, nhóm KH, công nợ, thanh toán | Nguồn master dự kiến `dmkh`; cần xác minh scope/cột trước khi mở tra cứu AI. |
+| Phiếu yêu cầu đổi, trả hàng bán | Trạng thái, ngày/số CT, mã/tên giao dịch, mã/tên khách hàng, liên hệ, tiền tệ, tỷ giá, tổng số lượng, tổng tiền, chiết khấu, thanh toán | Cần lấy mã chứng từ, header/dòng và liên kết giao bù NG. |
 
 ## Mua hàng
 
@@ -472,6 +489,8 @@ Hệ thống ERP:
 | 12 | Báo cáo tồn theo kho | Kho vận → Báo cáo → Báo cáo tồn theo kho |
 | 13 | Tổng hợp nhập xuất tồn | Kho vận → Báo cáo → Tổng hợp nhập xuất tồn |
 | 14 | Tổng hợp nhập xuất tồn theo lô | Kho vận → Báo cáo → Tổng hợp nhập xuất tồn theo lô |
+| 15 | Báo cáo tồn kho theo số khuôn | Kho vận → Báo cáo → Báo cáo tồn kho theo số khuôn |
+| 16 | Báo cáo tồn kho theo trạng thái tem | Kho vận → In tem QR code → Báo cáo tồn kho theo trạng thái tem |
 
 ### Phiếu xuất kho — các cột
 
@@ -728,6 +747,13 @@ Hệ thống ERP:
 | 3 | ĐVT |
 | 4 | Nhóm VT 6 (KH/NCC) |
 | 5 | Tên nhóm |
+
+### Màn hình tồn kho bổ sung đã xác nhận từ ERP
+
+| Màn hình | Cột UI đã xác nhận | Trạng thái tích hợp dữ liệu |
+| --- | --- | --- |
+| Báo cáo tồn kho theo số khuôn | Mã/Tên vật tư, ĐVT, Nhóm VT6, Mã lô, Die No, Mã kho, Mã/Tên vị trí, Mã khuôn, Tồn vị trí | Cần xác minh bảng nguồn và hạt dữ liệu vật tư–lô–vị trí–khuôn. |
+| Báo cáo tồn kho theo trạng thái tem | Mã/Tên vật tư, ĐVT, Nhóm VT6, Mã lô, Mã kho, Mã/Tên vị trí, Tồn vị trí, Trạng thái QC | Cần xác minh bảng nguồn và mapping trạng thái QC/tem. |
 
 ### Tổng hợp nhập xuất tồn — các cột
 

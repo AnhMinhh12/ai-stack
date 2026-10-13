@@ -64,8 +64,15 @@ def main() -> int:
         )
     capabilities = {"file_context": True, "file_upload": True, "citations": True, "status_updates": True, "builtin_tools": True, "web_search": False, "memory": False}
     for item in cfg["models"]:
-        if not conn.execute("select 1 from model where id=?", (item["base_model_id"],)).fetchone():
-            fail(f"base model missing: {item['base_model_id']}")
+        base_id = item["base_model_id"]
+        if not conn.execute("select 1 from model where id=?", (base_id,)).fetchone():
+            if base_id.startswith("models/"):
+                conn.execute(
+                    "insert into model (id,user_id,base_model_id,name,params,meta,updated_at,created_at,is_active) values (?,?,NULL,?,?,?,?,?,1)",
+                    (base_id, owner_id, base_id, json.dumps({}), json.dumps({}), now, now)
+                )
+            else:
+                fail(f"base model missing: {base_id}")
         row = conn.execute("select meta from model where id=?", (item["id"],)).fetchone()
         meta = json.loads(row[0]) if row else {}
         meta.update({
@@ -80,6 +87,22 @@ def main() -> int:
             "on conflict(id) do update set user_id=excluded.user_id,base_model_id=excluded.base_model_id,name=excluded.name,params=excluded.params,meta=excluded.meta,updated_at=excluded.updated_at,is_active=1",
             (item["id"], owner_id, item["base_model_id"], item["name"], json.dumps(item["params"]), json.dumps(meta), now, now, 1),
         )
+
+    # Ensure external model IDs are enabled in openai.api_configs
+    row = conn.execute("select value from config where key='openai.api_configs'").fetchone()
+    if row and row[0]:
+        try:
+            api_configs = json.loads(row[0])
+            if "1" in api_configs:
+                model_ids = api_configs["1"].get("model_ids", [])
+                for target_id in ["models/gemini-3.1-flash-lite", "models/gemini-3.5-flash-lite"]:
+                    if target_id not in model_ids:
+                        model_ids.append(target_id)
+                api_configs["1"]["model_ids"] = model_ids
+                conn.execute("update config set value=? where key='openai.api_configs'", (json.dumps(api_configs),))
+        except Exception:
+            pass
+
     conn.commit()
     print("bootstrap apply: PASS")
     return 0

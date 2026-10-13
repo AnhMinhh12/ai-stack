@@ -1,6 +1,6 @@
 {
   "id": "don-hang-hop-dong", "title": "Đơn hàng (Hợp đồng)",
-  "match_phrases": ["đơn hàng (hợp đồng)", "đơn hàng hợp đồng", "bảng kê đơn hàng"],
+  "match_phrases": ["đơn hàng (hợp đồng)", "đơn hàng hợp đồng", "bảng kê đơn hàng", "bảng kê đơn hàng bán"],
   "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
   "inputs": {"required": ["tu_ngay", "den_ngay"], "filters": [
     {"parameter": "so_ct", "column": "so_ct", "aliases": ["số đơn", "số chứng từ"], "value_type": "code"},
@@ -35,7 +35,14 @@
     {"field": "t_tien", "label": "Tổng tiền", "aliases": ["tiền hàng"]},
     {"field": "t_thue", "label": "Thuế", "aliases": ["tiền thuế"]},
     {"field": "t_ck", "label": "Chiết khấu", "aliases": ["ck"]},
-    {"field": "t_tt", "label": "Thanh toán", "aliases": ["tổng thanh toán"]}
+    {"field": "t_tt", "label": "Thanh toán", "aliases": ["tổng thanh toán"]},
+    {"field": "ma_kho", "label": "Mã kho", "aliases": ["kho"]},
+    {"field": "ngay_yc_gh", "label": "Ngày YC giao hàng", "aliases": ["ngày yêu cầu giao hàng"]},
+    {"field": "ngay_gh", "label": "Ngày giao hàng", "aliases": ["ngày giao"]},
+    {"field": "so_luong", "label": "Số lượng", "aliases": []},
+    {"field": "so_luong_gh", "label": "Số lượng giao hàng", "aliases": []},
+    {"field": "tien2", "label": "Tiền bán", "aliases": ["doanh thu"]},
+    {"field": "ck", "label": "Tiền CK", "aliases": ["chiết khấu"]}
   ],
   "ui_column_mapping": {
     "status": "sys_dmtt.statusname (ph64.status, ma_ct = SO1)",

@@ -13,7 +13,15 @@ def main() -> int:
     parser.add_argument("--owner-email", required=True)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    required = [ROOT / "config/htmp-rag-models.json", ROOT / "config/erp-business-intents.json", ROOT / "functions/htmp_fast_rag.py", ROOT / "functions/htmp_technical_rag.py", ROOT / "functions/htmp_postgres_query.py", ROOT / "scripts/openwebui_bootstrap_runtime.py"]
+    required = [
+        ROOT / "config/htmp-rag-models.json",
+        ROOT / "config/erp-business-intents.json",
+        ROOT / "functions/htmp_fast_rag.py",
+        ROOT / "functions/htmp_technical_rag.py",
+        ROOT / "functions/htmp_postgres_query.py",
+        ROOT / "functions/htmp_rate_limit_fallback.py",
+        ROOT / "scripts/openwebui_bootstrap_runtime.py",
+    ]
     report_dirs = [ROOT / "config/erp-reports", ROOT / "sql/erp-reports"]
     package_dirs = [ROOT / "erp_ai"]
     if missing := [str(path) for path in required if not path.is_file()]:

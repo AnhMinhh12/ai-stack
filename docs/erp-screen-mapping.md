@@ -27,6 +27,12 @@
 | Bảng kê phiếu xuất kho bán hàng | `SOBKHoaDonBH`; `sobkhda` | `ph81`, `ct81`, `ctkhgh`, `ctlo`; tra `dmkh`, `dmvt`, `userinfo`. |
 | Bảng kê lệnh giao hàng | `SOBKLenhGiaoHang`; `sobklenhgiaohang` | `ph96`, `ct96`, `ct96lo`, `ctkhgh`; tra `dmkh`, `dmvt`. |
 | Báo cáo tiến độ giao hàng | `SOBCTienDoGH`; `sobctiendogh` | Chuỗi đơn–lệnh–xuất: `ph64/ct64`, `ph96/ct96/ctkhgh`, `ph81/ct81`; tra `dmkh`, `dmvt`, `sys_dmtt`, `userinfo`. |
+| Bảng kê đơn hàng bán | `SOBKDonHang`; `sobkdonhang` | Cùng hạt dữ liệu dòng đơn `ph64/ct64`; sử dụng artifact `don-hang-hop-dong`, mở rộng các cột lịch giao, kho, số lượng và tiền bán từ UI. |
+| Danh mục bảng giá | Catalog xác minh | `dmbanggia` (header) + `dmbanggiact` (dòng giá). Khóa: `ma_bang_gia` + `ma_vt` + `ma_kh`/nhóm KH + `sl_min` + khoảng hiệu lực. |
+| Tổng hợp bán hàng | `SOBCTongHopBH`; `sobctonghopbh` | Function dùng `ph81`, `dmkh`, trạng thái và các bảng cấu hình; output là tổng hợp theo vật tư/nhóm. Chỉ số doanh thu phải đối chiếu UI trước khi phát hành SQL cố định. |
+| Doanh số bán hàng theo khách hàng | `SOBCDSKH`; `sobcdskh` | `ph81` + `ct81`, tra `dmkh`, `dmvt`, trạng thái; có thêm `ph76` trong logic report. Hạt UI: khách hàng → vật tư → kỳ. |
+| Danh mục khách hàng | Catalog xác minh | `dmkh`, khóa `ma_kh`; cần áp dụng phạm vi `ds_ma_dvcs` tương đương quyền ERP trước khi phát hành SQL cố định. |
+| Phiếu yêu cầu đổi, trả hàng bán | `SOBKYCDoitra`; `sobkycdoitra` | `ph66` (header) + `ct66` (dòng), tra `dmkh`, `dmvt`, `dmvv`, trạng thái và `userinfo`. Dòng trả có liên kết đơn/hóa đơn qua `stt_rec_dh`/`stt_rec_hda`. |
 
 ## Mua hàng
 
@@ -61,6 +67,8 @@
 | Báo cáo tồn theo kho | `InBCTonTheoKho`; `inbctontheokho` | `ct70`; tra `dmvt`, `dmkho`, `dmnhvt`, `cdvt`. Grain: vật tư + kho + ngày chốt. |
 | Tổng hợp nhập xuất tồn | `InBCTHNXT`; `inbcthnxt` | `ct70` và `ct84`, tra `dmvt`, `dmkho`, `cdvt`; tồn đầu/phát sinh/tồn cuối là các giá trị tính. |
 | Tổng hợp nhập xuất tồn theo lô | Cần bắt API UI | Dùng họ function tồn lô (`inbctontheolo`/`inbctonlotheokho`) nhưng chưa thấy state đúng tên trong cấu hình; phải xác minh endpoint. |
+| Báo cáo tồn kho theo số khuôn | `InBCTonKhoTheoSoKhuon`; `inbctonkhotheosokhuon` | `intem_log` là nguồn tem/tồn, tra `dmvt`, `dmlo`, `dmkho`, `dmvitri`; function áp dụng `sys_getrolerecord`. Hạt UI: vật tư–lô–kho–vị trí–khuôn. |
+| Báo cáo tồn kho theo trạng thái tem | `InBCTKTheoTTTem`; `inbctktheotttem` | `intem_log` + `dmvt`; trạng thái QC hiển thị được resolve qua `sys_listoptions`, cấu hình lưới qua `sys_gridconfig`. Hạt UI: vật tư–lô–kho–vị trí–trạng thái QC. |
 
 ## Sản xuất và New model
 
