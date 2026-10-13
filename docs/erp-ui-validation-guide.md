@@ -118,6 +118,19 @@ luôn kiểm tra bằng một ĐVCS được phép và một trường hợp kh�
 
 ## Điều kiện chấp nhận và cập nhật trạng thái
 
+## Báo cáo bổ sung từ sales_question.xlsx
+
+| Màn / ID | Đối chiếu trên UI | Ba case cần gửi lại |
+| --- | --- | --- |
+| So sánh DO và FCST / `so-sanh-do-fcst` | Cùng mã hàng/khách, đối chiếu hai lần chụp `ngay_tinh_toan`; kiểm nguồn `FC` và `SO`, loại dữ liệu và chênh lệch. | (1) FC có hai snapshot; (2) SO/PO cùng mã hàng; (3) lọc khách hàng và ngày chụp. |
+| Quy cách đóng gói và tồn quy đổi / `quy-cach-dong-goi-ton-kho` | Danh mục vật tư: quy cách, mã thùng, SL thùng/pallet; tồn tem cùng kho. Kiểm công thức `tồn / SL thùng-pallet`. | (1) Mã có quy cách khác 0; (2) mã chưa khai báo quy cách; (3) cùng mã ở hai kho. |
+| Dự báo tuổi thọ khuôn / `du-bao-tuoi-tho-khuon` | Hồ sơ khuôn: tổng shot/giới hạn shot; quan hệ khuôn–SP; demand FC/SO tương lai. | (1) khuôn một SP; (2) khuôn nhiều SP; (3) khuôn thiếu giới hạn shot hoặc không có demand. |
+| Đối soát giao bù NG / `doi-soat-giao-bu-ng` | Lệnh giao hàng có `ma_gd=10` và Phiếu yêu cầu đổi/trả hàng bán có `ma_gd=1`; cùng khách hàng, mã hàng và kỳ. | (1) có cả giao bù và nhận lại; (2) chỉ giao bù; (3) chỉ nhận lại. |
+
+Mỗi case cần ảnh hoặc Excel xuất từ UI thể hiện rõ bộ lọc, tổng dòng và các cột
+được nêu ở bảng. Không dùng ảnh đã che ngày/kho/mã hàng vì không thể tái lập
+kết quả SQL.
+
 - Không có sai lệch số dòng, cột, tổng số lượng/giá trị, đơn vị, trạng thái,
   ngày hoặc dữ liệu ngoài ĐVCS/quyền được phép.
 - Mỗi case ghi `ui_filter`, `ui_export_or_screenshot`, `sql_parameters`,

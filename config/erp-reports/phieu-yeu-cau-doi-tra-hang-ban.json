@@ -1,0 +1,36 @@
+{
+  "id": "phieu-yeu-cau-doi-tra-hang-ban",
+  "title": "Phiếu yêu cầu đổi, trả hàng bán",
+  "match_phrases": ["phiếu yêu cầu đổi trả hàng bán", "đổi trả hàng bán", "hàng ng nhận lại"],
+  "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
+  "inputs": {
+    "required": ["tu_ngay", "den_ngay"],
+    "filters": [
+      {"parameter": "ma_kh", "column": "ph66.ma_kh", "aliases": ["mã khách hàng", "mã khách"], "value_type": "code"},
+      {"parameter": "ma_vt", "column": "ct66.ma_vt", "aliases": ["mã vật tư", "mã hàng"], "value_type": "code"},
+      {"parameter": "status", "column": "ph66.status", "aliases": ["trạng thái"], "value_type": "code"}
+    ]
+  },
+  "execution_context": {"authenticated_user_id": "required_from_session", "permission_scope": "userinfo.ds_branchs + dmkho"},
+  "defaults": {"limit": 200},
+  "sources": ["ph66", "ct66", "dmkh", "dmvt", "dmvv", "sys_dmtt", "userinfo", "dmkho"],
+  "query_file": "phieu-yeu-cau-doi-tra-hang-ban.sql",
+  "columns": [
+    {"field": "status", "label": "Trạng thái", "aliases": []},
+    {"field": "ngay_ct", "label": "Ngày CT", "aliases": ["ngày chứng từ"]},
+    {"field": "so_ct", "label": "Số CT", "aliases": ["số chứng từ"]},
+    {"field": "ma_gd", "label": "Mã giao dịch", "aliases": []},
+    {"field": "ma_kh", "label": "Mã khách hàng", "aliases": ["mã khách"]},
+    {"field": "ten_kh", "label": "Tên khách hàng", "aliases": ["tên khách"]},
+    {"field": "ma_vt", "label": "Mã vật tư", "aliases": ["mã hàng"]},
+    {"field": "ten_vt", "label": "Tên vật tư", "aliases": ["tên hàng"]},
+    {"field": "ma_kho", "label": "Mã kho", "aliases": ["kho"]},
+    {"field": "so_luong", "label": "Số lượng", "aliases": []},
+    {"field": "tien_ban", "label": "Tổng tiền", "aliases": ["tiền trả"]},
+    {"field": "ck", "label": "Chiết khấu", "aliases": []},
+    {"field": "t_tt", "label": "Thanh toán", "aliases": []},
+    {"field": "so_ct_dh", "label": "Số đơn hàng liên kết", "aliases": ["số đơn hàng"]},
+    {"field": "so_ct_hda", "label": "Số phiếu xuất liên kết", "aliases": []}
+  ],
+  "output": {"metrics": ["so_luong", "tien_ban", "ck", "t_tt"], "computed": []}
+}

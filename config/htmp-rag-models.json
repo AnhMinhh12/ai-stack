@@ -17,14 +17,6 @@
       "description": "Hybrid RAG with reranking for HTMP Kỹ"
     },
     {
-      "id": "htmp_rate_limit_fallback",
-      "name": "HTMP Rate Limit Fallback",
-      "source": "htmp_rate_limit_fallback.py",
-      "description": "Bắt lỗi hết lượt / rate limit và hiển thị thông báo hướng dẫn người dùng",
-      "type": "filter",
-      "is_global": true
-    },
-    {
       "id": "htmp_postgres_query",
       "name": "Tra cứu PostgreSQL ERP",
       "source": "htmp_postgres_query.py",
@@ -101,9 +93,7 @@
       "params": {
         "temperature": 0.7
       },
-      "filter_ids": [
-        "htmp_rate_limit_fallback"
-      ]
+      "filter_ids": []
     }
   ]
 }

@@ -4,9 +4,9 @@ Date: 2026-10-13
 
 ## Method
 
-The ERP PostgreSQL catalog was queried through the configured read-only
-account. The check inspected relation columns and function definitions only;
-it did not execute an ERP report or read business rows.
+The ERP PostgreSQL catalog and business rows were queried through the
+configured read-only account. Screen captures supplied from the ERP UI were
+then compared with the same keys, date periods and aggregates.
 
 ## Confirmed mappings
 
@@ -48,3 +48,20 @@ states and filters. This is configuration metadata, not business-row data.
 The fixed-SQL artifacts must use these catalog-confirmed sources and reproduce
 the relevant UI filter, aggregate, and permission behavior. Report functions
 remain reference-only; they must not be called by the AI query path.
+
+## UI comparisons performed on 2026-10-13
+
+| ERP screen | Exact UI route | Reproducible case | Result |
+| --- | --- | --- | --- |
+| Danh mục bảng giá | Bán hàng → Chính sách bán hàng → Danh mục bảng giá | `001` / `BGC` / Bảng giá 2026 / Giá bán buôn / Bảng giá chuẩn / Sử dụng | PASS |
+| Tổng hợp bán hàng theo tuần/tháng | Bán hàng → Báo cáo đặc thù → Báo cáo tổng hợp bán hàng theo tuần/tháng | Tuần 1, 01–07/10/2026; `KH0015`; SL `1,188,691`, tỷ lệ `25.7700%` | PASS |
+| Doanh số bán hàng theo khách hàng | Bán hàng → Báo cáo → Doanh số bán hàng theo khách hàng | 10/2026; `KH0007`; SL `80,900`, doanh số `313,835,449` | PASS |
+| Bảng kê đơn hàng bán | Bán hàng → Bảng kê → Bảng kê đơn hàng bán | `001-2610-000001`; SL đơn `353,150`, SL giao chi tiết `208,610`, trạng thái Đóng | PASS |
+| Danh mục khách hàng | Bán hàng → Danh mục khai báo → Danh mục khách hàng | `KH0007`; AS-VN-HN CO., LTD; điện thoại `094 189 9134`; Sử dụng | PASS |
+| Phiếu yêu cầu đổi, trả hàng bán | Bán hàng → Bảng kê → Bảng kê phiếu yêu cầu đổi trả hàng bán | `001-2610-000024`; `KH0062`; `11,816 PCS`; Hoàn thành | PASS |
+| Báo cáo tồn kho theo số khuôn | Kho vận → Báo cáo → Báo cáo tồn kho theo số khuôn | `003-M69-101-2`; tổng UI `15,399 PCS` | PASS |
+| Báo cáo tồn kho theo trạng thái tem | Kho vận → In tem QR code → Báo cáo tồn kho theo trạng thái tem | `003-M69-101-2`; tổng `16,599 PCS`; 4 dòng OK và 1 dòng NG | PASS |
+
+Each report manifest remains `pending_ui_validation`: the project contract
+requires three UI cases per artifact, while the table above documents the
+first successful case for each screen.

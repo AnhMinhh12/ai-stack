@@ -1,0 +1,17 @@
+{
+  "id": "bao-cao-ton-kho-theo-so-khuon", "title": "Báo cáo tồn kho theo số khuôn",
+  "match_phrases": ["tồn kho theo số khuôn", "tồn theo khuôn", "mã hàng theo khuôn"],
+  "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
+  "inputs": {"required": ["tu_ngay", "den_ngay"], "filters": [
+    {"parameter":"ma_vt","column":"intem_log.data_tem.ma_vt","aliases":["mã vật tư","mã hàng"],"value_type":"code"},
+    {"parameter":"ma_kho","column":"intem_log.ma_kho","aliases":["mã kho","kho"],"value_type":"code"},
+    {"parameter":"ma_lo","column":"intem_log.data_tem.ma_lo","aliases":["mã lô","lô"],"value_type":"code"},
+    {"parameter":"ma_khuon","column":"intem_log.data_tem.ma_khuon","aliases":["mã khuôn","khuôn"],"value_type":"code"}
+  ]},
+  "execution_context":{"authenticated_user_id":"required_from_session","permission_scope":"userinfo.ds_branchs + dmkho"},
+  "defaults":{"limit":200}, "sources":["intem_log","dmvt","dmlo","dmkho","dmvitri","userinfo"],
+  "query_file":"bao-cao-ton-kho-theo-so-khuon.sql",
+  "columns":[
+    {"field":"ma_vt","label":"Mã vật tư","aliases":["mã hàng"]},{"field":"ten_vt","label":"Tên vật tư","aliases":["tên hàng"]},{"field":"dvt","label":"ĐVT","aliases":["đơn vị tính"]},{"field":"nh_vt6","label":"Nhóm VT6","aliases":[]},{"field":"ma_lo","label":"Mã lô","aliases":["lô"]},{"field":"die_no","label":"Die No","aliases":[]},{"field":"ma_kho","label":"Mã kho","aliases":["kho"]},{"field":"ma_vi_tri","label":"Mã vị trí","aliases":["vị trí"]},{"field":"ma_khuon","label":"Mã khuôn","aliases":["khuôn"]},{"field":"ton_vi_tri","label":"Tồn vị trí","aliases":["số lượng tồn"]}
+  ], "output":{"metrics":["ton_vi_tri"],"computed":[]}
+}

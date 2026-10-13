@@ -1,0 +1,34 @@
+{
+  "id": "danh-muc-bang-gia",
+  "title": "Danh mục bảng giá",
+  "match_phrases": ["danh mục bảng giá", "bảng giá bán", "moq báo giá", "giá áp dụng hiện tại"],
+  "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
+  "inputs": {"required": [], "filters": [
+    {"parameter": "ma_bang_gia", "column": "dmbanggia.ma_bang_gia", "aliases": ["mã bảng giá", "bảng giá"], "value_type": "code"},
+    {"parameter": "ma_vt", "column": "dmbanggiact.ma_vt", "aliases": ["mã vật tư", "mã hàng"], "value_type": "code"},
+    {"parameter": "ma_kh", "column": "dmbanggiact.ma_kh", "aliases": ["mã khách hàng", "mã khách"], "value_type": "code"},
+    {"parameter": "status", "column": "dmbanggia.status", "aliases": ["trạng thái"], "value_type": "code"}
+  ]},
+  "execution_context": {"authenticated_user_id": "required_from_session", "permission_scope": "userinfo.ds_branchs + dmbanggia.ma_dvcs"},
+  "defaults": {"limit": 200},
+  "sources": ["dmbanggia", "dmbanggiact", "dmvt", "dmkh", "userinfo"],
+  "query_file": "danh-muc-bang-gia.sql",
+  "columns": [
+    {"field": "ma_dvcs", "label": "Mã ĐVCS", "aliases": ["đvcs"]},
+    {"field": "ma_bang_gia", "label": "Mã bảng giá", "aliases": []},
+    {"field": "ten_bang_gia", "label": "Tên bảng giá", "aliases": []},
+    {"field": "loai_ban", "label": "Loại bán", "aliases": []},
+    {"field": "loai_bang_gia", "label": "Loại bảng giá", "aliases": []},
+    {"field": "ma_vt", "label": "Mã vật tư", "aliases": ["mã hàng"]},
+    {"field": "ten_vt", "label": "Tên vật tư", "aliases": ["tên hàng"]},
+    {"field": "ma_kh", "label": "Mã khách hàng", "aliases": ["mã khách"]},
+    {"field": "ten_kh", "label": "Tên khách hàng", "aliases": ["tên khách"]},
+    {"field": "sl_min", "label": "MOQ", "aliases": ["số lượng tối thiểu"]},
+    {"field": "gia0", "label": "Giá trước VAT", "aliases": []},
+    {"field": "gia", "label": "Giá sau VAT", "aliases": ["giá áp dụng"]},
+    {"field": "ngay_bd", "label": "Ngày hiệu lực từ", "aliases": []},
+    {"field": "ngay_kt", "label": "Ngày hiệu lực đến", "aliases": []},
+    {"field": "status", "label": "Trạng thái", "aliases": []}
+  ],
+  "output": {"metrics": ["sl_min", "gia0", "gia"], "computed": []}
+}

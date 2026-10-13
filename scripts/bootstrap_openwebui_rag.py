@@ -19,7 +19,6 @@ def main() -> int:
         ROOT / "functions/htmp_fast_rag.py",
         ROOT / "functions/htmp_technical_rag.py",
         ROOT / "functions/htmp_postgres_query.py",
-        ROOT / "functions/htmp_rate_limit_fallback.py",
         ROOT / "scripts/openwebui_bootstrap_runtime.py",
     ]
     report_dirs = [ROOT / "config/erp-reports", ROOT / "sql/erp-reports"]
