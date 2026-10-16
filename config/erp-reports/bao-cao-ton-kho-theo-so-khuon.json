@@ -1,6 +1,6 @@
 {
   "id": "bao-cao-ton-kho-theo-so-khuon", "title": "Báo cáo tồn kho theo số khuôn",
-  "match_phrases": ["tồn kho theo số khuôn", "tồn theo khuôn", "mã hàng theo khuôn"],
+  "match_phrases": ["tồn kho theo số khuôn", "tồn theo khuôn", "mã hàng theo khuôn", "tồn kho theo khuôn", "tồn từng khuôn", "khuôn nào còn tồn", "số lượng tồn từng khuôn"],
   "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
   "inputs": {"required": ["tu_ngay", "den_ngay"], "filters": [
     {"parameter":"ma_vt","column":"intem_log.data_tem.ma_vt","aliases":["mã vật tư","mã hàng"],"value_type":"code"},

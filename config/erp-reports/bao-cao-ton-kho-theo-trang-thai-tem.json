@@ -1,6 +1,6 @@
 {
   "id":"bao-cao-ton-kho-theo-trang-thai-tem", "title":"Báo cáo tồn kho theo trạng thái tem",
-  "match_phrases":["tồn kho theo trạng thái tem","trạng thái qc","tem khóa","khoanh vùng ng"],
+  "match_phrases":["tồn kho theo trạng thái tem","trạng thái qc","tem khóa","khoanh vùng ng","lot khóa","lô khóa","lot khoanh vùng","lô khoanh vùng","hàng ng","tem ng"],
   "validation":{"status":"pending_ui_validation","required_ui_comparisons":3},
   "inputs":{"required":[],"filters":[
     {"parameter":"ma_vt","column":"intem_log.data_tem.ma_vt","aliases":["mã vật tư","mã hàng"],"value_type":"code"},

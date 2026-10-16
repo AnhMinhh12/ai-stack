@@ -1,7 +1,7 @@
 {
   "id": "bang-ke-lenh-giao-hang",
   "title": "Bảng kê lệnh giao hàng",
-  "match_phrases": ["bảng kê lệnh giao hàng"],
+  "match_phrases": ["bảng kê lệnh giao hàng", "lệnh giao hoàn thành", "lệnh giao hoàn thiện", "lệnh giao đã xong", "ngày hoàn thành lệnh giao", "thời gian hoàn thành lệnh giao"],
   "validation": {"status": "validated", "required_ui_comparisons": 3},
   "inputs": {"required": ["tu_ngay", "den_ngay"], "filters": [
     {"parameter": "tu_ngay_gh", "column": "ngay_gh", "aliases": ["từ ngày giao", "ngày giao từ"], "value_type": "date"},

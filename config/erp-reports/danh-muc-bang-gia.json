@@ -1,7 +1,7 @@
 {
   "id": "danh-muc-bang-gia",
   "title": "Danh mục bảng giá",
-  "match_phrases": ["danh mục bảng giá", "bảng giá bán", "moq báo giá", "giá áp dụng hiện tại"],
+  "match_phrases": ["danh mục bảng giá", "bảng giá bán", "moq báo giá", "giá áp dụng hiện tại", "số lượng tối thiểu", "số lượng đặt tối thiểu", "mức đặt tối thiểu", "giá đang áp dụng", "giá hiệu lực"],
   "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
   "inputs": {"required": [], "filters": [
     {"parameter": "ma_bang_gia", "column": "dmbanggia.ma_bang_gia", "aliases": ["mã bảng giá", "bảng giá"], "value_type": "code"},
@@ -23,9 +23,9 @@
     {"field": "ten_vt", "label": "Tên vật tư", "aliases": ["tên hàng"]},
     {"field": "ma_kh", "label": "Mã khách hàng", "aliases": ["mã khách"]},
     {"field": "ten_kh", "label": "Tên khách hàng", "aliases": ["tên khách"]},
-    {"field": "sl_min", "label": "MOQ", "aliases": ["số lượng tối thiểu"]},
+    {"field": "sl_min", "label": "MOQ", "aliases": ["số lượng tối thiểu", "số lượng đặt tối thiểu", "mức đặt tối thiểu", "mức mua tối thiểu"]},
     {"field": "gia0", "label": "Giá trước VAT", "aliases": []},
-    {"field": "gia", "label": "Giá sau VAT", "aliases": ["giá áp dụng"]},
+    {"field": "gia", "label": "Giá sau VAT", "aliases": ["giá áp dụng", "giá hiện tại", "giá đang áp dụng", "giá hiệu lực"]},
     {"field": "ngay_bd", "label": "Ngày hiệu lực từ", "aliases": []},
     {"field": "ngay_kt", "label": "Ngày hiệu lực đến", "aliases": []},
     {"field": "status", "label": "Trạng thái", "aliases": []}

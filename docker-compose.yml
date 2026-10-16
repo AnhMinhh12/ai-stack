@@ -84,6 +84,10 @@ services:
       - RAG_TOP_K=5
       - RAG_RELEVANCE_THRESHOLD=0.3
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis:6379/0
+      # Keep chat-task events durable across socket reconnects instead of
+      # relying on the Open WebUI process's in-memory socket room registry.
+      - WEBSOCKET_MANAGER=redis
+      - WEBSOCKET_REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis:6379/0
       - ENABLE_SIGNUP=False
       - DEFAULT_USER_ROLE=${DEFAULT_USER_ROLE:-user}
       - HTMP_DB_HOST=${HTMP_DB_HOST:?HTMP_DB_HOST must be set}
@@ -97,6 +101,9 @@ services:
       - HTMP_ERP_SHARED_USER_ID=${HTMP_ERP_SHARED_USER_ID:-}
     volumes:
       - open-webui-data:/app/backend/data
+      # Hotfix for the deployed image that predates the bundled ERP semantic
+      # layer. Read-only so the application cannot modify release source.
+      - ./erp_ai:/app/backend/erp_ai:ro
     depends_on:
       vllm:
         condition: service_healthy

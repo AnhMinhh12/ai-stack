@@ -1,11 +1,19 @@
 {
-  "version": 2,
+  "version": 3,
   "material_classification": {
     "production_type_codes": ["41", "51"],
     "production_labels": {"41": "Bán thành phẩm", "51": "Thành phẩm"},
     "purchased_material_rule": "ma_loai_vt is not 41 or 51"
   },
   "intents": [
+    {
+      "id": "latest_sales_delivery",
+      "description": "Tra lần/lô/đợt giao gần nhất và tổng số lượng của một mã hàng trên phiếu xuất kho bán hàng.",
+      "match": {"all": ["ma_vt"], "any": ["giao gan nhat", "lan giao gan nhat", "lot giao gan nhat", "lo giao gan nhat", "dot giao gan nhat"]},
+      "source": {"header": "public.ph81", "line": "public.ct81", "kind": "sales_warehouse_issue"},
+      "access": "authenticated_erp_user",
+      "result": ["lan_giao_gan_nhat", "so_luong_giao", "dvt", "so_ct", "ma_kh"]
+    },
     {
       "id": "purchased_material_any",
       "description": "Chọn một mã hàng mua có chứng từ đơn mua thực tế; loại trừ BTP/TP do công ty sản xuất (loại 41/51).",

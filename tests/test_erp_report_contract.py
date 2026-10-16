@@ -110,6 +110,27 @@ class InventoryMovementJournalContractTests(unittest.TestCase):
             self.assertTrue(ERP.business_intent_matches("supplier_price_approval", "mã 3003541 đã được duyệt chưa", has_material_code=True))
             self.assertTrue(ERP.business_intent_matches("supplier_price_approval", "giá mã này trước VAT", has_material_code=True))
 
+    def test_latest_delivery_does_not_route_to_purchase_price(self):
+        question = "Lot giao gần nhất của mã sản phẩm RC5-5089-000 là khi nào và số lượng bao nhiêu?"
+        with patch.object(ERP, "ERP_BUSINESS_INTENTS_PATH", ROOT / "config" / "erp-business-intents.json"):
+            self.assertTrue(ERP.business_intent_matches("latest_sales_delivery", question, has_material_code=True))
+            self.assertFalse(ERP.business_intent_matches("purchase_order_history", question, has_material_code=True))
+
+    def test_latest_delivery_uses_sales_issue_and_aggregates_document_lines(self):
+        source = (ROOT / "functions" / "htmp_postgres_query.py").read_text()
+        self.assertIn("public.ph81 + public.ct81 (Bảng kê phiếu xuất kho bán hàng)", source)
+        self.assertIn("sum(d.so_luong) AS so_luong_giao", source)
+        self.assertIn("GROUP BY h.stt_rec", source)
+
+    def test_latest_delivery_is_fail_closed_without_trusted_identity(self):
+        with patch.object(ERP, "ERP_BUSINESS_INTENTS_PATH", ROOT / "config" / "erp-business-intents.json"), patch.dict(
+            os.environ, {"HTMP_ERP_USER_ID_MAP": "{}", "HTMP_ERP_SHARED_USER_ID": ""}, clear=False
+        ):
+            result = ERP.Tools().ask_erp(
+                "Lot giao gần nhất của mã sản phẩm RC5-5089-000 là khi nào và số lượng bao nhiêu?"
+            )
+        self.assertIn("tra lần giao gần nhất bị chặn an toàn", result)
+
     def test_purchase_price_intent_declares_supplier_quote_as_a_distinct_source(self):
         intents = json.loads((ROOT / "config" / "erp-business-intents.json").read_text())["intents"]
         history = next(item for item in intents if item["id"] == "purchase_order_history")

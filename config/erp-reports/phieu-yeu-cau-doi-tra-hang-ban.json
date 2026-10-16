@@ -1,7 +1,7 @@
 {
   "id": "phieu-yeu-cau-doi-tra-hang-ban",
   "title": "Phiếu yêu cầu đổi, trả hàng bán",
-  "match_phrases": ["phiếu yêu cầu đổi trả hàng bán", "đổi trả hàng bán", "hàng ng nhận lại"],
+  "match_phrases": ["phiếu yêu cầu đổi trả hàng bán", "đổi trả hàng bán", "hàng ng nhận lại", "ng nhận về", "hàng lỗi nhận lại", "thu hồi hàng ng", "trả hàng lỗi"],
   "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
   "inputs": {
     "required": ["tu_ngay", "den_ngay"],

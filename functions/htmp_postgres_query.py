@@ -250,7 +250,17 @@ def business_intent_matches(intent_id: str, question: str, *, has_material_code:
         required = [term for term in required if term != "ma_vt"]
         if not has_material_code:
             return False
-    return all(term in normalized for term in required) and any(term in normalized for term in rules.get("any", []))
+    def contains_term(term: str) -> bool:
+        # Match complete normalized words/phrases. A substring check makes the
+        # purchase-price keyword ``gia`` match delivery words such as ``giao``.
+        return re.search(
+            rf"(?<![a-z0-9]){re.escape(normalize_text(term))}(?![a-z0-9])",
+            normalized,
+        ) is not None
+
+    return all(contains_term(term) for term in required) and any(
+        contains_term(term) for term in rules.get("any", [])
+    )
 
 
 def production_material_type_codes() -> tuple[str, ...]:
@@ -965,6 +975,75 @@ class Tools:
             default=str,
         )
 
+    def _latest_sales_delivery(
+        self, material_code: str, authenticated_user_id: int
+    ) -> str:
+        """Return the latest sales warehouse issue for one material.
+
+        A delivery document can contain the same material on several lines.
+        Aggregate those lines so the quantity agrees with the document shown
+        by Bảng kê phiếu xuất kho bán hàng.
+        """
+        query = """
+            WITH access_scope AS (
+                SELECT u.user_id, coalesce(u.ds_branchs, '') AS ds_branchs,
+                       coalesce(u.is_super, 0) = 1
+                         OR (coalesce(u.ds_branchs, '') = '' AND coalesce(u.ds_stocks, '') = '')
+                         AS unrestricted
+                FROM public.userinfo AS u
+                WHERE u.user_id = %s
+            )
+            SELECT h.ngay_lct, h.ngay_ct, h.so_ct, h.ma_kh,
+                   max(k.ten_viet_tat) AS ten_kh, d.ma_vt, max(d.dvt) AS dvt,
+                   sum(d.so_luong) AS so_luong_giao, h.ma_dvcs,
+                   count(*) AS so_dong
+            FROM public.ct81 AS d
+            JOIN public.ph81 AS h ON h.stt_rec = d.stt_rec
+            CROSS JOIN access_scope AS a
+            LEFT JOIN public.dmkh AS k ON k.ma_kh = h.ma_kh
+            WHERE upper(trim(d.ma_vt)) = %s
+              AND h.ma_gd <> 4
+              AND (a.unrestricted OR a.ds_branchs = ''
+                   OR h.ma_dvcs = ANY(string_to_array(a.ds_branchs, ',')))
+              AND (d.ma_kho IS NULL OR d.ma_kho = '' OR a.unrestricted OR EXISTS (
+                  SELECT 1 FROM public.dmkho AS w
+                  WHERE w.ma_kho = d.ma_kho
+                    AND w.ma_dvcs = ANY(string_to_array(a.ds_branchs, ','))
+              ))
+            GROUP BY h.stt_rec, h.ngay_lct, h.ngay_ct, h.so_ct, h.ma_kh,
+                     d.ma_vt, h.ma_dvcs
+            ORDER BY h.ngay_lct DESC, h.ngay_ct DESC, h.so_ct DESC, h.stt_rec DESC
+            LIMIT 1
+        """
+        try:
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute(query, (authenticated_user_id, material_code))
+                    columns = [item.name for item in cursor.description]
+                    row = cursor.fetchone()
+        except Exception:
+            return "Không thể tra lần giao gần nhất trong ERP."
+        result = dict(zip(columns, (json_value(value) for value in row))) if row else None
+        return json.dumps(
+            {
+                "source": "public.ph81 + public.ct81 (Bảng kê phiếu xuất kho bán hàng)",
+                "lookup": {"ma_vt": material_code, "khoang_thoi_gian": "toàn bộ dữ liệu được phép xem"},
+                "summary": {
+                    "lan_giao_gan_nhat": result.get("ngay_ct") if result else None,
+                    "so_luong_giao": result.get("so_luong_giao") if result else None,
+                    "dvt": result.get("dvt") if result else None,
+                    "so_ct": result.get("so_ct") if result else None,
+                },
+                "row_count": int(result is not None),
+                "rows": [result] if result else [],
+            },
+            ensure_ascii=False,
+            default=str,
+        )
+
     def _supplier_price_approval(
         self, material_code: str, question: str, authenticated_user_id: int
     ) -> str:
@@ -1181,6 +1260,102 @@ class Tools:
             default=str,
         )
 
+    def _sales_price_moq(
+        self, question: str, filters: dict[str, str], authenticated_user_id: int | None
+    ) -> str | None:
+        """Read the sales-price grid MOQ from its validated, fixed report SQL.
+
+        ``MOQ báo giá`` is a sales price-list question.  It must never fall
+        through to purchase-order or supplier-quote tables merely because the
+        word "báo giá" also occurs in the user's wording.
+        """
+        try:
+            report = load_report_config("danh-muc-bang-gia")
+            parsed = parse_report_request(question, report)
+        except Exception:
+            return "Cấu hình Danh mục bảng giá chưa sẵn sàng."
+        if not parsed["matches_report"]:
+            return None
+        if authenticated_user_id is None:
+            return "Không có mapping ERP hợp lệ cho phiên chat; tra bảng giá bị chặn an toàn."
+        report_filters = merge_report_filters(parsed["filters"], filters)
+        if not report_filters.get("ma_vt"):
+            return "Cần mã vật tư để tra MOQ trên bảng giá."
+        try:
+            query = load_report_sql(report)
+            row_limit = min(int(report.get("defaults", {}).get("limit", MAX_ROWS)), MAX_ROWS)
+        except Exception:
+            return "SQL của Danh mục bảng giá chưa sẵn sàng."
+        parameters = (
+            report_filters.get("ma_bang_gia", ""), report_filters["ma_vt"],
+            report_filters.get("ma_kh", ""), report_filters.get("status", ""),
+            authenticated_user_id, row_limit + 1,
+        )
+        try:
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute(query, parameters)
+                    columns = [item.name for item in cursor.description]
+                    raw_rows = cursor.fetchmany(row_limit + 1)
+        except Exception:
+            return "Không thể tra MOQ trên Danh mục bảng giá trong ERP."
+        rows = [
+            dict(zip(columns, (json_value(value) for value in row)))
+            for row in raw_rows[:row_limit]
+        ]
+        as_of_date = max(parsed["dates"]) if parsed["dates"] else date.today()
+        as_of = as_of_date.isoformat()
+        # A bare MOQ question means the effective price list, rather than a
+        # historical export of every expired version. `sl_min` is a lower
+        # threshold, not the upper edge of a quantity range.
+        effective_rows = [
+            row for row in rows
+            if (not row.get("ngay_bd") or str(row["ngay_bd"]) <= as_of)
+            and (not row.get("ngay_kt") or str(row["ngay_kt"]) >= as_of)
+        ]
+        result_source = effective_rows or rows
+        # Price-list versions can overlap. For the same customer/item/MOQ
+        # tier, the latest effective start date wins, matching the current
+        # sales-price screen instead of exposing a superseded price beside it.
+        latest_tier_rows: dict[tuple[str, ...], dict[str, Any]] = {}
+        for row in result_source:
+            tier_key = tuple(str(row.get(field) or "") for field in ("ma_bang_gia", "ma_vt", "ma_kh", "dvt", "sl_min"))
+            previous = latest_tier_rows.get(tier_key)
+            if previous is None or str(row.get("ngay_bd") or "") > str(previous.get("ngay_bd") or ""):
+                latest_tier_rows[tier_key] = row
+        result_source = sorted(
+            latest_tier_rows.values(),
+            key=lambda row: (str(row.get("ma_bang_gia") or ""), str(row.get("ma_kh") or ""), Decimal(str(row.get("sl_min") or "0"))),
+        )
+        requested = {item["field"] for item in parsed["requested_columns"]}
+        # A MOQ question needs enough adjacent grid fields to make its result
+        # auditable, even where the prompt did not spell each heading out.
+        moq_fields = ("ma_bang_gia", "ma_vt", "ma_kh", "dvt", "sl_min", "ma_nt", "gia0", "gia", "ngay_bd", "ngay_kt", "status")
+        result_rows = [
+            {field: row.get(field) for field in moq_fields}
+            for row in result_source
+        ] if "sl_min" in requested else rows
+        return json.dumps(
+            {
+                "report": {"id": report["id"], "title": report["title"]},
+                "source": report["sources"],
+                "query_scope": "manifest_and_fixed_sql_only",
+                "lookup": {**report_filters, "ngay_tra_cuu": as_of},
+                "requested_columns": parsed["requested_columns"],
+                "matched_row_count": len(rows),
+                "row_count": len(result_rows),
+                "truncated": len(raw_rows) > row_limit,
+                "moq_interpretation": "Hiển thị nguyên từng dòng sl_min dưới nhãn 'MOQ', không thêm từ 'từ', không suy ra cận trên và không gộp các bậc giá.",
+                "price_list_scope": "Các dòng đang hiệu lực tại ngày tra cứu, chọn phiên bản có ngày bắt đầu mới nhất cho mỗi bậc MOQ; chỉ trả lịch sử khi không có dòng hiệu lực.",
+                "rows": result_rows,
+            },
+            ensure_ascii=False,
+            default=str,
+        )
+
     def _inventory_location_balance(self, question: str, authenticated_user_id: int | None) -> str | None:
         """Return current location-level balances from the fixed ERP report."""
         warehouse_code = extract_location_stock_warehouse(question)
@@ -1302,7 +1477,14 @@ class Tools:
                 material_code, _material_name = material_resolution
                 filters["ma_vt"] = material_code
                 ERP_CONVERSATION_STATE.remember(active_conversation, {"ma_vt": material_code})
+        sales_price_moq = self._sales_price_moq(question, filters, authenticated_user_id)
+        if sales_price_moq is not None:
+            return sales_price_moq
         semantic_request = build_request(question, filters)
+        if business_intent_matches("latest_sales_delivery", question, has_material_code=bool(filters.get("ma_vt"))):
+            if authenticated_user_id is None:
+                return "Không có mapping ERP hợp lệ cho phiên chat; tra lần giao gần nhất bị chặn an toàn."
+            return self._latest_sales_delivery(filters["ma_vt"], authenticated_user_id)
         if business_intent_matches("supplier_price_approval", question, has_material_code=bool(filters.get("ma_vt"))):
             authenticated_user_id = trusted_erp_user_id(__user__)
             if authenticated_user_id is None:
