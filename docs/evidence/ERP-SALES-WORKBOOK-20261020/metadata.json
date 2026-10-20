@@ -1,0 +1,17 @@
+{
+  "sha256": {
+    "sales_question.xlsx": "8277758d9e9d6b635720de19fb6491cee4e3ac269ec89fa84f1a1ba2e63ef0d2",
+    "erp_ai/agent.py": "adaa811b1bf799349d753655424735e96d1c812ef2dab70cbe9bb24e4e2324c6",
+    "erp_ai/agent_backend.py": "8160bf0f7f0b7c6a31d27aca13786960030556e395c0adaa382a8dc963694b75",
+    "erp_ai/agent_runtime.py": "c87065c13cc608cbd4bc844628dea2d1613032e96ba75bb470ddd584eb0deefe",
+    "config/erp-agent.json": "d49db264a8a0131d3cdead9e3affc2448d8ab44b315159842acf915850c31d86",
+    "sql/erp-reports/agent-sales-lines.sql": "7d464b478058200f0c161a65a1c8d3370ed8cb893006aabccbb326882bdb67d0",
+    "scripts/evaluate_sales_workbook.py": "04c54be3cd0599bd626faf617e28be3f60fbd1acd5b5f918ba177fb1af10a221",
+    "scripts/erp_eval/workbook_references.py": "6fec71812f0dc41f3ec8b39f600951d67a59a48a306adf531cbb6687237f15ed"
+  },
+  "result_file_sha256": "bfc64213bc46d4ad541745927bb125fe6e37cb31c06952a06e0bf6aaea6fc2b2",
+  "reference_file_sha256": "5bbde52ccbddec26eb5be4ef4941bc5f4db5634fb2d0b4cc9dc59d76532e6736",
+  "production_writes": false,
+  "profile_deployed": false,
+  "ui_tested": false
+}

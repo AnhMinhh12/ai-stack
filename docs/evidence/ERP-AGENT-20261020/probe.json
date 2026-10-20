@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-20",
+  "environment": "existing local vLLM, synthetic input only, no ERP access",
+  "model": "qwen2.5-14b",
+  "tool_name": "probe_echo",
+  "arguments_type": "JSON string",
+  "arguments": {"value": "synthetic-ok"},
+  "tool_call_id_present": true,
+  "role_tool_reply_accepted": true,
+  "first_call_seconds": 1.462,
+  "parallel_tool_support": "not established by this single-call probe"
+}

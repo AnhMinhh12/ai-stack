@@ -1,0 +1,552 @@
+{
+  "version": 1,
+  "limits": {
+    "rounds": 6,
+    "tools": 10,
+    "db_queries": 4,
+    "seconds": 120,
+    "rows": 50,
+    "result_chars": 12000,
+    "context_chars": 48000
+  },
+  "reports": [
+    {
+      "id": "sales_lines",
+      "title": "Dòng phiếu xuất kho bán hàng",
+      "tables": [
+        "public.ph81",
+        "public.ct81"
+      ],
+      "join": "ph81.stt_rec = ct81.stt_rec; line key stt_rec + ln",
+      "fields": [
+        "stt_rec",
+        "ln",
+        "ngay_lct",
+        "ngay_ct",
+        "so_ct",
+        "ma_dvcs",
+        "ma_kh",
+        "status",
+        "ma_vt",
+        "ma_kho",
+        "dvt",
+        "so_luong"
+      ],
+      "validation": "pending_ui_validation",
+      "manifest": "config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json",
+      "query_file": "sql/erp-reports/agent-sales-lines.sql",
+      "parameters": [
+        "user_id",
+        "material",
+        "date_from",
+        "date_to",
+        "row_limit"
+      ]
+    },
+    {
+      "id": "price_list",
+      "title": "Danh mục bảng giá và MOQ",
+      "tables": [
+        "public.dmbanggia",
+        "public.dmbanggiact",
+        "public.dmvt",
+        "public.dmkh"
+      ],
+      "join": "dmbanggia.ma_bang_gia = dmbanggiact.ma_bang_gia",
+      "fields": [
+        "ma_kh",
+        "ten_kh",
+        "ma_vt",
+        "ten_vt",
+        "sl_min",
+        "dvt",
+        "gia0",
+        "gia",
+        "ma_nt",
+        "ngay_bd",
+        "ngay_kt",
+        "status"
+      ],
+      "validation": "pending_ui_validation",
+      "manifest": "config/erp-reports/danh-muc-bang-gia.json",
+      "query_file": "sql/erp-reports/agent-price-list.sql",
+      "parameters": [
+        "user_id",
+        "material",
+        "date_as_of",
+        "row_limit"
+      ]
+    },
+    {
+      "id": "product_structure",
+      "title": "Cấu trúc sản phẩm và định mức BOM",
+      "tables": [
+        "public.mfbom",
+        "public.mfbom_material",
+        "public.dmvt"
+      ],
+      "join": "mfbom.bom_code = mfbom_material.bom_code",
+      "fields": [
+        "ma_sp_me",
+        "bom_code",
+        "bom_version",
+        "status",
+        "valid_from",
+        "valid_to",
+        "material_code",
+        "ten_vt",
+        "sl_dinh_muc",
+        "dvt"
+      ],
+      "validation": "pending_ui_validation",
+      "manifest": "config/erp-reports/bao-cao-cau-truc-san-pham.json",
+      "query_file": "sql/erp-reports/agent-product-structure.sql",
+      "parameters": [
+        "user_id",
+        "material",
+        "date_as_of",
+        "row_limit"
+      ]
+    },
+    {
+      "id": "customer_master",
+      "title": "Danh mục khách hàng",
+      "tables": [
+        "public.dmkh"
+      ],
+      "join": "none",
+      "fields": [
+        "ma_kh",
+        "ten_kh",
+        "ten_viet_tat",
+        "dien_thoai",
+        "dia_chi",
+        "status"
+      ],
+      "validation": "pending_ui_validation",
+      "manifest": "config/erp-reports/danh-muc-khach-hang.json",
+      "query_file": "sql/erp-reports/agent-customer-master.sql",
+      "parameters": [
+        "user_id",
+        "query_text",
+        "query_text",
+        "query_text",
+        "row_limit"
+      ]
+    },
+    {
+      "id": "inventory_balance",
+      "title": "Báo cáo tồn kho sổ sách",
+      "tables": [
+        "public.cdvt",
+        "public.ct70",
+        "public.dmvt"
+      ],
+      "join": "cdvt union all ct70",
+      "fields": [
+        "ma_vt",
+        "ten_vt",
+        "dvt",
+        "so_luong_ton"
+      ],
+      "validation": "pending_ui_validation",
+      "manifest": "config/erp-reports/bao-cao-ton-kho.json",
+      "query_file": "sql/erp-reports/agent-inventory-balance.sql",
+      "parameters": [
+        "user_id",
+        "date_as_of",
+        "material",
+        "material",
+        "date_as_of",
+        "date_as_of",
+        "row_limit"
+      ]
+    },
+    {
+      "id": "receipt_lines",
+      "title": "Bảng kê phiếu nhập kho",
+      "tables": [
+        "public.ct70",
+        "public.userinfo"
+      ],
+      "join": "ct70 left join userinfo on userinfo.user_id = ct70.user_id0",
+      "fields": [
+        "stt_rec",
+        "ln",
+        "so_ct",
+        "ngay_ct",
+        "date0",
+        "time0",
+        "ma_kho",
+        "dvt",
+        "sl_nhap",
+        "nguoi_nhap",
+        "kho_xuat"
+      ],
+      "validation": "pending_ui_validation",
+      "manifest": "config/erp-reports/bang-ke-phieu-nhap-kho.json",
+      "query_file": "sql/erp-reports/agent-receipt-lines.sql",
+      "parameters": [
+        "material",
+        "date_from",
+        "date_to",
+        "user_id",
+        "row_limit"
+      ]
+    },
+    {
+      "id": "forecast_po",
+      "title": "Kế hoạch PO và dự báo FCST",
+      "tables": [
+        "public.mfkhsx_po_fc"
+      ],
+      "join": "none",
+      "fields": [
+        "id",
+        "stt",
+        "ma_vt",
+        "ngay_giao_hang",
+        "ngay_tinh_toan",
+        "so_luong",
+        "nguon_du_lieu",
+        "loai_du_lieu",
+        "ma_kh",
+        "model",
+        "so_ct",
+        "status"
+      ],
+      "validation": "pending_ui_validation",
+      "manifest": "config/erp-reports/so-sanh-do-fcst.json",
+      "query_file": "sql/erp-reports/agent-forecast-po.sql",
+      "parameters": [
+        "material",
+        "user_id",
+        "row_limit"
+      ]
+    },
+    {
+      "id": "packaging_spec",
+      "title": "Quy cách đóng gói vật tư sản phẩm",
+      "tables": [
+        "public.dmvt"
+      ],
+      "join": "none",
+      "fields": [
+        "ma_vt",
+        "ten_vt",
+        "dvt",
+        "packs",
+        "packs0",
+        "ma_thung",
+        "ma_khay",
+        "so_luong_vt_khay",
+        "so_luong_thung_pallet",
+        "so_luong_sp_tui"
+      ],
+      "validation": "pending_ui_validation",
+      "manifest": "config/erp-reports/quy-cach-dong-goi-ton-kho.json",
+      "query_file": "sql/erp-reports/agent-packaging-spec.sql",
+      "parameters": [
+        "material",
+        "user_id",
+        "row_limit"
+      ]
+    },
+    {
+      "id": "mold_profile",
+      "title": "Hồ sơ thiết bị khuôn và tuổi thọ shot",
+      "tables": [
+        "public.dmhosokhuon",
+        "public.dmhosokhuonsp"
+      ],
+      "join": "dmhosokhuon join dmhosokhuonsp using(ma_khuon)",
+      "fields": [
+        "ma_khuon",
+        "ten_khuon",
+        "tong_so_shot",
+        "so_shot_bh",
+        "ma_sp"
+      ],
+      "validation": "pending_ui_validation",
+      "manifest": "config/erp-reports/ho-so-khuon.json",
+      "query_file": "sql/erp-reports/agent-mold-profile.sql",
+      "parameters": [
+        "mold",
+        "material",
+        "user_id",
+        "row_limit"
+      ]
+    },
+    {
+      "id": "mold_label_stock",
+      "title": "Báo cáo tồn kho theo số khuôn và die_no",
+      "tables": [
+        "public.intem_log"
+      ],
+      "join": "intem_log lateral jsonb_array_elements(data_tem)",
+      "fields": [
+        "die_no",
+        "ma_khuon",
+        "status_qc",
+        "so_luong"
+      ],
+      "validation": "pending_ui_validation",
+      "manifest": "config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json",
+      "query_file": "sql/erp-reports/agent-mold-label-stock.sql",
+      "parameters": [
+        "material",
+        "user_id",
+        "row_limit"
+      ]
+    },
+    {
+      "id": "sales_orders",
+      "title": "Bảng kê đơn hàng bán và đối soát giá",
+      "tables": [
+        "public.ph64",
+        "public.ct64"
+      ],
+      "join": "ph64 join ct64 using(stt_rec)",
+      "fields": [
+        "stt_rec",
+        "so_ct",
+        "ngay_ct",
+        "ma_kh",
+        "status",
+        "ln",
+        "ma_vt",
+        "dvt",
+        "so_luong",
+        "gia2",
+        "gia_chuan"
+      ],
+      "validation": "pending_ui_validation",
+      "manifest": "config/erp-reports/don-hang-hop-dong.json",
+      "query_file": "sql/erp-reports/agent-sales-orders.sql",
+      "parameters": [
+        "customer",
+        "date_from",
+        "date_to",
+        "user_id",
+        "row_limit"
+      ]
+    },
+    {
+      "id": "delivery_order",
+      "title": "Bảng kê lệnh giao hàng",
+      "tables": [
+        "public.ph96",
+        "public.sys_dmtt"
+      ],
+      "join": "ph96 left join sys_dmtt on sys_dmtt.ma_ct = 'TO2' and sys_dmtt.status = ph96.status",
+      "fields": [
+        "stt_rec",
+        "so_ct",
+        "status",
+        "statusname",
+        "date0",
+        "time0"
+      ],
+      "validation": "pending_ui_validation",
+      "manifest": "config/erp-reports/lenh-giao-hang.json",
+      "query_file": "sql/erp-reports/agent-delivery-order.sql",
+      "parameters": [
+        "delivery_code",
+        "user_id",
+        "row_limit"
+      ]
+    },
+    {
+      "id": "qc_label_status",
+      "title": "Báo cáo tồn kho theo trạng thái tem QC",
+      "tables": [
+        "public.intem_log",
+        "public.sys_listoptions"
+      ],
+      "join": "intem_log left join sys_listoptions on sys_listoptions.form='OQC' and sys_listoptions.form_value = intem_log.status_qc::text",
+      "fields": [
+        "status_qc",
+        "trang_thai_qc",
+        "so_tem",
+        "so_luong"
+      ],
+      "validation": "pending_ui_validation",
+      "manifest": "config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json",
+      "query_file": "sql/erp-reports/agent-qc-label-status.sql",
+      "parameters": [
+        "material",
+        "user_id",
+        "row_limit"
+      ]
+    },
+    {
+      "id": "replacement_orders",
+      "title": "Báo cáo lệnh giao hàng giao bù NG",
+      "tables": [
+        "public.ph96",
+        "public.ct96"
+      ],
+      "join": "ph96 join ct96 using(stt_rec)",
+      "fields": [
+        "so_ct",
+        "ngay_ct",
+        "ma_gd",
+        "dien_giai",
+        "status",
+        "so_luong"
+      ],
+      "validation": "pending_ui_validation",
+      "manifest": "config/erp-reports/bang-ke-lenh-giao-hang.json",
+      "query_file": "sql/erp-reports/agent-replacement-orders.sql",
+      "parameters": [
+        "material",
+        "date_from",
+        "date_to",
+        "user_id",
+        "row_limit"
+      ]
+    }
+  ],
+  "knowledge": [
+    {
+      "path": "docs/knowledge/erp-sales-agent.md",
+      "title": "Phiếu xuất kho bán hàng",
+      "updated": "2026-10-20",
+      "domain": "sales",
+      "report_id": "sales_lines",
+      "access": "report_grant:sales_lines",
+      "status": "current",
+      "provenance": "curated_from_repository; pending_ui_validation"
+    },
+    {
+      "path": "docs/knowledge/erp-price-list.md",
+      "title": "Danh mục bảng giá và MOQ",
+      "updated": "2026-10-20",
+      "domain": "pricing",
+      "report_id": "price_list",
+      "access": "report_grant:price_list",
+      "status": "current",
+      "provenance": "curated_from_repository; pending_ui_validation"
+    },
+    {
+      "path": "docs/knowledge/erp-bom.md",
+      "title": "Cấu trúc sản phẩm và định mức BOM",
+      "updated": "2026-10-20",
+      "domain": "production",
+      "report_id": "product_structure",
+      "access": "report_grant:product_structure",
+      "status": "current",
+      "provenance": "curated_from_repository; pending_ui_validation"
+    },
+    {
+      "path": "docs/knowledge/erp-customer.md",
+      "title": "Danh mục khách hàng",
+      "updated": "2026-10-20",
+      "domain": "customer",
+      "report_id": "customer_master",
+      "access": "report_grant:customer_master",
+      "status": "current",
+      "provenance": "curated_from_repository; pending_ui_validation"
+    },
+    {
+      "path": "docs/knowledge/erp-inventory.md",
+      "title": "Báo cáo tồn kho sổ sách",
+      "updated": "2026-10-20",
+      "domain": "inventory",
+      "report_id": "inventory_balance",
+      "access": "report_grant:inventory_balance",
+      "status": "current",
+      "provenance": "curated_from_repository; pending_ui_validation"
+    },
+    {
+      "path": "docs/knowledge/erp-receipt.md",
+      "title": "Bảng kê phiếu nhập kho",
+      "updated": "2026-10-20",
+      "domain": "inventory",
+      "report_id": "receipt_lines",
+      "access": "report_grant:receipt_lines",
+      "status": "current",
+      "provenance": "curated_from_repository; pending_ui_validation"
+    },
+    {
+      "path": "docs/knowledge/erp-forecast.md",
+      "title": "Kế hoạch sản xuất PO và Forecast",
+      "updated": "2026-10-20",
+      "domain": "planning",
+      "report_id": "forecast_po",
+      "access": "report_grant:forecast_po",
+      "status": "current",
+      "provenance": "curated_from_repository; pending_ui_validation"
+    },
+    {
+      "path": "docs/knowledge/erp-packaging.md",
+      "title": "Quy cách đóng gói vật tư sản phẩm",
+      "updated": "2026-10-20",
+      "domain": "inventory",
+      "report_id": "packaging_spec",
+      "access": "report_grant:packaging_spec",
+      "status": "current",
+      "provenance": "curated_from_repository; pending_ui_validation"
+    },
+    {
+      "path": "docs/knowledge/erp-mold.md",
+      "title": "Hồ sơ khuôn và tuổi thọ shot",
+      "updated": "2026-10-20",
+      "domain": "mes",
+      "report_id": "mold_profile",
+      "access": "report_grant:mold_profile",
+      "status": "current",
+      "provenance": "curated_from_repository; pending_ui_validation"
+    },
+    {
+      "path": "docs/knowledge/erp-mold-stock.md",
+      "title": "Tồn kho theo khuôn và die_no",
+      "updated": "2026-10-20",
+      "domain": "inventory",
+      "report_id": "mold_label_stock",
+      "access": "report_grant:mold_label_stock",
+      "status": "current",
+      "provenance": "curated_from_repository; pending_ui_validation"
+    },
+    {
+      "path": "docs/knowledge/erp-orders.md",
+      "title": "Đơn hàng bán SO và liên kết giá",
+      "updated": "2026-10-20",
+      "domain": "sales",
+      "report_id": "sales_orders",
+      "access": "report_grant:sales_orders",
+      "status": "current",
+      "provenance": "curated_from_repository; pending_ui_validation"
+    },
+    {
+      "path": "docs/knowledge/erp-delivery.md",
+      "title": "Lệnh giao hàng TO2",
+      "updated": "2026-10-20",
+      "domain": "sales",
+      "report_id": "delivery_order",
+      "access": "report_grant:delivery_order",
+      "status": "current",
+      "provenance": "curated_from_repository; pending_ui_validation"
+    },
+    {
+      "path": "docs/knowledge/erp-qc.md",
+      "title": "Trạng thái kiểm tra chất lượng QC tem",
+      "updated": "2026-10-20",
+      "domain": "quality",
+      "report_id": "qc_label_status",
+      "access": "report_grant:qc_label_status",
+      "status": "current",
+      "provenance": "curated_from_repository; pending_ui_validation"
+    },
+    {
+      "path": "docs/knowledge/erp-replacement.md",
+      "title": "Giao bù và đổi trả hàng",
+      "updated": "2026-10-20",
+      "domain": "sales",
+      "report_id": "replacement_orders",
+      "access": "report_grant:replacement_orders",
+      "status": "current",
+      "provenance": "curated_from_repository; pending_ui_validation"
+    }
+  ]
+}

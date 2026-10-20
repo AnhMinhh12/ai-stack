@@ -23,5 +23,7 @@ class AllPendingERPReportArtifactTests(unittest.TestCase):
             self.assertIsNone(FORBIDDEN.search(sql), manifest_path.stem)
             self.assertEqual(evidence["status"], "pending_ui_validation")
             self.assertEqual(evidence["required_comparisons"], 3)
-            self.assertEqual(len(evidence["cases"]), 3)
+            self.assertGreaterEqual(
+                len(evidence["cases"]), evidence["required_comparisons"], manifest_path.stem
+            )
         self.assertEqual(len(pending), 67)

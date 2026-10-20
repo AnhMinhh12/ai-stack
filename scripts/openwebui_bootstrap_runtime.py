@@ -48,9 +48,18 @@ def main() -> int:
             if not row or row[0] != expected:
                 stale.append(item["id"])
         for item in tool_items:
-            row = conn.execute("select content from tool where id=?", (item["id"],)).fetchone()
+            row = conn.execute("select content,specs from tool where id=?", (item["id"],)).fetchone()
             expected = (Path(args.source_dir) / item["source"]).read_text()
-            if not row or row[0] != expected:
+            if not row or row[0] != expected or json.loads(row[1] or "[]") != item["specs"]:
+                stale.append(item["id"])
+        for item in cfg["models"]:
+            row = conn.execute("select params,meta from model where id=?", (item["id"],)).fetchone()
+            if not row:
+                stale.append(item["id"])
+                continue
+            params, meta = json.loads(row[0] or "{}"), json.loads(row[1] or "{}")
+            if (params != item["params"] or meta.get("toolIds", []) != item.get("tool_ids", [])
+                    or meta.get("filterIds", []) != item.get("filter_ids", [])):
                 stale.append(item["id"])
         if stale:
             fail("bootstrap object content is stale: " + ", ".join(sorted(stale)))
@@ -101,14 +110,16 @@ def main() -> int:
             (item["id"], owner_id, item["base_model_id"], item["name"], json.dumps(item["params"]), json.dumps(meta), now, now, 1),
         )
 
-    # Ensure external model IDs are enabled in openai.api_configs
-    row = conn.execute("select value from config where key='openai.api_configs'").fetchone()
+    # Enable only external model IDs actually declared by this profile.
+    external_ids = [item["base_model_id"] for item in cfg["models"]
+                    if item["base_model_id"].startswith("models/gemini-")]
+    row = conn.execute("select value from config where key='openai.api_configs'").fetchone() if external_ids else None
     if row and row[0]:
         try:
             api_configs = json.loads(row[0])
             if "1" in api_configs:
                 model_ids = api_configs["1"].get("model_ids", [])
-                for target_id in ["models/gemini-3.1-flash-lite", "models/gemini-3.5-flash-lite"]:
+                for target_id in external_ids:
                     if target_id not in model_ids:
                         model_ids.append(target_id)
                 api_configs["1"]["model_ids"] = model_ids

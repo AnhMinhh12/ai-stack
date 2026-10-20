@@ -99,11 +99,20 @@ services:
       - HTMP_DB_STATEMENT_TIMEOUT_MS=${HTMP_DB_STATEMENT_TIMEOUT_MS:-15000}
       - HTMP_ERP_USER_ID_MAP=${HTMP_ERP_USER_ID_MAP:-{}}
       - HTMP_ERP_SHARED_USER_ID=${HTMP_ERP_SHARED_USER_ID:-}
+      - HTMP_AGENT_ENABLED=${HTMP_AGENT_ENABLED:-0}
+      - HTMP_AGENT_ROOT=/app/backend
+      - HTMP_AGENT_DB_DSN=${HTMP_AGENT_DB_DSN:-}
+      - HTMP_AGENT_MODEL_URL=http://vllm:8000/v1/
+      - HTMP_AGENT_MODEL=qwen2.5-14b
+      - HTMP_AGENT_GRANTS=${HTMP_AGENT_GRANTS:-{}}
     volumes:
       - open-webui-data:/app/backend/data
       # Hotfix for the deployed image that predates the bundled ERP semantic
       # layer. Read-only so the application cannot modify release source.
       - ./erp_ai:/app/backend/erp_ai:ro
+      - ./config:/app/backend/config:ro
+      - ./sql:/app/backend/sql:ro
+      - ./docs:/app/backend/docs:ro
     depends_on:
       vllm:
         condition: service_healthy

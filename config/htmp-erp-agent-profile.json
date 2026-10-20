@@ -1,0 +1,58 @@
+{
+  "knowledge_base_names": [],
+  "functions": [
+    {
+      "id": "htmp_erp_agent",
+      "name": "ERP nhiều lượt staging",
+      "source": "htmp_erp_agent.py",
+      "description": "Bounded ERP agent; explicit grants and staging DSN required",
+      "type": "tool",
+      "specs": [
+        {
+          "name": "ask_erp_agent",
+          "description": "Gọi để hỏi ERP. Bảng và biểu đồ được hiển thị trực tiếp trong Rich UI; chỉ xác nhận ngắn sau khi tool hoàn tất.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "question": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "question"
+            ],
+            "additionalProperties": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "htmp_erp_agent_filter",
+      "name": "ERP agent staging profile",
+      "source": "htmp_erp_agent_filter.py",
+      "description": "Attach only the bounded agent tool to the staging profile",
+      "type": "filter"
+    }
+  ],
+  "models": [
+    {
+      "id": "htmp-erp-agent-staging",
+      "name": "ERP nhiều lượt — staging",
+      "base_model_id": "qwen2.5-14b",
+      "description": "Staging pilot only; not UI validated",
+      "use_knowledge": false,
+      "tool_ids": [
+        "htmp_erp_agent"
+      ],
+      "filter_ids": [
+        "htmp_erp_agent_filter"
+      ],
+      "params": {
+        "temperature": 0,
+        "max_tokens": 6000,
+        "function_calling": "native",
+        "system": "Gọi ask_erp_agent bằng nguyên câu hỏi người dùng. Nếu tool báo status=answered và result_displayed=true, chỉ trả đúng câu 'Kết quả tra cứu ở trên.' Không mô tả, khẳng định hay lặp lại số liệu, bảng, biểu đồ hoặc nguồn. Nếu status khác answered, phải nói rõ tra cứu chưa hoàn tất và không được xác nhận báo cáo hoàn chỉnh. Nếu tool trả văn bản, giữ nguyên văn bản đó; không bịa số liệu hay mô tả biểu đồ không hiện."
+      }
+    }
+  ]
+}

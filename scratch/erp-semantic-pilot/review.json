@@ -1,0 +1,19 @@
+{
+  "1": "Sai nghĩa: lấy nh_vt1..nh_vt7 thay vì BOM. DB có thành phần PS-576D (HIPS), BOM 1.0 có hiệu lực.",
+  "2": "Lỗi SQL rồi lỗi JSON khi sửa. Sao chép access_scope thiếu authenticated_user_id; tự lọc KH0034 trong câu chỉ hỏi mã hàng. DB có MOQ 1, giá 0.08563 USD của KH0015 hiệu lực 25/09–31/12/2026.",
+  "3": "Khớp mẫu ngày 20/10 và lượng 480; chưa đạt tổng quát: lấy một dòng ct81 thay vì tổng theo chứng từ, tự giới hạn thời gian; mã lot rỗng.",
+  "4": "Không chạy được: nối ph81.ln không tồn tại; dùng tien thay vì tien2; tự thêm so sánh kỳ. Tham chiếu đúng phạm vi: 82380 và 157711964.104.",
+  "5": "Khách KH0015 khớp trên mẫu nhưng lấy lịch sử giao dịch thay vì khách khai báo dmvt.ma_kh; lặp dòng và bị cắt ở 200. Chưa chứng minh đầy đủ danh sách khách.",
+  "6": "Lỗi JSON ở bước chọn báo cáo. Probe riêng tìm được phiếu nhập, lượng và user_id0; chưa xác nhận kho nguồn hay người thực nhập.",
+  "7": "Bộ guard baseline chặn nhầm literal DO; đây là lỗi harness. SQL vẫn dùng mã nguồn DO/FCST khác FC/SO quan sát trong DB, và chưa chứng minh ngay_tinh_toan là ngày phiên bản.",
+  "8": "Sai tồn: SUM(cdvt.ton00) không lọc năm và không cộng phát sinh, trả 72341. DB có packs0=60, ma_thung=BGTD0070, hệ số pallet=0. Chưa đủ để quy đổi pallet.",
+  "9": "Lỗi SQL, tự tạo uid=0 và tham chiếu tham số không khai báo. Probe riêng: tong_so_shot=1880302, so_shot_bh=1000000; không suy ra ngày hết tuổi thọ từ các số này.",
+  "10": "Trả rỗng với cặp mã hàng/KH0034 (probe cũng không có giao dịch), nhưng tự tạo uid=0, thiếu điều kiện chuẩn doanh thu; không tính là đối chiếu đạt.",
+  "11": "Trả rỗng do ép khuôn không liên quan và tự chọn uid=1. DB tem có die_no V1/V2, ma_khuon trống; cần quan hệ die_no–hồ sơ khuôn được xác nhận.",
+  "12": "Sai phạm vi: để ma_kh trống dù fixture có KH0034; kết quả chứa KH0017 và các khách khác. Tự chọn uid=1; join lịch giao cần kiểm tra nhân dòng. Probe đúng KH0034 có 5416 đơn/5495 dòng trong kỳ.",
+  "14": "Lỗi JSON ở bước chọn báo cáo. Probe sổ: 15588 đầu năm - 9548 phát sinh = 6040; tem hoạt động: 16420. Hai nguồn cần tên chỉ tiêu riêng.",
+  "13": "Lỗi SQL rồi JSON khi sửa; sao chép nhiều cột không phù hợp và thiếu authenticated_user_id. Fixture không có số lệnh cụ thể; nên yêu cầu mã lệnh hoặc nói rõ đang trả danh sách, đồng thời xác nhận sự kiện hoàn thành.",
+  "15": "SQL chạy nhưng tự đặt status='locked'/'quarantine' ở cdbsp, chưa có bằng chứng ánh xạ. Nguồn tham chiếu QC là intem_log.status_qc và sys_listoptions; trên mã mẫu, tem đang hoạt động mang mã 3 (OK).",
+  "16": "Lỗi ctkhnh.ma_kh không tồn tại, sau đó lỗi JSON. Dùng không có dòng bảng giá thay cho thiếu liên kết giá chưa được xác nhận. DB ct64 có gia_chuan; cần chuẩn hóa định nghĩa theo nghiệp vụ.",
+  "17": "Trả rỗng do so sánh tên đầy đủ bằng tên viết gọn 'Canon Quế Võ'; DB xác nhận KH0034 có tên đầy đủ Công ty TNHH Canon Việt Nam-Chi nhánh Quế Võ. Cần entity resolver dùng mã/tên/alias, không kết luận không có khách."
+}
