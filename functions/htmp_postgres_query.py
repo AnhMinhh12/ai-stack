@@ -13,7 +13,7 @@ import re
 import urllib.error
 import urllib.request
 import unicodedata
-from datetime import date, datetime
+from datetime import date, datetime, time
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -68,6 +68,129 @@ def normalize_code_text(value: str) -> str:
     folded = "".join(char for char in folded if unicodedata.category(char) != "Mn")
     folded = folded.replace("đ", "d").replace("Đ", "d").lower()
     return re.sub(r"[^a-z0-9/-]+", " ", folded).strip()
+
+
+def split_batched_erp_questions(question: str) -> list[str]:
+    """Split a Markdown list or comma-separated questions into lookups.
+
+    Open WebUI makes one native ``ask_erp`` call per chat turn.  A batch is
+    therefore executed inside that call so every bullet gets its own safe,
+    read-only lookup without asking the model to reuse a prior result.
+    """
+    items: list[str] = []
+    for line in (question or "").splitlines():
+        match = re.match(r"^\s*(?:[-*•]|\d+[.)])\s+(.+?)\s*$", line)
+        if match:
+            items.append(match.group(1))
+    if len(items) > 1:
+        return items
+    source = question or ""
+    # Ordinary sentence endings are reliable separators even if the user does
+    # not add a Markdown bullet or a comma after them.
+    inline_items = [
+        item.strip()
+        for item in re.split(r"(?<=[?!.])\s*(?:,\s*)?", source)
+        if item.strip()
+    ]
+    if len(inline_items) > 1:
+        return inline_items
+
+    # With no terminal punctuation, recognize a new standalone ERP request
+    # after a comma.  Do not split connective clauses such as "khi nào, ai lập
+    # phiếu"—the receipt result can answer those from the same row.
+    new_question_start = (
+        r"(?:m[ãa]\s+(?:hàng|hang|vật\s+tư|vat\s+tu)\b|"
+        r"phiếu\s+nhập\s+kho\b|phieu\s+nhap\s+kho\b|"
+        r"lần\s+nhập\s+kho\b|lan\s+nhap\s+kho\b|"
+        r"bảng\s+kê\b|bang\s+ke\b|liệt\s+kê\b|liet\s+ke\b|"
+        r"ngày\s+\d{1,2}[/-]\d{1,2}[/-]\d{4}\b|ngay\s+\d{1,2}[/-]\d{1,2}[/-]\d{4}\b|"
+        r"(?=[a-z0-9/-]*\d)(?=[a-z0-9/-]*[a-z])[a-z0-9]+(?:[-/][a-z0-9]+)*\b)"
+    )
+    natural_items = [
+        item.strip()
+        for item in re.split(rf",\s*(?={new_question_start})", source, flags=re.I)
+        if item.strip()
+    ]
+    merged_items: list[str] = []
+    date_only = re.compile(r"^(?:ngày|ngay)\s+\d{1,2}[/-]\d{1,2}[/-]\d{4}$", re.I)
+    for item in natural_items:
+        if merged_items and date_only.fullmatch(merged_items[-1]):
+            merged_items[-1] = f"{merged_items[-1]}, {item}"
+        else:
+            merged_items.append(item)
+    return merged_items if len(merged_items) > 1 else []
+
+
+def batch_lookup_key(question: str) -> tuple[str, tuple[str, ...], str] | None:
+    """Return a conservative cache key for equivalent material lookups."""
+    material_code = extract_erp_entities(question).get("ma_vt", "")
+    if not material_code:
+        return None
+    normalized = normalize_text(question)
+    dates = tuple(re.findall(r"\b(?:\d{1,2}/\d{1,2}/\d{4}|\d{4}-\d{2}-\d{2})\b", question))
+    latest_terms = ("khi nao", "gan nhat", "moi nhat", "lan cuoi", "lan nhap cuoi")
+    selection = "latest" if not dates and any(term in normalized for term in latest_terms) else "register"
+    return material_code, dates, selection
+
+
+def compact_batch_payload(payload: Any) -> dict[str, Any]:
+    """Keep a batch result small enough for the response model to answer all items."""
+    if not isinstance(payload, dict):
+        return {"message": str(payload)}
+    result: dict[str, Any] = {}
+    for field in ("lookup", "rows", "message", "summary", "row_count", "matched_row_count", "truncated"):
+        if field in payload:
+            result[field] = payload[field]
+    if not result:
+        result["message"] = payload.get("message", "Không có kết quả ERP có thể sử dụng.")
+    return result
+
+
+def format_batch_answer(results: list[dict[str, str]], answers: list[dict[str, Any]]) -> str:
+    """Render a compact, deterministic response so the chat model cannot omit a batch item."""
+    answer_by_id = {str(answer["answer_id"]): answer for answer in answers}
+    question_numbers: dict[str, list[int]] = {}
+    for index, result in enumerate(results, start=1):
+        question_numbers.setdefault(result["answer_id"], []).append(index)
+
+    def labels(numbers: list[int]) -> str:
+        if len(numbers) > 1 and numbers == list(range(numbers[0], numbers[-1] + 1)):
+            return f"Câu {numbers[0]}–{numbers[-1]}"
+        return "Câu " + ", ".join(str(number) for number in numbers)
+
+    def quantity(value: Any) -> str:
+        rendered = str(value or "0")
+        if "." in rendered:
+            rendered = rendered.rstrip("0").rstrip(".")
+        return rendered or "0"
+
+    def row_text(row: dict[str, Any]) -> str:
+        parts = [
+            str(row.get("ngay_ct") or ""),
+            str(row.get("so_ct") or ""),
+            str(row.get("ten_kho") or row.get("ma_kho") or ""),
+            f"{quantity(row.get('so_luong'))} {row.get('dvt') or ''}".strip(),
+            str(row.get("nguoi_lap") or ""),
+        ]
+        return " | ".join(part for part in parts if part)
+
+    sections: list[str] = []
+    for answer_id, numbers in question_numbers.items():
+        answer = answer_by_id[answer_id]
+        prefix = labels(numbers)
+        if answer.get("message"):
+            sections.append(f"{prefix}: {answer['message']}")
+            continue
+        rows = answer.get("rows") or []
+        if not rows:
+            sections.append(f"{prefix}: Không có dữ liệu.")
+            continue
+        if len(rows) == 1:
+            sections.append(f"{prefix}: {row_text(rows[0])}")
+            continue
+        sections.append(f"{prefix}: {len(rows)} phiếu.")
+        sections.extend(f"- {row_text(row)}" for row in rows if isinstance(row, dict))
+    return "\n".join(sections)
 
 
 def extract_erp_entities(text: str) -> dict[str, str]:
@@ -280,9 +403,9 @@ def load_report_config(report_id: str) -> dict[str, Any]:
     return config
 
 
-def load_report_sql(report: dict[str, Any]) -> str:
+def load_report_sql(report: dict[str, Any], query_file: str | None = None) -> str:
     """Load fixed report SQL in either the deployed or repository layout."""
-    query_file = report.get("query_file")
+    query_file = query_file or report.get("query_file")
     if not isinstance(query_file, str) or not query_file:
         raise ValueError("Report query file is missing")
     candidates = (
@@ -1260,6 +1383,197 @@ class Tools:
             default=str,
         )
 
+    def _warehouse_receipt_register(
+        self, question: str, authenticated_user_id: int | None
+    ) -> str | None:
+        """Run the receipt-register screen for a material receipt question.
+
+        This must run before the broad inventory-journal matcher: a phrase such
+        as ``số lượng nhập`` alone is not a request for a journal aggregate.
+        The PND/receipt-register data has a receiving warehouse, but no source
+        warehouse; internal transfers belong to the separate transfer register.
+        """
+        try:
+            report = load_report_config("bang-ke-phieu-nhap-kho")
+            parsed = parse_report_request(question, report)
+        except Exception:
+            return "Cấu hình Bảng kê phiếu nhập kho chưa sẵn sàng."
+        material_code = parsed["filters"].get("ma_vt", "") or extract_erp_entities(question).get("ma_vt", "")
+        if not material_code:
+            return None
+        if not business_intent_matches(
+            "warehouse_receipt_register", question, has_material_code=True
+        ):
+            return None
+        if authenticated_user_id is None:
+            return "Không có mapping ERP hợp lệ cho phiên chat; Bảng kê phiếu nhập kho bị chặn an toàn."
+        dates = parsed["dates"]
+        latest_receipt = not dates and business_intent_matches(
+            "latest_warehouse_receipt", question, has_material_code=True
+        )
+        try:
+            query = load_report_sql(
+                report, report.get("latest_query_file") if latest_receipt else None
+            )
+            row_limit = 1 if latest_receipt else min(
+                int(report.get("defaults", {}).get("limit", MAX_ROWS)), MAX_ROWS
+            )
+        except Exception:
+            return "SQL của Bảng kê phiếu nhập kho chưa sẵn sàng."
+
+        # A bare register request follows the UI's current-month default. A
+        # question asking when the item was received instead asks for its most
+        # recent receipt, through a separately indexed fixed query.
+        from_date = min(dates) if dates else date.today().replace(day=1)
+        to_date = max(dates) if dates else date.today()
+        used_default_dates = not dates and not latest_receipt
+        filters = parsed["filters"]
+        parameters = (
+            (authenticated_user_id, material_code, row_limit + 1)
+            if latest_receipt else
+            (
+                from_date, to_date, time.min, time.max,
+                filters.get("so_ct_tu", ""), filters.get("so_ct_den", ""),
+                filters.get("ma_kh", ""), filters.get("ma_kho", ""), material_code,
+                filters.get("nh_vt1", ""), filters.get("nh_vt2", ""), filters.get("nh_vt3", ""),
+                filters.get("nh_vt4", ""), filters.get("nh_vt5", ""), filters.get("nh_vt6", ""),
+                filters.get("nh_vt7", ""), filters.get("tk_vt", ""), filters.get("ma_ct", ""),
+                filters.get("ma_vv", ""), filters.get("ma_dvcs", ""), filters.get("ma_gd", ""),
+                filters.get("status", ""), authenticated_user_id, row_limit + 1,
+            )
+        )
+        try:
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute(query, parameters)
+                    columns = [item.name for item in cursor.description]
+                    raw_rows = cursor.fetchmany(row_limit + 1)
+        except Exception:
+            return "Không thể tra Bảng kê phiếu nhập kho trong ERP."
+        rows = [
+            dict(zip(columns, (json_value(value) for value in row)))
+            for row in raw_rows[:row_limit]
+        ]
+        result_fields = ("ngay_ct", "so_ct", "ma_vt", "ten_vt", "ma_kho", "ten_kho", "so_luong", "dvt", "nguoi_lap")
+        result_rows = [{field: row.get(field) for field in result_fields} for row in rows]
+        return json.dumps(
+            {
+                "report": {"id": report["id"], "title": report["title"]},
+                "source": report["sources"],
+                "query_scope": "manifest_and_fixed_sql_only",
+                "lookup": (
+                    {"ma_vt": material_code, "selection": "phiếu nhập kho gần nhất"}
+                    if latest_receipt else
+                    {"tu_ngay": from_date.isoformat(), "den_ngay": to_date.isoformat(), "ma_vt": material_code}
+                ),
+                "requested_columns": [
+                    {"field": field, "label": label}
+                    for field, label in (
+                        ("ngay_ct", "Ngày chứng từ"), ("so_ct", "Số phiếu"),
+                        ("ma_kho", "Kho nhập"), ("so_luong", "Số lượng nhập"),
+                        ("nguoi_lap", "Người lập phiếu"),
+                    )
+                ],
+                "source_warehouse": "UI Bảng kê phiếu nhập kho chỉ có cột Mã kho nhập (ma_kho), không có kho nguồn. Tra kho đi/kho đến bằng Bảng kê phiếu nhập, xuất điều chuyển.",
+                "matched_row_count": len(rows),
+                "row_count": len(result_rows),
+                "truncated": len(raw_rows) > row_limit,
+                "message": None if result_rows else (
+                    "Không có phiếu nhập kho gần nhất khớp mã hàng và phạm vi quyền được phép xem."
+                    if latest_receipt else
+                    (
+                        "Không có phiếu nhập kho khớp mã hàng và phạm vi quyền được phép xem "
+                        f"từ {from_date:%d/%m/%Y}–{to_date:%d/%m/%Y} (mặc định)."
+                        if used_default_dates else
+                        "Không có phiếu nhập kho khớp mã hàng và phạm vi quyền được phép xem."
+                    )
+                ),
+                "rows": result_rows,
+            },
+            ensure_ascii=False,
+            default=str,
+        )
+
+    def _sales_summary_by_material(
+        self, question: str, authenticated_user_id: int | None
+    ) -> str | None:
+        """Run the ``Tổng hợp hàng bán`` screen by material, never as a stock ledger."""
+        try:
+            report = load_report_config("tong-hop-ban-hang")
+            parsed = parse_report_request(question, report)
+        except Exception:
+            return None
+        if not parsed["matches_report"]:
+            return None
+        if authenticated_user_id is None:
+            return "Không có mapping ERP hợp lệ cho phiên chat; báo cáo Tổng hợp hàng bán bị chặn an toàn."
+        dates = parsed["dates"]
+        if not dates:
+            return "Cần nêu từ ngày và đến ngày để tra Tổng hợp hàng bán."
+        filters = parsed["filters"]
+        # Users commonly write ``(mã 003-M69-101-2)`` after the item name,
+        # rather than the longer label ``mã vật tư``.  Reuse the canonical
+        # entity extractor so that this remains a SQL filter.
+        material_code = filters.get("ma_vt", "") or extract_erp_entities(question).get("ma_vt", "")
+        if not material_code:
+            return "Cần nêu mã vật tư để tra tổng số lượng trong báo cáo Tổng hợp hàng bán."
+        try:
+            query = load_report_sql(report)
+            row_limit = min(int(report.get("defaults", {}).get("limit", MAX_ROWS)), MAX_ROWS)
+        except Exception:
+            return "SQL của báo cáo Tổng hợp hàng bán chưa sẵn sàng."
+        parameters = (
+            min(dates), max(dates), filters.get("ma_kh", ""), material_code,
+            filters.get("ma_dvcs", ""), authenticated_user_id, row_limit + 1,
+        )
+        try:
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute(query, parameters)
+                    columns = [item.name for item in cursor.description]
+                    rows = cursor.fetchmany(row_limit + 1)
+        except Exception:
+            return "Không thể tra Tổng hợp hàng bán trong ERP."
+        result_rows = [
+            dict(zip(columns, (json_value(value) for value in row)))
+            for row in rows[:row_limit]
+        ]
+        total_quantity = sum(
+            (Decimal(str(row.get("so_luong") or "0")) for row in result_rows), Decimal("0")
+        )
+        total_revenue = sum(
+            (Decimal(str(row.get("doanh_thu") or "0")) for row in result_rows), Decimal("0")
+        )
+        return json.dumps(
+            {
+                "report": {"id": report["id"], "title": report["title"]},
+                "source": report["sources"],
+                "query_scope": "manifest_and_fixed_sql_only",
+                "lookup": {
+                    "tu_ngay": min(dates).isoformat(),
+                    "den_ngay": max(dates).isoformat(),
+                    "ma_vt": material_code,
+                },
+                "requested_columns": parsed["requested_columns"],
+                "summary": {
+                    "tong_so_luong": str(total_quantity),
+                    "tong_doanh_thu": str(total_revenue),
+                },
+                "matched_row_count": len(result_rows),
+                "row_count": len(result_rows),
+                "truncated": len(rows) > row_limit,
+                "rows": result_rows,
+            },
+            ensure_ascii=False,
+            default=str,
+        )
+
     def _sales_price_moq(
         self, question: str, filters: dict[str, str], authenticated_user_id: int | None
     ) -> str | None:
@@ -1445,10 +1759,62 @@ class Tools:
         question = (question or "").strip()
         if not question:
             return "Cần cung cấp câu hỏi ERP để tra cứu."
+        batch_questions = split_batched_erp_questions(question)
+        if batch_questions:
+            if len(batch_questions) > 10:
+                return "Chỉ hỗ trợ tối đa 10 câu hỏi ERP trong một lượt."
+            cached_answers: dict[tuple[str, tuple[str, ...], str], str] = {}
+            answers: list[dict[str, Any]] = []
+            results: list[dict[str, str]] = []
+            known_material_names: dict[str, str] = {}
+            for index, batch_question in enumerate(batch_questions, start=1):
+                execution_question = batch_question
+                if not extract_erp_entities(execution_question).get("ma_vt"):
+                    normalized_question = normalize_text(execution_question)
+                    for material_name, material_code in known_material_names.items():
+                        if material_name in normalized_question:
+                            execution_question = f"{execution_question}\nMã hàng {material_code}"
+                            break
+                cache_key = batch_lookup_key(execution_question)
+                answer_id = cached_answers.get(cache_key) if cache_key else None
+                if answer_id is None:
+                    result = self.ask_erp(
+                        execution_question,
+                        context="",
+                        conversation_id=f"{conversation_id or __chat_id__}:batch:{index}",
+                        __user__=__user__,
+                    )
+                    try:
+                        result_payload: Any = json.loads(result)
+                    except (TypeError, ValueError):
+                        result_payload = {"message": result}
+                    for row in result_payload.get("rows", []) if isinstance(result_payload, dict) else []:
+                        if isinstance(row, dict) and row.get("ten_vt") and row.get("ma_vt"):
+                            known_material_names[normalize_text(str(row["ten_vt"]))] = str(row["ma_vt"])
+                    answer_id = f"r{len(answers) + 1}"
+                    answers.append({"answer_id": answer_id, **compact_batch_payload(result_payload)})
+                    if cache_key:
+                        cached_answers[cache_key] = answer_id
+                results.append({"question": batch_question, "answer_id": answer_id})
+            return json.dumps(
+                {
+                    "status": "batch_success",
+                    "batch_count": len(results),
+                    "rendered_answer": format_batch_answer(results, answers),
+                },
+                ensure_ascii=False,
+                default=str,
+            )
         authenticated_user_id = trusted_erp_user_id(__user__)
         location_balance = self._inventory_location_balance(question, authenticated_user_id)
         if location_balance is not None:
             return location_balance
+        warehouse_receipts = self._warehouse_receipt_register(question, authenticated_user_id)
+        if warehouse_receipts is not None:
+            return warehouse_receipts
+        sales_summary = self._sales_summary_by_material(question, authenticated_user_id)
+        if sales_summary is not None:
+            return sales_summary
         try:
             journal_report = load_report_config("nhat-ky-nhap-xuat-ton")
             if parse_report_request(question, journal_report)["matches_report"]:

@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 5,
   "material_classification": {
     "production_type_codes": ["41", "51"],
     "production_labels": {"41": "Bán thành phẩm", "51": "Thành phẩm"},
@@ -45,6 +45,22 @@
       },
       "access": "authenticated_erp_user",
       "result": ["ma_kh", "ten_kh", "gia_truoc_vat_vnd", "gia_truoc_vat_nguyen_te", "gia_sau_vat_vnd", "gia_sau_vat_nguyen_te", "ma_thue", "thue_suat", "ngay_bd", "ngay_kt", "da_duyet", "da_dong", "trang_thai_chung_tu"]
+    },
+    {
+      "id": "warehouse_receipt_register",
+      "description": "Tra từng dòng Bảng kê phiếu nhập kho của một mã hàng: ngày/số phiếu, kho nhập, số lượng và người lập. Kho nguồn không thuộc màn này; điều chuyển dùng Bảng kê phiếu nhập, xuất điều chuyển.",
+      "match": {"all": ["ma_vt"], "any": ["bang ke phieu nhap kho", "bang ke nhap kho", "phieu nhap kho", "nhap kho", "nhap vao kho", "duoc nhap kho", "lap phieu nhap", "ai lap phieu", "nguoi lap phieu nhap"]},
+      "source": {"header": "public.ph74", "line": "public.ct74", "transaction": "public.ct70", "kind": "warehouse_receipt_register"},
+      "access": "authenticated_erp_user",
+      "result": ["ngay_ct", "so_ct", "ma_vt", "ten_vt", "ma_kho", "ten_kho", "so_luong", "dvt", "nguoi_lap"]
+    },
+    {
+      "id": "latest_warehouse_receipt",
+      "description": "Tra lần nhập kho gần nhất của một mã hàng khi người dùng hỏi 'khi nào', 'gần nhất', 'mới nhất' hoặc 'lần cuối'.",
+      "match": {"all": ["ma_vt"], "any": ["khi nao", "gan nhat", "moi nhat", "lan nhap gan nhat", "lan cuoi", "lan nhap cuoi"]},
+      "source": {"header": "public.ph74", "line": "public.ct74", "transaction": "public.ct70", "kind": "latest_warehouse_receipt"},
+      "access": "authenticated_erp_user",
+      "result": ["ngay_ct", "so_ct", "ma_vt", "ten_vt", "ma_kho", "ten_kho", "so_luong", "dvt", "nguoi_lap"]
     }
   ]
 }

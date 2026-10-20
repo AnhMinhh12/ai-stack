@@ -153,6 +153,8 @@ class InventoryMovementJournalContractTests(unittest.TestCase):
     def test_erp_profile_requires_exactly_one_tool_call_for_each_turn(self):
         profile = (ROOT / "functions" / "htmp_fast_rag.py").read_text()
         self.assertIn("EXACTLY ONE native call to ask_erp FIRST", profile)
+        self.assertIn("emit ZERO natural-language text", profile)
+        self.assertIn("Never preface a tool call", profile)
         self.assertIn("NEVER call ask_erp a second time in the same turn", profile)
         self.assertNotIn('body["tool_choice"] = "required"', profile)
 
@@ -198,6 +200,117 @@ class InventoryMovementJournalContractTests(unittest.TestCase):
         self.assertEqual(parsed["filters"], {"ma_vt": "VGU1A532Z"})
         self.assertEqual(set(parsed["requested_fields"]), {"ma_vt", "sl_xuat"})
         self.assertIn("sl_xuat", self.report["output"]["metrics"])
+
+    def test_sales_summary_routes_material_quantity_to_sales_screen(self):
+        report = ERP.load_report_config("tong-hop-ban-hang")
+        question = (
+            "Từ ngày 01/10/2026 đến 19/10/2026, tổng số lượng xuất kho "
+            "của mặt hàng Plate Diaphragm (mã 003-M69-101-2) là bao nhiêu?"
+        )
+        parsed = ERP.parse_report_request(question, report)
+        self.assertTrue(parsed["matches_report"])
+        self.assertEqual(ERP.extract_erp_entities(question)["ma_vt"], "003-M69-101-2")
+        self.assertNotIn("ma_kho", parsed["filters"])
+        self.assertEqual(ERP.load_report_sql(report).count("%s"), 7)
+
+    def test_receipt_register_question_is_not_a_journal_metric_total(self):
+        question = (
+            "Mã hàng VT-001 được nhập kho khi nào? Từ kho nào sang? "
+            "Số lượng nhập là bao nhiêu? Người nhập là ai?"
+        )
+        receipt_report = ERP.load_report_config("bang-ke-phieu-nhap-kho")
+        journal_report = ERP.load_report_config("nhat-ky-nhap-xuat-ton")
+        receipt = ERP.parse_report_request(question, receipt_report)
+        journal = ERP.parse_report_request(question, journal_report)
+        self.assertEqual(receipt["filters"]["ma_vt"], "VT-001")
+        self.assertIn("so_luong", receipt["requested_fields"])
+        self.assertIn("nguoi_lap", receipt["requested_fields"])
+        self.assertIn("sl_nhap", journal["requested_fields"])
+        self.assertEqual(ERP.load_report_sql(receipt_report).count("%s"), 24)
+
+    def test_receipt_register_accepts_nhap_vao_kho_wording(self):
+        question = "VT-001 nhập vào kho từ kho nào, vào ngày nào và ai lập phiếu nhập?"
+        report = ERP.load_report_config("bang-ke-phieu-nhap-kho")
+        self.assertTrue(ERP.parse_report_request(question, report)["matches_report"])
+        with patch.object(ERP, "ERP_BUSINESS_INTENTS_PATH", ROOT / "config" / "erp-business-intents.json"):
+            self.assertTrue(
+                ERP.business_intent_matches(
+                    "warehouse_receipt_register", question, has_material_code=True
+                )
+            )
+
+    def test_receipt_when_question_uses_latest_fixed_sql(self):
+        question = "VT-001 nhập kho khi nào?"
+        report = ERP.load_report_config("bang-ke-phieu-nhap-kho")
+        self.assertEqual(ERP.parse_report_request(question, report)["dates"], [])
+        self.assertEqual(
+            ERP.load_report_sql(report, report["latest_query_file"]).count("%s"), 3
+        )
+        with patch.object(ERP, "ERP_BUSINESS_INTENTS_PATH", ROOT / "config" / "erp-business-intents.json"):
+            self.assertTrue(
+                ERP.business_intent_matches(
+                    "latest_warehouse_receipt", question, has_material_code=True
+                )
+            )
+
+    def test_markdown_bullet_questions_are_split_for_one_tool_call(self):
+        questions = ERP.split_batched_erp_questions(
+            "- VKL2A042H46ZA nhập kho khi nào?\n"
+            "- Ai lập phiếu nhập gần nhất cho VKL2A042H46ZA?"
+        )
+        self.assertEqual(questions, [
+            "VKL2A042H46ZA nhập kho khi nào?",
+            "Ai lập phiếu nhập gần nhất cho VKL2A042H46ZA?",
+        ])
+
+    def test_comma_separated_questions_are_split_for_one_tool_call(self):
+        questions = ERP.split_batched_erp_questions(
+            "VKL2A042H46ZA nhập kho khi nào?, "
+            "Ai lập phiếu nhập gần nhất cho VKL2A042H46ZA?"
+        )
+        self.assertEqual(questions, [
+            "VKL2A042H46ZA nhập kho khi nào?",
+            "Ai lập phiếu nhập gần nhất cho VKL2A042H46ZA?",
+        ])
+
+    def test_natural_comma_separated_questions_are_split(self):
+        questions = ERP.split_batched_erp_questions(
+            "Phiếu nhập kho gần nhất của VKL2A042H46ZA là phiếu nào, "
+            "VKL2A042H46ZA được nhập vào kho nào gần nhất, "
+            "Ngày 01/10/2026, VKL2A042H46ZA nhập kho bao nhiêu"
+        )
+        self.assertEqual(questions, [
+            "Phiếu nhập kho gần nhất của VKL2A042H46ZA là phiếu nào",
+            "VKL2A042H46ZA được nhập vào kho nào gần nhất",
+            "Ngày 01/10/2026, VKL2A042H46ZA nhập kho bao nhiêu",
+        ])
+
+    def test_connected_clauses_remain_one_question(self):
+        question = "VKL2A042H46ZA nhập kho khi nào, ai lập phiếu và số lượng bao nhiêu?"
+        self.assertEqual(ERP.split_batched_erp_questions(question), [])
+
+    def test_batch_payload_is_compact_and_deduplication_key_is_stable(self):
+        payload = ERP.compact_batch_payload({
+            "source": ["ct70"], "lookup": {"ma_vt": "VKL2A042H46ZA"},
+            "rows": [{"ma_vt": "VKL2A042H46ZA", "so_luong": "80"}],
+            "matched_row_count": 1, "message": None,
+        })
+        self.assertNotIn("source", payload)
+        self.assertEqual(payload["lookup"]["ma_vt"], "VKL2A042H46ZA")
+        self.assertEqual(
+            ERP.batch_lookup_key("VKL2A042H46ZA nhập kho khi nào?"),
+            ERP.batch_lookup_key("Ai lập phiếu nhập gần nhất cho VKL2A042H46ZA?"),
+        )
+
+    def test_batch_answer_groups_shared_results_and_keeps_rows_compact(self):
+        rendered = ERP.format_batch_answer(
+            [{"question": "a", "answer_id": "r1"}, {"question": "b", "answer_id": "r1"}],
+            [{"answer_id": "r1", "rows": [{
+                "ngay_ct": "2026-10-01", "so_ct": "001", "ten_kho": "Kho TP00",
+                "so_luong": "80.0000", "dvt": "PCS", "nguoi_lap": "KHO4",
+            }]}],
+        )
+        self.assertEqual(rendered, "Câu 1–2: 2026-10-01 | 001 | Kho TP00 | 80 PCS | KHO4")
 
     def test_unit_of_measure_selects_dvt_column(self):
         parsed = ERP.parse_report_request(

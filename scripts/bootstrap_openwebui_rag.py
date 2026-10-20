@@ -1,12 +1,35 @@
 #!/usr/bin/env python3
 """Copy versioned HTMP RAG configuration into an Open WebUI runtime and upsert it."""
 from __future__ import annotations
-import argparse, shutil, subprocess, tempfile
+import argparse, subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 def run(command: list[str]) -> None:
     subprocess.run(command, check=True)
+
+
+def container_mount_writable(container: str, destination: str) -> bool | None:
+    """Return bind/volume writability, or None when destination is not mounted."""
+    template = (
+        "{{range .Mounts}}{{if eq .Destination \""
+        + destination
+        + "\"}}{{.RW}}{{end}}{{end}}"
+    )
+    result = subprocess.run(
+        ["docker", "inspect", "--format", template, container],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    value = result.stdout.strip().lower()
+    if value == "true":
+        return True
+    if value == "false":
+        return False
+    return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--container", default="open-webui")
@@ -35,7 +58,15 @@ def main() -> int:
         run(["docker", "cp", str(path), f"{args.container}:{remote}/{path.name}"])
     run(["docker", "cp", str(ROOT / "config/erp-business-intents.json"), f"{args.container}:/app/backend/data/erp-business-intents.json"])
     for package in package_dirs:
-        run(["docker", "exec", args.container, "rm", "-rf", f"/app/backend/{package.name}"])
+        destination = f"/app/backend/{package.name}"
+        if container_mount_writable(args.container, destination) is False:
+            # docker-compose bind-mounts the repository package read-only. Its
+            # contents are already current and cannot be replaced from inside
+            # the container.
+            run(["docker", "exec", args.container, "test", "-f", f"{destination}/__init__.py"])
+            print(f"bootstrap package: using read-only mount {destination}")
+            continue
+        run(["docker", "exec", args.container, "rm", "-rf", destination])
         run(["docker", "cp", str(package), f"{args.container}:/app/backend/"])
     run(["docker", "exec", args.container, "sh", "-c", "rm -rf /app/backend/data/erp-reports /app/backend/data/erp-sql && mkdir -p /app/backend/data/erp-reports /app/backend/data/erp-sql"])
     run(["docker", "cp", f"{ROOT/'config/erp-reports'}/.", f"{args.container}:/app/backend/data/erp-reports/"])

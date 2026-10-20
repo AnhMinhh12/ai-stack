@@ -41,6 +41,19 @@ def main() -> int:
         missing = sorted((expected_functions - found_functions) | (expected_tools - found_tools) | (expected_models - found_models))
         if missing:
             fail("bootstrap objects missing: " + ", ".join(missing))
+        stale = []
+        for item in function_items:
+            row = conn.execute("select content from function where id=?", (item["id"],)).fetchone()
+            expected = (Path(args.source_dir) / item["source"]).read_text()
+            if not row or row[0] != expected:
+                stale.append(item["id"])
+        for item in tool_items:
+            row = conn.execute("select content from tool where id=?", (item["id"],)).fetchone()
+            expected = (Path(args.source_dir) / item["source"]).read_text()
+            if not row or row[0] != expected:
+                stale.append(item["id"])
+        if stale:
+            fail("bootstrap object content is stale: " + ", ".join(sorted(stale)))
         print("bootstrap check: PASS")
         return 0
     now = str(int(time.time()))
