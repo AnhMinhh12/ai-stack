@@ -33,6 +33,26 @@ class ExportTests(unittest.TestCase):
         self.assertEqual(blocks_from_rows({"rows": ["unstructured"]}), [])
         self.assertEqual(blocks_from_rows({"status": "invalid_result", "rows": [{"dvt": "PCS"}]}), [])
 
+    def test_blocks_from_rows_cleans_trailing_zeros(self):
+        payload = {
+            "status": "success",
+            "summary": {
+                "tong_so_luong": "229140.00000000000000000000",
+                "tong_doanh_thu": "457656389.82400000000000000000",
+            },
+            "rows": [{
+                "ma_vt": "QC7-5146-000",
+                "so_luong": "229140.00000000000000000000",
+                "doanh_thu": "175446405.12000000000000000000",
+                "total": 1,
+            }],
+        }
+        blocks = blocks_from_rows(payload)
+        self.assertEqual(blocks[0]["text"], "Thống kê ERP — Tổng số lượng: 229140, Tổng doanh thu: 457656389.824")
+        self.assertEqual(blocks[1]["rows"][0]["so_luong"], "229140")
+        self.assertEqual(blocks[1]["rows"][0]["doanh_thu"], "175446405.12")
+        self.assertNotIn("total", [c["key"] for c in blocks[1]["columns"]])
+
     def test_existing_erp_report_shows_summary_and_receipt_chart(self):
         payload = {
             "status": "success", "report": {"title": "Bảng kê phiếu nhập kho"},

@@ -510,5 +510,51 @@ class InventoryMovementJournalContractTests(unittest.TestCase):
         self.assertEqual(request.filters["so_ct"], "001-2609-000025")
 
 
+    def test_two_period_comparison_question_is_split(self):
+        question = (
+            "So sánh doanh thu mã QC7-5146-000 của khách KH0015 trong hai khoảng "
+            "01/09/2026–20/09/2026 và 01/10/2026–20/10/2026. Nêu số lượng và doanh thu từng kỳ."
+        )
+        splits = ERP.split_batched_erp_questions(question)
+        self.assertEqual(splits, [
+            "Doanh thu và số lượng mã QC7-5146-000 của khách KH0015 từ ngày 01/09/2026 đến ngày 20/09/2026",
+            "Doanh thu và số lượng mã QC7-5146-000 của khách KH0015 từ ngày 01/10/2026 đến ngày 20/10/2026",
+        ])
+
+    def test_clean_numeric_str(self):
+        self.assertEqual(ERP.clean_numeric_str(Decimal("229140.00000000000000000000")), "229140")
+        self.assertEqual(ERP.clean_numeric_str(Decimal("457656389.8240000000000000000")), "457656389.824")
+        self.assertEqual(ERP.clean_numeric_str("84840.00000000000000000000"), "84840")
+        self.assertEqual(ERP.clean_numeric_str("175446405.12000000000000000000"), "175446405.12")
+        self.assertEqual(ERP.clean_numeric_str("0.0000"), "0")
+
+    def test_format_batch_answer_with_revenue_and_periods(self):
+        results = [
+            {"question": "Kỳ 1", "answer_id": "r1"},
+            {"question": "Kỳ 2", "answer_id": "r2"},
+        ]
+        answers = [
+            {
+                "answer_id": "r1",
+                "lookup": {"tu_ngay": "2026-09-01", "den_ngay": "2026-09-20"},
+                "rows": [{
+                    "ma_vt": "QC7-5146-000", "so_luong": "84840", "dvt": "PCS",
+                    "doanh_thu": "175446405.12",
+                }],
+            },
+            {
+                "answer_id": "r2",
+                "lookup": {"tu_ngay": "2026-10-01", "den_ngay": "2026-10-20"},
+                "rows": [{
+                    "ma_vt": "QC7-5146-000", "so_luong": "89100", "dvt": "PCS",
+                    "doanh_thu": "170992971.592",
+                }],
+            },
+        ]
+        rendered = ERP.format_batch_answer(results, answers)
+        self.assertIn("Câu 1 (Kỳ 2026-09-01 đến 2026-09-20): 84840 PCS | doanh thu: 175446405.12", rendered)
+        self.assertIn("Câu 2 (Kỳ 2026-10-01 đến 2026-10-20): 89100 PCS | doanh thu: 170992971.592", rendered)
+
+
 if __name__ == "__main__":
     unittest.main()

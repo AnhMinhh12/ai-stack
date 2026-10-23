@@ -143,7 +143,7 @@
       "join": "dmvt.ma_kh = dmkh.ma_kh",
       "fields": ["ma_vt", "ma_kh", "ten_kh"],
       "validation": "pending_ui_validation",
-      "manifest": "config/erp-reports/agent-material-customer.json",
+      "manifest": "config/erp-reports/danh-muc-san-pham-vat-tu.json",
       "query_file": "sql/erp-reports/agent-material-customer.sql",
       "parameters": ["user_id", "material", "row_limit"]
     },
@@ -362,7 +362,7 @@
       "join": "ph64 join ct64 using(stt_rec)",
       "fields": ["ma_vt", "order_lines", "null_price_lines", "zero_price_lines"],
       "validation": "pending_ui_validation",
-      "manifest": "config/erp-reports/agent-sales-order-price-gaps.json",
+      "manifest": "config/erp-reports/don-hang-hop-dong.json",
       "query_file": "sql/erp-reports/agent-sales-order-price-gaps.sql",
       "parameters": ["user_id", "customer", "date_from", "date_to", "row_limit"]
     },

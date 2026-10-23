@@ -33,13 +33,27 @@ TRANSACTION = re.compile(
     r"(?:mã\s*giao\s*dịch|ma\s*giao\s*dich|mã\s*gd|ma\s*gd)\s*[:#-]?\s*(\d{4,})",
     re.I,
 )
+CUSTOMER = re.compile(
+    r"(?:khách\s*hàng|khach\s*hang|khách|khach|mã\s*kh|ma\s*kh)\s*[:#-]?\s*([a-z0-9]+)\b|\b(KH\d+|NCC\d+)\b",
+    re.I,
+)
 
 
 def extract_entities(text: str) -> dict[str, str]:
     """Return explicit identifiers; never infer values from similar records."""
     value = text or ""
     document = DOCUMENT.search(value)
-    material = MATERIAL.search(value)
+    customer = CUSTOMER.search(value)
+    customer_code = (customer.group(1) or customer.group(2)).upper() if customer else ""
+
+    material = None
+    for m in MATERIAL.finditer(value):
+        candidate = m.group(0).upper()
+        if customer_code and candidate == customer_code:
+            continue
+        material = m
+        break
+
     numeric_material = NUMERIC_MATERIAL.search(value)
     standalone_numeric_material = STANDALONE_NUMERIC_MATERIAL.match(value)
     labelled_hyphenated_material = LABELLED_HYPHENATED_MATERIAL.search(value)
@@ -59,6 +73,7 @@ def extract_entities(text: str) -> dict[str, str]:
                 ), standalone_numeric_material.group(1) if standalone_numeric_material else "")
             )
         ),
+        "ma_kh": customer_code,
         "so_ct": document.group(0) if document else "",
         "ngay_ct": date.group(0) if date else "",
         "ma_gd": transaction.group(1) if transaction else "",
@@ -69,5 +84,5 @@ def merge_filters(current: Mapping[str, str], previous: Mapping[str, str]) -> di
     """Current-turn explicit values override state; missing values inherit state."""
     return {
         key: current.get(key) or previous.get(key) or ""
-        for key in ("ma_vt", "so_ct", "ngay_ct", "ma_gd")
+        for key in ("ma_vt", "ma_kh", "so_ct", "ngay_ct", "ma_gd")
     }

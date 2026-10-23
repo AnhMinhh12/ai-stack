@@ -1,7 +1,7 @@
 {
   "id": "danh-muc-bang-gia",
   "title": "Danh mục bảng giá",
-  "match_phrases": ["danh mục bảng giá", "bảng giá bán", "moq báo giá", "giá áp dụng hiện tại", "số lượng tối thiểu", "số lượng đặt tối thiểu", "mức đặt tối thiểu", "giá đang áp dụng", "giá hiệu lực"],
+  "match_phrases": ["danh mục bảng giá", "bảng giá bán", "moq báo giá", "giá áp dụng hiện tại", "số lượng tối thiểu", "số lượng đặt tối thiểu", "mức đặt tối thiểu", "giá đang áp dụng", "giá hiệu lực", "moq", "mức moq"],
   "validation": {"status": "pending_ui_validation", "required_ui_comparisons": 3},
   "inputs": {"required": [], "filters": [
     {"parameter": "ma_bang_gia", "column": "dmbanggia.ma_bang_gia", "aliases": ["mã bảng giá", "bảng giá"], "value_type": "code"},

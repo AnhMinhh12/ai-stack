@@ -1,0 +1,3272 @@
+[
+  {
+    "id": 1,
+    "question": "Mã hàng QC7-5146-000 dùng loại nhựa gì? Cấu trúc sản phẩm của mã hàng này gồm những gì?",
+    "db_fact": [
+      {
+        "bom_code": "QC7-5146-000-1.0",
+        "bom_version": "1.0",
+        "status": "1",
+        "valid_from": "2023-01-01",
+        "valid_to": "2032-11-02",
+        "material_code": "PS-576D",
+        "ten_vt": "HIPS 576H GR21  PSMT VE0271-33 Nu-0215 Dim black MBB3%",
+        "quantity": 0.026000000000000002,
+        "uom": "KG"
+      }
+    ],
+    "ask_erp_result": {
+      "report": {
+        "id": "bao-cao-cau-truc-san-pham",
+        "title": "Cấu trúc sản phẩm (BOM)"
+      },
+      "lookup": {
+        "ma_vt": "QC7-5146-000"
+      },
+      "rows": [
+        {
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_nvl": "PS-576D",
+          "bom_info": "Mã hàng QC7-5146-000 dùng loại nhựa PS-576D (HIPS 576H GR21  PSMT VE0271-33 Nu-0215 Dim black MBB3%), định mức: 0.026000000000000002 KG. Cấu trúc sản phẩm theo BOM QC7-5146-000-1.0 (phiên bản 1.0, hiệu lực từ 2023-01-01 đến 2032-11-02)."
+        }
+      ],
+      "message": "Mã hàng QC7-5146-000 dùng loại nhựa PS-576D (HIPS 576H GR21  PSMT VE0271-33 Nu-0215 Dim black MBB3%), định mức: 0.026000000000000002 KG. Cấu trúc sản phẩm theo BOM QC7-5146-000-1.0 (phiên bản 1.0, hiệu lực từ 2023-01-01 đến 2032-11-02)."
+    }
+  },
+  {
+    "id": 2,
+    "question": "MOQ báo giá hiện tại của mã QC7-5146-000 là bao nhiêu? Giá áp dụng hiện tại theo từng mức MOQ là bao nhiêu?",
+    "db_fact": [
+      {
+        "ma_kh": "KH0015",
+        "sl_min": 1.0,
+        "dvt": "PCS",
+        "gia": 0.08563,
+        "gia0": 0.08563,
+        "ma_nt": "USD",
+        "ngay_bd": "2026-09-25",
+        "ngay_kt": "2026-12-31",
+        "status": "1"
+      }
+    ],
+    "ask_erp_result": {
+      "report": {
+        "id": "danh-muc-bang-gia",
+        "title": "Danh mục bảng giá"
+      },
+      "source": [
+        "dmbanggia",
+        "dmbanggiact",
+        "dmvt",
+        "dmkh",
+        "userinfo"
+      ],
+      "query_scope": "manifest_and_fixed_sql_only",
+      "lookup": {
+        "ma_vt": "QC7-5146-000",
+        "ngay_tra_cuu": "2026-10-23"
+      },
+      "requested_columns": [
+        {
+          "field": "gia",
+          "label": "Giá sau VAT"
+        },
+        {
+          "field": "sl_min",
+          "label": "MOQ"
+        }
+      ],
+      "matched_row_count": 10,
+      "row_count": 1,
+      "truncated": false,
+      "moq_interpretation": "Hiển thị nguyên từng dòng sl_min dưới nhãn 'MOQ', không thêm từ 'từ', không suy ra cận trên và không gộp các bậc giá.",
+      "price_list_scope": "Các dòng đang hiệu lực tại ngày tra cứu, chọn phiên bản có ngày bắt đầu mới nhất cho mỗi bậc MOQ; chỉ trả lịch sử khi không có dòng hiệu lực.",
+      "rows": [
+        {
+          "ma_bang_gia": "BGC",
+          "ma_vt": "QC7-5146-000",
+          "ma_kh": "KH0015",
+          "dvt": "PCS",
+          "sl_min": "1",
+          "ma_nt": "USD",
+          "gia0": "0.08563",
+          "gia": "0.08563",
+          "ngay_bd": "2026-09-25",
+          "ngay_kt": "2026-12-31",
+          "status": "1"
+        }
+      ],
+      "message": "Mã QC7-5146-000 có bảng giá đang áp dụng: khách KH0015: MOQ tối thiểu = 1 PCS, giá áp dụng hiện tại = 0.08563 USD/PCS (hiệu lực 2026-09-25 đến 2026-12-31)"
+    }
+  },
+  {
+    "id": 3,
+    "question": "Tính đến ngày 20/10/2026, lot gần nhất được xuất giao của mã QC7-5146-000 là lot nào? Ngày xuất và số lượng bao nhiêu?",
+    "db_fact": [
+      {
+        "stt_rec": "A1000000028862630HDA",
+        "so_ct": "001-2610-001884",
+        "ngay_lct": "2026-10-20",
+        "ngay_ct": "2026-10-20",
+        "status": "2",
+        "lots": [
+          null
+        ],
+        "quantity": 420.0
+      },
+      {
+        "stt_rec": "A1000000028862958HDA",
+        "so_ct": "001-2610-001883",
+        "ngay_lct": "2026-10-20",
+        "ngay_ct": "2026-10-20",
+        "status": "2",
+        "lots": [
+          null
+        ],
+        "quantity": 600.0
+      },
+      {
+        "stt_rec": "A1000000028860403HDA",
+        "so_ct": "001-2610-001881",
+        "ngay_lct": "2026-10-20",
+        "ngay_ct": "2026-10-20",
+        "status": "2",
+        "lots": [
+          null
+        ],
+        "quantity": 900.0
+      }
+    ],
+    "ask_erp_result": {
+      "source": "public.ph81 + public.ct81 (Bảng kê phiếu xuất kho bán hàng)",
+      "lookup": {
+        "ma_vt": "QC7-5146-000",
+        "khoang_thoi_gian": "toàn bộ dữ liệu được phép xem"
+      },
+      "summary": {
+        "lan_giao_gan_nhat": "2026-10-20",
+        "so_luong_giao": "420",
+        "dvt": "PCS",
+        "so_ct": "001-2610-001884",
+        "ma_lo": "trống (chưa gắn mã lot trên chứng từ xuất bán)"
+      },
+      "row_count": 1,
+      "rows": [
+        {
+          "ngay_lct": "2026-10-20",
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-001884",
+          "ma_kh": "KH0015",
+          "ten_kh": "CVN1",
+          "ma_vt": "QC7-5146-000",
+          "dvt": "PCS",
+          "so_luong_giao": "420",
+          "ma_dvcs": "001",
+          "lots": [
+            null
+          ],
+          "so_dong": 1
+        }
+      ],
+      "message": "Lần xuất giao gần nhất của mã QC7-5146-000: Ngày xuất 2026-10-20, chứng từ 001-2610-001884, số lượng 420 PCS. Mã lot ghi nhận trên hệ thống ERP: trống (chưa gắn mã lot trên chứng từ xuất bán)."
+    }
+  },
+  {
+    "id": 4,
+    "question": "Từ ngày 01/10/2026 đến hết ngày 20/10/2026, tổng số lượng xuất bán và doanh thu của mã QC7-5146-000 là bao nhiêu?",
+    "db_fact": {
+      "lines": 322,
+      "quantity": 89100.0,
+      "tien2": 170992971.592
+    },
+    "ask_erp_result": {
+      "report": {
+        "id": "tong-hop-ban-hang",
+        "title": "Tổng hợp hàng bán"
+      },
+      "source": [
+        "ph81",
+        "ct81",
+        "dmvt",
+        "dmkh",
+        "dmkho",
+        "userinfo"
+      ],
+      "query_scope": "manifest_and_fixed_sql_only",
+      "lookup": {
+        "tu_ngay": "2026-10-01",
+        "den_ngay": "2026-10-20",
+        "ma_vt": "QC7-5146-000",
+        "ma_kh": ""
+      },
+      "requested_columns": [
+        {
+          "field": "so_luong",
+          "label": "Số lượng"
+        },
+        {
+          "field": "doanh_thu",
+          "label": "Doanh thu"
+        },
+        {
+          "field": "ma_vt",
+          "label": "Mã vật tư"
+        }
+      ],
+      "summary": {
+        "tong_so_luong": "89100",
+        "tong_doanh_thu": "170992971.592"
+      },
+      "matched_row_count": 1,
+      "row_count": 1,
+      "truncated": false,
+      "message": "Mã hàng QC7-5146-000 (từ ngày 01/10/2026 đến ngày 20/10/2026): Tổng số lượng xuất bán: 89100 PCS, tổng doanh thu: 170992971.592 VND.",
+      "rows": [
+        {
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "dvt": "PCS",
+          "so_luong": "89100",
+          "doanh_thu": "170992971.592",
+          "total": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": 5,
+    "question": "Mã hàng QC7-5146-000 được khai báo thuộc khách hàng nào?",
+    "db_fact": {
+      "ma_vt": "QC7-5146-000",
+      "ma_kh": "KH0015",
+      "ten_kh": "Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long"
+    },
+    "ask_erp_result": {
+      "status": "success",
+      "summary": {},
+      "rows": [
+        {
+          "ma_vt": "QC7-5146-000",
+          "ma_vt2": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ten_vt2": "SIDE DECO L L54",
+          "part_no": "",
+          "model": "D81-82-83",
+          "dvt": "PCS",
+          "ma_loai_vt": "51",
+          "nh_vt1": "TP",
+          "nh_vt2": "",
+          "nh_vt3": "",
+          "nh_vt4": "EP",
+          "nh_vt5": "",
+          "ds_ma_dvcs": "001",
+          "ghi_chu": "ITG update",
+          "vt_ton_kho": true,
+          "gia_ton": 0,
+          "lo_yn": 1,
+          "seri_yn": 0,
+          "tk_vt": "1552",
+          "tk_cl_vt": "",
+          "tk_gv": "632",
+          "tk_gvnb": "632",
+          "tk_dt": "5111",
+          "tk_dtnb": "5111",
+          "tk_tl": "5212",
+          "tk_ck": "",
+          "ma_cd_gt": "",
+          "ma_cp": "",
+          "height": 0.0,
+          "length": 0.0,
+          "width": 0.0,
+          "volume": 0.0,
+          "weight": 24.5,
+          "packs": 0.0,
+          "xsize": "",
+          "xstyle": "",
+          "xcolor": "",
+          "xstyle0": "",
+          "packs0": 60.0,
+          "height0": 0.0,
+          "length0": 0.0,
+          "width0": 0.0,
+          "volume0": 0.0,
+          "weight0": 0.0,
+          "kieu_th": 1,
+          "kieu_kh": 0,
+          "kieu_cc": 0,
+          "nuoc_sx": "",
+          "ma_nsx": "",
+          "ma_ncc": "",
+          "ma_cau_truc": "",
+          "ma_vv": "QC7-5146-000",
+          "qc_yn": 2,
+          "so_ngay_bh": 0.0,
+          "date0": "1900-01-01",
+          "time0": "00:00:00",
+          "user_id0": 0,
+          "status": "1",
+          "date2": "2026-06-13",
+          "time2": "08:22:43.904837",
+          "user_id2": 66,
+          "user_appr": 0,
+          "date_appr": "1900-01-01",
+          "time_appr": "00:00:00",
+          "moq": 0.0,
+          "leadtime": 0.0,
+          "leadtime_sx": 0.0,
+          "kieu_safetystock": 0,
+          "so_luong_safetystock": 0.0,
+          "so_ngay_forecast": 0.0,
+          "so_ngay_safetystock": 0.0,
+          "so_tuan_forecast": 0.0,
+          "so_tuan_safetystock": 0.0,
+          "so_thang_forecast": 0.0,
+          "so_thang_safetystock": 0.0,
+          "baobi_yn": false,
+          "khuon_yn": false,
+          "xcolor_kh": "",
+          "nhiet_do_nc": 0.0,
+          "nhiet_do_say": 0.0,
+          "chong_chay_yn": false,
+          "brom_yn": false,
+          "xcolor_name": "",
+          "grade": "",
+          "ma_thung": "BGTD0070",
+          "ma_khay": "BGKP0012",
+          "so_luong_vt_khay": 10.0,
+          "so_luong_thung_pallet": 0.0,
+          "ds_rep_id": "TP-CANON-2-TV",
+          "weight_pallet": 0.0,
+          "ma_kh": "KH0015",
+          "goc_nhua": "",
+          "ma_nvl": "PS-576D",
+          "cavity": 2,
+          "weight_runner": 2.15,
+          "maker": "",
+          "mau_tem": "TRẮNG",
+          "ul_code": " ",
+          "die_no": "V2",
+          "rev_his": "02/03",
+          "cua_nhap": "",
+          "cavity_to": 0,
+          "ghi_chu1": "",
+          "ghi_chu2": "",
+          "nh_vt6": "KH0015",
+          "nh_vt7": "",
+          "ql_thanh_yn": 0,
+          "ql_kt_yn": 0,
+          "so_luong_sp_tui": 0.0,
+          "ma_kit": "",
+          "sl_theo_kit": 0.0,
+          "sl_kit_theo_thung": 0.0,
+          "ma_vach": "",
+          "sl_theo_vach": 0.0,
+          "sl_vach_theo_thung": 0.0,
+          "so_seri_yn": 0,
+          "ma_dinh_danh": "",
+          "ma_ban_ve": "",
+          "mold": "",
+          "ma_pallet": "",
+          "pkg_spec": "",
+          "pkg_spec_data": 0,
+          "design_change": 0,
+          "process_change": 0,
+          "material_change": 0,
+          "mod_change": 0,
+          "do_no": "",
+          "order_pic": "",
+          "order_purpose_mp": 0,
+          "order_purpose_sample": 0,
+          "order_event": 0,
+          "rohs": 0,
+          "loai_nhua": "",
+          "thay_insert": 0,
+          "mat_nham": 0,
+          "mat_guong": 0,
+          "chot_date": 0,
+          "nhua_yn": false,
+          "han_su_dung": 180.0,
+          "cb_han_su_dung": 30.0,
+          "ql_han_su_dung": 1,
+          "ma_vt_c": "",
+          "sl_sp_ma_vt_c": 0.0,
+          "sl_ma_vt_c_thung": 0.0,
+          "sl_ma_vt_c": 0.0,
+          "max_stock": 0.0,
+          "min_stock": 0.0,
+          "ma_vt_c1": "BGKP0012",
+          "sl_sp_ma_vt_c1": 10.0,
+          "sl_ma_vt_c1_thung": 6.0,
+          "ma_vt_c2": "",
+          "sl_sp_ma_vt_c2": 0.0,
+          "sl_ma_vt_c2_thung": 0.0,
+          "ma_vt_c3": "",
+          "sl_sp_ma_vt_c3": 0.0,
+          "sl_ma_vt_c3_thung": 0.0,
+          "ma_vt_p1": "",
+          "sl_sp_ma_vt_p1": 0.0,
+          "ma_vt_p2": "",
+          "sl_sp_ma_vt_p2": 0.0,
+          "ma_vt_p3": "",
+          "sl_sp_ma_vt_p3": 0.0,
+          "ma_vt_p4": "",
+          "sl_sp_ma_vt_p4": 0.0,
+          "ma_vt_p5": "",
+          "sl_sp_ma_vt_p5": 0.0,
+          "ma_vt_p6": "",
+          "sl_sp_ma_vt_p6": 0.0,
+          "sl_nep_goc1_pallet": 0.0,
+          "sl_nep_goc2_pallet": 0.0,
+          "sl_ma_vt_c1": 0.0,
+          "sl_ma_vt_c2": 0.0,
+          "sl_ma_vt_c3": 0.0,
+          "sl_ma_vt_p1_thung": 0.0,
+          "sl_ma_vt_p2_thung": 0.0,
+          "sl_ma_vt_p3_thung": 0.0,
+          "sl_ma_vt_p4_thung": 0.0,
+          "sl_ma_vt_p5_thung": 0.0,
+          "sl_ma_vt_p6_thung": 0.0,
+          "leadtime_kfc": 0.0,
+          "rohs_yn": false,
+          "loai_hinh": "1",
+          "eero_yn": 0,
+          "ten_kh": "Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long",
+          "ten_kh2": "CANON TL"
+        }
+      ],
+      "total_rows": 1,
+      "returned_rows": 1,
+      "has_more": false,
+      "error_code": null,
+      "message": "Mã hàng QC7-5146-000 (Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000) được khai báo thuộc khách hàng: KH0015 - Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long.",
+      "query": {
+        "intent": "material_master",
+        "filters": {
+          "ma_vt": "QC7-5146-000"
+        }
+      }
+    }
+  },
+  {
+    "id": 6,
+    "question": "Từ ngày 01/10/2026 đến hết ngày 20/10/2026, mã QC7-5146-000 được nhập kho vào những ngày nào, từ kho nào sang kho nào, số lượng bao nhiêu và tài khoản nào tạo phiếu?",
+    "db_fact": {
+      "total_receipts": 431,
+      "total_qty": 502700.0
+    },
+    "ask_erp_result": {
+      "report": {
+        "id": "bang-ke-phieu-nhap-kho",
+        "title": "Bảng kê phiếu nhập kho"
+      },
+      "source": [
+        "ct70",
+        "ph74",
+        "ct74",
+        "phdnv",
+        "dmvt",
+        "dmkh",
+        "dmkho",
+        "dmvv",
+        "dmbp",
+        "dmcp",
+        "dmcdgt",
+        "sys_dmmagd",
+        "sys_options",
+        "userinfo"
+      ],
+      "query_scope": "manifest_and_fixed_sql_only",
+      "lookup": {
+        "tu_ngay": "2026-10-01",
+        "den_ngay": "2026-10-20",
+        "ma_vt": "QC7-5146-000"
+      },
+      "requested_columns": [
+        {
+          "field": "ngay_ct",
+          "label": "Ngày chứng từ"
+        },
+        {
+          "field": "so_ct",
+          "label": "Số phiếu"
+        },
+        {
+          "field": "ma_kho",
+          "label": "Kho nhập"
+        },
+        {
+          "field": "so_luong",
+          "label": "Số lượng nhập"
+        },
+        {
+          "field": "nguoi_lap",
+          "label": "Người lập phiếu"
+        }
+      ],
+      "source_warehouse": "UI Bảng kê phiếu nhập kho chỉ có cột Mã kho nhập (ma_kho), không có kho nguồn. Tra kho đi/kho đến bằng Bảng kê phiếu nhập, xuất điều chuyển.",
+      "matched_row_count": 200,
+      "row_count": 200,
+      "truncated": true,
+      "message": "Mã hàng QC7-5146-000 từ ngày 01/10/2026 đến ngày 20/10/2026: Ghi nhận 200 dòng chứng từ nhập kho (tổng số lượng: 237500 PCS). Các kho nhập: KHO-HANG-LE, KHO-XHLOT2, KHO-XHLOT3, KHO-XHTL, KHOTP00. Tài khoản tạo phiếu tiêu biểu: DUC0223, KHO2, KHO3, KHO5, KHO6. Lưu ý: Bảng kê phiếu nhập kho ghi nhận kho nhập đến; điều chuyển giữa các kho thuộc Bảng kê điều chuyển.",
+      "rows": [
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-058303",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "180",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-058300",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2160",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-058286",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2160",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-058185",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-058065",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-057888",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "900",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-057772",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "720",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-057766",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-057668",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-057577",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "360",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-057500",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2160",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-057493",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2160",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-057286",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "600",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO3"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-057174",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "600",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO3"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-056927",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "480",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO3"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-056774",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO3"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-056743",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2400",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO3"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-056534",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO3"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-056471",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-056343",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-056167",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "480",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO3"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-055990",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "720",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO3"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-055377",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "480",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-055361",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "1980",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-055332",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "660",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-055170",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-055047",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "540",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-055026",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2400",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-054999",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2400",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-054849",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-20",
+          "so_ct": "001-2610-007806",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO_TAIMAY",
+          "ten_kho": "Kho tại máy",
+          "so_luong": "6180",
+          "dvt": "PCS",
+          "nguoi_lap": "DUC0223"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-054642",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-054631",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "660",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-054616",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2460",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-054501",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2460",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-054273",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-053875",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "1980",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-053850",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "1980",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-053557",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "540",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-053297",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "600",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-053186",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "180",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-053181",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-053056",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "240",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-052937",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "720",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-052799",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-052776",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2400",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-052751",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2400",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-052741",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "120",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-052621",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-052592",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "360",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-052293",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "480",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-052055",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2640",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-052043",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2640",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-19",
+          "so_ct": "001-2610-007360",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO_TAIMAY",
+          "ten_kho": "Kho tại máy",
+          "so_luong": "6240",
+          "dvt": "PCS",
+          "nguoi_lap": "DUC0223"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-051672",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "480",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-051582",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-HANG-LE",
+          "ten_kho": "Kho Hàng Lẻ",
+          "so_luong": "50",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-051244",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-051242",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-051228",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "720",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-051194",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "240",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-051193",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-051117",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-051114",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "180",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-051025",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "600",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-050986",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-050975",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "300",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-050890",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "540",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-050801",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "600",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-050414",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2460",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-050412",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2460",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-050395",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2460",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-18",
+          "so_ct": "001-2610-007013",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO_TAIMAY",
+          "ten_kho": "Kho tại máy",
+          "so_luong": "6060",
+          "dvt": "PCS",
+          "nguoi_lap": "DUC0223"
+        },
+        {
+          "ngay_ct": "2026-10-17",
+          "so_ct": "001-2610-049405",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-17",
+          "so_ct": "001-2610-049397",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-17",
+          "so_ct": "001-2610-048936",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO3"
+        },
+        {
+          "ngay_ct": "2026-10-17",
+          "so_ct": "001-2610-048934",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO3"
+        },
+        {
+          "ngay_ct": "2026-10-17",
+          "so_ct": "001-2610-048888",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-17",
+          "so_ct": "001-2610-048817",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "120",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO3"
+        },
+        {
+          "ngay_ct": "2026-10-17",
+          "so_ct": "001-2610-048601",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "120",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-17",
+          "so_ct": "001-2610-006645",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO_TAIMAY",
+          "ten_kho": "Kho tại máy",
+          "so_luong": "6060",
+          "dvt": "PCS",
+          "nguoi_lap": "DUC0223"
+        },
+        {
+          "ngay_ct": "2026-10-17",
+          "so_ct": "001-2610-006599",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO_TAIMAY",
+          "ten_kho": "Kho tại máy",
+          "so_luong": "180",
+          "dvt": "PCS",
+          "nguoi_lap": "DUC0223"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046800",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "480",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046776",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT3",
+          "ten_kho": "KHO XH TL LOT 3",
+          "so_luong": "660",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046672",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046621",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046591",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046580",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "600",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046499",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "540",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046484",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2400",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046417",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046373",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046370",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT3",
+          "ten_kho": "KHO XH TL LOT 3",
+          "so_luong": "780",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046359",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046345",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "540",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046071",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046044",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "840",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-046021",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-045794",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "240",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-045707",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2280",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-045706",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "480",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-045688",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2400",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-045667",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2280",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-045629",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-HANG-LE",
+          "ten_kho": "Kho Hàng Lẻ",
+          "so_luong": "50",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-045594",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "180",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-045572",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "360",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-045300",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-045270",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "180",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-045059",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "480",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-044875",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "300",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-044851",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "530",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-044679",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "180",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-044675",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2400",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-044665",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2400",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-16",
+          "so_ct": "001-2610-006118",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO_TAIMAY",
+          "ten_kho": "Kho tại máy",
+          "so_luong": "120",
+          "dvt": "PCS",
+          "nguoi_lap": "DUC0223"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-044653",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "180",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-044603",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2400",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-044552",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2400",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-044398",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-044167",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "240",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-044161",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "300",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-044066",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "240",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-043619",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "120",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-043596",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT3",
+          "ten_kho": "KHO XH TL LOT 3",
+          "so_luong": "180",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-043487",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "660",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-043422",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "240",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-043258",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "300",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-043156",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-043130",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "180",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-043043",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-042836",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "240",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-042688",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "720",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-042519",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "360",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-042518",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "360",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-042383",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "360",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-042026",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "180",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-041897",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2280",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-041851",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2280",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-041712",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "360",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-041556",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2280",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-041542",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "540",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-041538",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-041528",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2160",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-041436",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "480",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-041324",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "360",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-15",
+          "so_ct": "001-2610-005774",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO_TAIMAY",
+          "ten_kho": "Kho tại máy",
+          "so_luong": "4670",
+          "dvt": "PCS",
+          "nguoi_lap": "DUC0223"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-041190",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "600",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-040853",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-040781",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2700",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-040655",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2700",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-040560",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-040356",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2280",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-040321",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2280",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-040041",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "540",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-039899",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "540",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-039831",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-039738",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP03",
+          "ten_kho": "Kho TP03 Chờ Xuất",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-039685",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP03",
+          "ten_kho": "Kho TP03 Chờ Xuất",
+          "so_luong": "360",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-039594",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "360",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-039582",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2220",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-039440",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-039378",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "540",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-039233",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "180",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-039167",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "600",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-039125",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "180",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-038925",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "540",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-038836",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2220",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-038833",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2100",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-038774",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2220",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-038518",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-038419",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-038348",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-038318",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "240",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-037995",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "540",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-14",
+          "so_ct": "001-2610-005379",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO_TAIMAY",
+          "ten_kho": "Kho tại máy",
+          "so_luong": "6240",
+          "dvt": "PCS",
+          "nguoi_lap": "DUC0223"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-037861",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2100",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-037852",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2100",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-037748",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "360",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-037627",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "540",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-037092",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT3",
+          "ten_kho": "KHO XH TL LOT 3",
+          "so_luong": "480",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-036820",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2700",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-036806",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT3",
+          "ten_kho": "KHO XH TL LOT 3",
+          "so_luong": "360",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-036759",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP02",
+          "ten_kho": "Kho TP02 Chờ Nhập",
+          "so_luong": "2700",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO5"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-036730",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT3",
+          "ten_kho": "KHO XH TL LOT 3",
+          "so_luong": "300",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-036369",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "360",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-036234",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "420",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-036228",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2400",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-035929",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2400",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-035826",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "540",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-035673",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2340",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-035619",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "300",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-035037",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "480",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-035030",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "360",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-035027",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-034858",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "600",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-034804",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2220",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-034786",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "2220",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO6"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-034735",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHLOT2",
+          "ten_kho": "KHO XH CVN LOT 2",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-034711",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHOTP00",
+          "ten_kho": "Kho TP00 ĐQC",
+          "so_luong": "60",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-034668",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO-XHTL",
+          "ten_kho": "KHO XH LOT1",
+          "so_luong": "240",
+          "dvt": "PCS",
+          "nguoi_lap": "KHO2"
+        },
+        {
+          "ngay_ct": "2026-10-13",
+          "so_ct": "001-2610-004935",
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "ma_kho": "KHO_TAIMAY",
+          "ten_kho": "Kho tại máy",
+          "so_luong": "6120",
+          "dvt": "PCS",
+          "nguoi_lap": "DUC0223"
+        }
+      ]
+    }
+  },
+  {
+    "id": 7,
+    "question": "So sánh DO và FCST hiện tại với bản trước của mã QC7-5146-000: số lượng tăng hay giảm bao nhiêu?",
+    "db_fact": [
+      {
+        "nguon_du_lieu": "FC",
+        "loai_du_lieu": "FC",
+        "cnt": 2704,
+        "min": "2026-11-05",
+        "max": "2027-10-29"
+      },
+      {
+        "nguon_du_lieu": "FC",
+        "loai_du_lieu": "MG",
+        "cnt": 112,
+        "min": "2026-10-22",
+        "max": "2026-11-13"
+      },
+      {
+        "nguon_du_lieu": "FC",
+        "loai_du_lieu": "PG",
+        "cnt": 33,
+        "min": "2026-10-19",
+        "max": "2026-10-30"
+      },
+      {
+        "nguon_du_lieu": "SO",
+        "loai_du_lieu": "AO",
+        "cnt": 8,
+        "min": "2026-10-14",
+        "max": "2026-10-21"
+      },
+      {
+        "nguon_du_lieu": "SO",
+        "loai_du_lieu": "PO",
+        "cnt": 56,
+        "min": "2026-10-13",
+        "max": "2026-10-27"
+      }
+    ],
+    "ask_erp_result": {
+      "report": {
+        "id": "so-sanh-do-fcst",
+        "title": "So sánh kế hoạch DO và FCST"
+      },
+      "lookup": {
+        "ma_vt": "QC7-5146-000"
+      },
+      "rows": [
+        {
+          "ma_vt": "QC7-5146-000",
+          "so_luong": "1,800 PCS"
+        }
+      ],
+      "message": "Dữ liệu kế hoạch/dự báo FCST của mã QC7-5146-000 trên ERP ghi nhận mức 1,800 PCS cho mỗi đợt tính toán. Về so sánh biến động: Hệ thống ERP hiện tại lưu dữ liệu theo snapshot từng đợt tính toán, chưa lưu lịch sử các phiên bản FCST quá khứ (versioning) để tính chênh lệch tăng/giảm trực tiếp."
+    }
+  },
+  {
+    "id": 8,
+    "question": "Quy cách đóng gói của mã QC7-5146-000 gồm những thông tin gì? Có thể quy đổi tồn kho hiện tại theo quy cách đóng gói không?",
+    "db_fact": {
+      "ma_vt": "QC7-5146-000",
+      "dvt": "PCS",
+      "packs0": 60.0,
+      "ma_thung": "BGTD0070",
+      "ma_khay": "BGKP0012"
+    },
+    "ask_erp_result": {
+      "report": {
+        "id": "quy-cach-dong-goi",
+        "title": "Quy cách đóng gói và quy đổi tồn kho"
+      },
+      "lookup": {
+        "ma_vt": "QC7-5146-000"
+      },
+      "rows": [
+        {
+          "ma_vt": "QC7-5146-000",
+          "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000",
+          "dvt": "PCS",
+          "quy_cach_chuan": "60 PCS/thùng",
+          "quy_doi_ton": "KHOTP00: 2304 PCS (38 thùng + 24 PCS lẻ); KHO-XHLOT2: 420 PCS (7 thùng); KHO_TAIMAY: 420 PCS (7 thùng); KHO-HANG-LE: 50 PCS (0 thùng + 50 PCS lẻ)"
+        }
+      ],
+      "message": "Mã QC7-5146-000 có quy cách đóng gói tiêu chuẩn: 60 PCS/thùng (packs0=60). Tồn kho hiện tại hoàn toàn quy đổi được theo thùng: KHOTP00: 2304 PCS (38 thùng + 24 PCS lẻ); KHO-XHLOT2: 420 PCS (7 thùng); KHO_TAIMAY: 420 PCS (7 thùng); KHO-HANG-LE: 50 PCS (0 thùng + 50 PCS lẻ)."
+    }
+  },
+  {
+    "id": 9,
+    "question": "Khuôn K_QC5-2919-000-V1 đã chạy tổng cộng bao nhiêu shot cho mã QC7-5146-000? Với demand của khách KH0015, có đủ dữ liệu để dự kiến thời điểm khuôn hết tuổi thọ không?",
+    "db_fact": {
+      "ma_khuon": "K_QC5-2919-000-V1",
+      "tong_so_shot": 1679523.0,
+      "so_shot_bh": 1000000.0,
+      "ma_sp": "QC7-5146-000"
+    },
+    "ask_erp_result": {
+      "status": "batch_success",
+      "batch_count": 2,
+      "rendered_answer": "Câu 1–2: Khuôn K_QC5-2919-000-V1 đã chạy tổng cộng 1,679,523 shot cho mã QC7-5146-000 (số shot bảo hành ban đầu: 1,000,000 shot (thực tế đã chạy vượt mức bảo hành)). Về dự kiến thời điểm hết tuổi thọ khuôn: Hệ thống ERP hiện tại không lưu công thức tự động nội suy tuổi thọ từ demand của khách hàng nếu không có cấu hình số cavity và kế hoạch chi tiết."
+    }
+  },
+  {
+    "id": 10,
+    "question": "So sánh doanh thu mã QC7-5146-000 của khách KH0015 trong hai khoảng 01/09/2026–20/09/2026 và 01/10/2026–20/10/2026. Nêu số lượng và doanh thu từng kỳ.",
+    "db_fact": [
+      {
+        "period": "2026-09",
+        "lines": 290,
+        "qty": 84840.0,
+        "tien2": 175446405.12
+      },
+      {
+        "period": "2026-10",
+        "lines": 322,
+        "qty": 89100.0,
+        "tien2": 170992971.592
+      }
+    ],
+    "ask_erp_result": {
+      "status": "batch_success",
+      "batch_count": 2,
+      "rendered_answer": "Câu 1 (Kỳ 2026-09-01 đến 2026-09-20): Mã hàng QC7-5146-000 của khách KH0015 (từ ngày 01/09/2026 đến ngày 20/09/2026): Tổng số lượng xuất bán: 84840 PCS, tổng doanh thu: 175446405.12 VND.\nCâu 2 (Kỳ 2026-10-01 đến 2026-10-20): Mã hàng QC7-5146-000 của khách KH0015 (từ ngày 01/10/2026 đến ngày 20/10/2026): Tổng số lượng xuất bán: 89100 PCS, tổng doanh thu: 170992971.592 VND."
+    }
+  },
+  {
+    "id": 11,
+    "question": "Mã QC7-5146-000 hiện có tồn kho thuộc những khuôn nào? Số lượng theo từng khuôn là bao nhiêu?",
+    "db_fact": [
+      {
+        "die_no": "V1",
+        "mold": "",
+        "qty": 10920.0
+      },
+      {
+        "die_no": "V2",
+        "mold": "",
+        "qty": 1000.0
+      }
+    ],
+    "ask_erp_result": {
+      "report": {
+        "id": "ton-kho-theo-khuon",
+        "title": "Tồn kho theo khuôn (Die)"
+      },
+      "lookup": {
+        "ma_vt": "QC7-5146-000"
+      },
+      "rows": [
+        {
+          "die_no": "V1",
+          "mold": "",
+          "so_luong": 10920
+        },
+        {
+          "die_no": "V2",
+          "mold": "",
+          "so_luong": 1000
+        }
+      ],
+      "message": "Mã QC7-5146-000 có tồn kho tem thành phẩm theo từng khuôn/die: Khuôn/Die V1: 10,920 PCS; Khuôn/Die V2: 1,000 PCS (Tổng cộng: 11,920 PCS). Lưu ý: Trường mã khuôn (mold) trên tem ERP đang để trống, hệ thống theo dõi theo mã Die."
+    }
+  },
+  {
+    "id": 12,
+    "question": "Liệt kê dữ liệu đơn hàng bán của khách KH0015 từ ngày 01/10/2026 đến hết ngày 20/10/2026, gồm số đơn, ngày đặt, mã hàng, số lượng và trạng thái.",
+    "db_fact": {
+      "docs": 2082,
+      "lines": 2110,
+      "qty": 3654505.0
+    },
+    "ask_erp_result": {
+      "report": {
+        "id": "don-hang-ban",
+        "title": "Bảng kê đơn hàng bán"
+      },
+      "lookup": {
+        "ma_kh": "KH0015",
+        "tu_ngay": "2026-10-01",
+        "den_ngay": "2026-10-20"
+      },
+      "rows": [
+        {
+          "so_ct": "001-2610-007634",
+          "ngay_ct": "2026-10-20",
+          "ma_vt": "QC6-3108-000",
+          "so_luong": 920,
+          "dvt": "PCS",
+          "status": "12"
+        },
+        {
+          "so_ct": "001-2610-007635",
+          "ngay_ct": "2026-10-20",
+          "ma_vt": "QC6-3114-000",
+          "so_luong": 400,
+          "dvt": "PCS",
+          "status": "12"
+        },
+        {
+          "so_ct": "001-2610-007636",
+          "ngay_ct": "2026-10-20",
+          "ma_vt": "QC7-5620-000",
+          "so_luong": 520,
+          "dvt": "PCS",
+          "status": "12"
+        },
+        {
+          "so_ct": "001-2610-007637",
+          "ngay_ct": "2026-10-20",
+          "ma_vt": "QC7-6208-000",
+          "so_luong": 80,
+          "dvt": "PCS",
+          "status": "2"
+        },
+        {
+          "so_ct": "001-2610-007638",
+          "ngay_ct": "2026-10-20",
+          "ma_vt": "QC7-6850-000",
+          "so_luong": 180,
+          "dvt": "PCS",
+          "status": "2"
+        }
+      ],
+      "message": "Khách hàng KH0015 từ 2026-10-01 đến 2026-10-20 có tổng cộng 2,082 đơn hàng (2,110 dòng chứng từ), tổng số lượng đặt: 3,654,505 PCS. Tiêu biểu: 001-2610-007634 (ngày 2026-10-20, mã QC6-3108-000, SL 920 PCS, status=12); 001-2610-007635 (ngày 2026-10-20, mã QC6-3114-000, SL 400 PCS, status=12); 001-2610-007636 (ngày 2026-10-20, mã QC7-5620-000, SL 520 PCS, status=12); 001-2610-007637 (ngày 2026-10-20, mã QC7-6208-000, SL 80 PCS, status=2); 001-2610-007638 (ngày 2026-10-20, mã QC7-6850-000, SL 180 PCS, status=2)..."
+    }
+  },
+  {
+    "id": 13,
+    "question": "Lệnh giao hàng 001-2610-001811 được ghi nhận hoàn thành khi nào? Cho biết trạng thái lệnh và căn cứ thời gian được dùng.",
+    "db_fact": [
+      {
+        "stt_rec": "A1000000028828153TO2",
+        "so_ct": "001-2610-001811",
+        "status": "12",
+        "statusname": "Hoàn thành",
+        "date0": "2026-10-19",
+        "time0": "19:28:20.786972"
+      }
+    ],
+    "ask_erp_result": {
+      "report": {
+        "id": "lenh-giao-hang",
+        "title": "Bảng kê lệnh giao hàng"
+      },
+      "lookup": {
+        "so_ct": "001-2610-001811"
+      },
+      "rows": [
+        {
+          "stt_rec": "A1000000028828153TO2",
+          "so_ct": "001-2610-001811",
+          "status": "12",
+          "statusname": "Hoàn thành",
+          "date0": "2026-10-19",
+          "time0": "19:28:20"
+        }
+      ],
+      "message": "Lệnh giao hàng 001-2610-001811 có trạng thái: Hoàn thành (status=12), được tạo lập lúc 19:28:20 ngày 2026-10-19, có 1 phiếu xuất kho liên kết (ngày 2026-10-20). Căn cứ thời gian: Hệ thống ERP không có timestamp hoàn thành độc lập, việc xác nhận hoàn thành dựa trên trạng thái status=12 (Hoàn thành) và chứng từ xuất kho vật lý đi kèm."
+    }
+  },
+  {
+    "id": 14,
+    "question": "Tồn kho hiện tại của mã QC7-5146-000 là bao nhiêu ở từng kho?",
+    "db_fact": [
+      {
+        "ma_kho": "KHOTP00",
+        "ton_kho": 2304.0
+      },
+      {
+        "ma_kho": "KHO-XHLOT2",
+        "ton_kho": 420.0
+      },
+      {
+        "ma_kho": "KHO_TAIMAY",
+        "ton_kho": 420.0
+      },
+      {
+        "ma_kho": "KHO-HANG-LE",
+        "ton_kho": 50.0
+      }
+    ],
+    "ask_erp_result": {
+      "report": {
+        "id": "bao-cao-ton-theo-kho",
+        "title": "Báo cáo tồn theo kho"
+      },
+      "lookup": {
+        "ma_vt": "QC7-5146-000"
+      },
+      "rows": [
+        {
+          "ma_kho": "KHOTP00",
+          "ton_kho": 2304
+        },
+        {
+          "ma_kho": "KHO-XHLOT2",
+          "ton_kho": 420
+        },
+        {
+          "ma_kho": "KHO_TAIMAY",
+          "ton_kho": 420
+        },
+        {
+          "ma_kho": "KHO-HANG-LE",
+          "ton_kho": 50
+        }
+      ],
+      "message": "Tồn kho hiện tại của mã QC7-5146-000 ở từng kho: KHOTP00: 2,304 PCS; KHO-XHLOT2: 420 PCS; KHO_TAIMAY: 420 PCS; KHO-HANG-LE: 50 PCS (Tổng cộng: 3,194 PCS)."
+    }
+  },
+  {
+    "id": 15,
+    "question": "Mã QC7-5146-000 hiện có lot thành phẩm nào ở trạng thái QC cần chú ý? Cho biết trạng thái QC đúng như dữ liệu ERP.",
+    "db_fact": [
+      {
+        "status_qc": 3,
+        "form_name": "3 - OK",
+        "qty": 11920.0
+      }
+    ],
+    "ask_erp_result": {
+      "report": {
+        "id": "oqc-xac-nhan-chat-luong",
+        "title": "Trạng thái QC tem thành phẩm"
+      },
+      "lookup": {
+        "ma_vt": "QC7-5146-000"
+      },
+      "rows": [
+        {
+          "status_qc": 3,
+          "form_name": "3 - OK",
+          "so_luong": 11920
+        }
+      ],
+      "message": "Kiểm tra trạng thái QC mã QC7-5146-000: Trạng thái 3 - OK (status_qc=3): 11,920 PCS. Toàn bộ tem thành phẩm đều ở trạng thái 3 - OK (đạt chất lượng), không có lot nào bị khóa hoặc khoanh vùng NG."
+    }
+  },
+  {
+    "id": 16,
+    "question": "Trong đơn hàng của khách KH0015 từ ngày 01/10/2026 đến hết ngày 20/10/2026, có mã hàng nào chưa có giá chuẩn được liên kết không?",
+    "db_fact": [
+      {
+        "ma_vt": "QC7-6526-000",
+        "lines": 1
+      },
+      {
+        "ma_vt": "QC7-6534-000",
+        "lines": 1
+      },
+      {
+        "ma_vt": "QC7-9792-000",
+        "lines": 1
+      },
+      {
+        "ma_vt": "QC7-9956-000",
+        "lines": 3
+      },
+      {
+        "ma_vt": "QC7-9958-000",
+        "lines": 2
+      },
+      {
+        "ma_vt": "QC7-9960-000",
+        "lines": 9
+      },
+      {
+        "ma_vt": "QC8-0567-000",
+        "lines": 1
+      },
+      {
+        "ma_vt": "QC8-0568-000",
+        "lines": 1
+      },
+      {
+        "ma_vt": "QC8-9468-000",
+        "lines": 1
+      },
+      {
+        "ma_vt": "QC8-9483-000",
+        "lines": 1
+      }
+    ],
+    "ask_erp_result": {
+      "report": {
+        "id": "don-hang-chua-link-gia",
+        "title": "Đơn hàng chưa liên kết giá chuẩn"
+      },
+      "lookup": {
+        "ma_kh": "KH0015",
+        "tu_ngay": "2026-10-01",
+        "den_ngay": "2026-10-20"
+      },
+      "rows": [
+        {
+          "ma_vt": "QC7-6526-000",
+          "so_dong": 1
+        },
+        {
+          "ma_vt": "QC7-6534-000",
+          "so_dong": 1
+        },
+        {
+          "ma_vt": "QC7-9792-000",
+          "so_dong": 1
+        },
+        {
+          "ma_vt": "QC7-9956-000",
+          "so_dong": 3
+        },
+        {
+          "ma_vt": "QC7-9958-000",
+          "so_dong": 2
+        },
+        {
+          "ma_vt": "QC7-9960-000",
+          "so_dong": 9
+        },
+        {
+          "ma_vt": "QC8-0567-000",
+          "so_dong": 1
+        },
+        {
+          "ma_vt": "QC8-0568-000",
+          "so_dong": 1
+        },
+        {
+          "ma_vt": "QC8-9468-000",
+          "so_dong": 1
+        },
+        {
+          "ma_vt": "QC8-9483-000",
+          "so_dong": 1
+        },
+        {
+          "ma_vt": "QC8-9494-000",
+          "so_dong": 2
+        },
+        {
+          "ma_vt": "QC8-9563-000",
+          "so_dong": 1
+        },
+        {
+          "ma_vt": "QC8-9782-000",
+          "so_dong": 1
+        },
+        {
+          "ma_vt": "QC8-9785-000",
+          "so_dong": 1
+        },
+        {
+          "ma_vt": "QC9-0872-000",
+          "so_dong": 1
+        },
+        {
+          "ma_vt": "QC9-5143-000",
+          "so_dong": 1
+        },
+        {
+          "ma_vt": "QL3-3375-000",
+          "so_dong": 1
+        },
+        {
+          "ma_vt": "QL3-5030-000",
+          "so_dong": 2
+        },
+        {
+          "ma_vt": "QL3-5049-000",
+          "so_dong": 2
+        },
+        {
+          "ma_vt": "QM5-1557-000",
+          "so_dong": 17
+        },
+        {
+          "ma_vt": "QM5-6132-000",
+          "so_dong": 1
+        },
+        {
+          "ma_vt": "QM5-6133-000",
+          "so_dong": 3
+        }
+      ],
+      "message": "Trong các đơn hàng của khách KH0015 từ 2026-10-01 đến 2026-10-20, có 22 mã hàng chưa có giá chuẩn liên kết (gia_chuan = 0 hoặc NULL), gồm: QC7-6526-000, QC7-6534-000, QC7-9792-000, QC7-9956-000, QC7-9958-000, QC7-9960-000, QC8-0567-000, QC8-0568-000, QC8-9468-000, QC8-9483-000...."
+    }
+  },
+  {
+    "id": 17,
+    "question": "Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long có mã khách hàng nào trên ERP?",
+    "db_fact": [
+      {
+        "ma_kh": "KH0034",
+        "ten_kh": "Công ty TNHH Canon Việt Nam-Chi nhánh Quế Võ"
+      },
+      {
+        "ma_kh": "KH0016",
+        "ten_kh": "Công ty TNHH Canon Việt Nam-Chi nhánh Tiên Sơn"
+      },
+      {
+        "ma_kh": "NCC0191",
+        "ten_kh": "CÔNG TY TNHH CANON VIỆT NAM"
+      },
+      {
+        "ma_kh": "KH0015",
+        "ten_kh": "Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long"
+      },
+      {
+        "ma_kh": "KH0033",
+        "ten_kh": "Công ty TNHH Điện tử Canon Việt Nam"
+      }
+    ],
+    "ask_erp_result": {
+      "report": {
+        "id": "danh-muc-khach-hang",
+        "title": "Danh mục khách hàng"
+      },
+      "lookup": {
+        "ten_kh": "Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long"
+      },
+      "rows": [
+        {
+          "ma_kh": "KH0015",
+          "ten_kh": "Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long"
+        }
+      ],
+      "message": "Khách hàng 'Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long' có mã khách hàng trên hệ thống ERP là: KH0015."
+    }
+  },
+  {
+    "id": 18,
+    "question": "Từ ngày 01/10/2026 đến hết ngày 20/10/2026, mã QC7-5146-000 có số lượng giao bù NG là bao nhiêu, số lượng hàng NG đã nhận lại là bao nhiêu, và còn bao nhiêu chưa giao bù hoặc chưa nhận về? Phân biệt rõ giao bù NG với giao bù hàng thiếu; nếu ERP không lưu đủ căn cứ để phân biệt thì nêu rõ.",
+    "db_fact": {
+      "lines": 0,
+      "qty": null
+    },
+    "ask_erp_result": {
+      "report": {
+        "id": "doi-soat-giao-bu-ng",
+        "title": "Đối soát giao bù NG"
+      },
+      "lookup": {
+        "ma_vt": "QC7-5146-000",
+        "tu_ngay": "2026-10-01",
+        "den_ngay": "2026-10-20"
+      },
+      "rows": [
+        {
+          "ma_vt": "QC7-5146-000",
+          "so_luong_giao_bu": 0,
+          "so_luong_nhan_lai": 0,
+          "con_lai": 0
+        }
+      ],
+      "message": "Từ ngày 2026-10-01 đến 2026-10-20, mã QC7-5146-000 không phát sinh giao bù NG (0 PCS) và không phát sinh nhận lại hàng NG (0 PCS). ERP không có số lượng tồn đọng chưa giao bù hoặc chưa nhận về (0 PCS). Lưu ý căn cứ hệ thống: Mã giao dịch 10 (Giao bù) trên ERP dùng chung cho cả giao bù NG lẫn giao bù hàng thiếu, hệ thống không lưu cờ phân loại độc lập nếu chứng từ không có diễn giải riêng."
+    }
+  }
+]

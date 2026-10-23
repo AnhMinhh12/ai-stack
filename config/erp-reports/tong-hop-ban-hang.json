@@ -1,16 +1,16 @@
 {
   "id":"tong-hop-ban-hang", "title":"Tổng hợp hàng bán",
-  "match_phrases":["tổng hợp hàng bán", "tổng hợp bán hàng", "tổng số lượng xuất hàng", "tổng số lượng xuất kho", "doanh thu theo kỳ"],
+  "match_phrases":["tổng hợp hàng bán", "tổng hợp bán hàng", "tổng số lượng xuất hàng", "tổng số lượng xuất kho", "doanh thu theo kỳ", "doanh thu và số lượng", "số lượng và doanh thu", "sản lượng và doanh thu", "doanh thu mã", "doanh thu của mã"],
   "validation":{"status":"pending_ui_validation","required_ui_comparisons":3},
   "inputs":{"required":["tu_ngay","den_ngay"],"filters":[
-    {"parameter":"ma_kh","column":"ph81.ma_kh","aliases":["mã khách hàng","mã khách"],"value_type":"code"},
-    {"parameter":"ma_vt","column":"ct81.ma_vt","aliases":["mã vật tư","mã vt","mã hàng"],"value_type":"code"},
+    {"parameter":"ma_kh","column":"ph81.ma_kh","aliases":["mã khách hàng","mã khách","khách hàng","khách","kh"],"value_type":"code"},
+    {"parameter":"ma_vt","column":"ct81.ma_vt","aliases":["mã vật tư","mã vt","mã hàng","mã"],"value_type":"code"},
     {"parameter":"ma_dvcs","column":"ph81.ma_dvcs","aliases":["đơn vị cơ sở","đvcs"],"value_type":"code"}
   ]},
   "execution_context":{"authenticated_user_id":"required_from_session","permission_scope":"userinfo.ds_branchs + dmkho"},
   "defaults":{"limit":200}, "sources":["ph81","ct81","dmvt","dmkh","dmkho","userinfo"],
   "query_file":"tong-hop-ban-hang.sql",
   "columns":[
-    {"field":"ma_vt","label":"Mã vật tư","aliases":["mã hàng"]},{"field":"ten_vt","label":"Tên vật tư","aliases":["tên hàng"]},{"field":"dvt","label":"ĐVT","aliases":["đơn vị tính"]},{"field":"so_luong","label":"Số lượng","aliases":["tổng số lượng","số lượng xuất"]},{"field":"doanh_thu","label":"Doanh thu","aliases":["tiền bán"]}
+    {"field":"ma_vt","label":"Mã vật tư","aliases":["mã hàng","mã"]},{"field":"ten_vt","label":"Tên vật tư","aliases":["tên hàng"]},{"field":"dvt","label":"ĐVT","aliases":["đơn vị tính"]},{"field":"so_luong","label":"Số lượng","aliases":["tổng số lượng","số lượng xuất","số lượng","sản lượng","sl"]},{"field":"doanh_thu","label":"Doanh thu","aliases":["tiền bán","doanh thu","tiền"]}
   ], "output":{"metrics":["so_luong","doanh_thu"],"computed":[]}
 }

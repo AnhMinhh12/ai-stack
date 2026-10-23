@@ -21,15 +21,15 @@ def receipt_query(uid=12, material='TEST-A', limit=50):
 
 print('''\nCREATE TABLE userinfo(user_id int, is_super int, ds_branchs text, ds_stocks text);
 CREATE TABLE ph81(stt_rec text, ngay_lct date, ngay_ct date, so_ct text, ma_dvcs text, ma_kh text, status text, ma_gd int);
-CREATE TABLE ct81(stt_rec text, ln int, ma_vt text, ma_kho text, dvt text, so_luong numeric);
+CREATE TABLE ct81(stt_rec text, ln int, ma_vt text, ma_kho text, ma_lo text, dvt text, so_luong numeric, tien2 numeric);
 INSERT INTO userinfo VALUES (12,0,'BR1','WH1'),(13,0,'',''),(14,1,'',''),(16,0,'BR1','WH2');
 INSERT INTO ph81 VALUES
 ('A','2026-10-01','2026-10-01','DOC-A','BR1','C1','0',1),
 ('B','2026-10-01','2026-10-01','DOC-B','BR2','C2','0',1),
 ('C','2026-10-01','2026-10-01','DOC-C','BR1','C1','0',1),
 ('D','2026-10-01','2026-10-01','DOC-D','BR1','C1','0',4);
-INSERT INTO ct81 VALUES ('A',1,'TEST-A','WH1','EA',3),('A',2,'TEST-A','WH1','EA',2),
-('B',1,'TEST-A','WH1','EA',100),('C',1,'TEST-A','WH2','EA',200),('D',1,'TEST-A','WH1','EA',400);
+INSERT INTO ct81 VALUES ('A',1,'TEST-A','WH1','L1','EA',3,30),('A',2,'TEST-A','WH1','L2','EA',2,20),
+('B',1,'TEST-A','WH1','L1','EA',100,1000),('C',1,'TEST-A','WH2','L1','EA',200,2000),('D',1,'TEST-A','WH1','L1','EA',400,4000);
 ALTER TABLE userinfo ADD COLUMN user_name text;
 UPDATE userinfo SET user_name = 'An' WHERE user_id = 12;
 CREATE TABLE ct70(stt_rec text, ln int, so_ct text, ngay_ct date, date0 date, time0 text,

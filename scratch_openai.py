@@ -985,8 +985,19 @@ async def get_all_models_responses(request: Request, user: UserModel) -> list:
 
     request_tasks = []
     for idx, url in enumerate(api_base_urls):
+        key = api_keys[idx]
+        if _is_openai_public_endpoint(url):
+            # Model discovery must use the same per-user key as chat requests.
+            # The configured connection key is only a bootstrap placeholder
+            # and may not be authorized for this user or project.
+            key = _get_user_openai_api_key(url, user)
+            if not key:
+                log.info('Skipping public OpenAI model discovery for an unmapped user')
+                request_tasks.append(asyncio.ensure_future(asyncio.sleep(0, None)))
+                continue
+
         if (str(idx) not in api_configs) and (url not in api_configs):  # Legacy support
-            request_tasks.append(get_models_request(request, url, api_keys[idx], user=user))
+            request_tasks.append(get_models_request(request, url, key, user=user))
         else:
             api_config = api_configs.get(
                 str(idx),
@@ -998,7 +1009,7 @@ async def get_all_models_responses(request: Request, user: UserModel) -> list:
 
             if enable:
                 if len(model_ids) == 0:
-                    request_tasks.append(get_models_request(request, url, api_keys[idx], user=user, config=api_config))
+                    request_tasks.append(get_models_request(request, url, key, user=user, config=api_config))
                 else:
                     model_list = {
                         'object': 'list',

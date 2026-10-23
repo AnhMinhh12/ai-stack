@@ -24,6 +24,22 @@ def requested_formats(question: str) -> tuple[str, ...]:
     return ("xlsx", "docx", "pdf")
 
 
+def clean_numeric_str(value):
+    """Format numeric values without trailing redundant zeros."""
+    if isinstance(value, Decimal):
+        s = format(value, "f")
+        if "." in s:
+            s = s.rstrip("0").rstrip(".")
+        return s or "0"
+    if isinstance(value, float):
+        s = f"{value:.10f}".rstrip("0").rstrip(".")
+        return s or "0"
+    if isinstance(value, str) and re.match(r"^-?\d+\.\d+$", value):
+        s = value.rstrip("0").rstrip(".")
+        return s or "0"
+    return value
+
+
 def blocks_from_rows(payload):
     """Adapt a single verified ERP tool result to the shared table format."""
     if not isinstance(payload, dict) or payload.get("status") not in (None, "success"):
@@ -31,31 +47,49 @@ def blocks_from_rows(payload):
     rows = payload.get("rows") if isinstance(payload, dict) else None
     if not isinstance(rows, list) or not rows or not all(isinstance(row, dict) for row in rows):
         return []
-    keys = list(rows[0])
-    if not keys or any(set(row) != set(keys) for row in rows):
+    raw_keys = list(rows[0])
+    if not raw_keys or any(set(row) != set(raw_keys) for row in rows):
         return []
+    keys = [k for k in raw_keys if k not in ("total", "total_lines")]
+    if not keys:
+        keys = raw_keys
+    cleaned_rows = [
+        {k: clean_numeric_str(row.get(k)) for k in keys}
+        for row in rows
+    ]
     requested = payload.get("requested_columns") or []
     labels = {
         item.get("field"): item.get("label")
         for item in requested if isinstance(item, dict) and item.get("field")
     }
-    columns = [{"key": key, "label": labels.get(key) or key, "type": "text"} for key in keys]
+    field_labels = {
+        "ma_vt": "Mã VT", "ten_vt": "Tên vật tư", "dvt": "ĐVT",
+        "so_luong": "Số lượng", "doanh_thu": "Doanh thu", "so_ct": "Số CT",
+        "ngay_ct": "Ngày CT", "ma_kho": "Mã kho", "ten_kho": "Tên kho",
+        "sl_nhap": "SL nhập", "sl_xuat": "SL xuất", "tien2": "Tiền hàng",
+        "nguoi_lap": "Người lập", "gia": "Đơn giá", "gia2": "Đơn giá",
+    }
+    columns = [{"key": key, "label": labels.get(key) or field_labels.get(key) or key, "type": "text"} for key in keys]
     total = payload.get("total_rows")
     if not isinstance(total, int):
         total = payload.get("row_count")
     report = payload.get("report") or {}
     title = report.get("title") if isinstance(report, dict) else None
     blocks = [{
-        "type": "table", "title": title or "Kết quả ERP", "columns": columns, "rows": rows,
+        "type": "table", "title": title or "Kết quả ERP", "columns": columns, "rows": cleaned_rows,
         "total_rows": total, "has_more": bool(payload.get("has_more") or payload.get("truncated")),
     }]
     summary = payload.get("summary")
     if isinstance(summary, dict) and summary:
-        labels = {"total_records": "Tổng số dòng", "total_quantity": "Tổng số lượng",
-                  "so_luong_ton": "Số lượng tồn", "dvt": "Đơn vị tính"}
+        labels = {
+            "total_records": "Tổng số dòng", "total_quantity": "Tổng số lượng",
+            "tong_so_luong": "Tổng số lượng", "tong_doanh_thu": "Tổng doanh thu",
+            "total_revenue": "Tổng doanh thu", "so_luong_ton": "Số lượng tồn",
+            "dvt": "Đơn vị tính",
+        }
         details = ", ".join(
-            f"{labels.get(key, key)}: {value}" for key, value in summary.items()
-            if isinstance(value, (str, int, float)) and not isinstance(value, bool)
+            f"{labels.get(key, key)}: {clean_numeric_str(value)}" for key, value in summary.items()
+            if isinstance(value, (str, int, float, Decimal)) and not isinstance(value, bool)
         )
         if details:
             blocks.insert(0, {"type": "summary", "text": f"Thống kê ERP — {details}"})
