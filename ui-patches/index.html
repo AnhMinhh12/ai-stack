@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<!-- LICENSE covers this Open WebUI branding surface, including name, logo,
+		visual, textual, symbolic identifiers, metadata, and surrounding UI.
+		Do not alter, remove, obscure, or replace it except as LICENSE permits:
+		https://docs.openwebui.com/license. -->
+		<link rel="icon" type="image/png" href="/static/favicon.png" crossorigin="use-credentials" />
+		<link
+			rel="icon"
+			type="image/png"
+			href="/static/favicon.png"
+			sizes="96x96"
+			crossorigin="use-credentials"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			href="/static/favicon.png"
+			crossorigin="use-credentials"
+		/>
+		<link rel="shortcut icon" href="/static/favicon.png" crossorigin="use-credentials" />
+		<link
+			rel="apple-touch-icon"
+			sizes="180x180"
+			href="/static/apple-touch-icon.png"
+			crossorigin="use-credentials"
+		/>
+		<link rel="manifest" href="/manifest.json" crossorigin="use-credentials" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+		/>
+		<meta name="theme-color" content="#171717" />
+		<meta name="robots" content="noindex,nofollow" />
+
+		<script src="/static/loader.js" defer crossorigin="use-credentials"></script>
+	<script src="/static/bulk-chat-delete.js" defer crossorigin="use-credentials"></script>
+	<script>
+		// Tự động Việt hóa các nhãn/mô tả còn sót tiếng Anh và cho phép đăng nhập bằng Mã nhân viên
+		(() => {
+			const dict = {
+				'Choose the color theme used by the interface.': 'Chọn chủ đề màu sắc cho giao diện.',
+				'Choose the language used for interface text.': 'Chọn ngôn ngữ hiển thị giao diện.',
+				'Set the default system prompt for new chats.': 'Đặt prompt hệ thống mặc định cho các đoạn chat mới.',
+				'Model parameters': 'Tham số mô hình',
+				'Show or hide custom generation parameters.': 'Hiển thị hoặc ẩn các tham số sinh phản hồi tùy chỉnh.',
+				'Personal': 'Cá nhân',
+				'Basics': 'Cơ bản',
+				'Preferences': 'Tùy chọn',
+				'Keyboard': 'Bàn phím',
+				'Services': 'Dịch vụ',
+				'Data': 'Dữ liệu',
+				'Data Controls': 'Kiểm soát dữ liệu',
+				'Usage': 'Mức sử dụng',
+				'Profile': 'Hồ sơ',
+				'System': 'Hệ thống',
+				'Choose a dedicated model for context compaction summaries. Current Model follows the active chat model.': 'Chọn mô hình chuyên dụng để tóm tắt nén ngữ cảnh. Mô hình hiện tại theo mô hình chat đang dùng.',
+				'Choose the browser voice used for speech output.': 'Chọn giọng đọc trình duyệt cho âm thanh.',
+				'Choose the configured text-to-speech service voice.': 'Chọn giọng đọc dịch vụ chuyển văn bản thành giọng nói.',
+				'Choose the engine used to read assistant responses aloud.': 'Chọn công cụ để đọc to phản hồi của trợ lý.',
+				'Choose the engine used to transcribe voice input.': 'Chọn công cụ để chuyển đổi giọng nói đầu vào thành văn bản.',
+				'Choose the gender value stored on your profile.': 'Chọn giới tính lưu trong hồ sơ của bạn.',
+				'Choose whether Enter sends immediately or uses Ctrl+Enter.': 'Chọn gửi tin nhắn bằng Enter hoặc Ctrl+Enter.',
+				'Choose whether the app opens to the default home or chat view.': 'Chọn mở ứng dụng ở trang chủ mặc định hay khung chat.',
+				'Chat Direction': 'Hướng văn bản',
+				'Landing Page': 'Trang khởi đầu',
+				'Chat Background Image': 'Hình nền trò chuyện',
+				'User Location': 'Vị trí người dùng'
+			};
+
+			const translateTextNodes = (root) => {
+				const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+				let node;
+				while ((node = walker.nextNode())) {
+					const trimmed = node.nodeValue?.trim();
+					if (trimmed && dict[trimmed]) {
+						node.nodeValue = node.nodeValue.replace(trimmed, dict[trimmed]);
+					}
+				}
+			};
+
+			const fixInputsAndTranslate = () => {
+				document.querySelectorAll('input[type="email"]').forEach((el) => {
+					el.type = 'text';
+					el.setAttribute('autocomplete', 'username');
+					if (!el.dataset.patched) {
+						el.dataset.patched = '1';
+						if (el.placeholder && /email/i.test(el.placeholder)) {
+							el.placeholder = 'Nhập mã nhân viên (VD: HP0001)';
+						}
+					}
+				});
+				document.querySelectorAll('form').forEach((form) => {
+					form.setAttribute('novalidate', 'true');
+				});
+				translateTextNodes(document.body || document.documentElement);
+			};
+
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', fixInputsAndTranslate);
+			} else {
+				fixInputsAndTranslate();
+			}
+			const observer = new MutationObserver(fixInputsAndTranslate);
+			observer.observe(document.documentElement, { childList: true, subtree: true });
+		})();
+	</script>
+		<link rel="stylesheet" href="/static/custom.css" crossorigin="use-credentials" />
+
+		<script>
+			function resizeIframe(obj) {
+				obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+			}
+		</script>
+
+		<script>
+			// On page load or when changing themes, best to add inline in `head` to avoid FOUC
+			(() => {
+				const metaThemeColorTag = document.querySelector('meta[name="theme-color"]');
+				const prefersDarkTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+				if (!localStorage?.theme) {
+					localStorage.theme = 'system';
+				}
+
+				if (localStorage.theme === 'system') {
+					document.documentElement.classList.add(prefersDarkTheme ? 'dark' : 'light');
+					metaThemeColorTag.setAttribute('content', prefersDarkTheme ? '#171717' : '#ffffff');
+				} else if (localStorage.theme === 'oled-dark') {
+					document.documentElement.style.setProperty('--color-gray-800', '#101010');
+					document.documentElement.style.setProperty('--color-gray-850', '#050505');
+					document.documentElement.style.setProperty('--color-gray-900', '#000000');
+					document.documentElement.style.setProperty('--color-gray-950', '#000000');
+					document.documentElement.classList.add('dark');
+					metaThemeColorTag.setAttribute('content', '#000000');
+				} else if (localStorage.theme === 'light') {
+					document.documentElement.classList.add('light');
+					metaThemeColorTag.setAttribute('content', '#ffffff');
+				} else if (localStorage.theme === 'her') {
+					document.documentElement.classList.add('her');
+					metaThemeColorTag.setAttribute('content', '#983724');
+				} else {
+					document.documentElement.classList.add('dark');
+					metaThemeColorTag.setAttribute('content', '#171717');
+				}
+
+				// LICENSE covers these Open WebUI splash logo assets.
+				// Do not alter, remove, obscure, or replace them except as LICENSE permits:
+				// https://docs.openwebui.com/license.
+				const preloadHref = document.documentElement.classList.contains('dark')
+					? '/static/splash-dark.png'
+					: '/static/splash.png';
+				const preload = document.createElement('link');
+				preload.rel = 'preload';
+				preload.as = 'image';
+				preload.href = preloadHref;
+				preload.setAttribute('fetchpriority', 'high');
+				document.head.appendChild(preload);
+
+				window.matchMedia('(prefers-color-scheme: dark)').addListener((e) => {
+					if (localStorage.theme === 'system') {
+						if (e.matches) {
+							document.documentElement.classList.add('dark');
+							document.documentElement.classList.remove('light');
+							metaThemeColorTag.setAttribute('content', '#171717');
+						} else {
+							document.documentElement.classList.add('light');
+							document.documentElement.classList.remove('dark');
+							metaThemeColorTag.setAttribute('content', '#ffffff');
+						}
+					}
+				});
+				const isDarkMode = document.documentElement.classList.contains('dark');
+
+				const logo = document.createElement('img');
+				logo.id = 'logo';
+				logo.style =
+					'position: absolute; width: auto; height: 6rem; top: 44%; left: 50%; transform: translateX(-50%); display:block;';
+				logo.loading = 'eager';
+				logo.fetchPriority = 'high';
+				// LICENSE covers this Open WebUI splash logo.
+				// Do not alter, remove, obscure, or replace it except as LICENSE permits:
+				// https://docs.openwebui.com/license.
+				logo.src = isDarkMode ? '/static/splash-dark.png' : '/static/splash.png';
+
+				document.addEventListener('DOMContentLoaded', function () {
+					const splash = document.getElementById('splash-screen');
+					if (document.documentElement.classList.contains('her')) {
+						return;
+					}
+
+					if (splash) splash.prepend(logo);
+				});
+			})();
+		</script>
+
+		<script>
+			// The chat UI calls these around each assistant response.
+			(() => {
+				let activeRequests = 0;
+				let indicator;
+				let positionFrame;
+
+				const positionIndicator = () => {
+					if (!indicator) return;
+					const candidates = [...document.querySelectorAll('span, div, p')]
+						.filter((element) => !element.closest('button') && /^(gpt|qwen|claude|gemini|llama|mistral)[\w.-]*$/i.test(element.textContent.trim()))
+						.map((element) => ({ element, rect: element.getBoundingClientRect() }))
+						.filter(({ rect }) => rect.width > 0 && rect.top >= 0 && rect.top < window.innerHeight - 150);
+					if (!candidates.length) return;
+					const latestTop = Math.max(...candidates.map(({ rect }) => rect.top));
+					const anchor = candidates
+						.filter(({ rect }) => Math.abs(rect.top - latestTop) < 4)
+						.sort((a, b) => a.rect.width - b.rect.width)[0].rect;
+					indicator.style.left = `${Math.round(anchor.left)}px`;
+					indicator.style.top = `${Math.round(anchor.bottom + 2)}px`;
+					indicator.style.transform = 'none';
+				};
+
+				const schedulePosition = () => {
+					cancelAnimationFrame(positionFrame);
+					positionFrame = requestAnimationFrame(positionIndicator);
+				};
+
+				const showIndicator = () => {
+					activeRequests += 1;
+					if (indicator || !document.body) return;
+					indicator = document.createElement('div');
+					indicator.setAttribute('role', 'status');
+					indicator.setAttribute('aria-live', 'polite');
+					indicator.style.cssText = 'position:fixed;top:18vh;left:50%;transform:translateX(-50%);z-index:99999;display:flex;align-items:center;gap:9px;padding:9px 14px;border:1px solid rgba(128,128,128,.22);border-radius:999px;background:#fff;color:#333;box-shadow:0 4px 18px rgba(0,0,0,.12);font:500 14px/1.2 system-ui,sans-serif;pointer-events:none';
+					if (document.documentElement.classList.contains('dark')) {
+						indicator.style.background = '#262626';
+						indicator.style.color = '#f5f5f5';
+					}
+					const spinner = document.createElement('span');
+					spinner.style.cssText = 'width:15px;height:15px;border:2px solid rgba(128,128,128,.28);border-top-color:#555;border-radius:50%;animation:htmp-image-spin .8s linear infinite;flex:none';
+					if (document.documentElement.classList.contains('dark')) spinner.style.borderTopColor = '#eee';
+					const label = document.createElement('span');
+					label.textContent = 'Đang suy nghĩ';
+					indicator.append(spinner, label);
+					document.body.appendChild(indicator);
+					schedulePosition();
+				};
+
+				const hideIndicator = () => {
+					activeRequests = Math.max(0, activeRequests - 1);
+					if (activeRequests === 0 && indicator) {
+						indicator.remove();
+						indicator = undefined;
+					}
+				};
+
+				const style = document.createElement('style');
+				style.textContent = '@keyframes htmp-image-spin{to{transform:rotate(360deg)}}';
+				document.head.appendChild(style);
+				window.addEventListener('htmp-chat-start', showIndicator);
+				window.addEventListener('htmp-chat-finish', hideIndicator);
+				window.addEventListener('scroll', schedulePosition, true);
+				window.addEventListener('resize', schedulePosition);
+			})();
+		</script>
+
+		<title>HTMP AI Chat</title>
+
+		<link href="/_app/immutable/entry/start.MZ_833Of.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DM1ZCcht.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/7a2fV5I9.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DIeogL5L.js" rel="modulepreload">
+		<link href="/_app/immutable/entry/app.D4W0gDP-.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/C1FmrZbK.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/CzkjijAb.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/CWj6FrbW.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/Dw-yaK-_.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/Cl6Xka7r.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DPBuKmzL.js" rel="modulepreload">
+		<link href="/_app/immutable/nodes/0.BShpzYgk.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/69_IOA4Y.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/CiyEWm25.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DKaByr9K.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/3tOhmI7k.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/CWFN-V6k.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/dm1FmSOd.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/SSgOjjKL.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/B9KZzU37.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/Cz-y29re.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/D0LT_vjn.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/CDs8OzhH.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/B1RxOmHW.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/D3YwFX-v.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/bOOqwgTq.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/ZaOG7rqK.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DqBxOkk9.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BT28bLwl.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/QjJsDpFa.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DRFE3-Gd.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/Cllow_P6.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DNBW5rZI.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/Cojxxu7g.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/7y3nslxn.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/Dxy4iZ9H.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/Bfc47y5P.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/YoyIeg0L.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/IqCUZuIq.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BJFmHrLe.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/C7eVKYlM.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/Bre5lY_g.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/2p5Upk8k.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BnSQQxyy.js" rel="modulepreload">
+		
+		<link href="/_app/immutable/assets/Toaster.DKF17Rty.css" rel="stylesheet">
+		<link href="/_app/immutable/assets/Modal.CSlFhZkq.css" rel="stylesheet">
+		<link href="/_app/immutable/assets/0.BY7vX0gs.css" rel="stylesheet">
+	</head>
+
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">
+			<script>
+				{
+					__sveltekit_15uh94c = {
+						base: ""
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("/_app/immutable/entry/start.MZ_833Of.js"),
+						import("/_app/immutable/entry/app.D4W0gDP-.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element);
+					});
+				}
+			</script>
+		</div>
+
+		<div
+			id="splash-screen"
+			style="position: fixed; z-index: 100; top: 0; left: 0; width: 100%; height: 100%"
+		>
+			<style type="text/css" nonce="">
+				html {
+					overflow-y: scroll !important;
+				}
+			</style>
+
+			<div
+				style="
+					position: absolute;
+					top: 33%;
+					left: 50%;
+
+					width: 24rem;
+					transform: translateX(-50%);
+
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+				"
+			>
+				<!-- LICENSE covers this Open WebUI splash logo.
+				Do not alter, remove, obscure, or replace it except as LICENSE permits:
+				https://docs.openwebui.com/license. -->
+				<img
+					id="logo-her"
+					style="width: auto; height: 13rem"
+					src="/static/splash.png"
+					loading="eager"
+					fetchpriority="high"
+					class="animate-pulse-fast"
+				/>
+
+				<div style="position: relative; width: 24rem; margin-top: 0.5rem">
+					<div
+						id="progress-background"
+						style="
+							position: absolute;
+							width: 100%;
+							height: 0.75rem;
+
+							border-radius: 9999px;
+							background-color: #fafafa9a;
+						"
+					></div>
+
+					<div
+						id="progress-bar"
+						style="
+							position: absolute;
+							width: 0%;
+							height: 0.75rem;
+							border-radius: 9999px;
+							background-color: #fff;
+						"
+						class="bg-white"
+					></div>
+				</div>
+			</div>
+
+			<!-- <span style="position: absolute; bottom: 32px; left: 50%; margin: -36px 0 0 -36px">
+				Footer content
+			</span> -->
+		</div>
+	</body>
+
+	<style type="text/css" nonce="">
+		html {
+			overflow-y: hidden !important;
+			overscroll-behavior-y: none;
+		}
+
+		#splash-screen {
+			background: #fff;
+		}
+
+		html.dark #splash-screen {
+			background: #000;
+		}
+
+		html.her #splash-screen {
+			background: #983724;
+		}
+
+		#logo-her {
+			display: none;
+		}
+
+		#progress-background {
+			display: none;
+		}
+
+		#progress-bar {
+			display: none;
+		}
+
+		html.her #logo {
+			display: none;
+		}
+
+		html.her #logo-her {
+			display: block;
+			filter: invert(1);
+		}
+
+		html.her #progress-background {
+			display: block;
+		}
+
+		html.her #progress-bar {
+			display: block;
+		}
+
+		@media (max-width: 24rem) {
+			html.her #progress-background {
+				display: none;
+			}
+
+			html.her #progress-bar {
+				display: none;
+			}
+		}
+
+		@keyframes pulse {
+			50% {
+				opacity: 0.65;
+			}
+		}
+
+		.animate-pulse-fast {
+			animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+		}
+	</style>
+</html>

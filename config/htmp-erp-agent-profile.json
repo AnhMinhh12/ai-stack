@@ -5,7 +5,7 @@
       "id": "htmp_erp_agent",
       "name": "ERP nhiều lượt staging",
       "source": "htmp_erp_agent.py",
-      "description": "Bounded ERP agent; explicit grants and staging DSN required",
+      "description": "Agent ERP giới hạn phạm vi; yêu cầu phân quyền rõ ràng và DSN môi trường thử nghiệm",
       "type": "tool",
       "specs": [
         {
@@ -30,7 +30,7 @@
       "id": "htmp_erp_agent_filter",
       "name": "ERP agent staging profile",
       "source": "htmp_erp_agent_filter.py",
-      "description": "Attach only the bounded agent tool to the staging profile",
+      "description": "Chỉ gắn công cụ agent giới hạn phạm vi vào hồ sơ thử nghiệm",
       "type": "filter"
     }
   ],
@@ -39,7 +39,7 @@
       "id": "htmp-erp-agent-staging",
       "name": "ERP nhiều lượt — staging",
       "base_model_id": "qwen2.5-14b",
-      "description": "Staging pilot only; not UI validated",
+      "description": "Phiên bản thử nghiệm (staging); chưa kiểm chứng toàn diện trên giao diện",
       "use_knowledge": false,
       "tool_ids": [
         "htmp_erp_agent"

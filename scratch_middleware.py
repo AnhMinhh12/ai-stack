@@ -143,6 +143,23 @@ from starlette.responses import JSONResponse, Response, StreamingResponse
 logging.basicConfig(stream=sys.stdout, level=GLOBAL_LOG_LEVEL)
 log = logging.getLogger(__name__)
 
+# Product models own their tools. The chat UI can still submit a user-selected
+# tool list, so pin these model bindings here before resolving tools. This keeps
+# the GPT and ERP paths separate even when someone changes the tool toggles.
+MODEL_TOOL_BINDINGS = {
+    'gpt-5.6-sol': [],
+    'gpt-5.6-luna': [],
+    'htmp-nhanh': ['htmp_postgres_query'],
+    'htmp-erp-agent-staging': [],
+}
+
+
+def model_tool_ids(model_id):
+    """Return the fixed tool list for product models, or None for other models."""
+    if model_id not in MODEL_TOOL_BINDINGS:
+        return None
+    return list(MODEL_TOOL_BINDINGS[model_id])
+
 
 def _is_tool_result_error(value: Any) -> bool:
     if isinstance(value, str):
@@ -2722,6 +2739,17 @@ async def process_chat_payload(request, form_data, user, metadata, model):
     # If the original caller provided tools, use them as-is (skip resolution).
     # Otherwise, save any tools that filter inlets added for merging later.
     inlet_filter_tools = None if payload_tools is not None else form_data.get('tools', None)
+
+    # The two GPT profiles and the ERP profile have fixed product capabilities.
+    # Ignore composer/API tool overrides for these models and resolve only the
+    # server-owned tools assigned above. Image generation remains a model
+    # capability handled by the native image-generation path.
+    bound_tools = model_tool_ids(form_data.get('model'))
+    if bound_tools is not None:
+        tool_ids = list(bound_tools)
+        form_data.pop('tools', None)
+        payload_tools = None
+        inlet_filter_tools = None
 
     # Mentioned skills get full content; selected/default skills can be loaded through view_skill.
     mentioned_skill_ids = extract_skill_ids_from_messages(form_data.get('messages', []))

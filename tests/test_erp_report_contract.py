@@ -68,6 +68,38 @@ class InventoryMovementJournalContractTests(unittest.TestCase):
     def test_material_code_starting_with_digits_is_recognized(self):
         self.assertEqual(ERP.extract_erp_entities("35K-H2110-0001 đã mua chưa")["ma_vt"], "35K-H2110-0001")
 
+    def test_inventory_questions_route_to_balance_instead_of_material_master(self):
+        from erp_ai import build_request
+
+        questions = (
+            ("Mã hàng 1003947-1 tồn kho bao nhiêu trên hệ thống", "1003947-1"),
+            ("Mã hàng BGTD0193 tồn kho bao nhiêu trên hệ thống", "BGTD0193"),
+            ("Mã hàng BGTD0193 còn bao nhiêu trong kho?", "BGTD0193"),
+        )
+        for question, code in questions:
+            with self.subTest(question=question):
+                self.assertEqual(ERP.extract_erp_entities(question)["ma_vt"], code)
+                self.assertEqual(ERP.ConversationStateStore().resolve("", question)["ma_vt"], code)
+                self.assertEqual(build_request(question, {"ma_vt": code}).intent, "inventory_balance")
+
+    def test_inventory_result_requires_matching_finite_quantity(self):
+        from erp_ai.validator import validate_inventory_balance_result
+
+        valid = {"ma_vt": "BGTD0193", "so_luong_ton": 0, "dvt": "PCS"}
+        self.assertIsNone(validate_inventory_balance_result("BGTD0193", [valid]))
+        self.assertEqual(
+            validate_inventory_balance_result("BGTD0193", [{**valid, "so_luong_ton": None}]),
+            "INVENTORY_QUANTITY_MISSING",
+        )
+        self.assertEqual(
+            validate_inventory_balance_result("BGTD0193", [{**valid, "so_luong_ton": "NaN"}]),
+            "INVENTORY_QUANTITY_INVALID",
+        )
+        self.assertEqual(
+            validate_inventory_balance_result("BGTD0193", [{**valid, "ma_vt": "OTHER"}]),
+            "INVENTORY_MATERIAL_MISMATCH",
+        )
+
     def test_confirmed_code_is_not_replaced_by_abbreviated_model_context(self):
         store = ERP.ConversationStateStore()
         store.remember("chat", {"ma_vt": "35K-H2110-0001"})
@@ -141,21 +173,21 @@ class InventoryMovementJournalContractTests(unittest.TestCase):
         profile = (ROOT / "functions" / "htmp_fast_rag.py").read_text()
         self.assertIn("GCCKSC164", profile)
         self.assertNotIn("[a-z]{1,5}\\d{2,}", profile)
-        self.assertIn("overrides every earlier material code", profile)
+        self.assertIn("ghi đè lên mọi mã vật tư trước đó", profile)
 
     def test_erp_profile_requires_both_vat_prices_for_supplier_quotes(self):
         profile = (ROOT / "functions" / "htmp_fast_rag.py").read_text()
         tool_config = (ROOT / "config" / "htmp-rag-models.json").read_text()
         self.assertIn("summary.bao_gia_ncc_gan_nhat", profile)
-        self.assertIn("before VAT AND after VAT", profile)
-        self.assertIn("prices before and after VAT", tool_config)
+        self.assertIn("trước VAT VÀ sau VAT", profile)
+        self.assertIn("giá trước và sau VAT", tool_config)
 
     def test_erp_profile_requires_exactly_one_tool_call_for_each_turn(self):
         profile = (ROOT / "functions" / "htmp_fast_rag.py").read_text()
-        self.assertIn("EXACTLY ONE native call to ask_erp FIRST", profile)
-        self.assertIn("emit ZERO natural-language text", profile)
-        self.assertIn("Never preface a tool call", profile)
-        self.assertIn("NEVER call ask_erp a second time in the same turn", profile)
+        self.assertIn("ĐÚNG MỘT lệnh gọi công cụ ask_erp ĐẦU TIÊN", profile)
+        self.assertIn("TUYỆT ĐỐI KHÔNG xuất bất kỳ văn bản tự nhiên nào", profile)
+        self.assertIn("Tuyệt đối không mở đầu lệnh gọi công cụ", profile)
+        self.assertIn("TUYỆT ĐỐI KHÔNG gọi ask_erp lần thứ hai trong cùng một lượt", profile)
         self.assertNotIn('body["tool_choice"] = "required"', profile)
 
     def test_production_material_types_are_versioned_business_rules(self):

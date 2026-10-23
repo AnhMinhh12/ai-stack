@@ -1,7 +1,10 @@
 import asyncio
 import copy
+import json
 import logging
+import os
 import sys
+from pathlib import Path
 
 from aiocache import cached
 from fastapi import Request
@@ -28,6 +31,27 @@ from open_webui.utils.plugin import (
 
 logging.basicConfig(stream=sys.stdout, level=GLOBAL_LOG_LEVEL)
 log = logging.getLogger(__name__)
+
+# Picker policy is configuration, not a provider or ERP runtime concern.
+# Keep product groups separate so a GPT picker change cannot alter ERP IDs.
+MODEL_PICKER_POLICY_PATH = Path(
+    os.getenv('MODEL_PICKER_POLICY_PATH', '/app/backend/config/model-picker-policy.json')
+)
+try:
+    _model_picker_policy = json.loads(MODEL_PICKER_POLICY_PATH.read_text())
+    _model_picker_groups = _model_picker_policy.get('groups', {})
+    if not isinstance(_model_picker_groups, dict):
+        raise ValueError('groups must be an object')
+    MODEL_PICKER_ALLOWLIST = frozenset(
+        model_id
+        for model_ids in _model_picker_groups.values()
+        if isinstance(model_ids, list)
+        for model_id in model_ids
+        if isinstance(model_id, str) and model_id
+    )
+except (OSError, ValueError, TypeError) as error:
+    log.error('Failed to load model picker policy %s: %s', MODEL_PICKER_POLICY_PATH, error)
+    MODEL_PICKER_ALLOWLIST = frozenset()
 
 
 async def fetch_ollama_models(request: Request, user: UserModel = None):
@@ -417,8 +441,19 @@ async def get_all_models(request, refresh: bool = False, user: UserModel = None)
                 filter_items_by_id[filter_id] = items
             model['filters'].extend({**item} for item in items)
 
+    # GPT profiles use native image generation and have no chat tools. Clear
+    # persisted tool assignments so the composer does not show a selected tool.
+    for model in models:
+        if model.get('id') in {'gpt-5.6-sol', 'gpt-5.6-luna'}:
+            meta = model.setdefault('info', {}).setdefault('meta', {})
+            meta['toolIds'] = []
+            meta.setdefault('capabilities', {})['web_search'] = True
+
     log.debug('get_all_models() returned %s models', len(models))
 
+    # Keep every provider/base model in the server-side cache. Custom profiles
+    # such as HTMP ERP need their base model for access checks and routing,
+    # even when that base model is intentionally hidden from the model picker.
     models_dict = {model['id']: model for model in models}
     if isinstance(request.app.state.MODELS, RedisDict):
         try:
@@ -429,7 +464,9 @@ async def get_all_models(request, refresh: bool = False, user: UserModel = None)
     else:
         request.app.state.MODELS = models_dict
 
-    return models
+    # Apply the UI allowlist only to the returned picker list, never to the
+    # internal model cache used by chat completion routing.
+    return [model for model in models if model.get('id') in MODEL_PICKER_ALLOWLIST]
 
 
 async def check_model_access(user, model, model_info=None, db=None):

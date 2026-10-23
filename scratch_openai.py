@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import hashlib
+import json
 import logging
+import os
 import re
+import unicodedata
 from typing import Optional
 from urllib.parse import quote, urlparse
 
@@ -34,6 +38,7 @@ from open_webui.env import (
 from open_webui.events import EVENTS, publish_event, publish_model_provider_request_failed
 from open_webui.internal.db import get_async_session
 from open_webui.models.access_grants import AccessGrants
+from open_webui.models.chats import Chats
 from open_webui.models.config import Config
 from open_webui.models.groups import Groups
 from open_webui.models.models import Models
@@ -41,6 +46,7 @@ from open_webui.models.users import UserModel
 from open_webui.utils.access_control import check_model_access, has_connection_access, has_permission
 from open_webui.utils.anthropic import ANTHROPIC_VERSION, get_anthropic_models, is_anthropic_url
 from open_webui.utils.auth import get_admin_user, get_verified_user
+from open_webui.utils.files import get_image_base64_from_url
 from open_webui.utils.headers import get_custom_headers, include_user_info_headers
 from open_webui.utils.json_codec import JSONCodec
 from open_webui.utils.misc import convert_logit_bias_input_to_json
@@ -76,11 +82,247 @@ log = logging.getLogger(__name__)
 _STRIP_PROXY_HEADERS = frozenset({'Content-Encoding', 'Content-Length', 'Transfer-Encoding'})
 _MODEL_LIST_TIMEOUT = aiohttp.ClientTimeout(total=AIOHTTP_CLIENT_TIMEOUT_MODEL_LIST)
 _UNSUPPORTED_OPENAI_MODEL_KEYWORDS = ('babbage', 'dall-e', 'davinci', 'embedding', 'tts', 'whisper')
+_GPT_IMAGE_MODEL = os.getenv('HTMP_OPENAI_IMAGE_MODEL', 'gpt-image-1.5')
+_IMAGE_ACTION_PATTERN = re.compile(r'\b(?:tao|ve|sua|chinh|mo rong|doi|generate|create|draw|edit)\b', re.IGNORECASE)
+_IMAGE_NOUN_PATTERN = re.compile(r'\b(?:anh|hinh|image)\b', re.IGNORECASE)
 
 
 def _clean_proxy_headers(raw_headers) -> dict:
     """Return a copy of *raw_headers* with stale encoding headers removed."""
     return {k: v for k, v in raw_headers.items() if k not in _STRIP_PROXY_HEADERS}
+
+
+def _content_as_text(content) -> str:
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return '\n'.join(
+            str(part.get('text', ''))
+            for part in content
+            if isinstance(part, dict) and part.get('type') in ('text', 'input_text')
+        )
+    return ''
+
+
+def _chat_requests_image(messages: list[dict], user_prompt: str | None = None) -> bool:
+    """Recognize image intent in the actual prompt, before file/RAG context."""
+    if not isinstance(messages, list):
+        return False
+    latest_user_message = next(
+        (message for message in reversed(messages) if isinstance(message, dict) and message.get('role') == 'user'),
+        None,
+    )
+    if latest_user_message is None:
+        return False
+    text = user_prompt if isinstance(user_prompt, str) else _content_as_text(latest_user_message.get('content'))
+    text = ''.join(char for char in unicodedata.normalize('NFD', text) if not unicodedata.combining(char))
+    if _IMAGE_ACTION_PATTERN.search(text) and _IMAGE_NOUN_PATTERN.search(text):
+        return True
+
+    # A short follow-up such as "sửa cho t đi" refers to the image already in
+    # this conversation. Do not let old image context hijack a new document task.
+    if len(text.strip()) > 60 or not _IMAGE_ACTION_PATTERN.search(text):
+        return False
+    if re.search(r'\b(?:excel|word|pdf|file|bang|bao cao|tai lieu|code)\b', text, re.IGNORECASE):
+        return False
+    for message in reversed(messages[:-1]):
+        if not isinstance(message, dict) or message.get('role') != 'user':
+            continue
+        previous = _content_as_text(message.get('content'))
+        previous = ''.join(char for char in unicodedata.normalize('NFD', previous) if not unicodedata.combining(char))
+        if _IMAGE_NOUN_PATTERN.search(previous):
+            return True
+    return False
+
+
+def _add_gpt_image_tool(payload: dict, user: UserModel, metadata: dict | None = None) -> tuple[dict, bool]:
+    """Expose GPT Image only to public GPT Responses requests, never local vLLM."""
+    messages = payload.get('messages', [])
+    image_requested = _chat_requests_image(messages, (metadata or {}).get('user_prompt'))
+    if not image_requested:
+        return payload, False
+
+    # The image tool is intentionally scoped to an explicit request in the
+    # current user message. Leaving it available in every GPT turn lets old
+    # image context turn unrelated Excel/document work into a new image.
+    tools = list(payload.get('tools') or [])
+    if not any(isinstance(tool, dict) and tool.get('type') == 'image_generation' for tool in tools):
+        tools.append({'type': 'image_generation', 'model': _GPT_IMAGE_MODEL, 'action': 'auto'})
+    payload['tools'] = tools
+    payload['tool_choice'] = {'type': 'image_generation'}
+    identity = str(getattr(user, 'id', '') or getattr(user, 'email', ''))
+    if identity:
+        payload['safety_identifier'] = hashlib.sha256(identity.encode()).hexdigest()
+    return payload, True
+
+
+_WEB_SEARCH_INTENT_PATTERN = re.compile(
+    r'\b(?:today|tonight|latest|current|currently|recent|news|breaking|this week|this month|right now|'
+    r'hom nay|hien nay|hien tai|moi nhat|tin tuc|thoi su|cap nhat|dang dien ra|gia hien tai|'
+    r'ty gia|thoi tiet|lich thi dau|ket qua hom nay)\b',
+    re.IGNORECASE,
+)
+
+
+def _gpt_request_needs_web_search(payload: dict, metadata: dict | None) -> bool:
+    features = (metadata or {}).get('features') or payload.get('features') or {}
+    if isinstance(features, dict) and features.get('web_search'):
+        return True
+    messages = payload.get('messages') or []
+    prompt = next((m.get('content', '') for m in reversed(messages) if m.get('role') == 'user'), '')
+    if isinstance(prompt, list):
+        prompt = ' '.join(str(part.get('text', '')) for part in prompt if isinstance(part, dict))
+    prompt = ''.join(
+        char for char in unicodedata.normalize('NFD', str(prompt)) if not unicodedata.combining(char)
+    )
+    return bool(_WEB_SEARCH_INTENT_PATTERN.search(prompt))
+
+
+def _add_gpt_web_search_tool(payload: dict) -> dict:
+    """Add hosted web search when the user asks for current information or enables search."""
+    tools = list(payload.get('tools') or [])
+    if not any(isinstance(tool, dict) and tool.get('type') in {'web_search', 'web_search_preview'} for tool in tools):
+        tools.append({'type': 'web_search', 'search_context_size': 'medium'})
+    payload['tools'] = tools
+    # Responses SSE events are not Chat Completions chunks. Convert the completed
+    # response so Open WebUI can render the text and the source links normally.
+    payload['stream'] = False
+    return payload
+
+
+async def _attach_requested_image(payload: dict, metadata: dict | None, user: UserModel) -> bool:
+    """Bridge current chat uploads into the final GPT image-edit request."""
+    messages = payload.get('messages') or []
+    current_user = next((m for m in reversed(messages) if m.get('role') == 'user'), None)
+    if current_user is None:
+        return False
+
+    content = current_user.get('content', '')
+    parts = [{'type': 'text', 'text': content}] if isinstance(content, str) and content else list(content) if isinstance(content, list) else []
+    for part in parts:
+        if not isinstance(part, dict) or part.get('type') != 'image_url':
+            continue
+        image_url = part.get('image_url') or {}
+        url = image_url.get('url') if isinstance(image_url, dict) else image_url
+        if isinstance(url, str) and url.startswith('data:image/'):
+            return True
+        if isinstance(url, str) and url:
+            image_data = await get_image_base64_from_url(url, user=user)
+            if image_data and image_data.startswith('data:image/'):
+                part['image_url'] = {'url': image_data}
+                current_user['content'] = parts
+                return True
+
+    async def attach_from_files(files: list) -> bool:
+        for file in files:
+            if not isinstance(file, dict):
+                continue
+            mime = file.get('content_type') or ((file.get('file') or {}).get('meta') or {}).get('content_type') or ''
+            if file.get('type') != 'image' and not mime.startswith('image/'):
+                continue
+            file_url = file.get('url') or file.get('id') or (file.get('file') or {}).get('id')
+            if not file_url:
+                continue
+            image_data = await get_image_base64_from_url(file_url, user=user)
+            if image_data and image_data.startswith('data:image/'):
+                non_image_parts = [part for part in parts if not isinstance(part, dict) or part.get('type') != 'image_url']
+                current_user['content'] = [*non_image_parts, {'type': 'image_url', 'image_url': {'url': image_data}}]
+                return True
+        return False
+
+    async def attach_from_assistant_message(message: dict) -> bool:
+        """Reuse a generated image from an earlier assistant turn in this chat."""
+        candidates = []
+        for file in message.get('files') or []:
+            if isinstance(file, dict):
+                candidates.append(file.get('url') or file.get('id'))
+
+        content = message.get('content')
+        if isinstance(content, str):
+            candidates.extend(re.findall(r'!\[[^\]]*\]\(([^)\s]+)', content))
+        elif isinstance(content, list):
+            for part in content:
+                if isinstance(part, dict) and part.get('type') in ('image_url', 'input_image'):
+                    image_url = part.get('image_url') or part.get('url')
+                    if isinstance(image_url, dict):
+                        image_url = image_url.get('url')
+                    candidates.append(image_url)
+
+        for output_item in message.get('output') or []:
+            if not isinstance(output_item, dict):
+                continue
+            for part in output_item.get('content') or []:
+                if not isinstance(part, dict):
+                    continue
+                if part.get('type') in ('image_url', 'input_image'):
+                    image_url = part.get('image_url') or part.get('url')
+                    if isinstance(image_url, dict):
+                        image_url = image_url.get('url')
+                    candidates.append(image_url)
+                elif part.get('type') in ('text', 'output_text', 'input_text'):
+                    candidates.extend(re.findall(r'!\[[^\]]*\]\(([^)\s]+)', part.get('text') or ''))
+
+        for url in candidates:
+            if not isinstance(url, str) or not url:
+                continue
+            if url.startswith('data:image/'):
+                image_data = url
+            else:
+                # Only reuse images stored by Open WebUI. This avoids fetching
+                # arbitrary URLs embedded in an assistant message.
+                path = urlparse(url).path
+                if '/api/v1/files/' not in path:
+                    continue
+                image_data = await get_image_base64_from_url(url, user=user)
+            if image_data and image_data.startswith('data:image/'):
+                current_user['content'] = [
+                    *parts,
+                    {'type': 'image_url', 'image_url': {'url': image_data}},
+                ]
+                return True
+        return False
+
+    metadata = metadata or {}
+    user_message = metadata.get('user_message') or {}
+    if await attach_from_files([*(user_message.get('files') or []), *(metadata.get('files') or [])]):
+        return True
+
+    # The current turn may say only "edit it". Reuse the nearest earlier image
+    # on this branch, with the normal file ownership check in the resolver.
+    for message in reversed(messages[:-1]):
+        if isinstance(message, dict) and message.get('role') == 'assistant':
+            if await attach_from_assistant_message(message):
+                return True
+        if not isinstance(message, dict) or message.get('role') != 'user':
+            continue
+        previous_parts = message.get('content')
+        if isinstance(previous_parts, list):
+            for part in reversed(previous_parts):
+                if not isinstance(part, dict) or part.get('type') != 'image_url':
+                    continue
+                image_url = part.get('image_url') or {}
+                url = image_url.get('url') if isinstance(image_url, dict) else image_url
+                if isinstance(url, str) and url:
+                    image_data = url if url.startswith('data:image/') else await get_image_base64_from_url(url, user=user)
+                    if image_data and image_data.startswith('data:image/'):
+                        current_user['content'] = [*parts, {'type': 'image_url', 'image_url': {'url': image_data}}]
+                        return True
+
+    chat_id = metadata.get('chat_id')
+    current_id = user_message.get('id') or metadata.get('user_message_id')
+    if chat_id and current_id and await Chats.is_chat_owner(chat_id, user.id):
+        messages_map = await Chats.get_messages_map_by_chat_id(chat_id) or {}
+        cursor = (messages_map.get(current_id) or {}).get('parentId')
+        seen = set()
+        while cursor and cursor not in seen:
+            seen.add(cursor)
+            message = messages_map.get(cursor) or {}
+            if message.get('role') == 'assistant' and await attach_from_assistant_message(message):
+                return True
+            if message.get('role') == 'user' and await attach_from_files(message.get('files') or []):
+                return True
+            cursor = message.get('parentId')
+    return False
 
 
 async def send_get_request(
@@ -341,6 +583,59 @@ async def get_openai_connection(idx: int) -> tuple[str, str, dict]:
     key = api_keys[idx]
     api_config = api_configs.get(str(idx), api_configs.get(url, {}))
     return url, key, api_config
+
+
+def _is_openai_public_endpoint(url: str) -> bool:
+    """Return true only for the public OpenAI API, never local providers."""
+    try:
+        return (urlparse(url).hostname or '').lower() == 'api.openai.com'
+    except (TypeError, ValueError):
+        return False
+
+
+def _get_user_openai_api_key(url: str, user: UserModel | None) -> str | None:
+    """Resolve a server-side OpenAI key for an authenticated WebUI user.
+
+    ``HTMP_OPENAI_USER_KEY_MAP`` is a JSON object keyed by lower-cased user
+    email address. It remains in the container environment, rather than in
+    WebUI's client-visible connection configuration or SQLite settings.
+    """
+    if user is None or not _is_openai_public_endpoint(url):
+        return None
+
+    email = getattr(user, 'email', None)
+    if not isinstance(email, str) or not email.strip():
+        return None
+
+    try:
+        key_map = json.loads(os.getenv('HTMP_OPENAI_USER_KEY_MAP', '{}'))
+    except json.JSONDecodeError:
+        log.error('HTMP_OPENAI_USER_KEY_MAP is invalid JSON; using the configured connection key')
+        return None
+
+    if not isinstance(key_map, dict):
+        log.error('HTMP_OPENAI_USER_KEY_MAP must be a JSON object; using the configured connection key')
+        return None
+
+    key = key_map.get(email.strip().lower())
+    return key.strip() if isinstance(key, str) and key.strip() else None
+
+
+async def get_openai_connection_for_user(idx: int, user: UserModel | None) -> tuple[str, str, dict]:
+    """Get an upstream connection, enforcing a mapped key for public OpenAI."""
+    url, key, api_config = await get_openai_connection(idx)
+    if not _is_openai_public_endpoint(url):
+        return url, key, api_config
+
+    user_key = _get_user_openai_api_key(url, user)
+    if not user_key:
+        # Never fall back to the connection's bootstrap key: doing so would
+        # make an unmapped user consume another project's budget.
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='This user is not configured for the OpenAI provider.',
+        )
+    return url, user_key, api_config
 
 
 async def clear_openai_model_cache(request: Request):
@@ -626,7 +921,7 @@ async def speech(request: Request, user=Depends(get_verified_user)):
         if file_path.is_file():
             return FileResponse(file_path)
 
-        url, key, api_config = await get_openai_connection(idx)
+        url, key, api_config = await get_openai_connection_for_user(idx, user)
 
         headers, cookies = await get_headers_and_cookies(request, url, key, api_config, user=user)
 
@@ -1429,7 +1724,7 @@ def convert_to_responses_payload(payload: dict) -> dict:
     return responses_payload
 
 
-def convert_responses_result(response: dict) -> dict:
+async def convert_responses_result(request: Request, user: UserModel, response: dict) -> dict:
     """
     Convert non-streaming Responses API result to Chat Completions format.
 
@@ -1439,11 +1734,42 @@ def convert_responses_result(response: dict) -> dict:
     output_items = response.get('output', [])
 
     content = ''
+    citations = []
     for item in output_items:
         if item.get('type') == 'message':
             for part in item.get('content', []):
                 if part.get('type') == 'output_text':
                     content += part.get('text', '')
+                    for annotation in part.get('annotations', []):
+                        if annotation.get('type') == 'url_citation' and annotation.get('url'):
+                            citation = (annotation.get('title') or annotation['url'], annotation['url'])
+                            if citation not in citations:
+                                citations.append(citation)
+
+        if item.get('type') == 'image_generation_call' and item.get('result'):
+            # Persist the generated image in the user's Open WebUI file store.
+            # A local URL, rather than a large data URL in chat JSON, preserves
+            # normal attachment permissions and keeps chat records manageable.
+            try:
+                from open_webui.routers.images import upload_image
+
+                image_data = base64.b64decode(item['result'])
+                _, image_url = await upload_image(
+                    request,
+                    image_data,
+                    'image/png',
+                    {'source': 'openai-image-generation', 'response_id': response.get('id', '')},
+                    user,
+                )
+                content += f'\n\n![Ảnh đã tạo]({image_url})'
+            except Exception:
+                log.exception('Could not save image generation result for response %s', response.get('id', ''))
+                content += '\n\nĐã tạo ảnh nhưng không thể lưu ảnh vào cuộc trò chuyện.'
+
+    if citations:
+        content += '\n\nNguồn tham khảo:\n' + '\n'.join(
+            f'- [{title}]({url})' for title, url in citations
+        )
 
     return {
         'id': response.get('id', ''),
@@ -1531,7 +1857,7 @@ async def generate_chat_completion(
             detail=ERROR_MESSAGES.MODEL_NOT_FOUND(),
         )
 
-    url, key, api_config = await get_openai_connection(idx)
+    url, key, api_config = await get_openai_connection_for_user(idx, user)
 
     prefix_id = api_config.get('prefix_id', None)
     payload['model'] = strip_provider_model_prefix(payload['model'], prefix_id)
@@ -1567,6 +1893,19 @@ async def generate_chat_completion(
     headers, cookies = await get_headers_and_cookies(request, url, key, api_config, metadata, user=user)
 
     is_responses = api_config.get('api_type') == 'responses'
+    image_requested = False
+    if is_responses and _is_openai_public_endpoint(url) and payload.get('model', '').lower().startswith('gpt-'):
+        payload, image_requested = _add_gpt_image_tool(payload, user, metadata)
+        if not image_requested and _gpt_request_needs_web_search(payload, metadata):
+            payload = _add_gpt_web_search_tool(payload)
+        if image_requested:
+            image_attached = await _attach_requested_image(payload, metadata, user)
+            if not image_attached and ((metadata or {}).get('user_message') or {}).get('files'):
+                log.warning('Image requested but the current chat attachment could not be resolved')
+            # Open WebUI expects chat-completion chunks, while the Responses
+            # image events are a different SSE schema. Request one completed
+            # response so it can be converted to a normal chat attachment.
+            payload['stream'] = False
 
     if api_config.get('azure') or api_config.get('provider') == 'azure':
         # Only set api-key header if not using Azure Entra ID authentication
@@ -1705,7 +2044,7 @@ async def generate_chat_completion(
 
             # Convert Responses API result to simple format
             if is_responses and isinstance(response, dict):
-                response = convert_responses_result(response)
+                response = await convert_responses_result(request, user, response)
 
             return response
     except Exception as e:
@@ -1745,7 +2084,7 @@ async def embeddings(request: Request, form_data: dict, user):
     if model_id in models:
         idx = models[model_id]['urlIdx']
 
-    url, key, api_config = await get_openai_connection(idx)
+    url, key, api_config = await get_openai_connection_for_user(idx, user)
 
     r = None
     streaming = False
@@ -1873,7 +2212,7 @@ async def responses(
         if model_id in models:
             idx = models[model_id]['urlIdx']
 
-    url, key, api_config = await get_openai_connection(idx)
+    url, key, api_config = await get_openai_connection_for_user(idx, user)
 
     payload['model'] = strip_provider_model_prefix(payload['model'], api_config.get('prefix_id'))
     body = JSONCodec.dumps(payload)

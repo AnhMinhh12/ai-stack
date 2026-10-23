@@ -24,8 +24,8 @@ STANDALONE_NUMERIC_MATERIAL = re.compile(r"^\s*(\d{6,})\s*(?:[?!.…]+)?\s*$")
 # is explicitly labelled, and must contain a separator so ordinary phrases
 # such as "mã này" are not mistaken for a code.
 LABELLED_HYPHENATED_MATERIAL = re.compile(
-    r"(?:mã|ma)(?:\s*(?:vật\s*tư|vat\s*tu|vt))?\s*[:#-]?\s*"
-    r"([a-z][a-z0-9]*(?:[-/][a-z0-9]+)+)\b",
+    r"(?:mã|ma)(?:\s*(?:vật\s*tư|vat\s*tu|vt|hàng|hang|sản\s*phẩm|san\s*pham))?\s*[:#-]?\s*"
+    r"([a-z0-9][a-z0-9]*(?:[-/][a-z0-9]+)+)\b",
     re.I,
 )
 DATE = re.compile(r"\b(?:\d{1,2}/\d{1,2}/\d{4}|\d{4}-\d{2}-\d{2})\b")

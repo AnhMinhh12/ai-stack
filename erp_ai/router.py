@@ -40,6 +40,14 @@ def build_request(question: str, filters: dict[str, str]) -> ERPRequest:
             metrics=("so_lan_dat",),
             source="deterministic_router",
         )
+    stock_terms = ("ton kho", "so luong ton", "con hang", "con bao nhieu")
+    if active.get("ma_vt") and any(term in normalized for term in stock_terms):
+        return ERPRequest(
+            intent="inventory_balance",
+            filters=active,
+            metrics=("so_luong_ton",),
+            source="deterministic_router",
+        )
     if active.get("ma_vt") and not active.get("so_ct") and not active.get("ngay_ct"):
         return ERPRequest(
             intent="material_master",

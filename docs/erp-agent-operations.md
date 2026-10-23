@@ -77,7 +77,8 @@ Tool trả `blocks` có cấu trúc và `display_markdown` làm dự phòng. V�
 `query_receipt_lines`, backend dựng bảng 7 cột từ dòng SQL đã xác minh, tổng từ
 window aggregate và nguồn theo report. Bảng giữ thứ tự ngày giảm dần, hiển thị
 tối đa giới hạn `rows`; `has_more` cảnh báo khi còn dòng. Chưa có nút phân trang
-hoặc xuất CSV. Khi có ít nhất hai nhóm và cùng đơn vị, bộ dựng biểu đồ tự chọn
+hoặc xuất CSV. Bảng có nút tải Excel, Word và PDF; các file chỉ chứa những dòng
+đã được trả về và ghi chú rõ khi báo cáo còn dòng chưa xuất. Khi có ít nhất hai nhóm và cùng đơn vị, bộ dựng biểu đồ tự chọn
 cột cho nhiều kho trong cùng ngày, đường cho nhiều ngày, tròn cho câu hỏi tỷ
 trọng theo kho khi dữ liệu đầy đủ (2–8 kho). Không gọi thêm model để chọn loại.
 Rich UI có nút Cột / Đường / Tròn để đổi loại ngay trong trình duyệt, không

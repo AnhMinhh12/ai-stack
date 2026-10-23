@@ -88,6 +88,27 @@ Luồng RAG dự kiến: Open WebUI nhận file, dùng LibreOffice khi cần chu
 gọi Tika bóc tách text, tạo embedding bằng `BAAI/bge-m3`, lưu/tìm vector ở
 Qdrant rồi ghép chunk vào prompt.
 
+### GPT: file Office và ảnh
+
+PDF, Word (`.doc`, `.docx`), PowerPoint (`.ppt`, `.pptx`) và Excel (`.xls`,
+`.xlsx`) đi qua pipeline upload/RAG chung: LibreOffice/Tika trích xuất, sau đó
+ngữ cảnh được đưa vào GPT qua **Responses API**. Danh sách đuôi upload hiện để
+trống, nghĩa là không chặn các định dạng Office này. Để giữ bố cục biểu đồ/ảnh
+nhúng, nên chuyển Office sang PDF trước khi tải lên.
+
+Trong chat GPT, yêu cầu tạo/chỉnh ảnh bằng tiếng Việt hoặc tiếng Anh sẽ tự gắn
+tool `gpt-image-1.5`; ảnh kết quả được lưu thành file riêng của cuộc chat. Tạo
+và chỉnh ảnh GPT chỉ áp dụng sau khi chạy:
+
+```bash
+docker cp scripts/configure_openai_gpt_capabilities.py open-webui:/tmp/
+docker exec open-webui python /tmp/configure_openai_gpt_capabilities.py --apply
+```
+
+Script lấy key từ kết nối OpenAI đã tồn tại trong WebUI, không ghi key vào Git
+hay in ra terminal. Cần bảo đảm project OpenAI có quyền dùng GPT Image và quota
+phù hợp trước khi bật.
+
 Langfuse/PostgreSQL đang chạy nhưng repo chưa có middleware/SDK/OTel nối request AI
 vào Langfuse. Nginx đã có request ID và log redaction baseline; container Langfuse
 healthy vẫn không có nghĩa là đã có tracing end-to-end.
@@ -182,6 +203,34 @@ list/retrieve/generate/delete dữ liệu.
 ### Lịch sử: backup/restore chưa đạt chuẩn DR
 
 Các nhận định dưới đây là phát hiện lịch sử trước đợt hardening 2026-09-09: script từng hard-code path/volume, có archive Open WebUI 87 byte, backup từng chứa `.env` plaintext, restore từng fail-open và xử lý sai collection có dấu gạch dưới. Hardening hiện đã thêm resolve volume, encryption, checksum, size/tar validation và clean-room preflight; artifact backup mới và clean-room restore đạt RPO/RTO vẫn chưa được nghiệm thu.
+
+## Phát triển Web UI với hot reload
+
+Frontend dev dùng đúng commit Open WebUI được pin trong `Dockerfile.openwebui-speed-runtime`.
+Chạy lần đầu từ thư mục dự án:
+
+```bash
+bash scripts/setup_openwebui_dev.sh
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d open-webui-dev
+```
+
+Mở `http://127.0.0.1:5173`. Sửa các component trong `open-webui-dev/src/`;
+Vite sẽ cập nhật trình duyệt mà không build Docker. Frontend dev proxy API và
+WebSocket tới container `open-webui` đang chạy. Lần đầu cần tải source và cài
+Node dependencies; những lần sau dùng lại volume `open-webui-dev-node-modules`.
+Xem log bằng `docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f open-webui-dev`.
+Nếu mở trình duyệt từ máy khác, chuyển tiếp cổng bằng
+`ssh -L 5173:127.0.0.1:5173 admin@<ten-may-chu>` rồi mở cùng địa chỉ trên máy đó.
+
+Để dừng riêng frontend dev:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml stop open-webui-dev
+```
+
+Source dev nằm trong `open-webui-dev/` và được gitignore. Các sửa đổi ở đây
+không tự đi vào release image; chuyển thay đổi cần giữ lại thành patch hoặc
+cập nhật quy trình build release. Cổng dev chỉ mở trên loopback của host.
 
 ## 7. Vấn đề phải giải quyết trước khi mở rộng toàn công ty
 

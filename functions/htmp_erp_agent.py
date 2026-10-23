@@ -7,6 +7,7 @@ required_open_webui_version: 0.6.0
 import json
 from fastapi.responses import HTMLResponse
 from erp_ai.agent_runtime import answer
+from erp_ai.export_files import build_downloads, requested_formats
 from erp_ai.rich_ui import render_erp_embed
 
 
@@ -31,7 +32,13 @@ class Tools:
                 "type": "status",
                 "data": {"description": f"Hoàn tất ({result.get('status', 'answered')})", "done": True}
             })
-        html = render_erp_embed(result)
+        downloads = []
+        if result.get("status") == "answered" and any(block.get("type") == "table" for block in result.get("blocks", [])):
+            try:
+                downloads = build_downloads(result["blocks"], requested_formats(question))
+            except Exception:
+                result["blocks"].append({"type": "warning", "text": "Không thể tạo file tải xuống cho kết quả này.", "source_ids": []})
+        html = render_erp_embed(result, downloads)
         if html:
             has_chart = any(block.get("type") == "chart" for block in result.get("blocks", []))
             complete = result.get("status") == "answered"

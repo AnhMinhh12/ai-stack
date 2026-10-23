@@ -67,11 +67,17 @@ services:
       - OPENAI_API_BASE_URLS=${OPENAI_API_BASE_URLS:-http://vllm:8000/v1}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-${VLLM_API_KEY}}
       - OPENAI_API_KEYS=${OPENAI_API_KEYS:-${VLLM_API_KEY}}
+      # Maps an authenticated Open WebUI email to an OpenAI project API key.
+      # Keys remain server-side; see config/openai-user-routing.env.example.
+      - HTMP_OPENAI_USER_KEY_MAP=${HTMP_OPENAI_USER_KEY_MAP:-{}}
       - VLLM_API_KEY=${VLLM_API_KEY:?VLLM_API_KEY must be set}
       - ENABLE_OPENAI_API=True
       - ENABLE_OLLAMA_API=False
       - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:?WEBUI_SECRET_KEY must be set}
-      - ENABLE_RAG_WEB_SEARCH=False
+      - ENABLE_RAG_WEB_SEARCH=True
+      - ENABLE_WEB_SEARCH=True
+      - WEB_SEARCH_ENGINE=duckduckgo
+      - WEB_SEARCH_RESULT_COUNT=5
       - VECTOR_DB=qdrant
       - QDRANT_URI=http://qdrant:6333
       - QDRANT_API_KEY=${QDRANT_API_KEY:?QDRANT_API_KEY must be set}
@@ -89,7 +95,9 @@ services:
       - WEBSOCKET_MANAGER=redis
       - WEBSOCKET_REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis:6379/0
       - ENABLE_SIGNUP=False
+      # - WEBUI_AUTH=False
       - DEFAULT_USER_ROLE=${DEFAULT_USER_ROLE:-user}
+      - DEFAULT_LOCALE=${DEFAULT_LOCALE:-vi-VN}
       - HTMP_DB_HOST=${HTMP_DB_HOST:?HTMP_DB_HOST must be set}
       - HTMP_DB_PORT=${HTMP_DB_PORT:-5410}
       - HTMP_DB_NAME=${HTMP_DB_NAME:-3SERP_HTMP_DATA}
@@ -110,6 +118,18 @@ services:
       # Hotfix for the deployed image that predates the bundled ERP semantic
       # layer. Read-only so the application cannot modify release source.
       - ./erp_ai:/app/backend/erp_ai:ro
+      # Runtime-matched router override: selects the correct OpenAI project
+      # key for a mapped WebUI user while preserving local vLLM routing.
+      - ./scratch_openai.py:/app/backend/open_webui/routers/openai.py:ro
+      # Server-side model allowlist: local Nhanh plus GPT-5.6 Sol and Luna.
+      - ./scratch_models.py:/app/backend/open_webui/utils/models.py:ro
+      - ./scratch_middleware.py:/app/backend/open_webui/utils/middleware.py:ro
+      - ./ui-patches/D5GoHi-U.js:/app/build/_app/immutable/chunks/D5GoHi-U.js:ro
+      - ./ui-patches/DoNOBSZH.js:/app/build/_app/immutable/chunks/DoNOBSZH.js:ro
+      - ./ui-patches/Cskhiuvj.js:/app/build/_app/immutable/chunks/Cskhiuvj.js:ro
+      - ./ui-patches/2.Czbv28Xq.js:/app/build/_app/immutable/nodes/2.Czbv28Xq.js:ro
+      - ./ui-patches/index.html:/app/build/index.html:ro
+      - ./ui-patches/bulk-chat-delete.js:/app/backend/open_webui/static/bulk-chat-delete.js:ro
       - ./config:/app/backend/config:ro
       - ./sql:/app/backend/sql:ro
       - ./docs:/app/backend/docs:ro
@@ -247,6 +267,8 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./assets/model-picker-ui.js:/usr/share/nginx/html/model-picker-ui.js:ro
+      - ./assets/chat-table-export.js:/usr/share/nginx/html/chat-table-export.js:ro
       - ./nginx/certs:/etc/nginx/certs:ro
     depends_on:
       open-webui:

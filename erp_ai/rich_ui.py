@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import base64
 from html import escape
 
 
@@ -17,12 +18,18 @@ def _script_json(value):
     return json.dumps(value, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
 
 
-def render_erp_embed(result):
+def render_erp_embed(result, downloads=()):
     """Only backend-created blocks enter HTML; model prose never becomes markup."""
     blocks = result.get("blocks") or []
     if not any(b.get("type") == "table" for b in blocks):
         return None
     sections, chart_data = ['<p class="intro">Dưới đây là kết quả tra cứu ERP theo yêu cầu của bạn:</p>'], []
+    if downloads:
+        buttons = "".join(
+            f'<button type="button" data-download-index="{index}">Tải {_text(item["name"].rsplit(".", 1)[-1].upper())}</button>'
+            for index, item in enumerate(downloads)
+        )
+        sections.append(f'<div class="download-controls" role="group" aria-label="Tải báo cáo">{buttons}</div>')
     for block in blocks:
         kind = block.get("type")
         if kind == "summary":
@@ -57,8 +64,13 @@ def render_erp_embed(result):
                 for kind, title in (("bar", "Cột"), ("line", "Đường"), ("pie", "Tròn")))
             sections.append(f'<section class="chart"><h2>{_text(block.get("title"))}</h2><p class="scope">{_text(block.get("scope"))} · {_text(unit)}</p><div class="chart-controls" role="group" aria-label="Chọn loại biểu đồ">{controls}</div><div class="canvas-wrap"><canvas id="chart-{index}" role="img" aria-label="{_text(block.get("title"))}"></canvas></div><ul id="fallback-{index}" class="fallback" style="display:none">{fallback}</ul></section>')
     payload = _script_json(chart_data)
+    download_payload = _script_json([
+        {"name": item["name"], "mime": item["mime"], "base64": base64.b64encode(item["data"]).decode("ascii")}
+        for item in downloads
+    ])
     script = """<script>
 const charts = PAYLOAD;
+const downloads = DOWNLOADS;
 const activeCharts = new Map();
 const chartColors = ['#2563eb','#0d9488','#f59e0b','#dc2626','#7c3aed','#db2777','#65a30d','#0891b2'];
 const formatNumber = value => new Intl.NumberFormat('vi-VN', {maximumFractionDigits: 2}).format(value);
@@ -157,6 +169,21 @@ function drawCharts() {
   charts.forEach((item, index) => showChart(index, item.kind));
 }
 document.addEventListener('click', event => {
+  const download = event.target.closest('button[data-download-index]');
+  if (download) {
+    const item = downloads[Number(download.dataset.downloadIndex)];
+    if (!item) return;
+    const bytes = Uint8Array.from(atob(item.base64), char => char.charCodeAt(0));
+    const url = URL.createObjectURL(new Blob([bytes], {type:item.mime}));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = item.name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    return;
+  }
   const button = event.target.closest('button[data-chart-index]');
   if (!button || button.disabled) return;
   showChart(Number(button.dataset.chartIndex), button.dataset.chartKind);
@@ -170,9 +197,10 @@ function reportHeight() {
 reportHeight();
 window.addEventListener('load', () => {drawCharts(); reportHeight(); setTimeout(reportHeight, 200);});
 if (window.ResizeObserver) new ResizeObserver(reportHeight).observe(document.getElementById('erp-root') || document.body);
-</script>""".replace("PAYLOAD", payload)
+</script>""".replace("PAYLOAD", payload).replace("DOWNLOADS", download_payload)
     head = """<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>[hidden]{display:none!important}html,body{overflow-y:hidden}body{font:14px system-ui,sans-serif;color:#172033;margin:0;padding:8px 12px;background:#fff}p{line-height:1.5}.intro{margin:0 0 8px}.summary{font-weight:600;margin:0 0 8px}.warning{color:#9a3412}.table-scroll{overflow-x:auto;max-width:100%;border:1px solid #d8dee8;border-radius:8px}table{border-collapse:collapse;width:100%;min-width:760px}th,td{text-align:left;padding:9px 11px;border-bottom:1px solid #e5e7eb;white-space:nowrap}th{background:#f1f5f9;font-size:12px}td:nth-child(5){text-align:right}.chart{margin-top:14px;margin-bottom:4px}.chart h2{font-size:16px;margin:0 0 3px}.scope{font-size:12px;color:#475569;margin:0 0 6px}.sources{font-size:12px;color:#475569;margin-top:8px;margin-bottom:0}.canvas-wrap{height:260px;max-width:760px;margin-bottom:4px}.fallback{padding:0;list-style:none;max-width:760px;margin:8px 0 0}.fallback li{display:grid;grid-template-columns:120px 1fr 90px;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #e5e7eb}.bar-track{height:14px;background:#eff6ff}.bar-fill{display:block;height:100%;background:#2563eb}</style>
 <style>.chart-controls{display:flex;gap:6px;margin:4px 0 8px}.chart-controls button{border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#334155;padding:5px 11px;font:inherit;cursor:pointer}.chart-controls button[aria-pressed="true"]{background:#2563eb;border-color:#2563eb;color:#fff}.chart-controls button:focus-visible{outline:2px solid #1d4ed8;outline-offset:2px}.chart-controls button:disabled{opacity:.45;cursor:not-allowed}</style>
+<style>.download-controls{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px}.download-controls button{border:1px solid #2563eb;border-radius:6px;background:#2563eb;color:#fff;padding:6px 11px;font:inherit;cursor:pointer}.download-controls button:focus-visible{outline:2px solid #1d4ed8;outline-offset:2px}</style>
 {chart_script}</head><body><div id="erp-root">""".replace("{chart_script}", f'<script defer src="{CHART_JS}"></script>' if chart_data else '')
     return head + "".join(sections) + "</div>" + script + "</body></html>"

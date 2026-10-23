@@ -1,0 +1,26 @@
+# Run with: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d open-webui-dev
+services:
+  open-webui-dev:
+    image: node:22-alpine3.20
+    working_dir: /src
+    command: >-
+      sh -c 'if [ ! -x node_modules/.bin/vite ]; then npm ci --force; fi;
+      exec node_modules/.bin/vite dev --host 0.0.0.0 --port 5173'
+    environment:
+      WEBUI_BACKEND_URL: http://open-webui:8080
+      APP_BUILD_HASH: dev
+      NODE_OPTIONS: --max-old-space-size=8192
+      CYPRESS_INSTALL_BINARY: "0"
+    ports:
+      - "127.0.0.1:5173:5173"
+    volumes:
+      - ./open-webui-dev:/src
+      - open-webui-dev-node-modules:/src/node_modules
+    networks:
+      - frontend
+    depends_on:
+      open-webui:
+        condition: service_healthy
+
+volumes:
+  open-webui-dev-node-modules:

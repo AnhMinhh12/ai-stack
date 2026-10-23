@@ -7,6 +7,7 @@ import re
 import unicodedata
 from datetime import date
 from pathlib import Path
+from .validator import validate_inventory_balance_result
 
 
 def tokens(value):
@@ -39,8 +40,14 @@ class ReportBackend:
              spec("query_customer_info",
                   "Tra cứu danh mục khách hàng theo mã khách hàng hoặc tên khách hàng (query_text).",
                   ["query_text"]),
+             spec("query_material_customer",
+                  "Tra khách hàng ĐƯỢC KHAI BÁO trên mã hàng/vật tư (material) từ dmvt.ma_kh. Dùng khi hỏi mã hàng thuộc khách nào; không dùng query_customer_info.",
+                  ["material"]),
              spec("query_inventory_balance",
                   "Tra cứu số lượng tồn kho sổ sách của mã vật tư (material) tính đến ngày tham chiếu (date_as_of định dạng YYYY-MM-DD).",
+                  ["material", "date_as_of"]),
+             spec("query_inventory_by_warehouse",
+                  "Tra tồn kho sổ sách của mã vật tư (material) THEO TỪNG KHO tại ngày tham chiếu (date_as_of). Dùng khi người dùng hỏi 'ở từng kho', 'theo kho', hoặc 'kho nào bao nhiêu'.",
                   ["material", "date_as_of"]),
              spec("query_receipt_lines",
                   "Tra cứu dòng phiếu nhập kho và điều chuyển theo mã vật tư (material) và khoảng ngày (date_from, date_to). Trả về ngày nhập, số lượng nhập, người nhập và kho xuất.",
@@ -59,6 +66,9 @@ class ReportBackend:
                   ["material"], optional=["date_as_of"]),
              spec("query_sales_orders",
                   "Tra cứu đơn hàng bán (SO) trong kỳ theo mã khách hàng (customer: ví dụ KH0015) và khoảng ngày (date_from, date_to). Dùng để lấy data đơn hàng hoặc kiểm tra mã chưa link giá chuẩn (gia_chuan = 0).",
+                  ["customer", "date_from", "date_to"]),
+             spec("query_sales_order_price_gaps",
+                  "Liệt kê TOÀN BỘ mã hàng là ứng viên thiếu liên kết giá chuẩn trong đơn hàng bán của khách (customer) và khoảng ngày; gia_chuan NULL/0 cần xác minh nghiệp vụ.",
                   ["customer", "date_from", "date_to"]),
              spec("query_delivery_order",
                   "Tra cứu trạng thái lệnh giao hàng (delivery_code: số chứng từ TO2, ví dụ 001-2610-001811) và thời điểm tạo lập.",
@@ -133,15 +143,15 @@ class ReportBackend:
             start, end = date.fromisoformat(args["date_from"]), date.fromisoformat(args["date_to"])
             if not 0 <= (end-start).days <= 30 or not re.fullmatch(r"[\w./-]{1,64}", args["material"]):
                 raise ValueError("filters")
-        elif name == "query_sales_orders":
+        elif name in ("query_sales_orders", "query_sales_order_price_gaps"):
             start, end = date.fromisoformat(args["date_from"]), date.fromisoformat(args["date_to"])
             if not 0 <= (end-start).days <= 30 or not re.fullmatch(r"[\w./-]{1,64}", args["customer"]):
                 raise ValueError("filters")
-        elif name in ("query_price_list", "query_bom_structure", "query_inventory_balance"):
+        elif name in ("query_price_list", "query_bom_structure", "query_inventory_balance", "query_inventory_by_warehouse"):
             date.fromisoformat(args["date_as_of"])
             if not re.fullmatch(r"[\w./-]{1,64}", args["material"]):
                 raise ValueError("filters")
-        elif name in ("query_forecast_po", "query_packaging_spec", "query_mold_label_stock", "query_qc_status"):
+        elif name in ("query_forecast_po", "query_packaging_spec", "query_mold_label_stock", "query_qc_status", "query_material_customer"):
             if not re.fullmatch(r"[\w./-]{1,64}", args["material"]):
                 raise ValueError("filters")
         elif name == "query_mold_profile":
@@ -168,13 +178,16 @@ class ReportBackend:
             "query_price_list": "price_list",
             "query_bom_structure": "product_structure",
             "query_customer_info": "customer_master",
+            "query_material_customer": "material_customer",
             "query_inventory_balance": "inventory_balance",
+            "query_inventory_by_warehouse": "inventory_by_warehouse",
             "query_receipt_lines": "receipt_lines",
             "query_forecast_po": "forecast_po",
             "query_packaging_spec": "packaging_spec",
             "query_mold_profile": "mold_profile",
             "query_mold_label_stock": "mold_label_stock",
             "query_sales_orders": "sales_orders",
+            "query_sales_order_price_gaps": "sales_order_price_gaps",
             "query_delivery_order": "delivery_order",
             "query_qc_status": "qc_label_status",
             "query_replacement_orders": "replacement_orders",
@@ -200,12 +213,20 @@ class ReportBackend:
                 summary["total_records"] = int(first["total_lines"])
             if "total_quantity" in first and first["total_quantity"] is not None:
                 summary["total_quantity"] = float(first["total_quantity"])
+            if "total_revenue" in first and first["total_revenue"] is not None:
+                summary["total_revenue"] = float(first["total_revenue"])
         elif not has_more:
             summary["total_records"] = 0
-            summary["total_quantity"] = 0.0
+            if name != "query_inventory_balance":
+                summary["total_quantity"] = 0.0
 
         # Only reviewed fields leave the adapter. No URL generation in this slice.
         rows = [{k: v for k, v in row.items() if k in report["fields"]} for row in rows]
+        if name == "query_inventory_balance" and rows:
+            error = ("INVENTORY_RESULT_TRUNCATED" if has_more else
+                     validate_inventory_balance_result(args["material"], rows))
+            if error:
+                return {"error": "invalid_result", "error_code": error}
         if name == "query_sales_orders" and len(rows) > 5:
             rows = rows[:5]
             has_more = True

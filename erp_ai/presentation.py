@@ -5,6 +5,7 @@ from collections import defaultdict
 from datetime import date, datetime
 from decimal import Decimal
 from html import escape
+from .validator import validate_inventory_balance_result
 
 
 RECEIPT_COLUMNS = [
@@ -35,10 +36,8 @@ def _cell(value):
 def receipt_blocks(question, verified, status):
     """One table per successful receipt query; never mix different filters."""
     blocks = []
-    receipt_materials = {item.get("arguments", {}).get("material") for item in verified
-                         if item.get("tool") == "query_receipt_lines"}
     for item in verified:
-        if item.get("tool") != "query_inventory_balance" or item.get("arguments", {}).get("material") not in receipt_materials:
+        if item.get("tool") != "query_inventory_balance":
             continue
         result = item["result"]
         rows = result.get("rows", [])
@@ -46,12 +45,12 @@ def receipt_blocks(question, verified, status):
         date_as_of = item["arguments"].get("date_as_of", "?")
         if not rows:
             label = f"Không tìm thấy tồn kho sổ sách của mã {material} tính đến {date_as_of}."
-        elif len(rows) == 1 and rows[0].get("so_luong_ton") is not None:
-            quantity = _value(rows[0]["so_luong_ton"])
+        elif not result.get("has_more") and validate_inventory_balance_result(material, rows) is None:
+            quantity = format(Decimal(str(rows[0]["so_luong_ton"])).normalize(), "f")
             unit = rows[0].get("dvt") or ""
-            label = f"Tồn kho sổ sách của mã {material} tính đến {date_as_of}: {quantity:g}{' ' + unit if unit else ''}."
+            label = f"Tồn kho sổ sách của mã {material} tính đến {date_as_of}: {quantity}{' ' + unit if unit else ''}."
         else:
-            label = f"Tồn kho sổ sách của mã {material} tính đến {date_as_of}: có {len(rows)} dòng dữ liệu; chưa có tổng hợp đáng tin cậy."
+            label = f"Chưa xác định được số lượng tồn kho sổ sách của mã {material} tính đến {date_as_of} từ kết quả này."
         blocks.append({"type": "summary", "text": label,
                        "source_ids": [s["id"] for s in result.get("sources", [])]})
     for item in verified:

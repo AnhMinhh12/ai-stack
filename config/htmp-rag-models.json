@@ -8,38 +8,38 @@
       "id": "htmp_fast_rag",
       "name": "HTMP Fast RAG",
       "source": "htmp_fast_rag.py",
-      "description": "Vector-only RAG for HTMP Nhanh"
+      "description": "Tra cứu tài liệu RAG vector nhanh cho HTMP Nhanh"
     },
     {
       "id": "htmp_technical_rag",
       "name": "HTMP Technical RAG",
       "source": "htmp_technical_rag.py",
-      "description": "Hybrid RAG with reranking for HTMP Kỹ"
+      "description": "Tra cứu tài liệu RAG kết hợp xếp hạng lại cho HTMP Kỹ"
     },
     {
       "id": "htmp_postgres_query",
       "name": "Tra cứu PostgreSQL ERP",
       "source": "htmp_postgres_query.py",
-      "description": "Read-only ERP PostgreSQL query tool",
+      "description": "Công cụ tra cứu PostgreSQL ERP chỉ đọc",
       "type": "tool",
       "specs": [
         {
           "name": "ask_erp",
-          "description": "For every ERP request, make exactly one native call to this tool before replying. Emit no text, JSON, XML, tool markup, or other content before the native tool call. Put the user's complete Vietnamese ERP question in question. When the user sends multiple ERP questions in a list or ordinary sentences, pass the complete text unchanged in that one call; the tool detects separate questions and returns an independent result for each. If status=batch_success, repeat rendered_answer verbatim and stop. If the latest user message contains an explicit material code, it replaces any prior material code: call this tool with the new code immediately and never ask the user to confirm it. For a price result with summary.bao_gia_ncc_gan_nhat, explicitly report its supplier, unit, prices before and after VAT, effective dates, and approval status; do this even when the price matches gia_don_mua_gan_nhat. Call the latter historic purchase price, and do not call a supplier quote an actual purchase. For a Danh mục bảng giá MOQ result, print each returned ERP row separately in the exact form ‘MOQ: <sl_min> <dvt> | Giá: <gia> <ma_nt> | Hiệu lực: <ngay_bd>–<ngay_kt>’. Do not add ‘từ’, do not infer an upper bound, and do not group or omit any returned row. After the result, answer in Vietnamese using only returned fields.",
+          "description": "Đối với mỗi yêu cầu ERP, hãy thực hiện ĐÚNG MỘT lệnh gọi công cụ này trước khi phản hồi. Tuyệt đối không xuất bất kỳ văn bản tự nhiên, JSON, XML hoặc định dạng công cụ nào trước khi gọi công cụ. Đặt toàn bộ câu hỏi ERP tiếng Việt của người dùng vào tham số 'question'. Khi người dùng gửi nhiều câu hỏi ERP trong danh sách hoặc câu văn thông thường, hãy chuyển nguyên văn toàn bộ nội dung trong một lần gọi duy nhất; công cụ sẽ tự tách các câu hỏi riêng biệt và trả về kết quả độc lập cho từng câu. Nếu status=batch_success, hãy lặp lại nguyên văn rendered_answer và dừng lại. Nếu tin nhắn mới nhất của người dùng chứa mã vật tư rõ ràng, mã đó sẽ thay thế mọi mã vật tư trước đó: hãy gọi công cụ này với mã mới ngay lập tức và tuyệt đối không hỏi người dùng để xác nhận lại. Đối với kết quả giá có summary.bao_gia_ncc_gan_nhat, phải báo cáo rõ nhà cung cấp, đơn vị tính, giá trước và sau VAT, ngày hiệu lực và trạng thái phê duyệt; thực hiện điều này ngay cả khi giá trùng với gia_don_mua_gan_nhat. Hãy gọi giá mua trên đơn hàng là giá mua lịch sử và không được gọi báo giá nhà cung cấp là đơn mua thực tế. Đối với kết quả MOQ từ Danh mục bảng giá, hãy in từng dòng ERP trả về riêng biệt theo định dạng chính xác 'MOQ: <sl_min> <dvt> | Giá: <gia> <ma_nt> | Hiệu lực: <ngay_bd>–<ngay_kt>'. Không thêm từ 'từ', không tự suy diễn giới hạn trên, không gom nhóm hoặc bỏ sót bất kỳ dòng nào được trả về. Sau khi có kết quả, trả lời bằng tiếng Việt chỉ dựa trên các trường dữ liệu được trả về.",
           "parameters": {
             "type": "object",
             "properties": {
               "question": {
                 "type": "string",
-                "description": "The full ERP question in Vietnamese."
+                "description": "Toàn bộ câu hỏi ERP bằng tiếng Việt."
               },
               "context": {
                 "type": "string",
-                "description": "Relevant filters and facts from prior conversation turns, copied when the current question is a follow-up."
+                "description": "Bộ lọc và dữ kiện liên quan từ các lượt hội thoại trước, được sao chép khi câu hỏi hiện tại là câu hỏi nối tiếp."
               },
               "conversation_id": {
                 "type": "string",
-                "description": "Optional caller-provided identifier. Open WebUI injects its chat identifier server-side; the model does not need to fill this field."
+                "description": "Mã định danh tùy chọn từ phía gọi. Open WebUI tự động gắn mã phiên chat ở phía máy chủ; mô hình không cần điền trường này."
               }
             },
             "required": [
@@ -54,10 +54,12 @@
     {
       "id": "htmp-nhanh",
       "name": "HTMP ERP",
-      "description": "Chỉ tra cứu dữ liệu ERP PostgreSQL",
+      "description": "Chỉ tra cứu dữ liệu HTMP ERP",
       "base_model_id": "qwen2.5-14b",
       "use_knowledge": false,
-      "tool_ids": ["htmp_postgres_query"],
+      "tool_ids": [
+        "htmp_postgres_query"
+      ],
       "params": {
         "temperature": 0,
         "max_tokens": 800,

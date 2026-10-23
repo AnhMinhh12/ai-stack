@@ -297,7 +297,7 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         receipt_args = dict(material='TEST-A', date_from='2026-10-20', date_to='2026-10-20')
         verified = [
             {'tool': 'query_inventory_balance', 'arguments': {'material': 'TEST-A', 'date_as_of': '2026-10-20'},
-             'result': {'rows': [{'so_luong_ton': 12, 'dvt': 'PCS'}], 'sources': [{'id': 'records:inventory'}]}},
+             'result': {'rows': [{'ma_vt': 'TEST-A', 'so_luong_ton': 12, 'dvt': 'PCS'}], 'sources': [{'id': 'records:inventory'}]}},
             {'tool': 'query_receipt_lines', 'arguments': receipt_args,
              'result': {'rows': [{'ngay_ct': '2026-10-20', 'ma_kho': 'WH1', 'sl_nhap': 2, 'dvt': 'PCS'},
                                  {'ngay_ct': '2026-10-20', 'ma_kho': 'WH2', 'sl_nhap': 3, 'dvt': 'PCS'}],
@@ -307,6 +307,50 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn('12 PCS', blocks[0]['text'])
         self.assertIn('5', blocks[1]['text'])
         self.assertEqual([b['type'] for b in blocks[2:]], ['table', 'chart'])
+
+    async def test_inventory_backend_rejects_quantity_without_matching_code(self):
+        self.backend.grants['alice']['reports'].append('inventory_balance')
+        args = {'material': 'TEST-A', 'date_as_of': '2026-10-20'}
+
+        async def wrong_code(*_):
+            return [{'ma_vt': 'TEST-B', 'so_luong_ton': 12, 'dvt': 'PCS'}]
+
+        self.backend.db = wrong_code
+        result = await self.backend.execute('query_inventory_balance', args, USER, Limits())
+        self.assertEqual(result['error_code'], 'INVENTORY_MATERIAL_MISMATCH')
+
+        async def zero_stock(*_):
+            return [{'ma_vt': 'TEST-A', 'so_luong_ton': 0, 'dvt': 'PCS'}]
+
+        self.backend.db = zero_stock
+        result = await self.backend.execute('query_inventory_balance', args, USER, Limits())
+        self.assertNotIn('error', result)
+        from erp_ai.presentation import receipt_blocks
+        blocks = receipt_blocks('Tồn kho TEST-A', [{'tool': 'query_inventory_balance', 'arguments': args, 'result': result}], 'answered')
+        self.assertIn('0 PCS', blocks[0]['text'])
+
+        response = await self.run_script([{'tool_calls': [call('query_inventory_balance', args)]}])
+        self.assertEqual(response['status'], 'answered')
+        self.assertIn('0 PCS', response['display_markdown'])
+        self.assertEqual(len(self.model_calls), 1)
+
+        async def no_stock_rows(*_):
+            return []
+
+        self.backend.db = no_stock_rows
+        empty = await self.backend.execute('query_inventory_balance', args, USER, Limits())
+        self.assertNotIn('total_quantity', empty['summary'])
+        empty_blocks = receipt_blocks('Tồn kho TEST-A', [{'tool': 'query_inventory_balance', 'arguments': args, 'result': empty}], 'answered')
+        self.assertIn('Không tìm thấy tồn kho', empty_blocks[0]['text'])
+
+    def test_inventory_renderer_does_not_confirm_missing_quantity(self):
+        from erp_ai.presentation import receipt_blocks
+        args = {'material': 'TEST-A', 'date_as_of': '2026-10-20'}
+        item = {'tool': 'query_inventory_balance', 'arguments': args,
+                'result': {'rows': [{'ma_vt': 'TEST-A', 'so_luong_ton': None, 'dvt': 'PCS'}], 'sources': []}}
+        blocks = receipt_blocks('Tồn kho TEST-A', [item], 'answered')
+        self.assertIn('Chưa xác định', blocks[0]['text'])
+        self.assertNotIn('0 PCS', blocks[0]['text'])
 
     def test_rich_ui_uses_verified_blocks_and_escapes_record_text(self):
         from erp_ai.rich_ui import render_erp_embed

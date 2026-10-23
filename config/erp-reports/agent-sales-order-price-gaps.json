@@ -1,0 +1,7 @@
+{
+  "id": "sales_order_price_gaps",
+  "title": "Ứng viên đơn hàng thiếu giá chuẩn",
+  "sources": ["ph64", "ct64", "userinfo"],
+  "query_file": "agent-sales-order-price-gaps.sql",
+  "validation": {"status": "pending_ui_validation", "caveat": "gia_chuan NULL/0 chưa tự chứng minh lỗi liên kết bảng giá"}
+}

@@ -1,0 +1,7 @@
+{
+  "id": "material_customer",
+  "title": "Khách hàng khai báo trên mã vật tư",
+  "sources": ["dmvt", "dmkh", "userinfo"],
+  "query_file": "agent-material-customer.sql",
+  "validation": {"status": "pending_ui_validation"}
+}

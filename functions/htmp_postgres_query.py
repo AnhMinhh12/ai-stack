@@ -18,7 +18,8 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 from erp_ai import ConversationStateStore, ERPRequest, ERPResult, build_request
-from erp_ai.validator import validate_document_result
+from erp_ai.entities import extract_entities
+from erp_ai.validator import validate_document_result, validate_inventory_balance_result
 
 MAX_ROWS = int(os.getenv("HTMP_DB_MAX_ROWS", "200"))
 MAX_SCHEMA_TABLES = int(os.getenv("HTMP_DB_MAX_SCHEMA_TABLES", "30"))
@@ -195,49 +196,7 @@ def format_batch_answer(results: list[dict[str, str]], answers: list[dict[str, A
 
 def extract_erp_entities(text: str) -> dict[str, str]:
     """Extract stable ERP identifiers from natural-language text once."""
-    source = text or ""
-    document = re.search(r"\b\d{3}-\d{4}-\d{6}\b", source)
-    material = re.search(
-        r"\b(?=[a-z0-9/-]*\d)(?=[a-z0-9/-]*[a-z])[a-z0-9]+(?:[-/][a-z0-9]+)*\b",
-        source,
-        re.I,
-    )
-    numeric_material = re.search(
-        r"(?:mã|ma)(?:\s*(?:vật\s*tư|vat\s*tu|vt))?\s*[:#-]?\s*(\d{6,})\b"
-        r"|\b(\d{6,})\b(?=\s+(?:mã\s*)?(?:vật\s*tư|vt)\b)",
-        source,
-        re.I,
-    )
-    standalone_numeric_material = re.match(r"^\s*(\d{6,})\s*(?:[?!.…]+)?\s*$", source)
-    labelled_hyphenated_material = re.search(
-        r"(?:mã|ma)(?:\s*(?:vật\s*tư|vat\s*tu|vt))?\s*[:#-]?\s*"
-        r"([a-z][a-z0-9]*(?:[-/][a-z0-9]+)+)\b",
-        source,
-        re.I,
-    )
-    raw_date = re.search(r"\b(?:\d{1,2}/\d{1,2}/\d{4}|\d{4}-\d{2}-\d{2})\b", source)
-    transaction = re.search(
-        r"(?:mã\s*giao\s*dịch|ma\s*giao\s*dich|mã\s*gd|ma\s*gd)\s*[:#-]?\s*(\d{4,})",
-        source,
-        re.I,
-    )
-    return {
-        "ma_vt": (
-            material.group(0).upper()
-            if material
-            else (
-                labelled_hyphenated_material.group(1).upper()
-                if labelled_hyphenated_material
-                else next(
-                    (group for group in (numeric_material.groups() if numeric_material else ()) if group),
-                    standalone_numeric_material.group(1) if standalone_numeric_material else "",
-                )
-            )
-        ),
-        "so_ct": document.group(0) if document else "",
-        "ngay_ct": raw_date.group(0) if raw_date else "",
-        "ma_gd": transaction.group(1) if transaction else "",
-    }
+    return extract_entities(text)
 
 
 def merge_erp_context(question: str, context: str = "") -> str:
@@ -1754,7 +1713,34 @@ class Tools:
             ensure_ascii=False, default=str,
         )
 
-    def ask_erp(self, question: str, context: str = "", conversation_id: str = "", __chat_id__: str = "", __user__: dict | None = None) -> str:
+    def ask_erp(self, question: str, context: str = "", conversation_id: str = "", __chat_id__: str = "", __user__: dict | None = None):
+        """Show verified ERP rows with a direct Excel download in Rich UI."""
+        result = self._ask_erp_data(question, context, conversation_id, __chat_id__, __user__)
+        try:
+            from fastapi.responses import HTMLResponse
+            from erp_ai.export_files import blocks_from_rows, build_downloads, requested_formats
+            from erp_ai.rich_ui import render_erp_embed
+
+            payload = json.loads(result)
+            blocks = blocks_from_rows(payload)
+            if not blocks:
+                return result
+            downloads = build_downloads(blocks, requested_formats(question))
+            html = render_erp_embed({"blocks": blocks}, downloads)
+            if not html:
+                return result
+            return HTMLResponse(content=html, headers={"Content-Disposition": "inline"}), {
+                **payload,
+                "result_displayed": True,
+                "download_formats": [item["name"].rsplit(".", 1)[-1] for item in downloads],
+                "display_message": "Bảng ERP và nút tải file đã hiển thị ở trên.",
+            }
+        except Exception:
+            # Keep the verified text result available if office conversion or
+            # Rich UI fails; the model must never receive a fabricated file URL.
+            return result
+
+    def _ask_erp_data(self, question: str, context: str = "", conversation_id: str = "", __chat_id__: str = "", __user__: dict | None = None) -> str:
         """Resolve a natural-language ERP request through the semantic router first."""
         question = (question or "").strip()
         if not question:
@@ -1778,7 +1764,7 @@ class Tools:
                 cache_key = batch_lookup_key(execution_question)
                 answer_id = cached_answers.get(cache_key) if cache_key else None
                 if answer_id is None:
-                    result = self.ask_erp(
+                    result = self._ask_erp_data(
                         execution_question,
                         context="",
                         conversation_id=f"{conversation_id or __chat_id__}:batch:{index}",
@@ -1873,6 +1859,8 @@ class Tools:
             return self._execute_material_document_request(semantic_request)
         if semantic_request.intent == "material_master":
             return self._execute_material_master_request(semantic_request)
+        if semantic_request.intent == "inventory_balance":
+            return self._execute_inventory_balance_request(semantic_request, authenticated_user_id)
         if semantic_request.intent == "inventory_ledger":
             return self._execute_material_date_request(semantic_request)
         question = merge_erp_context(question, " ".join(filters.values()))
@@ -2228,6 +2216,70 @@ Quy tắc: chỉ một SELECT/WITH; dùng schema public khi cần; tối đa 200
             error_code="AMBIGUOUS_MATERIAL_NAME",
             message="Tên vật tư khớp nhiều mã; cần cung cấp mã vật tư để chọn đúng bản ghi.",
         )
+
+    def _execute_inventory_balance_request(self, request: ERPRequest, authenticated_user_id: int | None) -> str:
+        """Read the scoped opening balance plus movements through the as-of date."""
+        if authenticated_user_id is None:
+            return json.dumps(ERPResult(
+                status="access_denied", intent=request.intent, filters=request.filters,
+                message="Không có mapping ERP hợp lệ cho phiên chat; không thể tra tồn kho."
+            ).payload(), ensure_ascii=False)
+        raw_date = request.filters.get("ngay_ct") or date.today().isoformat()
+        try:
+            date_as_of = datetime.strptime(
+                raw_date, "%Y-%m-%d" if "-" in raw_date else "%d/%m/%Y"
+            ).date()
+        except ValueError:
+            return json.dumps(ERPResult(
+                status="invalid_filter", intent=request.intent, filters=request.filters,
+                error_code="INVALID_DATE_AS_OF", message="Ngày tham chiếu không đúng định dạng."
+            ).payload(), ensure_ascii=False)
+        material = request.filters["ma_vt"]
+        try:
+            query = load_report_sql({}, "agent-inventory-balance.sql")
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute(query, (
+                        authenticated_user_id, date_as_of, material, material,
+                        date_as_of, date_as_of, MAX_ROWS + 1,
+                    ))
+                    columns = [item.name for item in cursor.description]
+                    raw_rows = cursor.fetchmany(MAX_ROWS + 1)
+        except Exception:
+            return json.dumps(ERPResult(
+                status="db_error", intent=request.intent, filters=request.filters,
+                error_code="ERP_QUERY_FAILED", message="Không thể truy vấn tồn kho ERP tại thời điểm này."
+            ).payload(), ensure_ascii=False)
+        filters = {**request.filters, "date_as_of": date_as_of.isoformat()}
+        rows = [dict(zip(columns, (json_value(value) for value in row))) for row in raw_rows[:MAX_ROWS]]
+        if not rows:
+            return json.dumps(ERPResult(
+                status="success_empty", intent=request.intent, filters=filters,
+                message=(f"Không tìm thấy bản ghi tồn kho sổ sách của mã {material} "
+                         f"trong phạm vi được phép tính đến {date_as_of.isoformat()}; "
+                         "chưa thể kết luận số lượng bằng 0.")
+            ).payload(), ensure_ascii=False)
+        validation = validate_inventory_balance_result(material, rows)
+        if validation is not None:
+            return json.dumps(ERPResult(
+                status="invalid_result", intent=request.intent, filters=filters,
+                error_code=validation,
+                message="Kết quả tồn kho chưa có một số lượng tổng hợp đáng tin cậy."
+            ).payload(), ensure_ascii=False)
+        row = rows[0]
+        quantity = format(Decimal(str(row["so_luong_ton"])).normalize(), "f")
+        unit = str(row.get("dvt") or "").strip()
+        return json.dumps(ERPResult(
+            status="success", intent=request.intent, filters=filters,
+            summary={"so_luong_ton": row["so_luong_ton"], "dvt": row.get("dvt"),
+                     "date_as_of": date_as_of.isoformat()},
+            rows=rows, total_rows=1, returned_rows=1,
+            message=(f"KẾT QUẢ ERP ĐÃ XÁC NHẬN: Mã {material} tồn kho sổ sách "
+                     f"tính đến {date_as_of.isoformat()}: {quantity}{' ' + unit if unit else ''}."),
+        ).payload(), ensure_ascii=False, default=str)
 
     def _execute_material_date_request(self, request: ERPRequest) -> str:
         """Tier-1 material/day ledger query, including deterministic in/out aggregates."""

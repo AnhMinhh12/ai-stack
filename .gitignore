@@ -11,3 +11,4 @@ langfuse_db_data/
 
 .secrets/
 __pycache__/
+open-webui-dev/

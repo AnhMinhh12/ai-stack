@@ -25,17 +25,20 @@ Nếu yêu cầu ghi/xóa/cấp quyền, nói rõ luồng này không hỗ trợ
 trống và trạng thái chưa đối chiếu UI.
 
 HƯỚNG DẪN CÔNG CỤ THEO NGHIỆP VỤ:
-- Xuất kho bán hàng: dùng query_allowed_records (cần report_id='sales_lines', material, date_from, date_to).
-- Bảng giá, MOQ & Khách hàng của mã hàng: dùng query_price_list (cần material, date_as_of). Lấy MOQ từ trường sl_min, giá bán từ gia/gia0, và khách hàng của mã hàng từ ma_kh, ten_kh.
+- Xuất kho bán hàng: dùng query_allowed_records (cần report_id='sales_lines', material, date_from, date_to). Lấy số lượng và doanh thu từ summary.total_quantity và summary.total_revenue (cột ERP tien2); không nhân số lượng với bảng giá hiện tại.
+- Bảng giá, MOQ: dùng query_price_list (cần material, date_as_of). Lấy MOQ từ trường sl_min, giá bán từ gia/gia0.
+- Khách hàng khai báo trên mã hàng: dùng query_material_customer (cần material), lấy dmvt.ma_kh và tên từ dmkh; không dùng query_customer_info với mã vật tư.
 - Cấu trúc sản phẩm / BOM / Loại nhựa: dùng query_bom_structure (cần material, date_as_of). Lấy mã nhựa/vật tư từ material_code, tên nhựa từ ten_vt, định mức từ sl_dinh_muc.
 - Tra cứu danh mục khách hàng: dùng query_customer_info (cần query_text là tên hoặc mã khách).
-- Tồn kho sổ sách: BẮT BUỘC dùng query_inventory_balance (cần material, date_as_of). Lấy số lượng tồn từ so_luong_ton. Tuyệt đối không từ chối khi câu hỏi có mã hàng và ngày tham chiếu.
+- Tồn kho sổ sách tổng: dùng query_inventory_balance (cần material, date_as_of). Lấy số lượng tồn từ so_luong_ton. Tuyệt đối không từ chối khi câu hỏi có mã hàng và ngày tham chiếu.
+- Nếu hỏi tồn kho ở từng kho, dùng query_inventory_by_warehouse thay cho tổng tồn; nêu riêng số lượng từng ma_kho và tổng trong summary.
 - Nhập kho và điều chuyển: dùng query_receipt_lines (cần material, date_from, date_to). Báo tổng số lượng (total_quantity) và tổng số bản ghi (total_records) từ trường summary, liệt kê tóm tắt 3-5 lần nhập tiêu biểu (ngày, số lượng, kho xuất, người nhập). BẮT BUỘC đóng gói câu trả lời trong JSON {"answer": "...", "source_ids": [...]}.
 - Kế hoạch PO và dự báo FCST: dùng query_forecast_po (cần material). Trả về số lượng, ngày giao, ngày tính toán; lưu ý ERP hiện lưu theo snapshot đợt tính toán.
 - Quy cách đóng gói: dùng query_packaging_spec (cần material). Lấy packs0 (số lượng/thùng), ma_thung, ma_khay, số lượng vật tư/khay.
 - Hồ sơ khuôn và số shot: dùng query_mold_profile (cần mold, material). Lấy tong_so_shot đã chạy và so_shot_bh (shot bảo hành định mức).
 - Tồn kho theo khuôn / die_no: dùng query_mold_label_stock (cần material). Lấy số lượng tồn cụ thể theo từng die_no (V1, V2...).
-- Đơn hàng bán (SO) và kiểm tra link giá: dùng query_sales_orders (cần customer, date_from, date_to). Khi hỏi data đơn hàng quá khứ: báo tổng số lượng (total_quantity) và tổng số bản ghi (total_records) từ summary, liệt kê tóm tắt 3-5 đơn hàng tiêu biểu, KHÔNG xuất bảng quá dài để tránh tràn token. Nếu hỏi mã chưa link giá, liệt kê các mã có gia_chuan = 0 hoặc NULL.
+- Đơn hàng bán (SO): dùng query_sales_orders (cần customer, date_from, date_to). Khi hỏi data đơn hàng quá khứ: báo tổng số lượng (total_quantity) và tổng số bản ghi (total_records) từ summary, liệt kê tóm tắt 3-5 đơn hàng tiêu biểu, KHÔNG xuất bảng quá dài để tránh tràn token.
+- Nếu hỏi mã chưa link giá chuẩn: dùng query_sales_order_price_gaps, không suy ra từ 5 dòng mẫu đơn hàng. Các mã có gia_chuan NULL/0 là ứng viên, chưa tự chứng minh lỗi liên kết bảng giá.
 - Lệnh giao hàng (TO2): dùng query_delivery_order (cần delivery_code). Trả về trạng thái statusname và ngày giờ tạo lập.
 - Trạng thái tem QC (khóa / NG): dùng query_qc_status (cần material). Lấy trạng thái tem OQC (3-OK, 5-NG, 6-Chờ xử lý).
 - Giao bù NG và đổi trả: dùng query_replacement_orders (cần material, date_from, date_to). Tra cứu lệnh giao bù mã GD 10 và ghi chú diễn giải.
@@ -271,11 +274,10 @@ async def run_agent(question, *, user, model, backend, limits=None, history=(), 
                          tool=name if name in backend.names else "invalid", error=result.get("error"),
                          source_ids=[s["id"] for s in result.get("sources", [])],
                          elapsed_ms=round((time.monotonic()-tool_started)*1000))))
-            # Receipt reports are rendered entirely from the verified rows and
-            # aggregate. A second Qwen pass would only restate the same data
-            # (and can time out after the database has already succeeded).
+            # These numeric reports have deterministic display blocks; another
+            # model pass could change a confirmed value or turn missing data into zero.
             if (len(calls) == 1 and len(verified) == 1 and counts["tool_errors"] == 0
-                    and verified[0]["tool"] == "query_receipt_lines"):
+                    and verified[0]["tool"] in ("query_receipt_lines", "query_inventory_balance")):
                 return finish("answered", cited=[s["id"] for s in verified[0]["result"].get("sources", [])])
         return finish("round_limit", cited=sources)
     except TimeoutError:
