@@ -121,6 +121,9 @@ services:
       # Runtime-matched router override: selects the correct OpenAI project
       # key for a mapped WebUI user while preserving local vLLM routing.
       - ./scratch_openai.py:/app/backend/open_webui/routers/openai.py:ro
+      # Route public OpenAI image requests through the authenticated user's
+      # project key, matching GPT chat and keeping the shared bootstrap key unused.
+      - ./scratch_images.py:/app/backend/open_webui/routers/images.py:ro
       # Server-side model allowlist: local Nhanh plus GPT-5.6 Sol and Luna.
       - ./scratch_models.py:/app/backend/open_webui/utils/models.py:ro
       - ./scratch_middleware.py:/app/backend/open_webui/utils/middleware.py:ro

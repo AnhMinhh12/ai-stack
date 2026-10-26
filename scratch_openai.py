@@ -325,6 +325,57 @@ async def _attach_requested_image(payload: dict, metadata: dict | None, user: Us
     return False
 
 
+async def _normalize_responses_image_inputs(payload: dict, user: UserModel) -> None:
+    """Resolve Open WebUI's private file links before sending Responses input."""
+    for message in payload.get('messages') or []:
+        if not isinstance(message, dict) or message.get('role') != 'user':
+            continue
+        content = message.get('content')
+        if not isinstance(content, list):
+            continue
+
+        normalized = []
+        for part in content:
+            if not isinstance(part, dict) or part.get('type') != 'image_url':
+                normalized.append(part)
+                continue
+
+            image_ref = part.get('image_url') or {}
+            url = image_ref.get('url') if isinstance(image_ref, dict) else image_ref
+            if not isinstance(url, str) or not url:
+                log.warning('Skipping an image input with an empty URL')
+                continue
+
+            if url.startswith('data:image/') and ';base64,' in url:
+                normalized.append(part)
+                continue
+
+            parsed = urlparse(url)
+            path = parsed.path or url
+            file_id = None
+            if '/api/v1/files/' in path:
+                file_id = path.split('/api/v1/files/', 1)[1].split('/', 1)[0]
+            elif parsed.scheme not in ('http', 'https') or not parsed.netloc:
+                # Bare Open WebUI file IDs are also accepted by its resolver.
+                file_id = url
+
+            if file_id:
+                image_data = await get_image_base64_from_url(file_id, user=user)
+                if image_data and image_data.startswith('data:image/') and ';base64,' in image_data:
+                    normalized.append({'type': 'image_url', 'image_url': {'url': image_data}})
+                    continue
+                log.warning('Skipping an unresolved Open WebUI image attachment')
+                continue
+
+            if parsed.scheme in ('http', 'https') and parsed.netloc and not any(c.isspace() for c in url):
+                normalized.append(part)
+                continue
+
+            log.warning('Skipping an image input with an invalid URL format')
+
+        message['content'] = normalized
+
+
 async def send_get_request(
     request: Request = None,
     url=None,
@@ -1661,6 +1712,11 @@ def convert_to_responses_payload(payload: dict) -> dict:
                 if part.get('type') == 'text':
                     content_parts.append({'type': text_type, 'text': part.get('text', '')})
                 elif part.get('type') == 'image_url':
+                    # Assistant-side image attachments are outputs, not input images.
+                    # Re-attached images for an explicit edit are added to the latest
+                    # user message by _attach_requested_image().
+                    if role != 'user':
+                        continue
                     url_data = part.get('image_url', {})
                     if isinstance(url_data, dict):
                         url = url_data.get('url', '')
@@ -1680,7 +1736,8 @@ def convert_to_responses_payload(payload: dict) -> dict:
         else:
             content_parts = [{'type': text_type, 'text': str(content)}]
 
-        input_items.append({'type': 'message', 'role': role, 'content': content_parts})
+        if content_parts:
+            input_items.append({'type': 'message', 'role': role, 'content': content_parts})
 
     responses_payload = {**payload, 'input': input_items}
 
@@ -1917,6 +1974,10 @@ async def generate_chat_completion(
             # image events are a different SSE schema. Request one completed
             # response so it can be converted to a normal chat attachment.
             payload['stream'] = False
+        # Older turns in the same conversation may carry Open WebUI file paths
+        # in image_url parts. The Responses API accepts public URLs or data URLs,
+        # so resolve private attachments even on ordinary text questions.
+        await _normalize_responses_image_inputs(payload, user)
 
     if api_config.get('azure') or api_config.get('provider') == 'azure':
         # Only set api-key header if not using Azure Entra ID authentication

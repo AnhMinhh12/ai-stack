@@ -202,6 +202,14 @@
 				let activeRequests = 0;
 				let indicator;
 				let positionFrame;
+				let errorCountAtShow = 0;
+				const responseErrorPattern = /Invalid input\[|Unauthorized|Uh-oh! There was an issue with the response|Server Connection Error/gi;
+				const countResponseErrors = () => (document.body?.innerText.match(responseErrorPattern) || []).length;
+				const clearIndicator = () => {
+					activeRequests = 0;
+					if (indicator) indicator.remove();
+					indicator = undefined;
+				};
 
 				const positionIndicator = () => {
 					if (!indicator) return;
@@ -227,19 +235,19 @@
 				const showIndicator = () => {
 					activeRequests += 1;
 					if (indicator || !document.body) return;
+					errorCountAtShow = countResponseErrors();
 					indicator = document.createElement('div');
 					indicator.setAttribute('role', 'status');
 					indicator.setAttribute('aria-live', 'polite');
-					indicator.style.cssText = 'position:fixed;top:18vh;left:50%;transform:translateX(-50%);z-index:99999;display:flex;align-items:center;gap:9px;padding:9px 14px;border:1px solid rgba(128,128,128,.22);border-radius:999px;background:#fff;color:#333;box-shadow:0 4px 18px rgba(0,0,0,.12);font:500 14px/1.2 system-ui,sans-serif;pointer-events:none';
+					indicator.style.cssText = 'position:fixed;top:18vh;left:50%;transform:translateX(-50%);z-index:99999;display:flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid rgba(59,130,246,.2);border-radius:999px;background:rgba(255,255,255,.94);color:#334155;box-shadow:0 2px 9px rgba(15,23,42,.1);backdrop-filter:blur(8px);font:500 12px/1.25 Inter,ui-sans-serif,system-ui,sans-serif;letter-spacing:.01em;white-space:nowrap;pointer-events:none';
 					if (document.documentElement.classList.contains('dark')) {
-						indicator.style.background = '#262626';
-						indicator.style.color = '#f5f5f5';
+						indicator.style.background = 'rgba(30,41,59,.94)';
+						indicator.style.color = '#e2e8f0';
 					}
 					const spinner = document.createElement('span');
-					spinner.style.cssText = 'width:15px;height:15px;border:2px solid rgba(128,128,128,.28);border-top-color:#555;border-radius:50%;animation:htmp-image-spin .8s linear infinite;flex:none';
-					if (document.documentElement.classList.contains('dark')) spinner.style.borderTopColor = '#eee';
+					spinner.style.cssText = 'width:13px;height:13px;border:2px solid rgba(59,130,246,.18);border-top-color:#3b82f6;border-radius:50%;animation:htmp-image-spin .8s linear infinite;flex:none';
 					const label = document.createElement('span');
-					label.textContent = 'Đang suy nghĩ';
+					label.textContent = 'Đang xử lý…';
 					indicator.append(spinner, label);
 					document.body.appendChild(indicator);
 					schedulePosition();
@@ -256,6 +264,10 @@
 				const style = document.createElement('style');
 				style.textContent = '@keyframes htmp-image-spin{to{transform:rotate(360deg)}}';
 				document.head.appendChild(style);
+				const errorObserver = new MutationObserver(() => {
+					if (indicator && countResponseErrors() > errorCountAtShow) clearIndicator();
+				});
+				errorObserver.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
 				window.addEventListener('htmp-chat-start', showIndicator);
 				window.addEventListener('htmp-chat-finish', hideIndicator);
 				window.addEventListener('scroll', schedulePosition, true);
