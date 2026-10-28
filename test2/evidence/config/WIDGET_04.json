@@ -1,0 +1,10 @@
+﻿{
+    "screen_state":  "WIDGET_04",
+    "evidence_status":  "MENU_LIVE",
+    "screen_title":  "WIDGET_04",
+    "url":  "",
+    "type":  "N/A",
+    "reason":  "No standalone HTTP grid endpoint; container or client-side action.",
+    "classification":  "SPECIAL_PAGE",
+    "templateUrl":  ""
+}

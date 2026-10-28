@@ -1,0 +1,513 @@
+[
+  {
+    "stt": 1,
+    "title": "Đơn hàng (Hợp đồng)",
+    "cols_count": 20,
+    "db_sources": [
+      "ph64",
+      "ct64",
+      "dmkh",
+      "dmvt"
+    ],
+    "status": "MATCHED_DIRECT"
+  },
+  {
+    "stt": 2,
+    "title": "Lệnh giao hàng",
+    "cols_count": 16,
+    "db_sources": [
+      "ph96",
+      "ct96",
+      "dmkh",
+      "dmvt"
+    ],
+    "status": "MATCHED_DIRECT"
+  },
+  {
+    "stt": 3,
+    "title": "Phiếu xuất kho bán hàng",
+    "cols_count": 20,
+    "db_sources": [
+      "ph81",
+      "ct81",
+      "dmkh",
+      "dmvt"
+    ],
+    "status": "MATCHED_DIRECT"
+  },
+  {
+    "stt": 4,
+    "title": "Bảng kê phiếu xuất kho bán hàng",
+    "cols_count": 23,
+    "db_sources": [
+      "ph81",
+      "ct81",
+      "ct70",
+      "dmkh",
+      "dmvt"
+    ],
+    "status": "MATCHED_DIRECT"
+  },
+  {
+    "stt": 5,
+    "title": "Bảng kê lệnh giao hàng",
+    "cols_count": 25,
+    "db_sources": [
+      "ph96",
+      "ct96",
+      "dmkh",
+      "dmvt"
+    ],
+    "status": "MATCHED_DIRECT"
+  },
+  {
+    "stt": 6,
+    "title": "Báo cáo tiến độ giao hàng",
+    "cols_count": 22,
+    "db_sources": [
+      "ph96",
+      "ct96",
+      "ph81",
+      "ct81"
+    ],
+    "status": "MATCHED_DIRECT"
+  },
+  {
+    "stt": 7,
+    "title": "Phiếu yêu cầu mua hàng",
+    "cols_count": 11,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 8,
+    "title": "Đơn hàng mua",
+    "cols_count": 20,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 9,
+    "title": "Phiếu yêu cầu nhập hàng",
+    "cols_count": 14,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 10,
+    "title": "Phiếu nhập hàng",
+    "cols_count": 18,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 11,
+    "title": "Bảng kê phiếu yêu cầu mua hàng",
+    "cols_count": 31,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 12,
+    "title": "Bảng kê đơn hàng mua",
+    "cols_count": 19,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 13,
+    "title": "Bảng kê phiếu yêu cầu nhập hàng",
+    "cols_count": 23,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 14,
+    "title": "Bảng kê phiếu nhập hàng",
+    "cols_count": 33,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 15,
+    "title": "Báo cáo tình trạng đơn hàng mua",
+    "cols_count": 33,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 16,
+    "title": "Báo cáo lịch sử thay đổi giá NCC",
+    "cols_count": 17,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 17,
+    "title": "Phiếu xuất kho",
+    "cols_count": 12,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 18,
+    "title": "Phiếu nhập kho",
+    "cols_count": 13,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 19,
+    "title": "Phiếu yêu cầu nhập kho",
+    "cols_count": 10,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 20,
+    "title": "Phiếu yêu cầu xuất kho",
+    "cols_count": 10,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 21,
+    "title": "Danh mục sản phẩm, vật tư",
+    "cols_count": 35,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 22,
+    "title": "Bảng kê phiếu nhập kho",
+    "cols_count": 30,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 23,
+    "title": "Bảng kê phiếu xuất kho",
+    "cols_count": 31,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 24,
+    "title": "Bảng kê phiếu nhập, xuất điều chuyển",
+    "cols_count": 25,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 25,
+    "title": "Bảng kê nhập xuất theo lô",
+    "cols_count": 23,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 26,
+    "title": "Báo cáo tồn kho",
+    "cols_count": 7,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 27,
+    "title": "Báo cáo tồn theo kho",
+    "cols_count": 5,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 28,
+    "title": "Tổng hợp nhập xuất tồn",
+    "cols_count": 17,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 29,
+    "title": "Tổng hợp nhập xuất tồn theo lô",
+    "cols_count": 10,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 30,
+    "title": "Báo cáo tồn lô theo vị trí tất cả kho",
+    "cols_count": 10,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 31,
+    "title": "Báo cáo cấu trúc sản phẩm",
+    "cols_count": 26,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 32,
+    "title": "Danh mục cấu trúc sản phẩm",
+    "cols_count": 5,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 33,
+    "title": "Khai báo quy trình sản xuất sản phẩm",
+    "cols_count": 8,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 34,
+    "title": "Báo cáo lịch sử thay đổi bom list",
+    "cols_count": 9,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 35,
+    "title": "Danh mục dây chuyền sản xuất",
+    "cols_count": 11,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 36,
+    "title": "Danh mục khuôn",
+    "cols_count": 6,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 37,
+    "title": "Danh mục nguyên nhân dừng máy",
+    "cols_count": 4,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 38,
+    "title": "Danh mục máy",
+    "cols_count": 10,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 39,
+    "title": "Hồ sơ khuôn",
+    "cols_count": 13,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 40,
+    "title": "Báo cáo thông tin sản phẩm theo hồ sơ khuôn",
+    "cols_count": 10,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 41,
+    "title": "Bảng kê lên khuôn",
+    "cols_count": 29,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 42,
+    "title": "Bảng kê setup, vận hành máy",
+    "cols_count": 26,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 43,
+    "title": "Bảng kê phát sinh trong sản xuất",
+    "cols_count": 23,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 44,
+    "title": "Lệnh sản xuất",
+    "cols_count": 16,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 45,
+    "title": "Lịch sản xuất (Import)",
+    "cols_count": 9,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 46,
+    "title": "Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc",
+    "cols_count": 16,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 47,
+    "title": "Bảng thống kê đăng ký NG trong sản xuất",
+    "cols_count": 19,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 48,
+    "title": "Bảng kê NG linh kiện",
+    "cols_count": 18,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 49,
+    "title": "Bảng thống kê cấp nguyên vật liệu",
+    "cols_count": 18,
+    "db_sources": [
+      "mes_oi_dong_thung",
+      "intem_log",
+      "ct70"
+    ],
+    "status": "MATCHED_DIRECT"
+  },
+  {
+    "stt": 50,
+    "title": "Bảng kê đóng gói, đóng thùng",
+    "cols_count": 15,
+    "db_sources": [
+      "mes_oi_dong_thung",
+      "mes_oi_dong_thung1",
+      "intem_carton_log"
+    ],
+    "status": "MATCHED_DIRECT"
+  },
+  {
+    "stt": 51,
+    "title": "Bảng kê gộp, tách thùng",
+    "cols_count": 15,
+    "db_sources": [
+      "intem_carton_log",
+      "intem_log"
+    ],
+    "status": "MATCHED_DIRECT"
+  },
+  {
+    "stt": 52,
+    "title": "Bảng kê Work Order",
+    "cols_count": 19,
+    "db_sources": [
+      "mes_oi_rework",
+      "mfkhsx",
+      "mes_scheduling"
+    ],
+    "status": "MATCHED_DIRECT"
+  },
+  {
+    "stt": 53,
+    "title": "Bảng kê bổ sung shot",
+    "cols_count": 12,
+    "db_sources": [
+      "mes_oi_bo_shot",
+      "dmhosokhuon"
+    ],
+    "status": "MATCHED_DIRECT"
+  },
+  {
+    "stt": 54,
+    "title": "Bảng kê chi tiết bỏ shot",
+    "cols_count": 13,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 55,
+    "title": "Bảng kê thay đổi cavity",
+    "cols_count": 13,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 56,
+    "title": "Báo cáo thu hồi NVL",
+    "cols_count": 14,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 57,
+    "title": "Báo cáo kết quả vận hành theo phiên làm việc",
+    "cols_count": 31,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 58,
+    "title": "Báo cáo Tổng hợp hàng NG theo phiên làm việc",
+    "cols_count": 19,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 59,
+    "title": "Báo cáo thời gian dừng chuyền theo từng phiên làm việc",
+    "cols_count": 22,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 60,
+    "title": "Báo cáo version OI theo mã dây chuyền",
+    "cols_count": 5,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 61,
+    "title": "Báo cáo NVL sử dụng theo từng phiên làm việc (theo mã lô KH)",
+    "cols_count": 22,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 62,
+    "title": "Danh mục bài kiểm tra",
+    "cols_count": 5,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 63,
+    "title": "Phiếu kiểm tra chất lượng IQC",
+    "cols_count": 13,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 64,
+    "title": "Phiếu kiểm tra chất lượng IPQC",
+    "cols_count": 13,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 65,
+    "title": "Bảng kê phiếu IQC, IPQC",
+    "cols_count": 24,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  },
+  {
+    "stt": 66,
+    "title": "Bảng kê chi tiết bài kiểm tra theo mã hàng",
+    "cols_count": 23,
+    "db_sources": [],
+    "status": "CANDIDATE_SEARCH"
+  }
+]

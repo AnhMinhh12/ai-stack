@@ -1,0 +1,22 @@
+﻿<div ng-controller="SO1Controller as ctrl" ng-keydown="ctrl.OnKeyDown($event)" tabindex="0">
+    <div class="page-content">
+        <bread-menu-list result-data="ctrl.resultData"
+                         get-data="ctrl.GetData(0)"
+                         pass-data="ctrl.passData"
+                         menu-click="ctrl.OnClickMenu"
+                         btn-search-click="ctrl.SearchData"
+                         status-click="ctrl.StatusClick"></bread-menu-list>
+        <div class="list-view">
+            <div id="all_items" class="grid-view danhmuc" style="margin:0">
+                <itg-jqgrid config="ctrl.myGridOptions"
+                            lang="ctrl.lang"
+                            dataset="ctrl.gridData"
+                            colnames="ctrl.header"
+                            lazyload="ctrl.Paging()"
+                            >
+                </itg-jqgrid>
+            </div>
+        </div>
+        <itg-right-click-menu menu="ctrl.right_click"></itg-right-click-menu>
+    </div>
+</div>

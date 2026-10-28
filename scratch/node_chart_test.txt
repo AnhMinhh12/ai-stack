@@ -1,0 +1,25 @@
+Chart version: 4.5.1
+overrides.pie: [Object: null prototype] {
+  aspectRatio: 1,
+  plugins: [Object: null prototype] {
+    legend: [Object: null prototype] {
+      labels: [Object: null prototype],
+      onClick: [Function: onClick]
+    }
+  }
+}
+overrides.pie.plugins: [Object: null prototype] {
+  legend: [Object: null prototype] {
+    labels: [Object: null prototype] {
+      generateLabels: [Function: generateLabels]
+    },
+    onClick: [Function: onClick]
+  }
+}
+overrides.pie.plugins.legend: [Object: null prototype] {
+  labels: [Object: null prototype] {
+    generateLabels: [Function: generateLabels]
+  },
+  onClick: [Function: onClick]
+}
+labels: [Object: null prototype] { generateLabels: [Function: generateLabels] }

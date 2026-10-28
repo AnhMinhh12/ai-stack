@@ -1,0 +1,35 @@
+﻿{
+    "method":  "GET",
+    "url":  "http://10.0.6.2:1004/SOAPI/api/Vouchers/SO1API/GetData/",
+    "query_params":  {
+                         "searchDynamic":  {
+                                               "pindex":  0,
+                                               "plimit":  20,
+                                               "gridid":  "SO1",
+                                               "stateid":  "SO1",
+                                               "keyword":  "",
+                                               "status":  "*",
+                                               "pwhere":  " 1 = 1 ",
+                                               "user_id":  78,
+                                               "search_dynamic_cols":  "",
+                                               "cols_search":  "sys_dmtt.statusname,a.ngay_ct,a.so_ct,a.ma_gd,sys_dmmagd.ten_gd,a.so_po,a.ma_kh,dmkh.ten_kh,a.dia_chi,a.ong_ba,a.dien_thoai,a.ma_nvbh,a.dien_giai,a.ma_nt,a.ty_gia,a.t_so_luong,a.t_tien2,a.t_thue,a.t_ck,a.t_tt",
+                                               "search_dynamic_ph":  "",
+                                               "search_dynamic_ct":  ""
+                                           }
+                     },
+    "headers":  {
+                    "state":  "SO1",
+                    "user_name":  "IT.ERP",
+                    "user_id":  "78",
+                    "lang":  "vi-VN",
+                    "ma_dvcs":  "",
+                    "user_id0":  "0",
+                    "project_id":  "",
+                    "list_id_data":  "",
+                    "FROM":  "web",
+                    "module":  "SO",
+                    "application":  "ERP",
+                    "Token":  "[REDACTED_BEARER_OR_CUSTOM_TOKEN]"
+                },
+    "notes":  "searchDynamic is JSON-encoded in the query string parameter \u0027searchDynamic\u0027"
+}

@@ -1,0 +1,133 @@
+Khởi tạo Tools() thành công. Bắt đầu test 18 câu hỏi qua ask_erp...
+
+--- [CÂU 1] ---
+Hỏi: Mã hàng QC7-5146-000 dùng loại nhựa gì? Cấu trúc sản phẩm của mã hàng này gồm những gì?
+Thời gian: 0.141s
+Kết quả (PASSED):
+{"report": {"id": "bao-cao-cau-truc-san-pham", "title": "Cấu trúc sản phẩm (BOM)"}, "lookup": {"ma_vt": "QC7-5146-000"}, "rows": [{"ma_vt": "QC7-5146-000", "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000", "ma_nvl": "PS-576D", "bom_info": "Mã hàng QC7-5146-000 dùng ...
+
+--- [CÂU 2] ---
+Hỏi: MOQ báo giá hiện tại của mã QC7-5146-000 là bao nhiêu? Giá áp dụng hiện tại theo từng mức MOQ là bao nhiêu?
+Thời gian: 0.150s
+Kết quả (PASSED):
+{"report": {"id": "danh-muc-bang-gia", "title": "Danh mục bảng giá"}, "source": ["dmbanggia", "dmbanggiact", "dmvt", "dmkh", "userinfo"], "query_scope": "manifest_and_fixed_sql_only", "lookup": {"ma_vt": "QC7-5146-000", "ngay_tra_cuu": "2026-10-28"}, "requested_columns": [{"field": "gia", "label": "...
+
+--- [CÂU 3] ---
+Hỏi: Tính đến ngày 20/10/2026, lot gần nhất được xuất giao của mã QC7-5146-000 là lot nào? Ngày xuất và số lượng bao nhiêu?
+Thời gian: 2.849s
+Kết quả (PASSED):
+{"source": "public.ph81 + public.ct81 (Bảng kê phiếu xuất kho bán hàng)", "lookup": {"ma_vt": "QC7-5146-000", "khoang_thoi_gian": "toàn bộ dữ liệu được phép xem"}, "summary": {"lan_giao_gan_nhat": "2026-10-20", "so_luong_giao": "420", "dvt": "PCS", "so_ct": "001-2610-001884", "ma_lo": "trống (chưa g...
+
+--- [CÂU 4] ---
+Hỏi: Từ ngày 01/10/2026 đến hết ngày 20/10/2026, tổng số lượng xuất bán và doanh thu của mã QC7-5146-000 là bao nhiêu?
+Thời gian: 2.281s
+Kết quả (PASSED):
+{"report": {"id": "tong-hop-ban-hang", "title": "Tổng hợp hàng bán"}, "source": ["ph81", "ct81", "dmvt", "dmkh", "dmkho", "userinfo"], "query_scope": "manifest_and_fixed_sql_only", "lookup": {"tu_ngay": "2026-10-01", "den_ngay": "2026-10-20", "ma_vt": "QC7-5146-000", "ma_kh": ""}, "requested_columns...
+
+--- [CÂU 5] ---
+Hỏi: Mã hàng QC7-5146-000 được khai báo thuộc khách hàng nào?
+Thời gian: 0.110s
+Kết quả (PASSED):
+{"status": "success", "summary": {}, "rows": [{"ma_vt": "QC7-5146-000", "ma_vt2": "QC7-5146-000", "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000", "ten_vt2": "SIDE DECO L L54", "part_no": "", "model": "D81-82-83", "dvt": "PCS", "ma_loai_vt": "51", "nh_vt1": "TP", "...
+
+--- [CÂU 6] ---
+Hỏi: Từ ngày 01/10/2026 đến hết ngày 20/10/2026, mã QC7-5146-000 được nhập kho vào những ngày nào, từ kho nào sang kho nào, số lượng bao nhiêu và tài khoản nào tạo phiếu?
+Thời gian: 0.975s
+Kết quả (PASSED):
+{"report": {"id": "bang-ke-phieu-nhap-kho", "title": "Bảng kê phiếu nhập kho"}, "source": ["ct70", "ph74", "ct74", "phdnv", "dmvt", "dmkh", "dmkho", "dmvv", "dmbp", "dmcp", "dmcdgt", "sys_dmmagd", "sys_options", "userinfo"], "query_scope": "manifest_and_fixed_sql_only", "lookup": {"tu_ngay": "2026-1...
+
+--- [CÂU 7] ---
+Hỏi: So sánh DO và FCST hiện tại với bản trước của mã QC7-5146-000: số lượng tăng hay giảm bao nhiêu?
+Thời gian: 2.232s
+Kết quả (PASSED):
+{"report": {"id": "so-sanh-do-fcst", "title": "So sánh kế hoạch DO và FCST"}, "lookup": {"ma_vt": "QC7-5146-000"}, "rows": [{"chi_tieu": "FCST", "hien_tai": 837840, "ban_truoc": 841440, "chenh_lech": -3600}, {"chi_tieu": "DO", "hien_tai": 360, "ban_truoc": 600, "chenh_lech": -240}], "message": "So s...
+
+--- [CÂU 8] ---
+Hỏi: Quy cách đóng gói của mã QC7-5146-000 gồm những thông tin gì? Có thể quy đổi tồn kho hiện tại theo quy cách đóng gói không?
+Thời gian: 3.994s
+Kết quả (PASSED):
+{"report": {"id": "quy-cach-dong-goi", "title": "Quy cách đóng gói và quy đổi tồn kho"}, "lookup": {"ma_vt": "QC7-5146-000"}, "rows": [{"ma_vt": "QC7-5146-000", "ten_vt": "Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000", "dvt": "PCS", "quy_cach_chuan": "Thùng: BGTD0070 (60 PC...
+
+--- [CÂU 9] ---
+Hỏi: Khuôn K_QC5-2919-000-V1 đã chạy tổng cộng bao nhiêu shot cho mã QC7-5146-000? Với demand của khách KH0015, có đủ dữ liệu để dự kiến thời điểm khuôn hết tuổi thọ không?
+Thời gian: 0.082s
+Kết quả (PASSED):
+{"status": "batch_success", "batch_count": 2, "rendered_answer": "Câu 1–2: Khuôn K_QC5-2919-000-V1 đã chạy tổng cộng 1,695,010 shot cho mã QC7-5146-000 (số shot bảo hành ban đầu: 1,000,000 shot (thực tế đã chạy vượt mức bảo hành)). Về dự kiến thời điểm hết tuổi thọ khuôn: Hệ thống ERP hiện tại không...
+
+--- [CÂU 10] ---
+Hỏi: So sánh doanh thu mã QC7-5146-000 của khách KH0015 trong hai khoảng 01/09/2026–20/09/2026 và 01/10/2026–20/10/2026. Nêu số lượng và doanh thu từng kỳ.
+Thời gian: 4.925s
+Kết quả (PASSED):
+{"status": "batch_success", "batch_count": 2, "rendered_answer": "Câu 1 (Kỳ 2026-09-01 đến 2026-09-20): Mã hàng QC7-5146-000 của khách KH0015 (từ ngày 01/09/2026 đến ngày 20/09/2026): Tổng số lượng xuất bán: 84840 PCS, tổng doanh thu: 175446405.12 VND.\nCâu 2 (Kỳ 2026-10-01 đến 2026-10-20): Mã hàng ...
+
+--- [CÂU 11] ---
+Hỏi: Mã QC7-5146-000 hiện có tồn kho thuộc những khuôn nào? Số lượng theo từng khuôn là bao nhiêu?
+Thời gian: 2.105s
+Kết quả (PASSED):
+{"report": {"id": "ton-kho-theo-khuon", "title": "Tồn kho theo khuôn (Die)"}, "lookup": {"ma_vt": "QC7-5146-000"}, "rows": [{"die_no": "V1", "mold": "", "so_luong": 14280}, {"die_no": "V2", "mold": "", "so_luong": 940}], "message": "Mã QC7-5146-000 có tồn kho tem thành phẩm theo từng khuôn/die: Khuô...
+
+--- [CÂU 12] ---
+Hỏi: Liệt kê dữ liệu đơn hàng bán của khách KH0015 từ ngày 01/10/2026 đến hết ngày 20/10/2026, gồm số đơn, ngày đặt, mã hàng, số lượng và trạng thái.
+Thời gian: 0.214s
+Kết quả (PASSED):
+{"report": {"id": "don-hang-ban", "title": "Bảng kê đơn hàng bán"}, "lookup": {"ma_kh": "KH0015", "tu_ngay": "2026-10-01", "den_ngay": "2026-10-20"}, "rows": [{"so_ct": "001-2610-007634", "ngay_ct": "2026-10-20", "ma_vt": "QC6-3108-000", "so_luong": 920, "dvt": "PCS", "status": "12"}, {"so_ct": "001...
+
+--- [CÂU 13] ---
+Hỏi: Lệnh giao hàng 001-2610-001811 được ghi nhận hoàn thành khi nào? Cho biết trạng thái lệnh và căn cứ thời gian được dùng.
+Thời gian: 0.069s
+Kết quả (PASSED):
+{"report": {"id": "lenh-giao-hang", "title": "Bảng kê lệnh giao hàng"}, "lookup": {"so_ct": "001-2610-001811"}, "rows": [{"stt_rec": "A1000000028828153TO2", "so_ct": "001-2610-001811", "status": "12", "statusname": "Hoàn thành", "date0": "2026-10-19", "time0": "19:28:20"}], "message": "Lệnh giao hàn...
+
+--- [CÂU 14] ---
+Hỏi: Tồn kho hiện tại của mã QC7-5146-000 là bao nhiêu ở từng kho?
+Thời gian: 2.083s
+Kết quả (PASSED):
+{"report": {"id": "bao-cao-ton-theo-kho", "title": "Báo cáo tồn theo kho"}, "lookup": {"ma_vt": "QC7-5146-000"}, "rows": [{"ma_kho": "KHOTP00", "ton_kho": 4200}, {"ma_kho": "KHO_TAIMAY", "ton_kho": 360}, {"ma_kho": "KHOTP02", "ton_kho": 240}, {"ma_kho": "KHO-HANG-LE", "ton_kho": 40}], "message": "Tồ...
+
+--- [CÂU 15] ---
+Hỏi: Mã QC7-5146-000 hiện có lot thành phẩm nào ở trạng thái QC cần chú ý? Cho biết trạng thái QC đúng như dữ liệu ERP.
+Thời gian: 1.081s
+Kết quả (PASSED):
+{"report": {"id": "oqc-xac-nhan-chat-luong", "title": "Trạng thái QC tem thành phẩm"}, "lookup": {"ma_vt": "QC7-5146-000"}, "rows": [{"status_qc": 3, "form_name": "3 - OK", "so_luong": 15220}], "message": "Kiểm tra trạng thái QC mã QC7-5146-000: Trạng thái 3 - OK (status_qc=3): 15,220 PCS. Toàn bộ t...
+
+--- [CÂU 16] ---
+Hỏi: Trong đơn hàng của khách KH0015 từ ngày 01/10/2026 đến hết ngày 20/10/2026, có mã hàng nào chưa có giá chuẩn được liên kết không?
+Thời gian: 0.113s
+Kết quả (PASSED):
+{"report": {"id": "don-hang-chua-link-gia", "title": "Đơn hàng chưa liên kết giá chuẩn"}, "lookup": {"ma_kh": "KH0015", "tu_ngay": "2026-10-01", "den_ngay": "2026-10-20"}, "rows": [{"ma_vt": "QC7-6526-000", "so_dong": 1}, {"ma_vt": "QC7-6534-000", "so_dong": 1}, {"ma_vt": "QC7-9792-000", "so_dong": ...
+
+--- [CÂU 17] ---
+Hỏi: Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long có mã khách hàng nào trên ERP?
+Thời gian: 0.065s
+Kết quả (PASSED):
+{"report": {"id": "danh-muc-khach-hang", "title": "Danh mục khách hàng"}, "lookup": {"ten_kh": "Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long"}, "rows": [{"ma_kh": "KH0015", "ten_kh": "Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long"}], "message": "Khách hàng 'Công ty TNHH Canon Việt Nam- Chi ...
+
+--- [CÂU 18] ---
+Hỏi: Từ ngày 01/10/2026 đến hết ngày 20/10/2026, mã QC7-5146-000 có số lượng giao bù NG là bao nhiêu, số lượng hàng NG đã nhận lại là bao nhiêu, và còn bao nhiêu chưa giao bù hoặc chưa nhận về? Phân biệt rõ giao bù NG với giao bù hàng thiếu; nếu ERP không lưu đủ căn cứ để phân biệt thì nêu rõ.
+Thời gian: 0.101s
+Kết quả (PASSED):
+{"report": {"id": "doi-soat-giao-bu-ng", "title": "Đối soát giao bù NG"}, "lookup": {"ma_vt": "QC7-5146-000", "tu_ngay": "2026-10-01", "den_ngay": "2026-10-20"}, "rows": [{"ma_vt": "QC7-5146-000", "so_luong_giao_bu": 0, "so_luong_nhan_lai": 0, "con_lai": 0}], "message": "Từ ngày 2026-10-01 đến 2026-...
+
+
+==================================================
+TỔNG KẾT KIỂM THỬ LOCAL AI (18 CÂU)
+==================================================
+Tổng số câu: 18 | Đạt: 18/18 (100.0%)
+Câu 01: [PASSED] (0.14s) - Mã hàng QC7-5146-000 dùng loại nhựa gì? Cấu trúc sản phẩm củ...
+Câu 02: [PASSED] (0.15s) - MOQ báo giá hiện tại của mã QC7-5146-000 là bao nhiêu? Giá á...
+Câu 03: [PASSED] (2.85s) - Tính đến ngày 20/10/2026, lot gần nhất được xuất giao của mã...
+Câu 04: [PASSED] (2.28s) - Từ ngày 01/10/2026 đến hết ngày 20/10/2026, tổng số lượng xu...
+Câu 05: [PASSED] (0.11s) - Mã hàng QC7-5146-000 được khai báo thuộc khách hàng nào?...
+Câu 06: [PASSED] (0.98s) - Từ ngày 01/10/2026 đến hết ngày 20/10/2026, mã QC7-5146-000 ...
+Câu 07: [PASSED] (2.23s) - So sánh DO và FCST hiện tại với bản trước của mã QC7-5146-00...
+Câu 08: [PASSED] (3.99s) - Quy cách đóng gói của mã QC7-5146-000 gồm những thông tin gì...
+Câu 09: [PASSED] (0.08s) - Khuôn K_QC5-2919-000-V1 đã chạy tổng cộng bao nhiêu shot cho...
+Câu 10: [PASSED] (4.93s) - So sánh doanh thu mã QC7-5146-000 của khách KH0015 trong hai...
+Câu 11: [PASSED] (2.10s) - Mã QC7-5146-000 hiện có tồn kho thuộc những khuôn nào? Số lư...
+Câu 12: [PASSED] (0.21s) - Liệt kê dữ liệu đơn hàng bán của khách KH0015 từ ngày 01/10/...
+Câu 13: [PASSED] (0.07s) - Lệnh giao hàng 001-2610-001811 được ghi nhận hoàn thành khi ...
+Câu 14: [PASSED] (2.08s) - Tồn kho hiện tại của mã QC7-5146-000 là bao nhiêu ở từng kho...
+Câu 15: [PASSED] (1.08s) - Mã QC7-5146-000 hiện có lot thành phẩm nào ở trạng thái QC c...
+Câu 16: [PASSED] (0.11s) - Trong đơn hàng của khách KH0015 từ ngày 01/10/2026 đến hết n...
+Câu 17: [PASSED] (0.07s) - Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long có mã khác...
+Câu 18: [PASSED] (0.10s) - Từ ngày 01/10/2026 đến hết ngày 20/10/2026, mã QC7-5146-000 ...

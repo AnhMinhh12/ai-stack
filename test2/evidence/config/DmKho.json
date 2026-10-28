@@ -1,0 +1,1606 @@
+﻿{
+    "screen_state":  "DmKho",
+    "screen_title":  "DmKho",
+    "grid":  {
+                 "gridid":  "DmKho",
+                 "rep_id":  null,
+                 "rep_file":  null,
+                 "header":  [
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "ma_dvcs",
+                                    "field_root":  "ma_dvcs",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  1,
+                                    "fieldcaption":  "ma_dvcs",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  true,
+                                    "event_name":  "lookup_single",
+                                    "query_getoptions":  "LK_dmdvcs",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  [
+                                                       {
+                                                           "ma_dvcs":  "ma_dvcs"
+                                                       }
+                                                   ],
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.ma_dvcs",
+                                    "fieldexport":  "a.ma_dvcs",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  [
+                                                          {
+                                                              "gridid":  "LK_dmdvcs",
+                                                              "title":  "Danh má»¥c ÄÆ¡n vá» cÆ¡ sá»",
+                                                              "order_by":  "a.ma_dvcs",
+                                                              "pkey":  "a.ma_dvcs",
+                                                              "view_value_autocomp":  "",
+                                                              "function_yn":  false
+                                                          }
+                                                      ]
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "ma_kho",
+                                    "field_root":  "ma_kho",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  3,
+                                    "fieldcaption":  "ma_kho",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  120,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.ma_kho",
+                                    "fieldexport":  "a.ma_kho",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "ten_kho2",
+                                    "field_root":  "ten_kho2",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  4,
+                                    "fieldcaption":  "ten_kho2",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  false,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.ten_kho2",
+                                    "fieldexport":  "a.ten_kho2",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "ten_kho",
+                                    "field_root":  "ten_kho",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  4,
+                                    "fieldcaption":  "ten_kho",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.ten_kho",
+                                    "fieldexport":  "a.ten_kho",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "ong_ba",
+                                    "field_root":  "ong_ba",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  5,
+                                    "fieldcaption":  "ong_ba",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.ong_ba",
+                                    "fieldexport":  "a.ong_ba",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "dia_chi",
+                                    "field_root":  "dia_chi",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  6,
+                                    "fieldcaption":  "dia_chi",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  250,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.dia_chi",
+                                    "fieldexport":  "a.dia_chi",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "ghi_chu",
+                                    "field_root":  "ghi_chu",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  7,
+                                    "fieldcaption":  "ghi_chu",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.ghi_chu",
+                                    "fieldexport":  "a.ghi_chu",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "dien_thoai",
+                                    "field_root":  "dien_thoai",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  8,
+                                    "fieldcaption":  "dien_thoai",
+                                    "visible":  1,
+                                    "style":  "FORMAT_PHONE",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.dien_thoai",
+                                    "fieldexport":  "a.dien_thoai",
+                                    "formatoption":  "-",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "status",
+                                    "field_root":  "status",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  10,
+                                    "fieldcaption":  "status",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  false,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.status",
+                                    "fieldexport":  "a.status",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "ds_ma_dvcs",
+                                    "field_root":  "ds_ma_dvcs",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  11,
+                                    "fieldcaption":  "ds_ma_dvcs",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  false,
+                                    "width_web":  255,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  true,
+                                    "event_name":  "lookup_multi",
+                                    "query_getoptions":  "LK_dmdvcs",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  [
+                                                       {
+                                                           "ds_ma_dvcs":  "ma_dvcs"
+                                                       }
+                                                   ],
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.ds_ma_dvcs",
+                                    "fieldexport":  "a.ds_ma_dvcs",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  [
+                                                          {
+                                                              "gridid":  "LK_dmdvcs",
+                                                              "title":  "Danh má»¥c ÄÆ¡n vá» cÆ¡ sá»",
+                                                              "order_by":  "a.ma_dvcs",
+                                                              "pkey":  "a.ma_dvcs",
+                                                              "view_value_autocomp":  "",
+                                                              "function_yn":  false
+                                                          }
+                                                      ]
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "dai_ly_yn",
+                                    "field_root":  "dai_ly_yn",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  12,
+                                    "fieldcaption":  "dai_ly_yn",
+                                    "visible":  1,
+                                    "style":  "CHECKBOX",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  100,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.dai_ly_yn",
+                                    "fieldexport":  "a.dai_ly_yn",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "tk_dai_ly",
+                                    "field_root":  "tk_dai_ly",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  13,
+                                    "fieldcaption":  "tk_dai_ly",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  100,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  true,
+                                    "event_name":  "lookup_single",
+                                    "query_getoptions":  "LK_dmtk0",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  [
+                                                       {
+                                                           "tk_dai_ly":  "tk"
+                                                       }
+                                                   ],
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.tk_dai_ly",
+                                    "fieldexport":  "a.tk_dai_ly",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  [
+                                                          {
+                                                              "gridid":  "LK_dmtk0",
+                                                              "title":  "Danh sÃ¡ch tÃ i khoáº£n",
+                                                              "order_by":  "a.tk",
+                                                              "pkey":  "a.tk",
+                                                              "view_value_autocomp":  "",
+                                                              "function_yn":  false
+                                                          }
+                                                      ]
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "ql_vi_tri_yn",
+                                    "field_root":  "ql_vi_tri_yn",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  14,
+                                    "fieldcaption":  "ql_vi_tri_yn",
+                                    "visible":  1,
+                                    "style":  "CHECKBOX",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  100,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.ql_vi_tri_yn",
+                                    "fieldexport":  "a.ql_vi_tri_yn",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "tinh_gia_yn",
+                                    "field_root":  "tinh_gia_yn",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  15,
+                                    "fieldcaption":  "tinh_gia_yn",
+                                    "visible":  1,
+                                    "style":  "CHECKBOX",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  100,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.tinh_gia_yn",
+                                    "fieldexport":  "a.tinh_gia_yn",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "ng_yn",
+                                    "field_root":  "ng_yn",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  16,
+                                    "fieldcaption":  "ng_yn",
+                                    "visible":  1,
+                                    "style":  "CHECKBOX",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  100,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.ng_yn",
+                                    "fieldexport":  "a.ng_yn",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "qc_yn",
+                                    "field_root":  "qc_yn",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  17,
+                                    "fieldcaption":  "qc_yn",
+                                    "visible":  1,
+                                    "style":  "CHECKBOX",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  100,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.qc_yn",
+                                    "fieldexport":  "a.qc_yn",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "xuat_am_yn",
+                                    "field_root":  "xuat_am_yn",
+                                    "tablename":  "dmkho",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  18,
+                                    "fieldcaption":  "xuat_am_yn",
+                                    "visible":  1,
+                                    "style":  "CHECKBOX",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  false,
+                                    "width_web":  100,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.xuat_am_yn",
+                                    "fieldexport":  "a.xuat_am_yn",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "statusname",
+                                    "field_root":  "statusname",
+                                    "tablename":  "sys_dmtt",
+                                    "leftjoin":  {
+                                                     "status":  "status",
+                                                     "where":  "ma_ct = \u0027DmKho\u0027"
+                                                 },
+                                    "table_as":  "z4",
+                                    "fieldposition":  101,
+                                    "fieldcaption":  "",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "sys_dmtt.statusname",
+                                    "fieldexport":  "sys_dmtt.statusname",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "id_appr",
+                                    "field_root":  "user_id",
+                                    "tablename":  "userinfo",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "z3",
+                                    "fieldposition":  102,
+                                    "fieldcaption":  "id_appr",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  true,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "z3.user_id",
+                                    "fieldexport":  "z3.id_appr",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "acc_appr",
+                                    "field_root":  "user_name",
+                                    "tablename":  "userinfo",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "z3",
+                                    "fieldposition":  102,
+                                    "fieldcaption":  "acc_appr",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  true,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "z3.user_name",
+                                    "fieldexport":  "z3.acc_appr",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "name_appr",
+                                    "field_root":  "ten",
+                                    "tablename":  "userinfo",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "z3",
+                                    "fieldposition":  102,
+                                    "fieldcaption":  "name_appr",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  true,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "z3.ten",
+                                    "fieldexport":  "z3.name_appr",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "name2",
+                                    "field_root":  "ten",
+                                    "tablename":  "userinfo",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "z2",
+                                    "fieldposition":  103,
+                                    "fieldcaption":  "name2",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  true,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "z2.ten",
+                                    "fieldexport":  "z2.name2",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmKho",
+                                    "fieldname":  "name0",
+                                    "field_root":  "ten",
+                                    "tablename":  "userinfo",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "z1",
+                                    "fieldposition":  104,
+                                    "fieldcaption":  "name0",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  true,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "z1.ten",
+                                    "fieldexport":  "z1.name0",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                }
+                            ]
+             },
+    "verified_at":  "2026-10-27T08:57:00+07:00",
+    "column_count":  23,
+    "http_status":  200
+}

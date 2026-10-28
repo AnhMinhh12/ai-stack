@@ -1,0 +1,15 @@
+{
+  "screen_state": "SO1",
+  "screen_name": "Đơn hàng (Hợp đồng)",
+  "screen_url": "http://10.0.6.2:1004/Solution/ERP/#/SO/SO1",
+  "data_endpoint": "GET /SOAPI/api/Vouchers/SO1API/GetData/",
+  "unit": "001",
+  "unit_name": "HTMP QM",
+  "role": "Admin",
+  "user_name": "IT.ERP",
+  "user_id": 78,
+  "language": "vi-VN",
+  "data_period": "All periods (unfiltered live grid default view)",
+  "capture_time": "2026-10-27T11:00:00+07:00",
+  "evidence_source": "Machine B (ERP Web UI + authenticated GetData API capture)"
+}

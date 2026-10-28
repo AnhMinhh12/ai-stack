@@ -1,0 +1,11 @@
+defaults fn: [Function: generateLabels]
+ERROR in generateLabels: TypeError: Cannot read properties of undefined (reading 'options')
+    at Object.generateLabels (/home/admin/ai-stack/ui-patches/chart.umd.min.js:13:181522)
+    at [eval]:21:24
+    at runScriptInThisContext (node:internal/vm:219:10)
+    at node:internal/process/execution:451:12
+    at [eval]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:449:60)
+    at evalFunction (node:internal/process/execution:283:30)
+    at evalTypeScript (node:internal/process/execution:295:3)
+    at node:internal/main/eval_string:71:3

@@ -133,6 +133,7 @@ services:
       - ./ui-patches/2.Czbv28Xq.js:/app/build/_app/immutable/nodes/2.Czbv28Xq.js:ro
       - ./ui-patches/index.html:/app/build/index.html:ro
       - ./ui-patches/bulk-chat-delete.js:/app/backend/open_webui/static/bulk-chat-delete.js:ro
+      - ./ui-patches/chart.umd.min.js:/app/backend/open_webui/static/chart.umd.min.js:ro
       - ./config:/app/backend/config:ro
       - ./sql:/app/backend/sql:ro
       - ./docs:/app/backend/docs:ro

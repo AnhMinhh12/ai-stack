@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/home/admin/ai-stack/scratch/test_downloads.py", line 10, in <module>
+    downloads = build_downloads(blocks, requested_formats("test"))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/admin/ai-stack/erp_ai/export_files.py", line 314, in build_downloads
+    data = _xlsx(blocks)
+           ^^^^^^^^^^^^^
+  File "/home/admin/ai-stack/erp_ai/export_files.py", line 233, in _xlsx
+    from openpyxl import Workbook
+ModuleNotFoundError: No module named 'openpyxl'
+Traceback (most recent call last):
+  File "/home/admin/ai-stack/scratch/test_downloads.py", line 17, in <module>
+    html = render_erp_embed({"blocks": blocks}, downloads)
+                                                ^^^^^^^^^
+NameError: name 'downloads' is not defined
+Blocks ok: 2
+Error in build_downloads:
+Error in render_erp_embed:

@@ -1,0 +1,18 @@
+metric_id,screen_state,owner_web,owner_db_source,ui_level,api_level,db_level,reconciliation_level,source_report_id,active_profile,status,blocked_by,last_verified_at,notes
+sales_orders,SO1,Machine B,Machine A,UI_CAPTURED,API_CAPTURED,NOT_STARTED,NOT_STARTED,sales_orders,htmp-erp-agent-staging,API_CAPTURED,Awaiting Machine A DB catalog and reconciliation,2026-10-27T11:00:00+07:00,Complete handoff package in handoff/sales_orders/ and handoff/sales_order_header/
+inventory_by_warehouse,,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,inventory_by_warehouse,htmp-erp-agent-staging,NOT_STARTED,Next priority for Wave 1,,Candidate: cdvt union ct70 / dmkho / dmvt
+sales_lines,SO1Overview,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,sales_lines,htmp-erp-agent-staging,NOT_STARTED,Wave 2,,Candidate: ph81 + ct81 by stt_rec
+price_list,,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,price_list,htmp-erp-agent-staging,NOT_STARTED,Wave 3,,Candidate: dmbanggia + dmbanggiact
+product_structure,,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,product_structure,htmp-erp-agent-staging,NOT_STARTED,Wave 4,,Candidate: mfbom + mfbom_material
+customer_master,DMKH,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,customer_master,htmp-erp-agent-staging,NOT_STARTED,Wave 1,,Candidate: dmkh
+material_customer,,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,material_customer,htmp-erp-agent-staging,NOT_STARTED,Wave 1,,Candidate: dmvt.ma_kh = dmkh.ma_kh
+inventory_balance,,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,inventory_balance,htmp-erp-agent-staging,NOT_STARTED,Wave 1,,Candidate: cdvt union ct70 / dmvt
+receipt_lines,PO1,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,receipt_lines,htmp-erp-agent-staging,NOT_STARTED,Wave 3,,Candidate: ct70 left join userinfo
+forecast_po,,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,forecast_po,htmp-erp-agent-staging,NOT_STARTED,Wave 2,,Candidate: mfkhsx_po_fc
+packaging_spec,,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,packaging_spec,htmp-erp-agent-staging,NOT_STARTED,Wave 4,,Candidate: dmvt box/tray/pallet
+mold_profile,,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,mold_profile,htmp-erp-agent-staging,NOT_STARTED,Wave 4,,Candidate: dmhosokhuon + dmhosokhuonsp
+mold_label_stock,,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,mold_label_stock,htmp-erp-agent-staging,NOT_STARTED,Wave 5,,Candidate: intem_log JSON label data
+sales_order_price_gaps,SO1,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,sales_order_price_gaps,htmp-erp-agent-staging,NOT_STARTED,Wave 2,,Candidate: ph64 + ct64 / userinfo
+delivery_order,TO2,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,delivery_order,htmp-erp-agent-staging,NOT_STARTED,Wave 2,,Candidate: ph96 + sys_dmtt for TO2
+qc_label_status,,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,qc_label_status,htmp-erp-agent-staging,NOT_STARTED,Wave 5,,Candidate: intem_log + sys_listoptions
+replacement_orders,SO1,Machine B,Machine A,NOT_STARTED,NOT_STARTED,NOT_STARTED,NOT_STARTED,replacement_orders,htmp-erp-agent-staging,NOT_STARTED,Wave 2,,Candidate: ph96 + ct96 or ph64 ma_gd=10 confirmed

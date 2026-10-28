@@ -1,0 +1,673 @@
+﻿report_id,screen_title,declared_output_field,declared_ui_label,aliases,physical_table,physical_column_or_formula,api_endpoint,ui_transform,live_ui_checked,origin
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,stt,STT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,ngay_ct,Ngày CT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,so_ct,Số CT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,ma_vt,Mã vật tư,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,ten_vt,Tên vật tư,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,dvt,ĐVT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,so_luong,Số lượng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,ma_kho,Mã kho nhập,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,nh_vt1,Nhóm VT 1,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,nh_vt2,Nhóm VT 2,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,nh_vt3,Nhóm VT 3,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,nh_vt4,Nhóm VT 4,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,nh_vt5,Nhóm VT 5,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,nh_vt6,Nhóm VT 6 (NCC/KH),[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,nh_vt7,Nhóm VT 7,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,ma_nx,Loại hình,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,dien_giai,Diễn giải,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,user_name,Người tạo,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,statusname,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-iqc-ipqc,"Bảng kê IQC, IPQC",stt_rec,Khóa chứng từ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-iqc-ipqc.json
+bang-ke-len-khuon,Bảng kê lên khuôn,id_vh,ID vận hành,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-len-khuon.json
+bang-ke-len-khuon,Bảng kê lên khuôn,machine_code,Máy,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-len-khuon.json
+bang-ke-len-khuon,Bảng kê lên khuôn,mes_scheduling_code,Lệnh,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-len-khuon.json
+bang-ke-len-khuon,Bảng kê lên khuôn,create_date,Ngày bắt đầu,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-len-khuon.json
+bang-ke-len-khuon,Bảng kê lên khuôn,ma_khuon_len,Khuôn lên,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-len-khuon.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,stt,STT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,so_ct,Số CT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ngay_ct,Ngày CT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ma_kh,Mã khách hàng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ten_kh,Tên khách hàng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ngay_gh,Ngày GH,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,gio_gh,Giờ giao,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ngay_gh_tt,Ngày giao thực tế,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ma_vt,Mã vật tư,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ten_vt,Tên vật tư,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,dvt,ĐVT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ma_kho,Mã kho,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,so_luong,Số lượng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ma_lo,Mã lô,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,so_luong_da_lo,SL đã chỉ thị lô,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,so_luong_cl,Số lượng còn lại,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,dien_giai,Diễn giải,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ghi_chu,Ghi chú,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,status_name,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ngay_tao,Ngày tạo,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,gio_tao,Giờ tạo,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,nguoi_tao,Người tạo,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ngay_sua,Ngày sửa,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,gio_sua,Giờ sửa,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,nguoi_sua,Người sửa,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-ng-linh-kien,Bảng kê NG linh kiện,id_oi,ID OI,"[""phiên""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-ng-linh-kien.json
+bang-ke-ng-linh-kien,Bảng kê NG linh kiện,mes_scheduling_code,Mã lệnh,"[""work order""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-ng-linh-kien.json
+bang-ke-ng-linh-kien,Bảng kê NG linh kiện,material_code,Mã linh kiện,"[""mã vật tư""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-ng-linh-kien.json
+bang-ke-ng-linh-kien,Bảng kê NG linh kiện,ng_qty,Số lượng NG,"[""sl ng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-ng-linh-kien.json
+bang-ke-ng-linh-kien,Bảng kê NG linh kiện,error_code,Mã lỗi,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-ng-linh-kien.json
+bang-ke-ng-linh-kien,Bảng kê NG linh kiện,create_date,Ngày sản xuất,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-ng-linh-kien.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",ngay_ct,Ngày chứng từ,"[""ngày điều chuyển""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",so_ct_pxb,Số phiếu xuất,"[""số phiếu xuất điều chuyển""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",so_ct_pnf,Số phiếu nhập,"[""số phiếu nhập điều chuyển""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",ma_kho,Kho xuất,"[""kho đi""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",ma_khon,Kho nhập,"[""kho đến""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",so_luong,Số lượng,"[""sl điều chuyển""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",ma_vi_tri,Vị trí xuất,"[""vị trí kho""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",ma_vi_trin,Vị trí nhập,"[""vị trí kho nhập""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-theo-lo,Bảng kê nhập xuất theo lô,id_oi,Khóa nghiệp vụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-nhap-xuat-theo-lo.json
+bang-ke-phat-sinh-san-xuat,Bảng kê phát sinh trong sản xuất,id_oi,Khóa nghiệp vụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phat-sinh-san-xuat.json
+bang-ke-phieu-nhap-hang,Bảng kê phiếu nhập hàng,stt_rec,Khóa chứng từ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-nhap-hang.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,ngay_ct,Ngày chứng từ,"[""ngày nhập"", ""khi nào"", ""vào ngày nào""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,so_ct,Số chứng từ,"[""số phiếu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,ma_kh,Mã đối tượng,"[""mã khách hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,ma_kho,Mã kho nhận,"[""kho"", ""kho nhập"", ""kho nhận""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,so_luong,Số lượng nhập,"[""sl nhập"", ""số lượng nhập"", ""nhập bao nhiêu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,nguoi_lap,Người lập phiếu,"[""người nhập"", ""người lập"", ""ai lập phiếu"", ""ai lập phiếu nhập"", ""người lập phiếu nhập""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,tien_nhap,Tiền nhập,"[""thành tiền""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,ma_gd,Mã giao dịch,"[""loại giao dịch""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,stt,STT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,ngay_lct,Ngày hạch toán,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,ngay_ct,Ngày,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,so_ct,Số chứng từ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,so_po,Số PO,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,ma_nt,Mã NT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,ma_kh,Mã KH,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,ten_kh,Tên KH,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,ma_vt,Mã hàng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,ten_vt,Tên hàng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,dvt,ĐVT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,so_luong,Số lượng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,ma_kho,Kho hàng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,dien_giai,Diễn giải,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,ghi_chu,Ghi chú,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,handy_yn,"Nguồn gốc tạo phiếu (0-Web, 1-Handy, 2-OI)",[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,status,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,date0,Ngày tạo,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,time0,Giờ tạo,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,nguoi_tao,Người tạo,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,date2,Người sửa,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,time2,Giờ sửa,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,nguoi_sua,Người sửa,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,ngay_ct,Ngày phiếu,"[""ngày xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,so_ct,Số phiếu,"[""số xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,ma_gd,Mã giao dịch,"[""mã gd""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,nguoi_nhan,Người nhận,"[""đối tượng nhận""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,ma_kho,Mã kho,"[""kho xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,so_luong,Số lượng xuất,"[""sl xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,tien_xuat,Tiền xuất,"[""thành tiền xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,stt,STT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ngay_ct,Ngày CT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,so_ct,Số CT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ma_bp,Mã bộ phận,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ten_bp,Tên bộ phận,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ten_vt,Tên vật tư,"[""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,dvt,ĐVT đặt hàng,"[""đơn vị tính""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,so_luong,Số lượng YC đặt hàng,"[""số lượng yêu cầu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,so_luong_dh,Số lượng đã đặt,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,sl_nhap,Số lượng nhập,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,so_luong_dong,Số lượng đóng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,so_luong_cl,Số lượng còn lại,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ngay_yc,Ngày nhận hàng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ngay_ve_tc,Ngày về tiêu chuẩn,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ngay_cl,Số ngày chênh lệch,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ten_kh,Tên NCC,"[""tên nhà cung cấp""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,nh_vt1,Nhóm VT 1,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,nh_vt2,Nhóm VT 2,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,nh_vt3,Nhóm VT 3,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,nh_vt4,Nhóm VT 4,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,nh_vt5,Nhóm VT 5,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,nh_vt6,Nhóm VT 6 (NCC/KH),[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,nh_vt7,Nhóm VT 7,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,mo_ta,Mô tả/Quy cách,"[""quy cách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,muc_dich_sd,Mục đích sử dụng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ma_kho,Mã kho nhập,"[""mã kho""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,loai_hinh,Loại hình,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,dien_giai,Diễn giải,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,nguoi_tao,Người tạo,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,statusname,Trạng thái,"[""tình trạng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-nhap-hang,Bảng kê phiếu yêu cầu nhập hàng,stt_rec,Khóa chứng từ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-phieu-yeu-cau-nhap-hang.json
+bang-ke-setup-van-hanh-may,"Bảng kê setup, vận hành máy",id_setup,ID setup,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-setup-van-hanh-may.json
+bang-ke-setup-van-hanh-may,"Bảng kê setup, vận hành máy",machine_code,Máy,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-setup-van-hanh-may.json
+bang-ke-setup-van-hanh-may,"Bảng kê setup, vận hành máy",ma_sp,Sản phẩm,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-setup-van-hanh-may.json
+bang-ke-setup-van-hanh-may,"Bảng kê setup, vận hành máy",create_date,Ngày bắt đầu,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-setup-van-hanh-may.json
+bang-ke-setup-van-hanh-may,"Bảng kê setup, vận hành máy",end_date,Ngày kết thúc,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-setup-van-hanh-may.json
+bang-ke-work-order,Bảng kê Work Order,so_ct,Work Order,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-work-order.json
+bang-ke-work-order,Bảng kê Work Order,ngay_ct,Ngày chứng từ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-work-order.json
+bang-ke-work-order,Bảng kê Work Order,ma_dvcs,ĐVCS,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-work-order.json
+bang-ke-work-order,Bảng kê Work Order,work_center_code,Work center,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-work-order.json
+bang-ke-work-order,Bảng kê Work Order,status,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bang-ke-work-order.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,stt,STT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,ma_sp_me,Mã SP mẹ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,ten_sp_me,Tên SP mẹ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,model_sp_me,Model SP mẹ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,ma_sp_con,Mã SP con,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,ten_sp_con,Tên SP con,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,dvt_sp,ĐVT SP,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,ver,Version,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,sl_sp,SL SP,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,ma_btp_vt,Mã BTP/Vật tư,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,ten_btp_vt,Tên BTP/Vật tư,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,dvt,ĐVT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,ma_cong_doan,Mã công đoạn,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,model_btp,Model BTP,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,cap_bom,Cấp BOM,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,valid_from1,Ngày ban hành,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,valid_to1,Ngày kết thúc,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,sl_dinh_muc,SL định mức,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,sl_sp_material,SL bản phẩm NVL,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,sl_gate_runner,SL gate và runner,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,material_code_replace,Mã vật tư thay thế,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,material_code_phu,Mã vật tư phụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-lich-su-thay-doi-bom,Báo cáo lịch sử thay đổi BOM list,bom_code,Mã/khóa nghiệp vụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-lich-su-thay-doi-bom.json
+bao-cao-lich-su-thay-doi-bom,Báo cáo lịch sử thay đổi BOM list,status,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-lich-su-thay-doi-bom.json
+bao-cao-lich-su-thay-doi-gia-ncc,Báo cáo lịch sử thay đổi giá NCC,ma_vt,Mã/khóa nghiệp vụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-lich-su-thay-doi-gia-ncc.json
+bao-cao-lich-su-thay-doi-gia-ncc,Báo cáo lịch sử thay đổi giá NCC,status,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-lich-su-thay-doi-gia-ncc.json
+bao-cao-thong-tin-sp-theo-ho-so-khuon,Báo cáo thông tin sản phẩm theo hồ sơ khuôn,stt,Stt,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-thong-tin-sp-theo-ho-so-khuon.json
+bao-cao-thong-tin-sp-theo-ho-so-khuon,Báo cáo thông tin sản phẩm theo hồ sơ khuôn,mold_code,Mã khuôn,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-thong-tin-sp-theo-ho-so-khuon.json
+bao-cao-thong-tin-sp-theo-ho-so-khuon,Báo cáo thông tin sản phẩm theo hồ sơ khuôn,mold_name,Tên khuôn,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-thong-tin-sp-theo-ho-so-khuon.json
+bao-cao-thong-tin-sp-theo-ho-so-khuon,Báo cáo thông tin sản phẩm theo hồ sơ khuôn,product_code,Mã sản phẩm,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-thong-tin-sp-theo-ho-so-khuon.json
+bao-cao-thong-tin-sp-theo-ho-so-khuon,Báo cáo thông tin sản phẩm theo hồ sơ khuôn,product_name,Tên sản phẩm,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-thong-tin-sp-theo-ho-so-khuon.json
+bao-cao-thong-tin-sp-theo-ho-so-khuon,Báo cáo thông tin sản phẩm theo hồ sơ khuôn,level_id,ID cấp,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-thong-tin-sp-theo-ho-so-khuon.json
+bao-cao-thong-tin-sp-theo-ho-so-khuon,Báo cáo thông tin sản phẩm theo hồ sơ khuôn,cycle_time,Chu kỳ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-thong-tin-sp-theo-ho-so-khuon.json
+bao-cao-thong-tin-sp-theo-ho-so-khuon,Báo cáo thông tin sản phẩm theo hồ sơ khuôn,chinh_phu,Chính/phụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-thong-tin-sp-theo-ho-so-khuon.json
+bao-cao-thong-tin-sp-theo-ho-so-khuon,Báo cáo thông tin sản phẩm theo hồ sơ khuôn,cavity,Cavity,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-thong-tin-sp-theo-ho-so-khuon.json
+bao-cao-thong-tin-sp-theo-ho-so-khuon,Báo cáo thông tin sản phẩm theo hồ sơ khuôn,trang_thai,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-thong-tin-sp-theo-ho-so-khuon.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,stt,STT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,ngay_ct,Ngày CT,"[""ngày chứng từ""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,so_ct,Số CT,"[""số đơn hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,tinh_trang_don_hang,Trạng thái,"[""trạng thái đơn hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,so_po,Số PO KH,"[""po khách hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,ngay_hd,Ngày HĐ,"[""ngày hóa đơn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,so_hd,Số HĐ,"[""số hóa đơn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,so_po_gh,Số PO GH,"[""po giao hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,ten_vt,Tên VT,"[""tên vật tư"", ""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,so_luong_revise,Số lượng revise,"[""sl revise""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,so_luong_don,Số lượng đơn hàng,"[""sl đơn hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,so_luong_lenh,Số lượng lên lệnh,"[""sl lên lệnh""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,so_luong_chua_lenh,Số lượng chưa lệnh,"[""sl chưa lệnh""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,so_luong_giao,Số lượng đã giao,"[""sl đã giao""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,sl_dong,SL đóng,"[""số lượng đóng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,so_luong_con_lai,Số lượng còn lại,"[""sl còn lại""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,gia_ban,Giá bán,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,tien_ban,Tiền bán,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,ngay_gh_ke_hoach,Ngày GH kế hoạch,"[""ngày giao kế hoạch""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,ngay_gh_thuc_te,Ngày GH thực tế,"[""ngày giao thực tế""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,tinh_trang_giao_hang,Tình trạng đơn hàng,"[""tình trạng giao hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,ngay_ct,Ngày đơn hàng,"[""ngày đơn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,so_ct,Số đơn hàng,"[""số đơn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,ma_kh,Mã nhà cung cấp,"[""mã ncc""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,ten_kh,Tên nhà cung cấp,"[""tên ncc""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,ten_vt,Tên vật tư,"[""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,sl_don,SL đơn,"[""số lượng đơn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,sl_nhap,SL nhập,"[""số lượng nhập""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,sl_hoa_don,SL hóa đơn,"[""số lượng hóa đơn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,sl_dong,SL đóng,"[""số lượng đóng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,ten_vt,Tên vật tư,"[""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,dvt,ĐVT,"[""đơn vị tính""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,nh_vt6,Nhóm VT6,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,ma_lo,Mã lô,"[""lô""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,die_no,Die No,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,ma_kho,Mã kho,"[""kho""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,ma_vi_tri,Mã vị trí,"[""vị trí""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,ma_khuon,Mã khuôn,"[""khuôn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,ton_vi_tri,Tồn vị trí,"[""số lượng tồn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-trang-thai-tem,Báo cáo tồn kho theo trạng thái tem,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json
+bao-cao-ton-kho-theo-trang-thai-tem,Báo cáo tồn kho theo trạng thái tem,ten_vt,Tên vật tư,"[""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json
+bao-cao-ton-kho-theo-trang-thai-tem,Báo cáo tồn kho theo trạng thái tem,dvt,ĐVT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json
+bao-cao-ton-kho-theo-trang-thai-tem,Báo cáo tồn kho theo trạng thái tem,nh_vt6,Nhóm VT6,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json
+bao-cao-ton-kho-theo-trang-thai-tem,Báo cáo tồn kho theo trạng thái tem,ma_lo,Mã lô,"[""lô""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json
+bao-cao-ton-kho-theo-trang-thai-tem,Báo cáo tồn kho theo trạng thái tem,ma_kho,Mã kho,"[""kho""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json
+bao-cao-ton-kho-theo-trang-thai-tem,Báo cáo tồn kho theo trạng thái tem,ma_vi_tri,Mã vị trí,"[""vị trí""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json
+bao-cao-ton-kho-theo-trang-thai-tem,Báo cáo tồn kho theo trạng thái tem,ton_vi_tri,Tồn vị trí,"[""số lượng tồn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json
+bao-cao-ton-kho-theo-trang-thai-tem,Báo cáo tồn kho theo trạng thái tem,status_qc,Trạng thái QC,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json
+bao-cao-ton-kho,Báo cáo tồn kho,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho.json
+bao-cao-ton-kho,Báo cáo tồn kho,ten_vt,Tên vật tư,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho.json
+bao-cao-ton-kho,Báo cáo tồn kho,dvt,Đơn vị tính,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho.json
+bao-cao-ton-kho,Báo cáo tồn kho,so_luong,Tồn kho,"[""số lượng tồn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho.json
+bao-cao-ton-kho,Báo cáo tồn kho,tien,Giá trị tồn,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho.json
+bao-cao-ton-kho,Báo cáo tồn kho,nh_vt1,Nhóm vật tư 1,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-kho.json
+bao-cao-ton-lo-theo-vi-tri-kho,Báo cáo tồn lô theo vị trí,ma_kho,Mã kho,"[""kho""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-lo-theo-vi-tri-kho.json
+bao-cao-ton-lo-theo-vi-tri-kho,Báo cáo tồn lô theo vị trí,ma_vi_tri,Vị trí,"[""vị trí kho""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-lo-theo-vi-tri-kho.json
+bao-cao-ton-lo-theo-vi-tri-kho,Báo cáo tồn lô theo vị trí,ma_vt,Mã hàng,"[""mã vật tư""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-lo-theo-vi-tri-kho.json
+bao-cao-ton-lo-theo-vi-tri-kho,Báo cáo tồn lô theo vị trí,ma_lo,Mã lô,"[""lô""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-lo-theo-vi-tri-kho.json
+bao-cao-ton-lo-theo-vi-tri-kho,Báo cáo tồn lô theo vị trí,ton00,Số lượng tồn,"[""số lượng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-lo-theo-vi-tri-kho.json
+bao-cao-ton-theo-kho,Báo cáo tồn theo kho,ma_kho,Mã kho,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-theo-kho.json
+bao-cao-ton-theo-kho,Báo cáo tồn theo kho,ten_kho,Tên kho,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-theo-kho.json
+bao-cao-ton-theo-kho,Báo cáo tồn theo kho,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-theo-kho.json
+bao-cao-ton-theo-kho,Báo cáo tồn theo kho,ten_vt,Tên vật tư,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-theo-kho.json
+bao-cao-ton-theo-kho,Báo cáo tồn theo kho,so_luong,Tồn kho,"[""số lượng tồn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-theo-kho.json
+bao-cao-ton-theo-kho,Báo cáo tồn theo kho,tien,Giá trị tồn,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bao-cao-ton-theo-kho.json
+bo-sung-shot,Bổ sung shot,line_code,Mã dây chuyền,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bo-sung-shot.json
+bo-sung-shot,Bổ sung shot,mes_scheduling_code,Mã lệnh,"[""work order""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bo-sung-shot.json
+bo-sung-shot,Bổ sung shot,id_oi,ID OI,"[""phiên""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bo-sung-shot.json
+bo-sung-shot,Bổ sung shot,date0,Ngày bổ sung,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bo-sung-shot.json
+bo-sung-shot,Bổ sung shot,product_code,Mã sản phẩm,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bo-sung-shot.json
+bo-sung-shot,Bổ sung shot,quantity,Số lượng bổ sung,"[""shot bổ sung""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/bo-sung-shot.json
+chi-tiet-bai-kiem-tra-theo-ma-hang,Chi tiết bài kiểm tra theo mã hàng,ma_vt,Mã/khóa nghiệp vụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/chi-tiet-bai-kiem-tra-theo-ma-hang.json
+chi-tiet-bai-kiem-tra-theo-ma-hang,Chi tiết bài kiểm tra theo mã hàng,status,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/chi-tiet-bai-kiem-tra-theo-ma-hang.json
+chi-tiet-bo-shot,Chi tiết bỏ shot,id_oi,ID OI,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/chi-tiet-bo-shot.json
+chi-tiet-bo-shot,Chi tiết bỏ shot,product_code,Sản phẩm,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/chi-tiet-bo-shot.json
+chi-tiet-bo-shot,Chi tiết bỏ shot,quantity,Shot bỏ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/chi-tiet-bo-shot.json
+chi-tiet-bo-shot,Chi tiết bỏ shot,cavity,Cavity,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/chi-tiet-bo-shot.json
+chi-tiet-bo-shot,Chi tiết bỏ shot,date0,Ngày,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/chi-tiet-bo-shot.json
+danh-muc-bai-kiem-tra,Danh mục bài kiểm tra,stt,Mã/khóa nghiệp vụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bai-kiem-tra.json
+danh-muc-bai-kiem-tra,Danh mục bài kiểm tra,status,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bai-kiem-tra.json
+danh-muc-bang-gia,Danh mục bảng giá,ma_dvcs,Mã ĐVCS,"[""đvcs""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,ma_bang_gia,Mã bảng giá,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,ten_bang_gia,Tên bảng giá,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,loai_ban,Loại bán,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,loai_bang_gia,Loại bảng giá,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,ten_vt,Tên vật tư,"[""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,ma_kh,Mã khách hàng,"[""mã khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,ten_kh,Tên khách hàng,"[""tên khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,sl_min,MOQ,"[""số lượng tối thiểu"", ""số lượng đặt tối thiểu"", ""mức đặt tối thiểu"", ""mức mua tối thiểu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,gia0,Giá trước VAT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,gia,Giá sau VAT,"[""giá áp dụng"", ""giá hiện tại"", ""giá đang áp dụng"", ""giá hiệu lực""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,ngay_bd,Ngày hiệu lực từ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,ngay_kt,Ngày hiệu lực đến,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,status,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-cau-truc-san-pham,Danh mục cấu trúc sản phẩm,bom_code,Mã/khóa nghiệp vụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-cau-truc-san-pham.json
+danh-muc-cau-truc-san-pham,Danh mục cấu trúc sản phẩm,status,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-cau-truc-san-pham.json
+danh-muc-day-chuyen-san-xuat,Danh mục dây chuyền sản xuất,line_code,Mã dây chuyền,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-day-chuyen-san-xuat.json
+danh-muc-day-chuyen-san-xuat,Danh mục dây chuyền sản xuất,line_name,Tên dây chuyền,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-day-chuyen-san-xuat.json
+danh-muc-day-chuyen-san-xuat,Danh mục dây chuyền sản xuất,factory_code,Nhà máy,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-day-chuyen-san-xuat.json
+danh-muc-day-chuyen-san-xuat,Danh mục dây chuyền sản xuất,branch_code,ĐVCS,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-day-chuyen-san-xuat.json
+danh-muc-khach-hang,Danh mục khách hàng,ma_kh,Mã khách hàng,"[""mã khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-khach-hang.json
+danh-muc-khach-hang,Danh mục khách hàng,ten_kh,Tên khách hàng,"[""tên khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-khach-hang.json
+danh-muc-khach-hang,Danh mục khách hàng,ten_viet_tat,Tên viết tắt,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-khach-hang.json
+danh-muc-khach-hang,Danh mục khách hàng,ong_ba,Người liên hệ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-khach-hang.json
+danh-muc-khach-hang,Danh mục khách hàng,dien_thoai,Điện thoại,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-khach-hang.json
+danh-muc-khach-hang,Danh mục khách hàng,e_mail,Email,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-khach-hang.json
+danh-muc-khach-hang,Danh mục khách hàng,dia_chi,Địa chỉ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-khach-hang.json
+danh-muc-khach-hang,Danh mục khách hàng,ma_nvpt,Nhân viên phụ trách,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-khach-hang.json
+danh-muc-khach-hang,Danh mục khách hàng,nh_kh1,Nhóm KH 1,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-khach-hang.json
+danh-muc-khach-hang,Danh mục khách hàng,cn_max,Hạn mức công nợ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-khach-hang.json
+danh-muc-khach-hang,Danh mục khách hàng,ma_httt,Loại thanh toán,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-khach-hang.json
+danh-muc-khuon,Danh mục khuôn,mold_code,Mã/khóa nghiệp vụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-khuon.json
+danh-muc-khuon,Danh mục khuôn,status,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-khuon.json
+danh-muc-may,Danh mục máy,machine_code,Mã máy,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-may.json
+danh-muc-may,Danh mục máy,machine_name,Tên máy,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-may.json
+danh-muc-may,Danh mục máy,capacity,Công suất,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-may.json
+danh-muc-may,Danh mục máy,branch_code,ĐVCS,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-may.json
+danh-muc-nguyen-nhan-dung-may,Danh mục nguyên nhân dừng máy,ma_loi,Mã lỗi,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-nguyen-nhan-dung-may.json
+danh-muc-nguyen-nhan-dung-may,Danh mục nguyên nhân dừng máy,ten_loi,Tên lỗi,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-nguyen-nhan-dung-may.json
+danh-muc-nguyen-nhan-dung-may,Danh mục nguyên nhân dừng máy,ds_ma_dvcs,ĐVCS,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-nguyen-nhan-dung-may.json
+danh-muc-san-pham-vat-tu,"Danh mục sản phẩm, vật tư",ma_vt,Mã vật tư,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-san-pham-vat-tu.json
+danh-muc-san-pham-vat-tu,"Danh mục sản phẩm, vật tư",ten_vt,Tên vật tư,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-san-pham-vat-tu.json
+danh-muc-san-pham-vat-tu,"Danh mục sản phẩm, vật tư",dvt,Đơn vị tính,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-san-pham-vat-tu.json
+danh-muc-san-pham-vat-tu,"Danh mục sản phẩm, vật tư",leadtime,Lead time,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/danh-muc-san-pham-vat-tu.json
+doanh-so-ban-hang-theo-khach-hang,Doanh số bán hàng theo khách hàng,ma_kh,Mã khách hàng,"[""mã khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/doanh-so-ban-hang-theo-khach-hang.json
+doanh-so-ban-hang-theo-khach-hang,Doanh số bán hàng theo khách hàng,ten_kh,Tên khách hàng,"[""tên khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/doanh-so-ban-hang-theo-khach-hang.json
+doanh-so-ban-hang-theo-khach-hang,Doanh số bán hàng theo khách hàng,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/doanh-so-ban-hang-theo-khach-hang.json
+doanh-so-ban-hang-theo-khach-hang,Doanh số bán hàng theo khách hàng,ten_vt,Tên VT,"[""tên vật tư"", ""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/doanh-so-ban-hang-theo-khach-hang.json
+doanh-so-ban-hang-theo-khach-hang,Doanh số bán hàng theo khách hàng,dvt,ĐVT,"[""đơn vị tính""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/doanh-so-ban-hang-theo-khach-hang.json
+doanh-so-ban-hang-theo-khach-hang,Doanh số bán hàng theo khách hàng,so_luong,Số lượng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/doanh-so-ban-hang-theo-khach-hang.json
+doanh-so-ban-hang-theo-khach-hang,Doanh số bán hàng theo khách hàng,doanh_so,Doanh số,"[""doanh thu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/doanh-so-ban-hang-theo-khach-hang.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,ma_kh,Mã khách hàng,"[""mã khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/doi-soat-giao-bu-ng.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,ten_kh,Tên khách hàng,"[""tên khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/doi-soat-giao-bu-ng.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/doi-soat-giao-bu-ng.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,ten_vt,Tên vật tư,"[""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/doi-soat-giao-bu-ng.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,sl_giao_bu,SL giao bù NG,"[""số lượng giao bù""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/doi-soat-giao-bu-ng.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,sl_ng_nhan_lai,SL NG nhận lại,"[""số lượng ng nhận lại""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/doi-soat-giao-bu-ng.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,sl_con_treo,SL còn treo,"[""chưa giao bù"", ""chưa nhận về""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/doi-soat-giao-bu-ng.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),status,Trạng thái,"[""tình trạng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ngay_ct,Ngày CT,"[""ngày chứng từ"", ""ngày đơn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),so_ct,Số CT,"[""số đơn"", ""số chứng từ""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ma_gd,Mã giao dịch,"[""mã gd""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ten_gd,Tên giao dịch,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),so_po,Số PO KH,"[""po khách hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ma_kh,Mã khách hàng,"[""mã khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ten_kh,Tên khách hàng,"[""tên khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),dia_chi,Địa chỉ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ong_ba,Người liên lạc,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),dien_thoai,Điện thoại,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ten_nvbh,Nhân viên,"[""nhân viên bán hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),dien_giai,Diễn giải,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ma_nt,Mã NT,"[""mã ngoại tệ""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ty_gia,Tỷ giá,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),t_so_luong,Tổng số lượng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),t_tien,Tổng tiền,"[""tiền hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),t_thue,Thuế,"[""tiền thuế""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),t_ck,Chiết khấu,"[""ck""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),t_tt,Thanh toán,"[""tổng thanh toán""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ma_kho,Mã kho,"[""kho""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ngay_yc_gh,Ngày YC giao hàng,"[""ngày yêu cầu giao hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ngay_gh,Ngày giao hàng,"[""ngày giao""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),so_luong,Số lượng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),so_luong_gh,Số lượng giao hàng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),tien2,Tiền bán,"[""doanh thu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ck,Tiền CK,"[""chiết khấu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-mua,Đơn hàng mua,so_ct,Số CT,"[""số đơn hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,ngay_ct,Ngày CT,"[""ngày đơn hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,lich_su_cap_nhat,Lịch sử cập nhật,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,statusname,Trạng thái,"[""tình trạng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,ma_gd,Mã giao dịch,"[""mã gd""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,ten_gd,Tên giao dịch,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,ma_kh,Mã NCC,"[""mã nhà cung cấp""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,ten_kh,Tên NCC,"[""tên nhà cung cấp""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,ong_ba,Người liên lạc,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,dien_thoai,Điện thoại,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,dia_chi,Địa chỉ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,ten_bp,Bộ phận,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,nguoi_phu_trach,Người phụ trách,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,dien_giai,Diễn giải,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,ma_nt,Mã NT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,ty_gia,Tỷ giá,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,t_so_luong,Tổng số lượng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,t_tien,Tổng tiền,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,t_thue,Thuế,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,t_tt,Thanh toán,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/don-hang-mua.json
+dong-goi-dong-thung,"Đóng gói, đóng thùng",so_ct,ID OI,"[""phiên""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/dong-goi-dong-thung.json
+dong-goi-dong-thung,"Đóng gói, đóng thùng",so_wo,Work order,"[""mã lệnh""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/dong-goi-dong-thung.json
+dong-goi-dong-thung,"Đóng gói, đóng thùng",ma_sp,Mã sản phẩm,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/dong-goi-dong-thung.json
+dong-goi-dong-thung,"Đóng gói, đóng thùng",serial_thung,Serial thùng,"[""tem thùng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/dong-goi-dong-thung.json
+dong-goi-dong-thung,"Đóng gói, đóng thùng",serial_tp,Serial thành phẩm,"[""tem sản phẩm""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/dong-goi-dong-thung.json
+dong-goi-dong-thung,"Đóng gói, đóng thùng",sl_theo_thung,SL theo thùng,"[""số lượng đóng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/dong-goi-dong-thung.json
+du-bao-tuoi-tho-khuon,Dự báo tuổi thọ khuôn,ma_khuon,Mã khuôn,"[""khuôn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/du-bao-tuoi-tho-khuon.json
+du-bao-tuoi-tho-khuon,Dự báo tuổi thọ khuôn,ma_sp,Mã sản phẩm,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/du-bao-tuoi-tho-khuon.json
+du-bao-tuoi-tho-khuon,Dự báo tuổi thọ khuôn,tong_so_shot,Tổng số shot,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/du-bao-tuoi-tho-khuon.json
+du-bao-tuoi-tho-khuon,Dự báo tuổi thọ khuôn,so_shot_bh,Giới hạn shot,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/du-bao-tuoi-tho-khuon.json
+du-bao-tuoi-tho-khuon,Dự báo tuổi thọ khuôn,shot_con_lai,Shot còn lại,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/du-bao-tuoi-tho-khuon.json
+du-bao-tuoi-tho-khuon,Dự báo tuổi thọ khuôn,nhu_cau_tuong_lai,Nhu cầu tương lai,"[""demand""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/du-bao-tuoi-tho-khuon.json
+gia-han-han-su-dung,Gia hạn hạn sử dụng,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/gia-han-han-su-dung.json
+gia-han-han-su-dung,Gia hạn hạn sử dụng,ten_vt,Tên vật tư,"[""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/gia-han-han-su-dung.json
+gia-han-han-su-dung,Gia hạn hạn sử dụng,ma_lo,Mã lô,"[""lô""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/gia-han-han-su-dung.json
+gia-han-han-su-dung,Gia hạn hạn sử dụng,ngay_hhsd,Ngày hết hạn sử dụng,"[""ngày hết hạn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/gia-han-han-su-dung.json
+gia-han-han-su-dung,Gia hạn hạn sử dụng,ngay_con_han,Ngày còn hạn,"[""còn hạn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/gia-han-han-su-dung.json
+gia-han-han-su-dung,Gia hạn hạn sử dụng,ton13,Tồn,"[""tồn lô""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/gia-han-han-su-dung.json
+gia-han-han-su-dung,Gia hạn hạn sử dụng,lan_gia_han_cuoi,Lần gia hạn cuối,"[""lịch sử gia hạn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/gia-han-han-su-dung.json
+gop-tach-thung,"Gộp, tách thùng",stt_rec,Khóa chứng từ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/gop-tach-thung.json
+ho-so-khuon,Hồ sơ khuôn,stt,Mã/khóa nghiệp vụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/ho-so-khuon.json
+ho-so-khuon,Hồ sơ khuôn,status,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/ho-so-khuon.json
+ket-qua-van-hanh-theo-phien,Kết quả vận hành theo phiên,id_oi,Khóa nghiệp vụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/ket-qua-van-hanh-theo-phien.json
+khai-bao-bai-kiem-tra-theo-ma-hang,Khai báo bài kiểm tra theo mã hàng,ma_vt,Mã/khóa nghiệp vụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/khai-bao-bai-kiem-tra-theo-ma-hang.json
+khai-bao-bai-kiem-tra-theo-ma-hang,Khai báo bài kiểm tra theo mã hàng,status,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/khai-bao-bai-kiem-tra-theo-ma-hang.json
+khai-bao-quy-trinh-san-xuat-sp,Khai báo quy trình sản xuất SP,bom_code,Mã BOM,"[""bom""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/khai-bao-quy-trinh-san-xuat-sp.json
+khai-bao-quy-trinh-san-xuat-sp,Khai báo quy trình sản xuất SP,product_code,Mã sản phẩm,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/khai-bao-quy-trinh-san-xuat-sp.json
+khai-bao-quy-trinh-san-xuat-sp,Khai báo quy trình sản xuất SP,ten_vt,Tên sản phẩm,"[""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/khai-bao-quy-trinh-san-xuat-sp.json
+khai-bao-quy-trinh-san-xuat-sp,Khai báo quy trình sản xuất SP,routing_code,Mã quy trình,"[""quy trình""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/khai-bao-quy-trinh-san-xuat-sp.json
+khai-bao-quy-trinh-san-xuat-sp,Khai báo quy trình sản xuất SP,routing_name,Tên quy trình,"[""tên quy trình""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/khai-bao-quy-trinh-san-xuat-sp.json
+khai-bao-quy-trinh-san-xuat-sp,Khai báo quy trình sản xuất SP,bom_version,Version,"[""phiên bản""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/khai-bao-quy-trinh-san-xuat-sp.json
+khai-bao-quy-trinh-san-xuat-sp,Khai báo quy trình sản xuất SP,branch_code,Mã ĐVCS,"[""đơn vị cơ sở""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/khai-bao-quy-trinh-san-xuat-sp.json
+khai-bao-quy-trinh-san-xuat-sp,Khai báo quy trình sản xuất SP,trang_thai,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/khai-bao-quy-trinh-san-xuat-sp.json
+lenh-giao-hang,Lệnh giao hàng,status,Trạng thái,"[""tình trạng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,ngay_ct,Ngày CT,"[""ngày lệnh""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,so_ct,Số CT,"[""số lệnh"", ""số chứng từ""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,ma_gd,Mã giao dịch,"[""mã gd""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,ngay_gh,Ngày GH,"[""ngày giao""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,gio_gh,Giờ GH,"[""giờ giao""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,ten_gd,Tên giao dịch,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,ma_kh,Mã khách hàng,"[""mã khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,ten_kh,Tên khách hàng,"[""tên khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,dia_chi,Địa chỉ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,ong_ba,Người liên lạc,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,dien_thoai,Điện thoại,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,dien_giai,Diễn giải,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,ma_nt,Mã NT,"[""mã ngoại tệ""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,ty_gia,Tỷ giá,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,t_so_luong,Tổng số lượng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-giao-hang.json
+lenh-san-xuat,Lệnh sản xuất,stt_rec,Khóa chứng từ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lenh-san-xuat.json
+lich-san-xuat-import,Lịch sản xuất (Import),so_ct,Số lịch,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lich-san-xuat-import.json
+lich-san-xuat-import,Lịch sản xuất (Import),ngay_lct,Ngày lập lịch,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lich-san-xuat-import.json
+lich-san-xuat-import,Lịch sản xuất (Import),factory_code,Nhà máy,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lich-san-xuat-import.json
+lich-san-xuat-import,Lịch sản xuất (Import),start_date,Ngày bắt đầu,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lich-san-xuat-import.json
+lich-san-xuat-import,Lịch sản xuất (Import),import_excel_yn,Import Excel,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/lich-san-xuat-import.json
+nhan-su-van-hanh-theo-phien,Nhân sự vận hành theo phiên,id_oi,ID OI,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhan-su-van-hanh-theo-phien.json
+nhan-su-van-hanh-theo-phien,Nhân sự vận hành theo phiên,staff_code,Mã nhân viên,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhan-su-van-hanh-theo-phien.json
+nhan-su-van-hanh-theo-phien,Nhân sự vận hành theo phiên,staff_name,Tên nhân viên,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhan-su-van-hanh-theo-phien.json
+nhan-su-van-hanh-theo-phien,Nhân sự vận hành theo phiên,ma_sp,Sản phẩm,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhan-su-van-hanh-theo-phien.json
+nhan-su-van-hanh-theo-phien,Nhân sự vận hành theo phiên,sl_th,Sản lượng thực hiện,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhan-su-van-hanh-theo-phien.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ngay_ct,Ngày chứng từ,"[""ngày ct"", ""ngày phiếu"", ""ngày hạch toán"", ""ngày giao dịch""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,so_ct,Số chứng từ,"[""số ct"", ""số phiếu"", ""số chứng từ"", ""số giao dịch""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ma_ct,Mã chứng từ,"[""mã ct"", ""loại chứng từ"", ""mã phiếu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ma_gd,Mã giao dịch,"[""mã gd"", ""mã nghiệp vụ"", ""mã giao dịch kho""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ma_kh,Mã khách hàng,"[""mã kh"", ""mã đối tác"", ""mã khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ten_kh,Tên khách hàng,"[""tên kh"", ""tên đối tác"", ""tên khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ma_vt,Mã vật tư,"[""vật tư"", ""mã vt"", ""mã hàng"", ""mã sản phẩm"", ""mã item"", ""mã vật liệu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ten_vt,Tên vật tư,"[""tên vt"", ""tên hàng"", ""tên sản phẩm"", ""tên item"", ""tên vật liệu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,dvt,Đơn vị tính,"[""đvt"", ""dvt"", ""đơn vị"", ""unit"", ""uom""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ma_kho,Mã kho,"[""kho"", ""mã nhà kho"", ""mã kho hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ma_nt,Mã ngoại tệ,"[""mã nt"", ""loại tiền"", ""mã tiền tệ"", ""currency code""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ty_gia,Tỷ giá,"[""tỉ giá"", ""tỷ giá hối đoái"", ""exchange rate""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,loai_vt_xuat,Loại vật tư xuất,"[""loại vt xuất"", ""loại hàng xuất"", ""loại sản phẩm xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,sl_nhap,Số lượng nhập,"[""sl nhập"", ""số lượng mua"", ""lượng nhập"", ""qty nhập""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,sl_xuat,Số lượng xuất,"[""sl xuất"", ""số lượng bán"", ""lượng xuất"", ""qty xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,gia,Giá,"[""đơn giá"", ""giá bán"", ""giá hạch toán""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,tien_nhap,Tiền nhập,"[""giá trị nhập"", ""thành tiền nhập"", ""tiền mua""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,tien_xuat,Tiền xuất,"[""giá trị xuất"", ""thành tiền xuất"", ""tiền bán""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,gia_nt,Giá NT,"[""giá ngoại tệ"", ""đơn giá ngoại tệ"", ""giá tiền tệ""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,tien_nhap_nt,Tiền nhập NT,"[""tiền nhập ngoại tệ"", ""giá trị nhập ngoại tệ"", ""thành tiền nhập ngoại tệ""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,tien_xuat_nt,Tiền xuất NT,"[""tiền xuất ngoại tệ"", ""giá trị xuất ngoại tệ"", ""thành tiền xuất ngoại tệ""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ma_cp,Mã CP,"[""mã chi phí"", ""mã phí"", ""cost code""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ma_vv,Mã VV,"[""mã vụ việc"", ""mã công việc"", ""mã việc"", ""job code""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ma_loainx,Mã loại NX,"[""loại nhập xuất"", ""mã loại nhập xuất"", ""mã loại nx"", ""loại nx""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ma_cd_gt,Mã công đoạn,"[""công đoạn"", ""mã bước"", ""mã công đoạn sản xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ma_bp,Mã BP,"[""mã bộ phận"", ""bộ phận"", ""mã phòng ban"", ""mã đơn vị""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,tk_vt,TK VT,"[""tài khoản vật tư"", ""tk vật tư"", ""tài khoản hàng tồn"", ""tài khoản kho""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ma_nx,Mã NX,"[""mã nhập xuất"", ""mã nx"", ""mã nghiệp vụ nhập xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,tk_gv,TK GV,"[""tài khoản giá vốn"", ""tk giá vốn"", ""tài khoản vốn"", ""cogs account""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,tk_dt,TK DT,"[""tài khoản doanh thu"", ""tk doanh thu"", ""tài khoản bán hàng"", ""revenue account""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,nxt,Loại nhập xuất,"[""loại nx"", ""nghiệp vụ nhập xuất"", ""kiểu nhập xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,date0,Ngày tạo,"[""ngày lập"", ""created date"", ""date0""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,time0,Giờ tạo,"[""thời gian tạo"", ""giờ lập"", ""created time"", ""time0""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,user_name,Người tạo,"[""user tạo"", ""người lập"", ""tài khoản tạo"", ""created by""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,date2,Ngày sửa,"[""ngày cập nhật"", ""ngày chỉnh sửa"", ""modified date"", ""date2""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,time2,Giờ sửa,"[""giờ cập nhật"", ""thời gian sửa"", ""modified time"", ""time2""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,user_name2,Người sửa,"[""user sửa"", ""người cập nhật"", ""tài khoản sửa"", ""modified by""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,dien_giai,Diễn giải,"[""nội dung"", ""ghi chú"", ""mô tả"", ""lý do""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,status_name,Trạng thái,"[""tình trạng"", ""trạng thái chứng từ"", ""status""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nvl-dung-theo-phien-lo-kh,NVL dùng theo phiên/lô KH,id_oi,Khóa nghiệp vụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/nvl-dung-theo-phien-lo-kh.json
+oqc-xac-nhan-chat-luong,OQC xác nhận chất lượng,id_tem,ID tem,"[""mã tem""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/oqc-xac-nhan-chat-luong.json
+oqc-xac-nhan-chat-luong,OQC xác nhận chất lượng,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/oqc-xac-nhan-chat-luong.json
+oqc-xac-nhan-chat-luong,OQC xác nhận chất lượng,ten_vt,Tên vật tư,"[""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/oqc-xac-nhan-chat-luong.json
+oqc-xac-nhan-chat-luong,OQC xác nhận chất lượng,status_qc,Mã trạng thái OQC,"[""trạng thái""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/oqc-xac-nhan-chat-luong.json
+oqc-xac-nhan-chat-luong,OQC xác nhận chất lượng,status_name,Trạng thái OQC,"[""tình trạng oqc""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/oqc-xac-nhan-chat-luong.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,stt,Stt,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,line_code,Mã dây chuyền,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,operation_code,Mã công đoạn,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,oi_id1,Phiên làm việc 1,"[""phiên""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,end_date,Ngày kết thúc,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,end_time,Giờ kết thúc,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,oi_id2,Phiên làm việc 2,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,start_date,Ngày bắt đầu,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,start_time,Giờ bắt đầu,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,thoi_gian_dung,Thời gian dừng giữa 2 phiên (phút),[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,ma_loi,Mã nguyên nhân,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,ten_loi,Tên nguyên nhân,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,start_date_loi,Ngày bắt đầu,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,start_time_loi,Giờ bắt đầu,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,end_date_loi,Ngày kết thúc,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,end_time_loi,Giờ kết thúc,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,thoi_gian_dung_loi,Thời gian dừng (phút),[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phieu-ipqc,Phiếu IPQC,stt_rec,Khóa chứng từ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-ipqc.json
+phieu-iqc,Phiếu IQC,ma_vt,Mã/khóa nghiệp vụ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-iqc.json
+phieu-iqc,Phiếu IQC,status,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-iqc.json
+phieu-nhap-hang,Phiếu nhập hàng,lich_su_cap_nhat,Lịch sử cập nhật,"[""cập nhật gần nhất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,statusname,Trạng thái,"[""tình trạng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,ngay_ct,Ngày CT,"[""ngày phiếu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,so_ct,Số CT,"[""số phiếu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,ngay_hd,Ngày HĐ,"[""ngày hóa đơn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,so_hd,Số HĐ,"[""số hóa đơn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,ma_gd,Mã giao dịch,"[""mã gd""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,ten_gd,Tên giao dịch,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,ten_kh,Tên NCC,"[""tên nhà cung cấp""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,ong_ba,Người giao hàng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,dia_chi,Địa chỉ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,dien_giai,Diễn giải,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,ma_nt,Mã NT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,ty_gia,Tỷ giá,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,t_so_luong,Tổng số lượng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,t_tien,Tổng tiền,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,t_thue,Thuế,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,t_tt,Thanh toán,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-kho,Phiếu nhập kho,ngay_ct,Ngày phiếu,"[""ngày nhập""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,so_ct,Số phiếu,"[""số nhập""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,ma_kh,Mã đối tượng,"[""mã khách hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,ma_kho,Mã kho,"[""kho""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,sl_nhap,Số lượng nhập,"[""sl nhập""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,tien_nhap,Tiền nhập,"[""thành tiền""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,ma_gd,Mã giao dịch,"[""loại giao dịch""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-nhap-kho.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,status,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,ngay_ct,Ngày CT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,so_ct,Số CT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,ma_gd,Mã giao dịch,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,ten_gd,Tên giao dịch,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,ma_kh,Mã khách hàng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,ten_kh,Tên khách hàng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,dia_chi,Địa chỉ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,ong_ba,Người liên lạc,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,dien_thoai,Điện thoại,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,ma_nvbh,Nhân viên,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,so_lenh_vc,Số lệnh giao hàng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,dien_giai,Diễn giải,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,ma_nt,Mã NT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,ty_gia,Tỷ giá,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,t_so_luong,Tổng số lượng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,t_tien,Tổng tiền,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,t_ck,Chiết khấu,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,t_thue,Thuế,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,t_tt,Thanh toán,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho,Phiếu xuất kho,ngay_ct,Ngày phiếu,"[""ngày xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,so_ct,Số phiếu,"[""số xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,ma_kho,Mã kho,"[""kho xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,sl_xuat,Số lượng xuất,"[""sl xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,tien_xuat,Tiền xuất,"[""thành tiền""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,ma_loainx,Loại nhập xuất,"[""loại xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-xuat-kho.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",status,Trạng thái,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",ngay_ct,Ngày CT,"[""ngày chứng từ""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",so_ct,Số CT,"[""số chứng từ""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",ma_gd,Mã giao dịch,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",ma_kh,Mã khách hàng,"[""mã khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",ten_kh,Tên khách hàng,"[""tên khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",ten_vt,Tên vật tư,"[""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",ma_kho,Mã kho,"[""kho""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",so_luong,Số lượng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",tien_ban,Tổng tiền,"[""tiền trả""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",ck,Chiết khấu,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",t_tt,Thanh toán,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",so_ct_dh,Số đơn hàng liên kết,"[""số đơn hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",so_ct_hda,Số phiếu xuất liên kết,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,so_ct,Số CT,"[""số phiếu"", ""số yêu cầu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,ngay_ct,Ngày CT,"[""ngày phiếu"", ""ngày yêu cầu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,ten_bp,Tên bộ phận,"[""bộ phận""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,lich_su_cap_nhat,Lịch sử cập nhật,"[""cập nhật gần nhất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,giao_dich,Giao dịch,"[""mã giao dịch""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,muc_do,Mức độ,"[""độ ưu tiên""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,statusname,Trạng thái,"[""tình trạng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,ma_nv,Mã Nhân viên,"[""mã người yêu cầu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,ten_nv,Tên nhân viên,"[""người yêu cầu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,dien_giai,Diễn giải,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,t_so_luong,Tổng số lượng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,lich_su_cap_nhat,Lịch sử cập nhật,"[""cập nhật gần nhất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,statusname,Trạng thái,"[""tình trạng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ngay_ct,Ngày CT,"[""ngày phiếu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,so_ct,Số CT,"[""số phiếu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ma_gd,Mã giao dịch,"[""mã gd""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ten_gd,Tên giao dịch,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ngay_nhan_hang,Ngày nhận hàng,"[""ngày hứa nhập""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ten_kh,Tên NCC,"[""tên nhà cung cấp""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ong_ba,Người giao hàng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,dia_chi,Địa chỉ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,dien_giai,Diễn giải,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ma_nt,Mã NT,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ty_gia,Tỷ giá,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,t_so_luong,Tổng số lượng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-kho,Phiếu yêu cầu nhập kho,stt_rec,Khóa chứng từ,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-nhap-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,ngay_ct,Ngày phiếu,"[""ngày yêu cầu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,so_ct,Số phiếu,"[""số yêu cầu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,ma_bp,Mã bộ phận,"[""bộ phận""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,ma_nv,Mã nhân viên,"[""người yêu cầu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,sl_yeu_cau,SL yêu cầu,"[""số lượng yêu cầu""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,sl_xuat,SL xuất,"[""số lượng xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,sl_con_lai,SL còn lại,"[""số lượng còn lại""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+quy-cach-dong-goi-ton-kho,Quy cách đóng gói và tồn quy đổi,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/quy-cach-dong-goi-ton-kho.json
+quy-cach-dong-goi-ton-kho,Quy cách đóng gói và tồn quy đổi,ten_vt,Tên vật tư,"[""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/quy-cach-dong-goi-ton-kho.json
+quy-cach-dong-goi-ton-kho,Quy cách đóng gói và tồn quy đổi,packs,Quy cách đóng gói,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/quy-cach-dong-goi-ton-kho.json
+quy-cach-dong-goi-ton-kho,Quy cách đóng gói và tồn quy đổi,ma_thung,Mã thùng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/quy-cach-dong-goi-ton-kho.json
+quy-cach-dong-goi-ton-kho,Quy cách đóng gói và tồn quy đổi,so_luong_thung_pallet,SL thùng/pallet,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/quy-cach-dong-goi-ton-kho.json
+quy-cach-dong-goi-ton-kho,Quy cách đóng gói và tồn quy đổi,ton_hien_tai,Tồn hiện tại,"[""số lượng tồn""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/quy-cach-dong-goi-ton-kho.json
+quy-cach-dong-goi-ton-kho,Quy cách đóng gói và tồn quy đổi,ton_quy_doi_pallet,Tồn quy đổi pallet,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/quy-cach-dong-goi-ton-kho.json
+so-sanh-do-fcst,So sánh DO và FCST,nguon_du_lieu,Nguồn dữ liệu,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/so-sanh-do-fcst.json
+so-sanh-do-fcst,So sánh DO và FCST,loai_du_lieu,Loại dữ liệu,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/so-sanh-do-fcst.json
+so-sanh-do-fcst,So sánh DO và FCST,ma_kh,Mã khách hàng,"[""mã khách""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/so-sanh-do-fcst.json
+so-sanh-do-fcst,So sánh DO và FCST,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/so-sanh-do-fcst.json
+so-sanh-do-fcst,So sánh DO và FCST,ngay_giao_hang,Ngày giao hàng,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/so-sanh-do-fcst.json
+so-sanh-do-fcst,So sánh DO và FCST,ngay_tinh_toan,Ngày chụp dữ liệu,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/so-sanh-do-fcst.json
+so-sanh-do-fcst,So sánh DO và FCST,so_luong,Số lượng hiện tại,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/so-sanh-do-fcst.json
+so-sanh-do-fcst,So sánh DO và FCST,so_luong_truoc,Số lượng trước,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/so-sanh-do-fcst.json
+so-sanh-do-fcst,So sánh DO và FCST,chenh_lech,Chênh lệch,"[""tăng giảm""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/so-sanh-do-fcst.json
+thay-doi-cavity,Thay đổi cavity,id_oi,ID OI,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thay-doi-cavity.json
+thay-doi-cavity,Thay đổi cavity,ma_khuon,Khuôn,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thay-doi-cavity.json
+thay-doi-cavity,Thay đổi cavity,ma_sp,Sản phẩm,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thay-doi-cavity.json
+thay-doi-cavity,Thay đổi cavity,cavity_goc,Cavity gốc,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thay-doi-cavity.json
+thay-doi-cavity,Thay đổi cavity,cavity,Cavity mới,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thay-doi-cavity.json
+thoi-gian-dung-chuyen-theo-phien,Thời gian dừng chuyền theo phiên,id_oi,ID OI,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thoi-gian-dung-chuyen-theo-phien.json
+thoi-gian-dung-chuyen-theo-phien,Thời gian dừng chuyền theo phiên,machine_code,Máy,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thoi-gian-dung-chuyen-theo-phien.json
+thoi-gian-dung-chuyen-theo-phien,Thời gian dừng chuyền theo phiên,create_date,Bắt đầu,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thoi-gian-dung-chuyen-theo-phien.json
+thoi-gian-dung-chuyen-theo-phien,Thời gian dừng chuyền theo phiên,end_date,Kết thúc,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thoi-gian-dung-chuyen-theo-phien.json
+thoi-gian-dung-chuyen-theo-phien,Thời gian dừng chuyền theo phiên,error_code,Mã lỗi,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thoi-gian-dung-chuyen-theo-phien.json
+thong-ke-cap-nvl,Thống kê cấp NVL,id_oi,ID OI,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thong-ke-cap-nvl.json
+thong-ke-cap-nvl,Thống kê cấp NVL,product_code,Sản phẩm,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thong-ke-cap-nvl.json
+thong-ke-cap-nvl,Thống kê cấp NVL,material_code,NVL,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thong-ke-cap-nvl.json
+thong-ke-cap-nvl,Thống kê cấp NVL,so_luong,Số lượng cấp,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thong-ke-cap-nvl.json
+thong-ke-cap-nvl,Thống kê cấp NVL,ma_lo,Lô,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thong-ke-cap-nvl.json
+thong-ke-dang-ky-ng-sx,Thống kê đăng ký NG SX,id_oi,ID OI,"[""phiên""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thong-ke-dang-ky-ng-sx.json
+thong-ke-dang-ky-ng-sx,Thống kê đăng ký NG SX,mes_scheduling_code,Mã lịch sản xuất,"[""lịch sản xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thong-ke-dang-ky-ng-sx.json
+thong-ke-dang-ky-ng-sx,Thống kê đăng ký NG SX,product_code,Mã sản phẩm,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thong-ke-dang-ky-ng-sx.json
+thong-ke-dang-ky-ng-sx,Thống kê đăng ký NG SX,branch_code,ĐVCS,"[""đơn vị cơ sở""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thong-ke-dang-ky-ng-sx.json
+thong-ke-dang-ky-ng-sx,Thống kê đăng ký NG SX,sl_ke_hoach,SL kế hoạch,"[""số lượng kế hoạch""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thong-ke-dang-ky-ng-sx.json
+thong-ke-dang-ky-ng-sx,Thống kê đăng ký NG SX,sl_thuc_te,SL thực tế,"[""số lượng thực tế""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thong-ke-dang-ky-ng-sx.json
+thong-ke-dang-ky-ng-sx,Thống kê đăng ký NG SX,sl_ng,SL NG,"[""số lượng ng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thong-ke-dang-ky-ng-sx.json
+thu-hoi-nvl,Thu hồi NVL,id_oi,ID OI,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thu-hoi-nvl.json
+thu-hoi-nvl,Thu hồi NVL,ma_vt,Mã NVL,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thu-hoi-nvl.json
+thu-hoi-nvl,Thu hồi NVL,sl_da_cap,Đã cấp,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thu-hoi-nvl.json
+thu-hoi-nvl,Thu hồi NVL,sl_thu_hoi,Thu hồi,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thu-hoi-nvl.json
+thu-hoi-nvl,Thu hồi NVL,date0,Ngày,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/thu-hoi-nvl.json
+tong-hop-ban-hang,Tổng hợp hàng bán,ma_vt,Mã vật tư,"[""mã hàng"", ""mã""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-ban-hang.json
+tong-hop-ban-hang,Tổng hợp hàng bán,ten_vt,Tên vật tư,"[""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-ban-hang.json
+tong-hop-ban-hang,Tổng hợp hàng bán,dvt,ĐVT,"[""đơn vị tính""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-ban-hang.json
+tong-hop-ban-hang,Tổng hợp hàng bán,so_luong,Số lượng,"[""tổng số lượng"", ""số lượng xuất"", ""số lượng"", ""sản lượng"", ""sl""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-ban-hang.json
+tong-hop-ban-hang,Tổng hợp hàng bán,doanh_thu,Doanh thu,"[""tiền bán"", ""doanh thu"", ""tiền""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-ban-hang.json
+tong-hop-hang-ng-theo-phien,Tổng hợp hàng NG theo phiên,sysorder,Loại dòng,"[""tổng cộng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-hang-ng-theo-phien.json
+tong-hop-hang-ng-theo-phien,Tổng hợp hàng NG theo phiên,id_oi,ID OI,"[""phiên""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-hang-ng-theo-phien.json
+tong-hop-hang-ng-theo-phien,Tổng hợp hàng NG theo phiên,product_code,Mã sản phẩm,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-hang-ng-theo-phien.json
+tong-hop-hang-ng-theo-phien,Tổng hợp hàng NG theo phiên,sl_ke_hoach,SL kế hoạch,"[""số lượng kế hoạch""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-hang-ng-theo-phien.json
+tong-hop-hang-ng-theo-phien,Tổng hợp hàng NG theo phiên,sl_thuc_te,SL thực tế,"[""số lượng thực tế""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-hang-ng-theo-phien.json
+tong-hop-hang-ng-theo-phien,Tổng hợp hàng NG theo phiên,sl_ng,SL NG,"[""số lượng ng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-hang-ng-theo-phien.json
+tong-hop-nhap-xuat-ton,Tổng hợp nhập xuất tồn,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-nhap-xuat-ton.json
+tong-hop-nhap-xuat-ton,Tổng hợp nhập xuất tồn,ten_vt,Tên vật tư,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-nhap-xuat-ton.json
+tong-hop-nhap-xuat-ton,Tổng hợp nhập xuất tồn,ton_dau,Tồn đầu,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-nhap-xuat-ton.json
+tong-hop-nhap-xuat-ton,Tổng hợp nhập xuất tồn,sl_nhap,Số lượng nhập,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-nhap-xuat-ton.json
+tong-hop-nhap-xuat-ton,Tổng hợp nhập xuất tồn,sl_xuat,Số lượng xuất,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-nhap-xuat-ton.json
+tong-hop-nhap-xuat-ton,Tổng hợp nhập xuất tồn,ton_cuoi,Tồn cuối,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-nhap-xuat-ton.json
+tong-hop-nxt-theo-lo,Tổng hợp NXT theo lô,ma_vt,Mã vật tư,"[""mã hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-nxt-theo-lo.json
+tong-hop-nxt-theo-lo,Tổng hợp NXT theo lô,ten_vt,Tên vật tư,"[""tên hàng""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-nxt-theo-lo.json
+tong-hop-nxt-theo-lo,Tổng hợp NXT theo lô,ma_lo,Mã lô,"[""lô""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-nxt-theo-lo.json
+tong-hop-nxt-theo-lo,Tổng hợp NXT theo lô,ton_dau,Tồn đầu,"[""tồn đầu kỳ""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-nxt-theo-lo.json
+tong-hop-nxt-theo-lo,Tổng hợp NXT theo lô,sl_nhap,SL nhập,"[""số lượng nhập""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-nxt-theo-lo.json
+tong-hop-nxt-theo-lo,Tổng hợp NXT theo lô,sl_xuat,SL xuất,"[""số lượng xuất""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-nxt-theo-lo.json
+tong-hop-nxt-theo-lo,Tổng hợp NXT theo lô,ton_cuoi,Tồn cuối,"[""tồn cuối kỳ""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/tong-hop-nxt-theo-lo.json
+version-oi-theo-day-chuyen,Version OI theo dây chuyền,ip,IP,[],UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/version-oi-theo-day-chuyen.json
+version-oi-theo-day-chuyen,Version OI theo dây chuyền,line_code,Mã dây chuyền,"[""dây chuyền""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/version-oi-theo-day-chuyen.json
+version-oi-theo-day-chuyen,Version OI theo dây chuyền,version,Version OI,"[""phiên bản oi""]",UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,false,config/erp-reports/version-oi-theo-day-chuyen.json

@@ -61,6 +61,102 @@
       "source": {"header": "public.ph74", "line": "public.ct74", "transaction": "public.ct70", "kind": "latest_warehouse_receipt"},
       "access": "authenticated_erp_user",
       "result": ["ngay_ct", "so_ct", "ma_vt", "ten_vt", "ma_kho", "ten_kho", "so_luong", "dvt", "nguoi_lap"]
+    },
+    {
+      "id": "carton_packing_register",
+      "description": "Tra Bảng kê đóng gói, đóng thùng: ngày sản xuất, phiên/line, số WO, mã hàng, tên hàng, serial thùng, số lượng thùng, thời gian đóng thùng.",
+      "match": {"any": ["bang ke dong goi", "bang ke dong thung", "dong goi dong thung", "dong thung", "dong goi", "thung thanh pham", "serial thung", "so thung", "packing list"]},
+      "source": {"table": "public.mes_oi_dong_thung", "kind": "carton_packing_register"},
+      "access": "authenticated_erp_user",
+      "result": ["ngay_sx", "so_wo", "ma_line", "ma_sp", "ten_sp", "serial_tem_thung", "tong_sl", "gio_dong_thung", "phan_loai"]
+    },
+    {
+      "id": "carton_merge_split_register",
+      "description": "Tra Bảng kê gộp, tách thùng: ngày ghi nhận, tem cũ, tem mới, mã sản phẩm, tên sản phẩm, số lượng, user tạo.",
+      "match": {"any": ["bang ke gop tach thung", "gop tach thung", "gop thung", "tach thung", "chia thung", "tem cu", "tem moi"]},
+      "source": {"table": "public.intem_carton_log", "kind": "carton_merge_split_register"},
+      "access": "authenticated_erp_user",
+      "result": ["ngay_ghi_nhan", "gio_tao", "id_tem_cu", "id_tem_moi", "ma_sp", "ten_sp", "dvt", "sl_cu", "sl_moi", "user_tao"]
+    },
+    {
+      "id": "mold_shot_adjust_register",
+      "description": "Tra Bảng kê bổ sung shot / bỏ shot khuôn trong ca sản xuất.",
+      "match": {"any": ["bang ke bo sung shot", "bo sung shot", "bo shot", "shot bo sung", "shot huy", "shot khuon"]},
+      "source": {"table": "public.mes_oi_bo_shot", "kind": "mold_shot_adjust_register"},
+      "access": "authenticated_erp_user",
+      "result": ["ngay", "gio", "ma_line", "ma_may", "so_wo", "ma_sp", "so_shot", "cavity"]
+    },
+    {
+      "id": "mes_work_order_scheduling_register",
+      "description": "Tra Bảng kê Work Order / Điều độ sản xuất / Lệnh sản xuất: số WO, mã SP, tên SP, version BOM, mã máy/chuyền, mã khuôn, SL kế hoạch, thời gian bắt đầu/kết thúc, số LSX, trạng thái.",
+      "match": {"any": ["bang ke work order", "bang ke dieu do san xuat", "bang ke wo", "dieu do san xuat", "tien do wo", "ke hoach san xuat", "lenh san xuat", "work order", "danh sach wo"]},
+      "source": {"table": "public.mes_scheduling_output", "kind": "mes_work_order_scheduling_register"},
+      "access": "authenticated_erp_user",
+      "result": ["so_wo", "ma_sp", "ten_sp", "version_bom", "ma_may", "ma_khuon", "sl_ke_hoach", "bat_dau", "ket_thuc", "so_lsx", "trang_thai"]
+    },
+    {
+      "id": "mes_machine_downtime_register",
+      "description": "Tra Bảng kê dừng máy / dừng chuyền: ngày dừng, giờ bắt đầu, giờ kết thúc, số phút dừng, mã máy, mã line, số WO, mã lỗi, tên nguyên nhân dừng máy, ghi chú/phương án.",
+      "match": {"any": ["bang ke dung may", "dung may", "dung chuyen", "su co may", "nguyen nhan dung may", "thoi gian dung may", "lich su dung may", "downtime", "dung line", "stop line"]},
+      "source": {"table": "public.mes_oi_stop_line", "kind": "mes_machine_downtime_register"},
+      "access": "authenticated_erp_user",
+      "result": ["ngay_dung", "gio_bat_dau", "gio_ket_thuc", "phut_dung", "ma_may", "ma_line", "so_wo", "ma_loi", "ten_nguyen_nhan", "ghi_chu"]
+    },
+    {
+      "id": "mes_production_ng_register",
+      "description": "Tra Bảng kê lỗi / phế phẩm sản xuất (NG): ngày ghi nhận, giờ, mã máy, mã line, số LSX, số WO, mã SP, tên SP, số lượng NG, mã lỗi, tên lỗi, công đoạn, nhân viên.",
+      "match": {"any": ["bang ke loi", "bang ke phe pham", "hang ng", "phe pham", "loi san xuat", "san pham loi", "ng linh kien", "danh sach ng", "loi phe pham", "ti le ng"]},
+      "source": {"table": "public.mes_oi_ng_confirm", "kind": "mes_production_ng_register"},
+      "access": "authenticated_erp_user",
+      "result": ["ngay", "gio", "ma_may", "ma_line", "so_lsx", "so_wo", "ma_sp", "ten_sp", "sl_ng", "ma_loi", "ten_loi", "cong_doan", "nhan_vien"]
+    },
+    {
+      "id": "sales_order_register",
+      "description": "Tra Bảng kê đơn hàng bán (SO1) / Hợp đồng bán hàng: số SO, ngày chứng từ, mã khách hàng, tên khách hàng, số PO KH, mã SP/VT, số lượng, đơn giá, thành tiền, trạng thái đơn hàng.",
+      "match": {"any": ["bang ke don hang ban", "don hang ban", "don hang hop dong", "bang ke don hang", "hop dong ban", "don hang so", "so don hang", "don so1", "sales order"]},
+      "source": {"header": "public.ph64", "line": "public.ct64", "kind": "sales_order_register"},
+      "access": "authenticated_erp_user",
+      "result": ["so_ct", "ngay_ct", "ma_kh", "ten_kh", "so_po", "ma_vt", "ten_vt", "dvt", "so_luong", "don_gia", "thanh_tien", "ma_nt", "trang_thai"]
+    },
+    {
+      "id": "sales_shipment_register",
+      "description": "Tra Bảng kê phiếu xuất kho bán hàng (HDA): số phiếu xuất, ngày xuất, mã khách hàng, tên khách hàng, số đơn SO liên kết, số PO KH, mã hàng, số lượng xuất, kho xuất, trạng thái.",
+      "match": {"any": ["bang ke phieu xuat kho ban hang", "phieu xuat kho ban hang", "xuat kho ban hang", "phieu xuat ban", "bang ke xuat ban", "hoa don ban hang", "xuat ban hang"]},
+      "source": {"header": "public.ph81", "line": "public.ct81", "kind": "sales_shipment_register"},
+      "access": "authenticated_erp_user",
+      "result": ["so_ct", "ngay_ct", "ma_kh", "ten_kh", "so_so", "so_po", "ma_vt", "ten_vt", "dvt", "so_luong", "ma_kho", "trang_thai"]
+    },
+    {
+      "id": "purchase_order_register",
+      "description": "Tra Bảng kê đơn hàng mua (PO1) / Đơn mua hàng: số PO, ngày PO, mã NCC, tên nhà cung cấp, mã vật tư, số lượng mua, đơn giá, tổng tiền, trạng thái duyệt.",
+      "match": {"any": ["bang ke don hang mua", "don hang mua", "bang ke po", "don mua hang", "purchase order", "danh sach po", "po mua hang"]},
+      "source": {"header": "public.ph94", "line": "public.ct94", "kind": "purchase_order_register"},
+      "access": "authenticated_erp_user",
+      "result": ["so_po", "ngay_po", "ma_ncc", "ten_ncc", "ma_vt", "ten_vt", "dvt", "so_luong", "don_gia", "thanh_tien", "ma_nt", "trang_thai"]
+    },
+    {
+      "id": "internal_warehouse_transfer_register",
+      "description": "Tra Bảng kê phiếu nhập kho nội bộ từ sản xuất (PND) hoặc phiếu xuất kho nội bộ (PXA, PXD): số phiếu, ngày chứng từ, loại phiếu, mã kho, mã vật tư, số lượng, diễn giải.",
+      "match": {"any": ["nhap kho noi bo", "xuat kho noi bo", "phieu nhap noi bo", "phieu xuat noi bo", "nhap kho tu sx", "nhap tu san xuat", "bang ke phieu nhap noi bo", "bang ke phieu xuat noi bo", "phieu pnd", "phieu pxa", "chuyen kho noi bo"]},
+      "source": {"header": "public.ph74", "line": "public.ct74", "kind": "internal_warehouse_transfer_register"},
+      "access": "authenticated_erp_user",
+      "result": ["so_ct", "ngay_ct", "loai_phieu", "ma_vt", "ten_vt", "dvt", "ma_kho", "ten_kho", "so_luong", "dien_giai", "trang_thai"]
+    },
+    {
+      "id": "mold_profile_register",
+      "description": "Tra Bảng kê hồ sơ khuôn / Quản lý tài sản khuôn: mã khuôn, tên khuôn, số cavity, tuổi thọ shot thiết kế/bảo hiểm, ngày bảo hiểm, loại gate, số cổng phun.",
+      "match": {"any": ["ho so khuon", "bang ke ho so khuon", "thong tin khuon", "tuoi tho khuon", "so shot bao hiem", "cavity khuon", "danh sach khuon", "tai san khuon"]},
+      "source": {"table": "public.dmhosokhuon", "kind": "mold_profile_register"},
+      "access": "authenticated_erp_user",
+      "result": ["ma_khuon", "ten_khuon", "ngay_su_dung", "ngay_bao_hiem", "so_cavity", "tuoi_tho_shot_dinh_muc", "loai_gate"]
+    },
+    {
+      "id": "sales_price_list_register",
+      "description": "Tra Bảng giá bán / Chính sách giá bán: mã bảng giá, tên bảng giá, mã sản phẩm/vật tư, mã khách hàng, đơn giá bán, loại tiền (VND/USD), số lượng tối thiểu, ngày hiệu lực.",
+      "match": {"any": ["bang gia ban", "danh muc bang gia", "chinh sach gia", "gia ban san pham", "tra cuu gia ban", "don gia ban", "gia niem yet"]},
+      "source": {"header": "public.dmbanggia", "line": "public.dmbanggiact", "kind": "sales_price_list_register"},
+      "access": "authenticated_erp_user",
+      "result": ["ma_bang_gia", "ten_bang_gia", "ma_vt", "ten_vt", "dvt", "ma_kh", "ten_kh", "don_gia_ban", "ma_nt", "sl_min", "ngay_bd", "ngay_kt"]
     }
   ]
 }

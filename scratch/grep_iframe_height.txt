@@ -1,0 +1,4 @@
+grep: /app/backend/erp_ai/__pycache__/rich_ui.cpython-312.pyc: binary file matches
+/app/backend/erp_ai/rich_ui.py:195:  parent.postMessage({type:'iframe:height', height: height}, '*');
+grep: /app/backend/data/webui.db: binary file matches
+/app/backend/docs/erp-agent-operations.md:94:tránh lặp câu trả lời). Embed gửi `iframe:height` theo chiều cao thực để không

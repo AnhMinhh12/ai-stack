@@ -1,0 +1,93 @@
+
+==================== CÂU 3: Kiểm tra ma_lo trong ct81 và ct70 xuất ====================
+ct81 non-empty ma_lo: []
+ct70 export (up to 20/10/2026): [
+  {
+    "ngay_ct": "2026-10-20",
+    "so_ct": "001-2610-058303",
+    "ma_ct": "PXB",
+    "sl_xuat": "180.00000000000000000000",
+    "ma_kho": "KHOTP00"
+  },
+  {
+    "ngay_ct": "2026-10-20",
+    "so_ct": "001-2610-058300",
+    "ma_ct": "PXB",
+    "sl_xuat": "2160.00000000000000000000",
+    "ma_kho": "KHOTP00"
+  },
+  {
+    "ngay_ct": "2026-10-20",
+    "so_ct": "001-2610-058286",
+    "ma_ct": "PXB",
+    "sl_xuat": "2160.00000000000000000000",
+    "ma_kho": "KHOTP00"
+  },
+  {
+    "ngay_ct": "2026-10-20",
+    "so_ct": "001-2610-058185",
+    "ma_ct": "PXB",
+    "sl_xuat": "420.00000000000000000000",
+    "ma_kho": "KHOTP00"
+  },
+  {
+    "ngay_ct": "2026-10-20",
+    "so_ct": "001-2610-058065",
+    "ma_ct": "PXB",
+    "sl_xuat": "420.00000000000000000000",
+    "ma_kho": "KHOTP00"
+  },
+  {
+    "ngay_ct": "2026-10-20",
+    "so_ct": "001-2610-057888",
+    "ma_ct": "PXB",
+    "sl_xuat": "900.00000000000000000000",
+    "ma_kho": "KHOTP00"
+  },
+  {
+    "ngay_ct": "2026-10-20",
+    "so_ct": "001-2610-057772",
+    "ma_ct": "PXB",
+    "sl_xuat": "720.00000000000000000000",
+    "ma_kho": "KHOTP00"
+  },
+  {
+    "ngay_ct": "2026-10-20",
+    "so_ct": "001-2610-057766",
+    "ma_ct": "PXB",
+    "sl_xuat": "2340.00000000000000000000",
+    "ma_kho": "KHOTP00"
+  },
+  {
+    "ngay_ct": "2026-10-20",
+    "so_ct": "001-2610-057668",
+    "ma_ct": "PXB",
+    "sl_xuat": "2340.00000000000000000000",
+    "ma_kho": "KHOTP00"
+  },
+  {
+    "ngay_ct": "2026-10-20",
+    "so_ct": "001-2610-057577",
+    "ma_ct": "PXB",
+    "sl_xuat": "360.00000000000000000000",
+    "ma_kho": "KHOTP00"
+  }
+]
+Export / shipment tables: ['ctgiaomaufa', 'dmvitrigiaohangkh', 'phgiaomaufa']
+
+==================== CÂU 6: Nhập kho QC7-5146-000 (01/10/2026 - 20/10/2026) ====================
+User tables: ['sys_config_notifications_user', 'sys_lockdatauser', 'sys_roleuser', 'sys_userrights', 'userinfopic', 'userinfo']
+Traceback (most recent call last):
+  File "/home/admin/ai-stack/scratch/investigate_part2.py", line 300, in <module>
+    main()
+  File "/home/admin/ai-stack/scratch/investigate_part2.py", line 70, in main
+    q6_ph74 = query("""
+              ^^^^^^^^^
+  File "/home/admin/ai-stack/scratch/investigate_part2.py", line 18, in query
+    cur.execute(sql, params or ())
+  File "/home/admin/.local/lib/python3.12/site-packages/psycopg/cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedColumn: column d.ma_khon does not exist
+LINE 8:         LEFT JOIN dmkho k2 ON d.ma_khon = k2.ma_kho
+                                      ^
+HINT:  Perhaps you meant to reference the column "d.ma_kho".

@@ -1,0 +1,2 @@
+Result type: <class 'str'>
+Res is str/dict: Cấu hình Bảng kê phiếu nhập kho chưa sẵn sàng.

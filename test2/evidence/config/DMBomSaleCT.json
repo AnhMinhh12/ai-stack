@@ -1,0 +1,10 @@
+﻿{
+    "screen_state":  "DMBomSaleCT",
+    "screen_title":  "DMBomSaleCT",
+    "grid":  [
+
+             ],
+    "verified_at":  "2026-10-27T08:57:00+07:00",
+    "reason":  "Empty grid metadata returned from server.",
+    "http_status":  200
+}

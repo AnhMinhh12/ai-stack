@@ -1,0 +1,354 @@
+﻿{
+    "screen_state":  "PXEOverview",
+    "screen_title":  "PXE",
+    "grid":  {
+                 "gridid":  "PXEOverview",
+                 "rep_id":  null,
+                 "rep_file":  null,
+                 "header":  [
+                                {
+                                    "gridid":  "PXEOverview",
+                                    "fieldname":  "stt_rec",
+                                    "field_root":  "stt_rec",
+                                    "tablename":  "",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "",
+                                    "fieldposition":  101,
+                                    "fieldcaption":  "stt_rec",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  false,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  ".stt_rec",
+                                    "fieldexport":  ".stt_rec",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "PXEOverview",
+                                    "fieldname":  "ln",
+                                    "field_root":  "ln",
+                                    "tablename":  "",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "",
+                                    "fieldposition":  101,
+                                    "fieldcaption":  "ln",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  false,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  ".ln",
+                                    "fieldexport":  ".ln",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "PXEOverview",
+                                    "fieldname":  "action_type",
+                                    "field_root":  "action_type",
+                                    "tablename":  "",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "",
+                                    "fieldposition":  101,
+                                    "fieldcaption":  "action_type",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  false,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  ".action_type",
+                                    "fieldexport":  ".action_type",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "PXEOverview",
+                                    "fieldname":  "ma_ct",
+                                    "field_root":  "ma_ct",
+                                    "tablename":  "",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "",
+                                    "fieldposition":  101,
+                                    "fieldcaption":  "ma_ct",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  false,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  ".ma_ct",
+                                    "fieldexport":  ".ma_ct",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "PXEOverview",
+                                    "fieldname":  "ngay_ct",
+                                    "field_root":  "ngay_ct",
+                                    "tablename":  "",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "",
+                                    "fieldposition":  101,
+                                    "fieldcaption":  "ngay_ct",
+                                    "visible":  1,
+                                    "style":  "FORMAT_DATE_GRID",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  false,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  ".ngay_ct",
+                                    "fieldexport":  ".ngay_ct",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                }
+                            ]
+             },
+    "verified_at":  "2026-10-27T08:57:00+07:00",
+    "column_count":  5,
+    "http_status":  200
+}

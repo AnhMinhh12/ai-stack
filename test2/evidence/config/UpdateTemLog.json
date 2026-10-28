@@ -1,0 +1,1841 @@
+﻿{
+    "screen_state":  "UpdateTemLog",
+    "screen_title":  "UpdateTemLog",
+    "grid":  {
+                 "gridid":  "UpdateTemLog",
+                 "rep_id":  null,
+                 "rep_file":  null,
+                 "header":  [
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "id_pallet",
+                                    "field_root":  "id_pallet",
+                                    "tablename":  "palletct",
+                                    "leftjoin":  {
+                                                     "id_tem":  "id_carton",
+                                                     "where":  "1 = 1"
+                                                 },
+                                    "table_as":  "b",
+                                    "fieldposition":  1,
+                                    "fieldcaption":  "id_pallet",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  180,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "palletct.id_pallet",
+                                    "fieldexport":  "palletct.id_pallet",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "id_tem",
+                                    "field_root":  "id_tem",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  2,
+                                    "fieldcaption":  "Serial tem",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  180,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.id_tem",
+                                    "fieldexport":  "a.id_tem",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "ma_vt",
+                                    "field_root":  "ma_vt",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "",
+                                    "fieldposition":  3,
+                                    "fieldcaption":  "MÃ£ váº­t tÆ°",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  200,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  ".ma_vt",
+                                    "fieldexport":  ".ma_vt",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "nxt",
+                                    "field_root":  "nxt",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  4,
+                                    "fieldcaption":  "Loáº¡i nháº­p xuáº¥t",
+                                    "visible":  1,
+                                    "style":  "FORMAT_NUMBER",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  false,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.nxt",
+                                    "fieldexport":  "a.nxt",
+                                    "formatoption":  "### ### ### ###",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "ma_kho",
+                                    "field_root":  "ma_kho",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  5,
+                                    "fieldcaption":  "MÃ£ kho",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  120,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.ma_kho",
+                                    "fieldexport":  "a.ma_kho",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "ma_vi_tri",
+                                    "field_root":  "ma_vi_tri",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  6,
+                                    "fieldcaption":  "MÃ£ vá» trÃ­",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  120,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.ma_vi_tri",
+                                    "fieldexport":  "a.ma_vi_tri",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "ma_lo",
+                                    "field_root":  "ma_lo",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "",
+                                    "fieldposition":  7,
+                                    "fieldcaption":  "MÃ£ lÃ´",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  false,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  ".ma_lo",
+                                    "fieldexport":  ".ma_lo",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "ma_khuon",
+                                    "field_root":  "ma_khuon",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  8,
+                                    "fieldcaption":  "ma_khuon",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  null,
+                                    "depen_lookup":  "",
+                                    "map_lookup":  null,
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  null,
+                                    "fieldsearch":  "a.ma_khuon",
+                                    "fieldexport":  "a.ma_khuon",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "die_no",
+                                    "field_root":  "die_no",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  9,
+                                    "fieldcaption":  "die_no",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  100,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  null,
+                                    "depen_lookup":  "",
+                                    "map_lookup":  null,
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  null,
+                                    "fieldsearch":  "a.die_no",
+                                    "fieldexport":  "a.die_no",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "so_luong",
+                                    "field_root":  "so_luong",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  10,
+                                    "fieldcaption":  "so_luong",
+                                    "visible":  1,
+                                    "style":  "FORMAT_SL",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  false,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.so_luong",
+                                    "fieldexport":  "a.so_luong",
+                                    "formatoption":  "### ### ##0.0000",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "stt_tem",
+                                    "field_root":  "stt_tem",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  11,
+                                    "fieldcaption":  "stt_tem",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  false,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.stt_tem",
+                                    "fieldexport":  "a.stt_tem",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "ma_khay",
+                                    "field_root":  "ma_khay",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "",
+                                    "fieldposition":  12,
+                                    "fieldcaption":  "ma_khay",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  false,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  ".ma_khay",
+                                    "fieldexport":  ".ma_khay",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "ma_thung",
+                                    "field_root":  "ma_thung",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "",
+                                    "fieldposition":  13,
+                                    "fieldcaption":  "MÃ£ thÃ¹ng",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  false,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  ".ma_thung",
+                                    "fieldexport":  ".ma_thung",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "so_luong_khay_thung",
+                                    "field_root":  "so_luong_khay_thung",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  14,
+                                    "fieldcaption":  "so_luong_khay_thung",
+                                    "visible":  1,
+                                    "style":  "FORMAT_SL",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  false,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.so_luong_khay_thung",
+                                    "fieldexport":  "a.so_luong_khay_thung",
+                                    "formatoption":  "### ### ##0.0000",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "user_name",
+                                    "field_root":  "user_name",
+                                    "tablename":  "userinfo",
+                                    "leftjoin":  {
+                                                     "id_user0":  "id_user",
+                                                     "where":  "1 = 1"
+                                                 },
+                                    "table_as":  "f",
+                                    "fieldposition":  15,
+                                    "fieldcaption":  "user_name",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  false,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  false,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "userinfo.user_name",
+                                    "fieldexport":  "userinfo.user_name",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "date0",
+                                    "field_root":  "date0",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  16,
+                                    "fieldcaption":  "date0",
+                                    "visible":  1,
+                                    "style":  "FORMAT_DATE_GRID",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  false,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  false,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.date0",
+                                    "fieldexport":  "a.date0",
+                                    "formatoption":  "dd/MM/yyyy",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "ma_lo_ncc",
+                                    "field_root":  "ma_lo_ncc",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "",
+                                    "fieldposition":  17,
+                                    "fieldcaption":  "ma_lo_ncc",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  false,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  ".ma_lo_ncc",
+                                    "fieldexport":  ".ma_lo_ncc",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "cap_oi_yn",
+                                    "field_root":  "cap_oi_yn",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  18,
+                                    "fieldcaption":  "cap_oi_yn",
+                                    "visible":  1,
+                                    "style":  "CHECKBOX",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  false,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  false,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "a.cap_oi_yn",
+                                    "fieldexport":  "a.cap_oi_yn",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "status_qc_name",
+                                    "field_root":  "status_qc_name",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "",
+                                    "fieldposition":  19,
+                                    "fieldcaption":  "status_qc_name",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  100,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  false,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  ".status_qc_name",
+                                    "fieldexport":  ".status_qc_name",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "so_ct",
+                                    "field_root":  "so_ct",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "",
+                                    "fieldposition":  20,
+                                    "fieldcaption":  "so_ct",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  false,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  ".so_ct",
+                                    "fieldexport":  ".so_ct",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "ma_ct",
+                                    "field_root":  "ma_ct",
+                                    "tablename":  "item_log",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "",
+                                    "fieldposition":  21,
+                                    "fieldcaption":  "ma_ct",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  60,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  false,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  ".ma_ct",
+                                    "fieldexport":  ".ma_ct",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "statusname",
+                                    "field_root":  "statusname",
+                                    "tablename":  "sys_dmtt",
+                                    "leftjoin":  {
+                                                     "status":  "status",
+                                                     "where":  "ma_ct = \u0027UpdateTemLog\u0027"
+                                                 },
+                                    "table_as":  "z4",
+                                    "fieldposition":  101,
+                                    "fieldcaption":  "",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "sys_dmtt.statusname",
+                                    "fieldexport":  "sys_dmtt.statusname",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "name_appr",
+                                    "field_root":  "ten",
+                                    "tablename":  "userinfo",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "z3",
+                                    "fieldposition":  102,
+                                    "fieldcaption":  "name_appr",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  true,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "z3.ten",
+                                    "fieldexport":  "z3.name_appr",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "acc_appr",
+                                    "field_root":  "user_name",
+                                    "tablename":  "userinfo",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "z3",
+                                    "fieldposition":  102,
+                                    "fieldcaption":  "acc_appr",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  true,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "z3.user_name",
+                                    "fieldexport":  "z3.acc_appr",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "id_appr",
+                                    "field_root":  "user_id",
+                                    "tablename":  "userinfo",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "z3",
+                                    "fieldposition":  102,
+                                    "fieldcaption":  "id_appr",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  true,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "z3.user_id",
+                                    "fieldexport":  "z3.id_appr",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "name2",
+                                    "field_root":  "ten",
+                                    "tablename":  "userinfo",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "z2",
+                                    "fieldposition":  103,
+                                    "fieldcaption":  "name2",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  true,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "z2.ten",
+                                    "fieldexport":  "z2.name2",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "UpdateTemLog",
+                                    "fieldname":  "name0",
+                                    "field_root":  "ten",
+                                    "tablename":  "userinfo",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "z1",
+                                    "fieldposition":  104,
+                                    "fieldcaption":  "name0",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  true,
+                                    "hideshow_yn":  true,
+                                    "width_web":  150,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  {
+
+                                                   },
+                                    "depen_lookup":  "",
+                                    "map_lookup":  {
+
+                                                   },
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  false,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  {
+
+                                                   },
+                                    "fieldsearch":  "z1.ten",
+                                    "fieldexport":  "z1.name0",
+                                    "formatoption":  "",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                }
+                            ]
+             },
+    "verified_at":  "2026-10-27T08:57:00+07:00",
+    "column_count":  27,
+    "http_status":  200
+}

@@ -1,0 +1,1 @@
+Response is text: {"report": {"id": "ton-kho-theo-khuon", "title": "Tồn kho theo khuôn (Die)"}, "lookup": {"ma_vt": "QC7-5146-000"}, "rows": [{"die_no": "V1", "mold": "", "so_luong": 13860}, {"die_no": "V2", "mold": "", "so_luong": 940}], "message": "Mã QC7-5146-000 có tồn kho tem thành phẩm theo từng khuôn/die: Khuô

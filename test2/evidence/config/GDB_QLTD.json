@@ -1,0 +1,10 @@
+﻿{
+    "screen_state":  "GDB_QLTD",
+    "container_height":  "800",
+    "evidence_status":  "MENU_LIVE",
+    "screen_title":  "GDB_QLTD",
+    "type":  "GDB",
+    "grafana_url":  "http://10.0.6.2:1006/d/K_3L80_Hz/dashboard-cho-sx-quan-ly-trong-diem?orgId",
+    "datasource_host":  "http://10.0.6.2:1006/",
+    "verified_at":  "2026-10-27T08:57:00+07:00"
+}

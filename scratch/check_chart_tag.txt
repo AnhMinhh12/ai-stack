@@ -1,0 +1,1 @@
+Has /static/chart.umd.min.js in html: True

@@ -1,0 +1,27 @@
+Model ID: qwen2.5-14b | Name: qwen2.5-14b
+  meta.toolIds: ['htmp_office_editor']
+  meta.tools: None
+Model ID: htmp-nhanh | Name: HTMP ERP
+  meta.toolIds: ['htmp_postgres_query']
+  meta.tools: None
+Model ID: htmp-ky | Name: HTMP Dữ liệu nội bộ
+  meta.toolIds: []
+  meta.tools: None
+Model ID: models/gemini-3.1-flash-lite | Name: Gemini 3.1 Flash Lite
+  meta.toolIds: None
+  meta.tools: None
+Model ID: gemini-3.1-flash-lite | Name: Gemini 3.1 Flash Lite
+  meta.toolIds: []
+  meta.tools: None
+Model ID: htmp-erp-agent-staging | Name: ERP
+  meta.toolIds: ['htmp_erp_agent']
+  meta.tools: None
+Model ID: gpt-5.6-sol | Name: gpt-5.6-sol
+  meta.toolIds: ['htmp_office_editor']
+  meta.tools: None
+Model ID: gpt-5.6-luna | Name: gpt-5.6-luna
+  meta.toolIds: ['htmp_office_editor']
+  meta.tools: None
+Model ID: htmp-sang-tao | Name: HTMP Tạo nội dung
+  meta.toolIds: ['htmp_office_editor']
+  meta.tools: None

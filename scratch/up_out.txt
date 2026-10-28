@@ -1,0 +1,5 @@
+time="2026-10-28T03:21:19Z" level=warning msg="Found orphan containers ([ai-stack-open-webui-dev-1 htmp-oci-registry]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container open-webui Recreate 
+ Container open-webui Recreated 
+ Container open-webui Starting 
+ Container open-webui Started 

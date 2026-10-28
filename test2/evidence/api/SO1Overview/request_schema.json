@@ -1,0 +1,45 @@
+{
+  "endpoint": "/SOAPI/api/Vouchers/SO1API/GetData/",
+  "method": "GET",
+  "headers": {
+    "Token": "[REDACTED_AUTH_TOKEN]",
+    "user_name": "[REDACTED_USER]",
+    "user_id": "[REDACTED_USER_ID]",
+    "lang": "vi-VN",
+    "ma_dvcs": "001",
+    "module": "ERP",
+    "state": "SO1Overview",
+    "FROM": "web"
+  },
+  "query_parameters": {
+    "index": 0,
+    "search": {
+      "tu_ngay": "YYYY-MM-DD",
+      "den_ngay": "YYYY-MM-DD",
+      "tu_so": "",
+      "den_so": "",
+      "ma_dvcs": "001",
+      "status": "",
+      "ma_vt": "",
+      "so_ct_bg": ""
+    },
+    "where": {
+      "default_sql": "ma_dvcs = '001'",
+      "search_cols": "[]",
+      "search_dynamic": "{}"
+    }
+  },
+  "response_schema": {
+    "reachedLast": "boolean",
+    "value": {
+      "Items": "array of voucher header records (ph)",
+      "TotalItems": 579110
+    }
+  },
+  "paging_mechanism": {
+    "type": "cursor_or_indexed_paging",
+    "page_size": 21,
+    "total_records_field": "value.TotalItems",
+    "items_field": "value.Items"
+  }
+}

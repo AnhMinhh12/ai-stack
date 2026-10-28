@@ -1,0 +1,3 @@
+/app/backend/data/uploads/83f6adba-d83d-4229-aa05-78d005e194a0_Follow chart HD-QA.01 Hướng dẫn thiết lập bảng kế hoạch kiểm soát_Ver 02.xlsx
+/app/backend/data/uploads/9f216489-66c6-4161-89d8-2e014fcd21c7_Appendix 1_Documented Information Control flowchart_Ver 00 OK.xlsx
+/app/backend/data/uploads/8351792a-abfe-46de-9b4f-d8d3bba40e65_MQT-QC.10.03 Biểu đồ kiểm soát tỉ lệ hàng lỗi trong công đoạn p chart_Ver 01.xlsx

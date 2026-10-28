@@ -1,0 +1,7 @@
+/app/backend/open_webui/utils/actions.py:129:            # Process action result for Rich UI embeds (HTMLResponse, tuple with headers)
+/app/backend/open_webui/utils/actions.py:147:                # try to serialize the raw HTMLResponse / tuple back to the client
+/app/backend/open_webui/utils/middleware.py:21:from fastapi.responses import HTMLResponse, JSONResponse
+/app/backend/open_webui/utils/middleware.py:1033:    # Support (HTMLResponse, result_context) tuples: the optional second
+/app/backend/open_webui/utils/middleware.py:1037:    if isinstance(tool_result, tuple) and len(tool_result) == 2 and isinstance(tool_result[0], HTMLResponse):
+/app/backend/open_webui/utils/middleware.py:1040:    if isinstance(tool_result, HTMLResponse):
+grep: /app/backend/open_webui/utils/__pycache__/middleware.cpython-311.pyc: binary file matches

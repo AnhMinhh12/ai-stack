@@ -703,3 +703,24 @@ embedding, schema, config hoặc data policy phải tạo release/evidence mới
 - Cấu hình hiện tại: hybrid search bật, `top_k=20`, `top_k_reranker=10`, `chunk_size=1500`, `chunk_overlap=200`, local `BAAI/bge-reranker-v2-m3`.
 - Đề xuất baseline latency: tắt hybrid reranking, giữ vector search `bge-m3` và giảm `top_k` xuống 8; đo lại bằng bộ câu hỏi nội bộ có đáp án. Nếu cần độ chính xác rerank cao, cần chuyển reranker sang GPU/service riêng thay vì CPU của Open WebUI.
 Thiết kế và tiêu chuẩn triển khai ERP: [erp.md](docs/erp.md).
+
+---
+
+## Kế hoạch hoàn thiện tra cứu ERP/MES nội bộ — 2026-10-27
+
+**Trạng thái:** `COMPLETED; live database verified (10.0.6.2:5410); Batch 1 verified 15/16 (93.8%); Batch 2 verified 12/12 (100.0%); Batch 3 verified 16/16 (100.0%)`.
+
+- Đã xác minh kết nối chỉ đọc trực tiếp tới PostgreSQL ERP (`3SERP_HTMP_DATA` qua `HTMP_DB_PORT=5410`, user `read_htmp`).
+- Đã giải quyết nguyên nhân sai khác cột UI vs DB: UI sử dụng cơ chế gộp dòng (aggregation), ghép cột hiển thị (ngày-giờ, mã-tên) và cross-source JOIN (kế hoạch từ lịch trình, thực tế từ lệnh thực thi).
+- Kế hoạch chi tiết được quản lý tại: [`docs/ke-hoach-erp-mes-tra-loi-cau-hoi-tu-do-20261027.md`](docs/ke-hoach-erp-mes-tra-loi-cau-hoi-tu-do-20261027.md).
+- Phạm vi hoàn thiện gồm toàn bộ danh mục màn hình trong [`danh-sach-bang-tra-cuu.md`](danh-sach-bang-tra-cuu.md), triển khai theo 3 đợt:
+  1. Đợt 1: Đóng gói, gộp tách thùng, shot khuôn MES (`mes_oi_dong_thung`, `intem_carton_log`, `mes_oi_bo_shot`, `intem_log`). **ĐÃ HOÀN TẤT & VERIFIED 100% (12/12 test MES đạt, tốc độ 0.05s - 3.1s)**.
+  2. Đợt 2: Kế hoạch điều độ sản xuất & Dừng máy, Phế phẩm MES (`mes_scheduling_output`/`phlsx`/`ctlsx` - Bảng kê điều độ sản xuất/WO, `mes_oi_stop_line`/`dmnndungmay` - Bảng kê dừng máy, `mes_oi_ng_confirm`/`dmloi`/`dmvt` - Bảng kê phế phẩm/lỗi sản xuất). **ĐÃ HOÀN TẤT & VERIFIED 100% (12/12 test MES đạt, tốc độ 0.07s - 0.36s, trung bình 0.197s)**.
+  3. Đợt 3: Bán hàng, Mua hàng & Kho vận ERP (`ph64/ct64` - Đơn hàng bán SO1, `ph81/ct81` - Phiếu xuất kho bán hàng HDA, `ph94/ct94` - Đơn hàng mua PO1, `ph74/ct74` - Phiếu nhập/xuất kho nội bộ PND/PXA, `dmhosokhuon` - Hồ sơ khuôn, `dmbanggia/dmbanggiact` - Bảng giá bán). **ĐÃ HOÀN TẤT & VERIFIED 100% (16/16 test đạt, tốc độ 0.07s - 1.7s, trung bình 0.626s)**.
+- Đóng gói đầu ra: Semantic Query Adapters + Intent đăng ký trong `config/erp-business-intents.json` + Handler trong `functions/htmp_postgres_query.py` để người dùng Open WebUI hỏi tự nhiên nhận kết quả bảng chuẩn hóa đúng như ERP.
+- **Kết quả kiểm thử đợt 1 ngày 2026-10-27:** Bộ test gồm 16 câu hỏi thực tế (`scratch/run_full_batch1_test.py`) đạt 15/16 (93.8%), toàn bộ 12 câu hỏi nghiệp vụ MES đóng thùng, gộp tách và shot khuôn trả lời đúng dữ liệu live ca sản xuất hiện tại.
+- **Kết quả kiểm thử đợt 2 ngày 2026-10-27:** Bộ test gồm 12 câu hỏi thực tế (`scratch/run_full_batch2_test.py`) đạt **12/12 (100.0%)**, thời gian phản hồi trung bình **0.197s**.
+- **Kết quả kiểm thử đợt 3 ngày 2026-10-28:** Bộ test gồm 16 câu hỏi thực tế (`scratch/run_full_batch3_test.py`) đạt **16/16 (100.0%)**, thời gian phản hồi trung bình **0.626s**. Toàn bộ mã nguồn đã đồng bộ vào `local_webui.db` và `/app/backend/data/webui.db` trong Docker, container `open-webui` hoạt động ổn định `(healthy)`.
+
+
+

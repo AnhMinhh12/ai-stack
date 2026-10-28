@@ -1,0 +1,12 @@
+=================== BẮT ĐẦU KIỂM THỬ BỘ CÂU HỎI NGẪU NHIÊN ===================
+[1] QC7-9498-001 / Khuôn Die (2.147s) | Table: True (rows: 2) | Chart: True (pie, allowed: ['bar', 'line', 'pie'])
+[2] QL3-4766-000 / Khuôn Die (1.934s) | Table: True (rows: 3) | Chart: True (pie, allowed: ['bar', 'line', 'pie'])
+[3] QC7-5146-000 / Phân bổ kho (3.934s) | Table: True (rows: 3) | Chart: True (bar, allowed: ['bar', 'line', 'pie'])
+[4] QC7-5146-000 / Nhập theo ngày (2.065s) | Table: True (rows: 200) | Chart: False (None, allowed: [])
+[5] QC7-5146-000 / So sánh DO vs FCST (4.547s) | Table: True (rows: 2) | Chart: True (bar, allowed: ['bar'])
+[6] QC7-5146-000 / Trạng thái QC (1.966s) | Table: True (rows: 1) | Chart: True (pie, allowed: ['bar', 'line', 'pie'])
+[7] QC7-5146-000 / Cấu trúc BOM (1.006s) | Table: True (rows: 1) | Chart: False (None, allowed: [])
+[8] QC7-5146-000 / Giá MOQ (1.053s) | Table: True (rows: 1) | Chart: False (None, allowed: [])
+
+=================== TỔNG KẾT KẾT QUẢ ===================
+Saved details to /tmp/random_test_results.json

@@ -1,0 +1,110 @@
+{
+  "screen_state": "SO1Overview",
+  "screen_url": "http://10.0.6.2:1004/Solution/ERP/#/SO/SO1",
+  "screen_title": "Đơn hàng (Hợp đồng)",
+  "total_records_rendered": 579110,
+  "visible_columns": [
+    {
+      "display_order": 1,
+      "ui_label": "Trạng thái",
+      "field_name": "status",
+      "source_field": "sys_dmtt.statusname",
+      "format": "text",
+      "sample_values": ["Chờ duyệt", "Duyệt"]
+    },
+    {
+      "display_order": 2,
+      "ui_label": "Ngày CT",
+      "field_name": "ngay_ct",
+      "source_field": "ph.ngay_ct",
+      "format": "DD/MM/YYYY",
+      "sample_values": ["07/10/2026", "23/09/2026"]
+    },
+    {
+      "display_order": 3,
+      "ui_label": "Số CT",
+      "field_name": "so_ct",
+      "source_field": "ph.so_ct",
+      "format": "code",
+      "sample_values": ["001-2609-000001", "001-2610-000001"]
+    },
+    {
+      "display_order": 4,
+      "ui_label": "Mã giao dịch",
+      "field_name": "ma_gd",
+      "source_field": "ph.ma_gd",
+      "format": "code",
+      "sample_values": ["1", "2"]
+    },
+    {
+      "display_order": 5,
+      "ui_label": "Tên giao dịch",
+      "field_name": "ten_gd",
+      "source_field": "ph.ten_gd",
+      "format": "text",
+      "sample_values": ["Đơn hàng -> Lệnh gia công", "Giao bù hàng thiếu"]
+    },
+    {
+      "display_order": 6,
+      "ui_label": "Số PO KH",
+      "field_name": "so_po_kh",
+      "source_field": "ph.so_po_kh",
+      "format": "text",
+      "sample_values": ["PO-2026-001", ""]
+    },
+    {
+      "display_order": 7,
+      "ui_label": "Mã khách hàng",
+      "field_name": "ma_kh",
+      "source_field": "ph.ma_kh",
+      "format": "code",
+      "sample_values": ["KH0028", "HTMP", "KH0016"]
+    },
+    {
+      "display_order": 8,
+      "ui_label": "Tên khách hàng",
+      "field_name": "ten_kh",
+      "source_field": "dmkh.ten_kh",
+      "format": "text",
+      "sample_values": ["Công ty TNHH Kyocera", "Công ty TNHH HTMP"]
+    },
+    {
+      "display_order": 9,
+      "ui_label": "Địa chỉ",
+      "field_name": "dia_chi",
+      "source_field": "ph.dia_chi",
+      "format": "text",
+      "sample_values": ["KCN Thăng Long, Hà Nội", ""]
+    },
+    {
+      "display_order": 10,
+      "ui_label": "Người liên lạc",
+      "field_name": "ong_ba",
+      "source_field": "ph.ong_ba",
+      "format": "text",
+      "sample_values": ["Nguyễn Văn A", ""]
+    }
+  ],
+  "hidden_and_key_fields": [
+    { "field_name": "stt_rec", "type": "primary_key", "hidden": true },
+    { "field_name": "ln", "type": "line_number", "hidden": true },
+    { "field_name": "action_type", "type": "system", "hidden": true },
+    { "field_name": "ma_ct", "type": "voucher_code", "hidden": true, "default": "SO1" }
+  ],
+  "detail_tables": {
+    "ct64": "Line items detail (vật tư, số lượng, đơn giá, thành tiền, thuế)",
+    "ctkhgh": "Delivery schedule (kế hoạch giao hàng theo ngày, vị trí KH)",
+    "ctck20": "Discount detail (chiết khấu theo dòng)"
+  },
+  "search_filter_controls": [
+    { "label": "Từ ngày CT - Đến ngày CT", "type": "date_range", "fields": ["tu_ngay", "den_ngay"] },
+    { "label": "Từ số CT - Đến số CT", "type": "text_range", "fields": ["tu_so", "den_so"] },
+    { "label": "Mã ĐVCS", "type": "lookup", "field": "ma_dvcs", "default": "001" },
+    { "label": "Mã vật tư", "type": "lookup", "field": "ma_vt" },
+    { "label": "Số CT báo giá", "type": "lookup", "field": "so_ct_bg" }
+  ],
+  "verified_at": "2026-10-27T09:45:00+07:00",
+  "evidence_level": "UI_CONFIG_LIVE",
+  "visual_artifact_redacted": "evidence/api/SO1Overview/so1_grid_screenshot_redacted.png",
+  "evidence_note": "UI column labels and visible rows verified on live UI via so1_grid_screenshot_redacted.png; API raw response and DB schema/joins remain unverified, kept at UI_CONFIG_LIVE."
+}

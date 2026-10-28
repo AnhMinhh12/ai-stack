@@ -1,0 +1,74 @@
+=== Tool: freecad_laptop_0065 (FreeCAD Planner) ===
+"""
+title: FreeCAD Planner
+author: AI-stack
+version: 1.0.1
+"""
+
+import ast
+import json
+import os
+import re
+import time
+import urllib.request
+import uuid
+from pathlib import Path
+
+# Endpoint MCP trên máy Windows qua Tailscale.
+MCP_URL = os.getenv(
+    "FREECAD_MCP_URL",
+    "http://100.116.34.83:39280/mcp",
+)
+
+# vLLM nội bộ trong Docker network.
+VLLM_URL = "http://vllm:8000/v1/chat/completions"
+MODEL_NAME = "qwen2.5-14b"
+
+# Volume persistent của Open WebUI.
+SCRIPT_DIR = Path("/app/backend/data/fr
+
+=== Tool: htmp_erp_agent (ERP nhiều lượt staging) ===
+"""
+title: ERP nhiều lượt (staging)
+author: HTMP Platform
+version: 0.1.0
+required_open_webui_version: 0.6.0
+"""
+import json
+from fastapi.responses import HTMLResponse
+from erp_ai.agent_runtime import answer
+from erp_ai.export_files import build_downloads, requested_formats
+from erp_ai.rich_ui import render_erp_embed
+
+
+class Tools:
+    async def ask_erp_agent(self, question: str, __user__: dict = None, __messages__: list = None, __event_emitter__ = None):
+        """Tra cứu ERP nhiều lượt trong p
+
+=== Tool: htmp_office_editor (Chỉnh sửa file Office) ===
+"""
+title: Chỉnh sửa file Office
+author: HTMP Platform
+version: 1.0.0
+required_open_webui_version: 0.6.0
+"""
+
+"""Create a new Office file from an attached file and explicit edit operations."""
+
+import hashlib
+import io
+import json
+import mimetypes
+import re
+import uuid
+import zipfile
+from pathlib import Path
+
+from open_webui.models.files import FileForm, Files
+from open_webui.storage.provider import Storage
+
+MAX_INPUT = 25 * 1024 * 1024
+MAX_UNCOMPRESSED = 150 * 1024 * 1024
+MAX_OPERATIONS = 100
+E
+

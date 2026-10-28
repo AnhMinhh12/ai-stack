@@ -1,0 +1,39 @@
+===============================================================================================
+BẮT ĐẦU CHẠY KIỂM THỬ TỰ ĐỘNG ĐỢT 3: BÁN HÀNG (SO1, HDA), MUA HÀNG (PO1), KHO VẬN & KHUÔN
+===============================================================================================
+[PASSED] ERP3-01 | 1.719s | 30 rows | public.ph64 / public.ct64 (Bảng kê đơn hàng bán SO1) | Q: Cho tôi xem bảng kê đơn hàng bán gần đây nhất
+    Mẫu: {'so_ct': '001-2610-010165', 'ngay_ct': '2026-10-28', 'ma_kh': 'KH0066', 'ten_kh': 'Công ty TNHH Ariston Thermo Việt Nam', 'so_po': ''}
+[PASSED] ERP3-02 | 1.100s | 30 rows | public.ph64 / public.ct64 (Bảng kê đơn hàng bán SO1) | Q: Bảng kê đơn hàng bán mã KH0047
+    Mẫu: {'so_ct': '001-2610-010164', 'ngay_ct': '2026-10-27', 'ma_kh': 'KH0047', 'ten_kh': 'Công ty TNHH Anam Electronics Việt Nam', 'so_po': ''}
+[PASSED] ERP3-03 | 0.684s | 30 rows | public.ph64 / public.ct64 (Bảng kê đơn hàng bán SO1) | Q: Bảng kê đơn hàng bán số 001-2610-010164
+    Mẫu: {'so_ct': '001-2610-010164', 'ngay_ct': '2026-10-27', 'ma_kh': 'KH0047', 'ten_kh': 'Công ty TNHH Anam Electronics Việt Nam', 'so_po': ''}
+[PASSED] ERP3-04 | 1.553s | 30 rows | public.ph64 / public.ct64 (Bảng kê đơn hàng bán SO1) | Q: Đơn hàng bán mã VGL1A416
+    Mẫu: {'so_ct': '001-2610-010164', 'ngay_ct': '2026-10-27', 'ma_kh': 'KH0047', 'ten_kh': 'Công ty TNHH Anam Electronics Việt Nam', 'so_po': ''}
+[PASSED] ERP3-05 | 0.386s | 30 rows | public.ph81 / public.ct81 (Bảng kê phiếu xuất kho bán hàng) | Q: Bảng kê phiếu xuất kho bán hàng gần đây
+    Mẫu: {'so_ct': '001-2610-002643', 'ngay_ct': '2026-10-28', 'ma_kh': 'KH0049', 'ten_kh': 'Công ty TNHH Tohoku Pioneer Việt Nam', 'so_so': ''}
+[PASSED] ERP3-06 | 0.437s | 30 rows | public.ph81 / public.ct81 (Bảng kê phiếu xuất kho bán hàng) | Q: Bảng kê phiếu xuất bán mã KH0049
+    Mẫu: {'so_ct': '001-2610-002643', 'ngay_ct': '2026-10-28', 'ma_kh': 'KH0049', 'ten_kh': 'Công ty TNHH Tohoku Pioneer Việt Nam', 'so_so': ''}
+[PASSED] ERP3-07 | 0.308s | 6 rows | public.ph81 / public.ct81 (Bảng kê phiếu xuất kho bán hàng) | Q: Phiếu xuất kho bán hàng 001-2610-002643
+    Mẫu: {'so_ct': '001-2610-002643', 'ngay_ct': '2026-10-28', 'ma_kh': 'KH0049', 'ten_kh': 'Công ty TNHH Tohoku Pioneer Việt Nam', 'so_so': ''}
+[PASSED] ERP3-08 | 0.253s | 8 rows | public.ph94 / public.ct94 (Bảng kê đơn hàng mua PO1) | Q: Bảng kê đơn hàng mua gần đây nhất
+    Mẫu: {'so_po': '001-2610-000702', 'ngay_po': '2026-10-28', 'ma_ncc': 'NCC0220', 'ten_ncc': 'CÔNG TY TNHH MỘT THÀNH VIÊN HUNGTECH', 'ma_vt': 'SIDE-LADRO'}
+[PASSED] ERP3-09 | 0.169s | 9 rows | public.ph94 / public.ct94 (Bảng kê đơn hàng mua PO1) | Q: Bảng kê đơn hàng mua mã NCC0220
+    Mẫu: {'so_po': '001-2610-000702', 'ngay_po': '2026-10-28', 'ma_ncc': 'NCC0220', 'ten_ncc': 'CÔNG TY TNHH MỘT THÀNH VIÊN HUNGTECH', 'ma_vt': 'SIDE-LADRO'}
+[PASSED] ERP3-10 | 0.079s | 1 rows | public.ph94 / public.ct94 (Bảng kê đơn hàng mua PO1) | Q: Đơn hàng mua số 001-2610-000702
+    Mẫu: {'so_po': '001-2610-000702', 'ngay_po': '2026-10-28', 'ma_ncc': 'NCC0220', 'ten_ncc': 'CÔNG TY TNHH MỘT THÀNH VIÊN HUNGTECH', 'ma_vt': 'SIDE-LADRO'}
+[PASSED] ERP3-11 | 0.455s | 16 rows | public.ph74 / public.ct74 (Phiếu nhập/xuất kho nội bộ) | Q: Bảng kê phiếu nhập kho nội bộ gần đây
+    Mẫu: {'so_ct': '001-2610-011373', 'ngay_ct': '2026-10-28', 'loai_phieu': 'PND', 'ma_vt': 'TFF6151-E/VI', 'ten_vt': 'Khung nhựa (linh kiện của loa)'}
+[PASSED] ERP3-12 | 1.357s | 1 rows | public.ph74 / public.ct74 (Phiếu nhập/xuất kho nội bộ) | Q: Phiếu nhập kho nội bộ số 001-2610-011362
+    Mẫu: {'so_ct': '001-2610-011362', 'ngay_ct': '2026-10-28', 'loai_phieu': 'PND', 'ma_vt': 'RC4-3049-000', 'ten_vt': 'Phần khóa hỗ trợ phía sau bằng nhựa (phụ kiện của máy in) mã RC4-3049-000'}
+[PASSED] ERP3-13 | 1.272s | 30 rows | public.ph74 / public.ct74 (Phiếu nhập/xuất kho nội bộ) | Q: Bảng kê nhập kho từ sản xuất mã RC4-3049-000
+    Mẫu: {'so_ct': '001-2610-011362', 'ngay_ct': '2026-10-28', 'loai_phieu': 'PND', 'ma_vt': 'RC4-3049-000', 'ten_vt': 'Phần khóa hỗ trợ phía sau bằng nhựa (phụ kiện của máy in) mã RC4-3049-000'}
+[PASSED] ERP3-14 | 0.090s | 30 rows | public.dmhosokhuon (Hồ sơ khuôn) | Q: Bảng kê hồ sơ khuôn gần đây
+    Mẫu: {'ma_khuon': 'K_VGY1A061', 'ten_khuon': '26HI1088', 'ngay_su_dung': '2026-10-23', 'ngay_bao_hiem': '2026-10-23', 'so_cavity': '1'}
+[PASSED] ERP3-15 | 0.087s | 1 rows | public.dmhosokhuon (Hồ sơ khuôn) | Q: Hồ sơ khuôn mã K_VGY1A061
+    Mẫu: {'ma_khuon': 'K_VGY1A061', 'ten_khuon': '26HI1088', 'ngay_su_dung': '2026-10-23', 'ngay_bao_hiem': '2026-10-23', 'so_cavity': '1'}
+[PASSED] ERP3-16 | 0.069s | 30 rows | public.dmbanggia / public.dmbanggiact (Bảng giá bán) | Q: Danh mục bảng giá bán hiện hành
+    Mẫu: {'ma_bang_gia': 'A13', 'ten_bang_gia': 'Bảng giá A13', 'ma_vt': '002MANHTEST', 'ten_vt': '002MANHTEST', 'dvt': 'LANG2'}
+
+===============================================================================================
+KẾT QUẢ TỔNG HỢP: 16/16 PASSED (100.0%) | Thời gian TB: 0.626s
+===============================================================================================

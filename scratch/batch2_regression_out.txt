@@ -1,0 +1,31 @@
+===============================================================================================
+BẮT ĐẦU CHẠY KIỂM THỬ TỰ ĐỘNG ĐỢT 2: ĐIỀU ĐỘ SẢN XUẤT, DỪNG MÁY & PHẾ PHẨM MES
+===============================================================================================
+[PASSED] MES2-01 | 0.318s | 9 rows | public.mes_scheduling_output / phlsx (Bảng kê Work Order) | Q: Bảng kê Work Order mã 1014082701
+    Mẫu: {'so_wo': '001-2610-2810-DUC-0037.T2', 'ma_sp': '1014082701', 'ten_sp': 'FRONTAL COVER', 'version_bom': '1.0', 'ma_may': 'P-PC'}
+[PASSED] MES2-02 | 0.141s | 30 rows | public.mes_scheduling_output / phlsx (Bảng kê Work Order) | Q: Cho tôi xem bảng kê điều độ sản xuất gần đây nhất
+    Mẫu: {'so_wo': '001-2610-2710-DUC-0048.W7M6', 'ma_sp': 'QC9-0994-000', 'ten_sp': 'Cần gạt điều chỉnh khổ giấy', 'version_bom': '1.0', 'ma_may': 'P-PC'}
+[PASSED] MES2-03 | 0.060s | 1 rows | public.mes_scheduling_output / phlsx (Bảng kê Work Order) | Q: Tiến độ Work Order 001-2610-2710-DUC-0037.T30
+    Mẫu: {'so_wo': '001-2610-2710-DUC-0037.T30', 'ma_sp': '1014082701', 'ten_sp': 'FRONTAL COVER', 'version_bom': '1.0', 'ma_may': 'DUC-0037'}
+[PASSED] MES2-04 | 0.198s | 4 rows | public.mes_scheduling_output / phlsx (Bảng kê Work Order) | Q: Kế hoạch sản xuất mã RC6-3087-000
+    Mẫu: {'so_wo': '001-2610-2710-DUC-0037.T20', 'ma_sp': 'RC6-3087-000', 'ten_sp': 'Cover_Left_MY', 'version_bom': '1.0', 'ma_may': 'P-PC'}
+[PASSED] MES2-05 | 0.239s | 30 rows | public.mes_oi_stop_line (Bảng kê dừng máy) | Q: Bảng kê dừng máy gần đây
+    Mẫu: {'ngay_dung': '2026-10-28', 'gio_bat_dau': '08:36:43', 'gio_ket_thuc': '08:36:43', 'phut_dung': '0', 'ma_may': 'DUC-0066'}
+[PASSED] MES2-06 | 0.227s | 30 rows | public.mes_oi_stop_line (Bảng kê dừng máy) | Q: Bảng kê dừng máy hôm nay
+    Mẫu: {'ngay_dung': '2026-10-28', 'gio_bat_dau': '08:36:43', 'gio_ket_thuc': '08:36:43', 'phut_dung': '0', 'ma_may': 'DUC-0066'}
+[PASSED] MES2-07 | 0.246s | 30 rows | public.mes_oi_stop_line (Bảng kê dừng máy) | Q: Lịch sử dừng máy DUC-0266
+    Mẫu: {'ngay_dung': '2026-10-27', 'gio_bat_dau': '15:02:20', 'gio_ket_thuc': '15:06:34', 'phut_dung': '4', 'ma_may': 'DUC-0266'}
+[PASSED] MES2-08 | 0.245s | 30 rows | public.mes_oi_stop_line (Bảng kê dừng máy) | Q: Bảng kê sự cố dừng máy DUC-0050
+    Mẫu: {'ngay_dung': '2026-10-28', 'gio_bat_dau': '04:04:33', 'gio_ket_thuc': '04:09:39', 'phut_dung': '5', 'ma_may': 'DUC-0050'}
+[PASSED] MES2-09 | 0.180s | 30 rows | public.mes_oi_ng_confirm (Bảng kê phế phẩm NG) | Q: Bảng kê phế phẩm sản xuất gần đây
+    Mẫu: {'ngay': '2026-10-28', 'gio': '08:28:11', 'ma_may': 'DUC-0026', 'ma_line': 'TRAM_DUC', 'so_lsx': '001-2610-006932'}
+[PASSED] MES2-10 | 0.196s | 30 rows | public.mes_oi_ng_confirm (Bảng kê phế phẩm NG) | Q: Bảng kê lỗi sản xuất mã QC7-5021-000
+    Mẫu: {'ngay': '2026-10-27', 'gio': '23:41:17', 'ma_may': 'DUC-0030', 'ma_line': 'TRAM_DUC', 'so_lsx': '001-2610-006739'}
+[PASSED] MES2-11 | 0.188s | 30 rows | public.mes_oi_ng_confirm (Bảng kê phế phẩm NG) | Q: Hàng NG máy DUC-0031
+    Mẫu: {'ngay': '2026-10-28', 'gio': '03:48:26', 'ma_may': 'DUC-0031', 'ma_line': 'TRAM_DUC', 'so_lsx': '001-2610-006350'}
+[PASSED] MES2-12 | 0.190s | 6 rows | public.mes_oi_ng_confirm (Bảng kê phế phẩm NG) | Q: Bảng kê phế phẩm mã QC7-5403-000
+    Mẫu: {'ngay': '2026-10-28', 'gio': '03:48:26', 'ma_may': 'DUC-0031', 'ma_line': 'TRAM_DUC', 'so_lsx': '001-2610-006350'}
+
+===============================================================================================
+KẾT QUẢ TỔNG HỢP: 12/12 PASSED (100.0%) | Thời gian TB: 0.202s
+===============================================================================================

@@ -1,0 +1,73 @@
+
+========================= CÂU 01 (0.14s) =========================
+HỎI: Mã hàng QC7-5146-000 dùng loại nhựa gì? Cấu trúc sản phẩm của mã hàng này gồm những gì?
+AI TRẢ LỜI: Mã hàng QC7-5146-000 dùng loại nhựa PS-576D (HIPS 576H GR21  PSMT VE0271-33 Nu-0215 Dim black MBB3%), định mức: 0.026000000000000002 KG. Cấu trúc sản phẩm theo BOM QC7-5146-000-1.0 (phiên bản 1.0, hiệu lực từ 2023-01-01 đến 2032-11-02).
+
+========================= CÂU 02 (0.15s) =========================
+HỎI: MOQ báo giá hiện tại của mã QC7-5146-000 là bao nhiêu? Giá áp dụng hiện tại theo từng mức MOQ là bao nhiêu?
+AI TRẢ LỜI: Mã QC7-5146-000 có bảng giá đang áp dụng: khách KH0015: MOQ tối thiểu = 1 PCS, giá áp dụng hiện tại = 0.07959 USD/PCS (hiệu lực 2026-10-24 đến 2026-12-31)
+
+========================= CÂU 03 (2.85s) =========================
+HỎI: Tính đến ngày 20/10/2026, lot gần nhất được xuất giao của mã QC7-5146-000 là lot nào? Ngày xuất và số lượng bao nhiêu?
+AI TRẢ LỜI: Lần xuất giao gần nhất của mã QC7-5146-000: Ngày xuất 2026-10-20, chứng từ 001-2610-001884, số lượng 420 PCS. Mã lot ghi nhận trên hệ thống ERP: trống (chưa gắn mã lot trên chứng từ xuất bán).
+
+========================= CÂU 04 (2.28s) =========================
+HỎI: Từ ngày 01/10/2026 đến hết ngày 20/10/2026, tổng số lượng xuất bán và doanh thu của mã QC7-5146-000 là bao nhiêu?
+AI TRẢ LỜI: Mã hàng QC7-5146-000 (từ ngày 01/10/2026 đến ngày 20/10/2026): Tổng số lượng xuất bán: 89100 PCS, tổng doanh thu: 170992971.592 VND.
+
+========================= CÂU 05 (0.11s) =========================
+HỎI: Mã hàng QC7-5146-000 được khai báo thuộc khách hàng nào?
+AI TRẢ LỜI: Mã hàng QC7-5146-000 (Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000) được khai báo thuộc khách hàng: KH0015 - Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long.
+
+========================= CÂU 06 (0.98s) =========================
+HỎI: Từ ngày 01/10/2026 đến hết ngày 20/10/2026, mã QC7-5146-000 được nhập kho vào những ngày nào, từ kho nào sang kho nào, số lượng bao nhiêu và tài khoản nào tạo phiếu?
+AI TRẢ LỜI: Mã hàng QC7-5146-000 từ ngày 01/10/2026 đến ngày 20/10/2026: Ghi nhận 200 dòng chứng từ nhập kho (tổng số lượng: 237500 PCS). Các kho nhập: KHO-HANG-LE, KHO-XHLOT2, KHO-XHLOT3, KHO-XHTL, KHOTP00. Tài khoản tạo phiếu tiêu biểu: DUC0223, KHO2, KHO3, KHO5, KHO6. Lưu ý: Bảng kê phiếu nhập kho ghi nhận kho nhập đến; điều chuyển giữa các kho thuộc Bảng kê điều chuyển.
+
+========================= CÂU 07 (2.23s) =========================
+HỎI: So sánh DO và FCST hiện tại với bản trước của mã QC7-5146-000: số lượng tăng hay giảm bao nhiêu?
+AI TRẢ LỜI: So sánh DO và FCST mã QC7-5146-000 với bản trước: FCST hiện tại (2026-10-27): 837,840 PCS vs bản trước (2026-10-26): 841,440 PCS -> giảm 3,600 PCS (-3,600 PCS). DO gần nhất (001-2610-002681): 360 PCS vs bản trước (001-2610-002677): 600 PCS -> giảm 240 PCS (-240 PCS).
+
+========================= CÂU 08 (3.99s) =========================
+HỎI: Quy cách đóng gói của mã QC7-5146-000 gồm những thông tin gì? Có thể quy đổi tồn kho hiện tại theo quy cách đóng gói không?
+AI TRẢ LỜI: Mã QC7-5146-000 có quy cách đóng gói: Thùng: BGTD0070 (60 PCS/thùng), Khay: BGKP0012 (10 PCS/khay). Tồn kho hiện tại hoàn toàn quy đổi được theo quy cách đóng gói (Tổng toàn bộ: 4,840 PCS quy đổi thành 80 thùng đầy và 40 PCS lẻ). Chi tiết từng kho: KHOTP00: 4,200 PCS (70 thùng); KHO_TAIMAY: 360 PCS (6 thùng); KHOTP02: 240 PCS (4 thùng); KHO-HANG-LE: 40 PCS (0 thùng + 40 PCS lẻ).
+
+========================= CÂU 09 (0.08s) =========================
+HỎI: Khuôn K_QC5-2919-000-V1 đã chạy tổng cộng bao nhiêu shot cho mã QC7-5146-000? Với demand của khách KH0015, có đủ dữ liệu để dự kiến thời điểm khuôn hết tuổi thọ không?
+AI TRẢ LỜI: Câu 1–2: Khuôn K_QC5-2919-000-V1 đã chạy tổng cộng 1,695,010 shot cho mã QC7-5146-000 (số shot bảo hành ban đầu: 1,000,000 shot (thực tế đã chạy vượt mức bảo hành)). Về dự kiến thời điểm hết tuổi thọ khuôn: Hệ thống ERP hiện tại không lưu công thức tự động nội suy tuổi thọ từ demand của khách hàng nếu không có cấu hình số cavity và kế hoạch chi tiết.
+
+========================= CÂU 10 (4.93s) =========================
+HỎI: So sánh doanh thu mã QC7-5146-000 của khách KH0015 trong hai khoảng 01/09/2026–20/09/2026 và 01/10/2026–20/10/2026. Nêu số lượng và doanh thu từng kỳ.
+AI TRẢ LỜI: Câu 1 (Kỳ 2026-09-01 đến 2026-09-20): Mã hàng QC7-5146-000 của khách KH0015 (từ ngày 01/09/2026 đến ngày 20/09/2026): Tổng số lượng xuất bán: 84840 PCS, tổng doanh thu: 175446405.12 VND.
+Câu 2 (Kỳ 2026-10-01 đến 2026-10-20): Mã hàng QC7-5146-000 của khách KH0015 (từ ngày 01/10/2026 đến ngày 20/10/2026): Tổng số lượng xuất bán: 89100 PCS, tổng doanh thu: 170992971.592 VND.
+
+========================= CÂU 11 (2.10s) =========================
+HỎI: Mã QC7-5146-000 hiện có tồn kho thuộc những khuôn nào? Số lượng theo từng khuôn là bao nhiêu?
+AI TRẢ LỜI: Mã QC7-5146-000 có tồn kho tem thành phẩm theo từng khuôn/die: Khuôn/Die V1: 14,280 PCS; Khuôn/Die V2: 940 PCS (Tổng cộng: 15,220 PCS). Lưu ý: Trường mã khuôn (mold) trên tem ERP đang để trống, hệ thống theo dõi theo mã Die.
+
+========================= CÂU 12 (0.21s) =========================
+HỎI: Liệt kê dữ liệu đơn hàng bán của khách KH0015 từ ngày 01/10/2026 đến hết ngày 20/10/2026, gồm số đơn, ngày đặt, mã hàng, số lượng và trạng thái.
+AI TRẢ LỜI: Khách hàng KH0015 từ 2026-10-01 đến 2026-10-20 có tổng cộng 2,082 đơn hàng (2,110 dòng chứng từ), tổng số lượng đặt: 3,654,505 PCS. Tiêu biểu: 001-2610-007634 (ngày 2026-10-20, mã QC6-3108-000, SL 920 PCS, status=12); 001-2610-007635 (ngày 2026-10-20, mã QC6-3114-000, SL 400 PCS, status=12); 001-2610-007636 (ngày 2026-10-20, mã QC7-5620-000, SL 520 PCS, status=12); 001-2610-007637 (ngày 2026-10-20, mã QC7-6208-000, SL 80 PCS, status=12); 001-2610-007638 (ngày 2026-10-20, mã QC7-6850-000, SL 180 PCS, status=12)...
+
+========================= CÂU 13 (0.07s) =========================
+HỎI: Lệnh giao hàng 001-2610-001811 được ghi nhận hoàn thành khi nào? Cho biết trạng thái lệnh và căn cứ thời gian được dùng.
+AI TRẢ LỜI: Lệnh giao hàng 001-2610-001811 có trạng thái: Hoàn thành (status=12), được tạo lập lúc 19:28:20 ngày 2026-10-19, có 1 phiếu xuất kho liên kết (ngày 2026-10-20). Căn cứ thời gian: Hệ thống ERP không có timestamp hoàn thành độc lập, việc xác nhận hoàn thành dựa trên trạng thái status=12 (Hoàn thành) và chứng từ xuất kho vật lý đi kèm.
+
+========================= CÂU 14 (2.08s) =========================
+HỎI: Tồn kho hiện tại của mã QC7-5146-000 là bao nhiêu ở từng kho?
+AI TRẢ LỜI: Tồn kho hiện tại của mã QC7-5146-000 ở từng kho: KHOTP00: 4,200 PCS; KHO_TAIMAY: 360 PCS; KHOTP02: 240 PCS; KHO-HANG-LE: 40 PCS (Tổng cộng: 4,840 PCS).
+
+========================= CÂU 15 (1.08s) =========================
+HỎI: Mã QC7-5146-000 hiện có lot thành phẩm nào ở trạng thái QC cần chú ý? Cho biết trạng thái QC đúng như dữ liệu ERP.
+AI TRẢ LỜI: Kiểm tra trạng thái QC mã QC7-5146-000: Trạng thái 3 - OK (status_qc=3): 15,220 PCS. Toàn bộ tem thành phẩm đều ở trạng thái 3 - OK (đạt chất lượng), không có lot nào bị khóa hoặc khoanh vùng NG.
+
+========================= CÂU 16 (0.11s) =========================
+HỎI: Trong đơn hàng của khách KH0015 từ ngày 01/10/2026 đến hết ngày 20/10/2026, có mã hàng nào chưa có giá chuẩn được liên kết không?
+AI TRẢ LỜI: Trong các đơn hàng của khách KH0015 từ 2026-10-01 đến 2026-10-20, có 22 mã hàng chưa có giá chuẩn liên kết (gia_chuan = 0 hoặc NULL), gồm: QC7-6526-000, QC7-6534-000, QC7-9792-000, QC7-9956-000, QC7-9958-000, QC7-9960-000, QC8-0567-000, QC8-0568-000, QC8-9468-000, QC8-9483-000....
+
+========================= CÂU 17 (0.07s) =========================
+HỎI: Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long có mã khách hàng nào trên ERP?
+AI TRẢ LỜI: Khách hàng 'Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long' có mã khách hàng trên hệ thống ERP là: KH0015.
+
+========================= CÂU 18 (0.10s) =========================
+HỎI: Từ ngày 01/10/2026 đến hết ngày 20/10/2026, mã QC7-5146-000 có số lượng giao bù NG là bao nhiêu, số lượng hàng NG đã nhận lại là bao nhiêu, và còn bao nhiêu chưa giao bù hoặc chưa nhận về? Phân biệt rõ giao bù NG với giao bù hàng thiếu; nếu ERP không lưu đủ căn cứ để phân biệt thì nêu rõ.
+AI TRẢ LỜI: Từ ngày 2026-10-01 đến 2026-10-20, mã QC7-5146-000 không phát sinh giao bù NG (0 PCS) và không phát sinh nhận lại hàng NG (0 PCS). ERP không có số lượng tồn đọng chưa giao bù hoặc chưa nhận về (0 PCS). Lưu ý căn cứ hệ thống: Mã giao dịch 10 (Giao bù) trên ERP dùng chung cho cả giao bù NG lẫn giao bù hàng thiếu, hệ thống không lưu cờ phân loại độc lập nếu chứng từ không có diễn giải riêng.

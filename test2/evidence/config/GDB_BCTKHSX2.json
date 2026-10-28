@@ -1,0 +1,10 @@
+﻿{
+    "screen_state":  "GDB_BCTKHSX2",
+    "container_height":  "600",
+    "evidence_status":  "MENU_LIVE",
+    "screen_title":  "GDB_BCTKHSX2",
+    "type":  "GDB",
+    "grafana_url":  "http://10.0.6.2:1006/d/mIcNf5yHk/dashboard-tong-ket-hang-san-xuat-theo-nhom-kh2?orgId=1",
+    "datasource_host":  "http://10.0.6.2:1006/",
+    "verified_at":  "2026-10-27T08:57:00+07:00"
+}

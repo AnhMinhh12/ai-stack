@@ -1,0 +1,10 @@
+﻿{
+    "screen_state":  "GDB_OEE",
+    "container_height":  "450",
+    "evidence_status":  "MENU_LIVE",
+    "screen_title":  "GDB_OEE",
+    "type":  "GDB",
+    "grafana_url":  "http://10.0.6.2:1006/d/0iod4MaNz/dashboard-oee?orgId=1",
+    "datasource_host":  "http://10.0.6.2:1006/",
+    "verified_at":  "2026-10-27T08:57:00+07:00"
+}

@@ -1,0 +1,848 @@
+﻿{
+    "screen_state":  "DmGiaNhMaySaleCT",
+    "screen_title":  "DmGiaNhMaySaleCT",
+    "grid":  {
+                 "gridid":  "DmGiaNhMaySaleCT",
+                 "rep_id":  null,
+                 "rep_file":  null,
+                 "header":  [
+                                {
+                                    "gridid":  "DmGiaNhMaySaleCT",
+                                    "fieldname":  "loai_gia",
+                                    "field_root":  "loai_gia",
+                                    "tablename":  "dmgianhmaysalect",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  1,
+                                    "fieldcaption":  "loai_gia",
+                                    "visible":  1,
+                                    "style":  "SELECT",
+                                    "editable_yn":  true,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  120,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  true,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "1",
+                                    "opt_lookup":  null,
+                                    "depen_lookup":  "",
+                                    "map_lookup":  null,
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  null,
+                                    "fieldsearch":  "a.loai_gia",
+                                    "fieldexport":  "a.loai_gia",
+                                    "formatoption":  null,
+                                    "sel_values":  [
+                                                       {
+                                                           "key_value":  "3",
+                                                           "display_value":  "KhÃ¡ch hÃ ng",
+                                                           "search_value":  null
+                                                       },
+                                                       {
+                                                           "key_value":  "2",
+                                                           "display_value":  "NhÃ³m khÃ¡ch",
+                                                           "search_value":  null
+                                                       },
+                                                       {
+                                                           "key_value":  "1",
+                                                           "display_value":  "Táº¥t cáº£",
+                                                           "search_value":  null
+                                                       }
+                                                   ],
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmGiaNhMaySaleCT",
+                                    "fieldname":  "nh_kh1",
+                                    "field_root":  "",
+                                    "tablename":  "dmgianhmaysalect",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  2,
+                                    "fieldcaption":  "nh_kh1",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  true,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  120,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  true,
+                                    "event_name":  "lookup_single",
+                                    "query_getoptions":  "LK_dmnhkh",
+                                    "value_df":  "",
+                                    "opt_lookup":  [
+                                                       {
+                                                           "tbl":  "a"
+                                                       },
+                                                       {
+                                                           "loai_nh":  "1"
+                                                       }
+                                                   ],
+                                    "depen_lookup":  "",
+                                    "map_lookup":  [
+                                                       {
+                                                           "nh_kh1":  "ma_nh"
+                                                       }
+                                                   ],
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  null,
+                                    "fieldsearch":  "a.",
+                                    "fieldexport":  "a.nh_kh1",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  [
+                                                          {
+                                                              "gridid":  "LK_dmnhkh",
+                                                              "title":  "Danh sÃ¡ch nhÃ³m khÃ¡ch hÃ ng",
+                                                              "order_by":  "a.ma_nh",
+                                                              "pkey":  "a.ma_nh",
+                                                              "view_value_autocomp":  "",
+                                                              "function_yn":  false
+                                                          }
+                                                      ]
+                                },
+                                {
+                                    "gridid":  "DmGiaNhMaySaleCT",
+                                    "fieldname":  "nh_kh2",
+                                    "field_root":  "",
+                                    "tablename":  "dmgianhmaysalect",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  3,
+                                    "fieldcaption":  "nh_kh2",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  true,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  120,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  true,
+                                    "event_name":  "lookup_single",
+                                    "query_getoptions":  "LK_dmnhkh",
+                                    "value_df":  "",
+                                    "opt_lookup":  [
+                                                       {
+                                                           "tbl":  "a"
+                                                       },
+                                                       {
+                                                           "loai_nh":  "2"
+                                                       }
+                                                   ],
+                                    "depen_lookup":  "",
+                                    "map_lookup":  [
+                                                       {
+                                                           "nh_kh2":  "ma_nh"
+                                                       }
+                                                   ],
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  null,
+                                    "fieldsearch":  "a.",
+                                    "fieldexport":  "a.nh_kh2",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  [
+                                                          {
+                                                              "gridid":  "LK_dmnhkh",
+                                                              "title":  "Danh sÃ¡ch nhÃ³m khÃ¡ch hÃ ng",
+                                                              "order_by":  "a.ma_nh",
+                                                              "pkey":  "a.ma_nh",
+                                                              "view_value_autocomp":  "",
+                                                              "function_yn":  false
+                                                          }
+                                                      ]
+                                },
+                                {
+                                    "gridid":  "DmGiaNhMaySaleCT",
+                                    "fieldname":  "nh_kh3",
+                                    "field_root":  "",
+                                    "tablename":  "dmgianhmaysalect",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  4,
+                                    "fieldcaption":  "nh_kh3",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  true,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  120,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  true,
+                                    "event_name":  "lookup_single",
+                                    "query_getoptions":  "LK_dmnhkh",
+                                    "value_df":  "",
+                                    "opt_lookup":  [
+                                                       {
+                                                           "tbl":  "a"
+                                                       },
+                                                       {
+                                                           "loai_nh":  "3"
+                                                       }
+                                                   ],
+                                    "depen_lookup":  "",
+                                    "map_lookup":  [
+                                                       {
+                                                           "nh_kh3":  "ma_nh"
+                                                       }
+                                                   ],
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  null,
+                                    "fieldsearch":  "a.",
+                                    "fieldexport":  "a.nh_kh3",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  [
+                                                          {
+                                                              "gridid":  "LK_dmnhkh",
+                                                              "title":  "Danh sÃ¡ch nhÃ³m khÃ¡ch hÃ ng",
+                                                              "order_by":  "a.ma_nh",
+                                                              "pkey":  "a.ma_nh",
+                                                              "view_value_autocomp":  "",
+                                                              "function_yn":  false
+                                                          }
+                                                      ]
+                                },
+                                {
+                                    "gridid":  "DmGiaNhMaySaleCT",
+                                    "fieldname":  "nh_kh4",
+                                    "field_root":  "",
+                                    "tablename":  "dmgianhmaysalect",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  5,
+                                    "fieldcaption":  "nh_kh4",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  true,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  120,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  true,
+                                    "event_name":  "lookup_single",
+                                    "query_getoptions":  "LK_dmnhkh",
+                                    "value_df":  "",
+                                    "opt_lookup":  [
+                                                       {
+                                                           "tbl":  "a"
+                                                       },
+                                                       {
+                                                           "loai_nh":  "4"
+                                                       }
+                                                   ],
+                                    "depen_lookup":  "",
+                                    "map_lookup":  [
+                                                       {
+                                                           "nh_kh4":  "ma_nh"
+                                                       }
+                                                   ],
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  null,
+                                    "fieldsearch":  "a.",
+                                    "fieldexport":  "a.nh_kh4",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  [
+                                                          {
+                                                              "gridid":  "LK_dmnhkh",
+                                                              "title":  "Danh sÃ¡ch nhÃ³m khÃ¡ch hÃ ng",
+                                                              "order_by":  "a.ma_nh",
+                                                              "pkey":  "a.ma_nh",
+                                                              "view_value_autocomp":  "",
+                                                              "function_yn":  false
+                                                          }
+                                                      ]
+                                },
+                                {
+                                    "gridid":  "DmGiaNhMaySaleCT",
+                                    "fieldname":  "nh_kh5",
+                                    "field_root":  "",
+                                    "tablename":  "dmgianhmaysalect",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  6,
+                                    "fieldcaption":  "nh_kh5",
+                                    "visible":  1,
+                                    "style":  "FORMAT_CODE",
+                                    "editable_yn":  true,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  120,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  true,
+                                    "event_name":  "lookup_single",
+                                    "query_getoptions":  "LK_dmnhkh",
+                                    "value_df":  "",
+                                    "opt_lookup":  [
+                                                       {
+                                                           "tbl":  "a"
+                                                       },
+                                                       {
+                                                           "loai_nh":  "5"
+                                                       }
+                                                   ],
+                                    "depen_lookup":  "",
+                                    "map_lookup":  [
+                                                       {
+                                                           "nh_kh5":  "ma_nh"
+                                                       }
+                                                   ],
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  null,
+                                    "fieldsearch":  "a.",
+                                    "fieldexport":  "a.nh_kh5",
+                                    "formatoption":  "^[a-zA-Z0-9\\\\\\-\\.\\_\\=\\:\\\u0026\\/\\+\\#]*$",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  [
+                                                          {
+                                                              "gridid":  "LK_dmnhkh",
+                                                              "title":  "Danh sÃ¡ch nhÃ³m khÃ¡ch hÃ ng",
+                                                              "order_by":  "a.ma_nh",
+                                                              "pkey":  "a.ma_nh",
+                                                              "view_value_autocomp":  "",
+                                                              "function_yn":  false
+                                                          }
+                                                      ]
+                                },
+                                {
+                                    "gridid":  "DmGiaNhMaySaleCT",
+                                    "fieldname":  "ma_kh",
+                                    "field_root":  "",
+                                    "tablename":  "dmgianhmaysalect",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  7,
+                                    "fieldcaption":  "ma_kh",
+                                    "visible":  1,
+                                    "style":  "",
+                                    "editable_yn":  true,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  120,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  false,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  true,
+                                    "event_name":  "lookup_single",
+                                    "query_getoptions":  "LK_dmkh",
+                                    "value_df":  "",
+                                    "opt_lookup":  null,
+                                    "depen_lookup":  "",
+                                    "map_lookup":  [
+                                                       {
+                                                           "ma_kh":  "ma_kh"
+                                                       },
+                                                       {
+                                                           "ten_kh":  "ten_kh"
+                                                       }
+                                                   ],
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  null,
+                                    "fieldsearch":  "a.",
+                                    "fieldexport":  "a.ma_kh",
+                                    "formatoption":  null,
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  [
+                                                          {
+                                                              "gridid":  "LK_dmkh",
+                                                              "title":  "Danh sÃ¡ch khÃ¡ch hÃ ng",
+                                                              "order_by":  "a.ma_kh",
+                                                              "pkey":  "a.ma_kh",
+                                                              "view_value_autocomp":  "",
+                                                              "function_yn":  false
+                                                          }
+                                                      ]
+                                },
+                                {
+                                    "gridid":  "DmGiaNhMaySaleCT",
+                                    "fieldname":  "ma_nt",
+                                    "field_root":  "",
+                                    "tablename":  "dmgianhmaysalect",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  8,
+                                    "fieldcaption":  "ma_nt",
+                                    "visible":  1,
+                                    "style":  "SELECT",
+                                    "editable_yn":  false,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  80,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  false,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "USD",
+                                    "opt_lookup":  null,
+                                    "depen_lookup":  "",
+                                    "map_lookup":  null,
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  null,
+                                    "fieldsearch":  "a.",
+                                    "fieldexport":  "a.ma_nt",
+                                    "formatoption":  null,
+                                    "sel_values":  [
+                                                       {
+                                                           "key_value":  "CHF",
+                                                           "display_value":  "CHF",
+                                                           "search_value":  null
+                                                       },
+                                                       {
+                                                           "key_value":  "CNY",
+                                                           "display_value":  "CNY",
+                                                           "search_value":  null
+                                                       },
+                                                       {
+                                                           "key_value":  "EUR",
+                                                           "display_value":  "EUR",
+                                                           "search_value":  null
+                                                       },
+                                                       {
+                                                           "key_value":  "JPY",
+                                                           "display_value":  "JPY",
+                                                           "search_value":  null
+                                                       },
+                                                       {
+                                                           "key_value":  "SGD",
+                                                           "display_value":  "SGD",
+                                                           "search_value":  null
+                                                       },
+                                                       {
+                                                           "key_value":  "USD",
+                                                           "display_value":  "USD",
+                                                           "search_value":  null
+                                                       },
+                                                       {
+                                                           "key_value":  "VND",
+                                                           "display_value":  "VND",
+                                                           "search_value":  null
+                                                       }
+                                                   ],
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmGiaNhMaySaleCT",
+                                    "fieldname":  "gia",
+                                    "field_root":  "",
+                                    "tablename":  "dmgianhmaysalect",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  9,
+                                    "fieldcaption":  "gia",
+                                    "visible":  1,
+                                    "style":  "FORMAT_GIA_NT",
+                                    "editable_yn":  true,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  120,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  true,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  null,
+                                    "depen_lookup":  "",
+                                    "map_lookup":  null,
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  null,
+                                    "fieldsearch":  "a.",
+                                    "fieldexport":  "a.gia",
+                                    "formatoption":  "### ### ###0.00000",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmGiaNhMaySaleCT",
+                                    "fieldname":  "ngay_bd",
+                                    "field_root":  "ngay_bd",
+                                    "tablename":  "dmgianhmaysalect",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  10,
+                                    "fieldcaption":  "ngay_bd",
+                                    "visible":  1,
+                                    "style":  "FORMAT_DATE_GRID",
+                                    "editable_yn":  true,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  110,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  true,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  null,
+                                    "depen_lookup":  "",
+                                    "map_lookup":  null,
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  null,
+                                    "fieldsearch":  "a.ngay_bd",
+                                    "fieldexport":  "a.ngay_bd",
+                                    "formatoption":  "dd/MM/yyyy",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                },
+                                {
+                                    "gridid":  "DmGiaNhMaySaleCT",
+                                    "fieldname":  "ngay_kt",
+                                    "field_root":  "ngay_kt",
+                                    "tablename":  "dmgianhmaysalect",
+                                    "leftjoin":  {
+
+                                                 },
+                                    "table_as":  "a",
+                                    "fieldposition":  11,
+                                    "fieldcaption":  "ngay_kt",
+                                    "visible":  1,
+                                    "style":  "FORMAT_DATE_GRID",
+                                    "editable_yn":  true,
+                                    "hidden_yn":  false,
+                                    "hideshow_yn":  false,
+                                    "width_web":  110,
+                                    "editoptions_size":  0,
+                                    "frozen_yn":  false,
+                                    "xdimension_yn":  false,
+                                    "ydimension_yn":  false,
+                                    "aggregates_yn":  false,
+                                    "aggregator":  "",
+                                    "aggregator_name":  "",
+                                    "footer_total_yn":  false,
+                                    "footer_total_title":  "",
+                                    "advance_search_yn":  true,
+                                    "text_length":  0,
+                                    "divisor_column":  "",
+                                    "inwhere_yn":  true,
+                                    "required_yn":  true,
+                                    "sopt":  "",
+                                    "groupheader_yn":  false,
+                                    "grouplevel":  "",
+                                    "grouplength":  "",
+                                    "grouptext":  "",
+                                    "event_yn":  false,
+                                    "event_name":  "",
+                                    "query_getoptions":  "",
+                                    "value_df":  "",
+                                    "opt_lookup":  null,
+                                    "depen_lookup":  "",
+                                    "map_lookup":  null,
+                                    "check_left_yn":  false,
+                                    "column_check":  "",
+                                    "summary_tpl":  "",
+                                    "summary_type":  "",
+                                    "greater_zero_yn":  false,
+                                    "copycell_yn":  false,
+                                    "excel_import_yn":  true,
+                                    "zero_isnull_yn":  true,
+                                    "option_ext":  null,
+                                    "fieldsearch":  "a.ngay_kt",
+                                    "fieldexport":  "a.ngay_kt",
+                                    "formatoption":  "dd/MM/yyyy",
+                                    "sel_values":  {
+
+                                                   },
+                                    "config_lookup":  {
+
+                                                      }
+                                }
+                            ]
+             },
+    "verified_at":  "2026-10-27T08:57:00+07:00",
+    "column_count":  11,
+    "http_status":  200
+}

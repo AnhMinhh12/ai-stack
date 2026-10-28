@@ -1,0 +1,643 @@
+﻿ï»¿<div ng-controller="SO1OverviewController as ctrl" ng-keydown="ctrl.OnKeyDown($event)" tabindex="0">
+    <div class="page-content">
+        <bread-menu-detail result-data="ctrl.resultData"
+                           get-data="ctrl.GetData()"
+                           pass-data="ctrl.passData"
+                           menu-click="ctrl.OnClickMenu"></bread-menu-detail>
+
+        <div class="row">
+            <div class="row voucher-detail">
+                <div class="panel-tab clearfix">
+                    <ul class="tab-bar">
+                        <li class="active" ng-click="ctrl.CheckShowGridview('main1')">
+                            <a data-toggle="tab" href="collapse#main1">
+                                <span translate="t_tab_thongtin_chinh"></span>
+                            </a>
+                        </li>
+                        <li class="space-break" style="padding-top: 7px;"></li>
+                        <li ng-click="ctrl.CheckShowGridview('proviso')">
+                            <a data-toggle="tab" href="collapse#proviso">
+                                <span translate="t_tab_hoa_don"></span>
+                            </a>
+                        </li>
+                        <li class="space-break" style="padding-top: 7px;"></li>
+                        <li ng-click="ctrl.CheckShowGridview('process')">
+                            <a data-toggle="tab" href="collapse#process">
+                                <span translate="t_tab_quy_trinh"></span>
+                            </a>
+                        </li>
+
+                        <li class="pull-right" ng-click="ctrl.HideGroupInfo()" ng-show="ctrl.show_yn">
+                            <span class="widget-toolbar">
+                                <a href="javascript:void(0);" data-action="collapse">
+                                    <i class="ace-icon fa"
+                                       ng:class="{true:'fa-chevron-up', false:'fa-chevron-down'}[!ctrl.show_css]"></i>
+                                </a>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="panel-body padding0">
+                    <form class="form-horizontal" ng-disabled="!ctrl.EditMode"
+                          name="rowForm" role="form" ng-submit="ctrl.save(tooltipForm)" novalidate>
+                        <div class="tab-content">
+                            <div id="main1" class="detail tab-pane fade in active">
+                                <div class="widget-box transparent">
+                                    <div id="group_info" class="widget-body" style="display: block;">
+                                        <div class="widget-main">
+                                            <div class="panel-body padding0">
+                                                <div class="col-lg-4 col-md-4 col-xs-12 col-sm-12 ">
+                                                    <div class="col-lg-12 col-md-12 col-xs-12 col-sm-12 padding0">
+                                                        <itg-label class="" text="SO1_l_giao_dich">  </itg-label>
+                                                        <itg-select ng-model="ctrl.ph.giaodich"
+                                                                    values="ctrl.ds_giaodich"
+                                                                    root-model="ctrl.ph"
+                                                                    root-prop="ma_gd"
+                                                                    ref-prop=""
+                                                                    key-value="ma_gd"
+                                                                    view-value="ten_gd"
+                                                                    ng-change="ctrl.ChangeCombobox('giaodich', ctrl.ph.ma_gd)"
+                                                                    ng-disabled="ctrl.vertdata_yn || !ctrl.EditMode"
+                                                                    tabindex="1">
+                                                        </itg-select>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-xs-12 col-sm-12 padding0">
+                                                        <itg-label class="" text="SO1_l_khach_hang" required="true"></itg-label>
+                                                        <itg-tags-input tag-model="ctrl.ph.khachhang"
+                                                                        tag-readonly="false"
+                                                                        tag-model-view="ctrl.ph.ten_kh"
+                                                                        tag-model-value="ctrl.ph.ma_kh"
+                                                                        tag-required="true"
+                                                                        tag-pkey="ma_kh"
+                                                                        tag-view="ten_kh"
+                                                                        tag-value="ma_kh"
+                                                                        tag-add-on-enter="false"
+                                                                        tag-add-on-blur="false"
+                                                                        tag-options="ctrl.LK_KH"
+                                                                        ng-disabled="ctrl.vertdata_yn || !ctrl.EditMode || (ctrl.ph.khachhang != '' && ctrl.ct64.length > 0)"
+                                                                        tabindex="2">
+                                                        </itg-tags-input>
+
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0">
+                                                        <itg-label class="" text="SO1_l_nguoi_lien_he">  </itg-label>
+                                                        <itg-text type="text"
+                                                                  ng-model="ctrl.ph.ong_ba"
+                                                                  tabindex="3"
+                                                                  ng-blur-text="ctrl.ChangeKHInfor()"></itg-text>
+                                                    </div>
+
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0 padding-left-10">
+                                                        <itg-label class="" text="SO1_l_dien_thoai"></itg-label>
+                                                        <itg-text type="phone"
+                                                                  ng-model="ctrl.ph.dien_thoai"
+                                                                  tabindex="4"
+                                                                  ng-blur-text="ctrl.ChangeKHInfor()"></itg-text>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-xs-12 col-sm-12 padding0">
+                                                        <itg-label class="" text="SO1_l_dia_chi"></itg-label>
+                                                        <itg-text type="text"
+                                                                  ng-model="ctrl.ph.dia_chi"
+                                                                  tabindex="5"
+                                                                  ng-blur-text="ctrl.ChangeKHInfor()"></itg-text>
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-xs-12 col-sm-12">
+                                                    <div class="col-lg-12 col-md-12 col-xs-12 col-sm-12 padding0">
+                                                        <itg-label class="" text="SO1_l_dien_giai">  </itg-label>
+                                                        <itg-text ng-model="ctrl.ph.dien_giai"
+                                                                  ng-disabled="!ctrl.EditMode"
+                                                                  maxlength="128"
+                                                                  tabindex="8"></itg-text>
+                                                    </div>
+
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0">
+                                                        <itg-label class="" text="SO1_l_so_po">  </itg-label>
+                                                        <itg-text type="text"
+                                                                  ng-model="ctrl.ph.so_po"
+                                                                  tabindex="11"
+                                                                  ng-blur-text="ctrl.ChangePO()"></itg-text>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0 padding-left-10">
+                                                        <itg-label class="" text="SO1_l_loai_dh">  </itg-label>
+                                                        <itg-select ng-model="ctrl.ph.loaidh"
+                                                                    values="ctrl.ds_loai_dh"
+                                                                    root-model="ctrl.ph"
+                                                                    root-prop="revised"
+                                                                    ref-prop=""
+                                                                    key-value="form_value"
+                                                                    view-value="form_name"
+                                                                    ng-change="ctrl.ChangeCombobox('loaidh', ctrl.ph.loai_dh)"
+                                                                    tabindex="12"
+                                                                    ng-disabled="true">
+                                                        </itg-select>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0">
+                                                        <itg-label class="" text="SO1_l_so_dh_cu">  </itg-label>
+                                                        <itg-text type="text"
+                                                                  ng-model="ctrl.ph.so_ct_so1_cu"
+                                                                  ng-disabled="true"
+                                                                  tabindex="13"></itg-text>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0 padding-left-10">
+                                                        <itg-label class="" text="SO1_l_so_dh_goc">  </itg-label>
+                                                        <itg-text type="text"
+                                                                  ng-model="ctrl.ph.so_ct_so1_goc"
+                                                                  ng-disabled="true"
+                                                                  tabindex="14"></itg-text>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0">
+                                                        <itg-label class="" text="SO1_l_nvbh"></itg-label>
+                                                        <itg-tags-input tag-model="ctrl.ph.nvbh"
+                                                                        tag-readonly="false"
+                                                                        tag-model-view="ctrl.ph.ten_nvbh"
+                                                                        tag-model-value="ctrl.ph.ma_nvbh"
+                                                                        tag-pkey="ma_nvbh"
+                                                                        tag-view="ten_nvbh"
+                                                                        tag-value="ma_nvbh"
+                                                                        tag-add-on-enter="false"
+                                                                        tag-add-on-blur="false"
+                                                                        tag-options="ctrl.LK_NVBH"
+                                                                        tabindex="15">
+                                                        </itg-tags-input>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0 padding-left-10">
+                                                        <itg-label class="" text="">  </itg-label>
+                                                        <itg-select ng-model="ctrl.ph.dsphanloai"
+                                                                    values="ctrl.ds_phan_loai"
+                                                                    root-model="ctrl.ph"
+                                                                    root-prop="phan_loai"
+                                                                    ref-prop=""
+                                                                    ng-required="true"
+                                                                    key-value="form_value"
+                                                                    view-value="form_name"
+                                                                    ng-change="ctrl.ChangeCombobox('phan_loai', ctrl.ph.phan_loai)"
+                                                                    tabindex="24">
+                                                        </itg-select>
+                                                    </div>
+                                                    
+                                                </div>
+
+                                                <div class="col-lg-4 col-md-4 col-xs-12 col-sm-12">
+                                                    <div class="col-lg-6 col-md-6 col-xs-6 col-sm-6 padding0">
+                                                        <itg-label class="" text="so_ct">  </itg-label>
+                                                        <itg-text type="code"
+                                                                  ng-required="true"
+                                                                  ng-model="ctrl.ph.so_ct"
+                                                                  tabindex="17"
+                                                                  ng-disabled="true"></itg-text>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-6 col-sm-6 padding0 padding-left-10">
+                                                        <itg-label class="" text="dvcs">  </itg-label>
+                                                        <itg-text type="text"
+                                                                  tabindex="18"
+                                                                  ng-model="ctrl.ph.ma_dvcs"
+                                                                  ng-disabled="true"></itg-text>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-6 col-sm-6 padding0">
+                                                        <itg-label class="" text="ngay_lap">  </itg-label>
+                                                        <itg-datepicker date-model="ctrl.ph.ngay_lct"
+                                                                        id="cboxMiddleLeft"
+                                                                        tabindex="19"
+                                                                        date-disabled="!ctrl.EditMode"></itg-datepicker>
+                                                    </div>
+
+                                                    <div class="col-lg-6 col-md-6 col-xs-6 col-sm-6 padding0 padding-left-10">
+                                                        <itg-label class="" text="ngay_hach_toan">  </itg-label>
+                                                        <itg-datepicker date-model="ctrl.ph.ngay_ct"
+                                                                        tabindex="20"
+                                                                        date-change="ctrl.ChangeNgayCT(ctrl.ph.ngay_ct,$event)"
+                                                                        ng-disabled="true"></itg-datepicker>
+                                                    </div>
+
+                                                    <div class="col-lg-6 col-md-6 col-xs-6 col-sm-6 padding0 ">
+                                                        <itg-label class="" text="ty_gia"></itg-label>
+                                                        <div class="input-group" style="display: inline-flex; width: 100%; z-index: 0">
+                                                            <itg-select ng-model="ctrl.ph.tygia"
+                                                                        root-model="ctrl.ph"
+                                                                        root-prop="ma_nt"
+                                                                        ref-prop="ty_gia"
+                                                                        ref-unchange-yn="ctrl.EditMode && !ctrl.vertdata_yn"
+                                                                        values="ctrl.ds_tygia"
+                                                                        key-value="ma_nt"
+                                                                        view-value="ma_nt"
+                                                                        ng-change-firstload="true"
+                                                                        ref-blockchange-yn="ctrl.EditMode && !ctrl.vertdata_yn"
+                                                                        ng-change="ctrl.ChangeCombobox('tygia', ctrl.ph.tygia)"
+                                                                        tabindex="21">
+                                                            </itg-select>
+
+                                                            <itg-number ng-model="ctrl.ph.ty_gia"
+                                                                        min="0"
+                                                                        format="FORMAT_TIEN_NT"
+                                                                        tabindex="22"
+                                                                        ng-enter="ctrl.ChangeTyGia()"
+                                                                        ng-disabled="!ctrl.EditMode  || ctrl.ph.tygia.ma_nt == ctrl.ma_nt || ctrl.ph.ty_gia == 0"
+                                                                        ng-blur-text="ctrl.ChangeTyGia()">
+                                                            </itg-number>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-6 col-sm-6 padding0 padding-left-10">
+                                                        <itg-label class="" text="trang_thai">  </itg-label>
+                                                        <itg-select ng-model="ctrl.ph.trang_thai"
+                                                                    root-model="ctrl.ph"
+                                                                    root-prop="status"
+                                                                    ref-prop=""
+                                                                    values="ctrl.ds_status"
+                                                                    key-value="status"
+                                                                    view-value="statusname"
+                                                                    tabindex="23"
+                                                                    ng-change="ctrl.ChangeCombobox('status', ctrl.ph.trang_thai)">
+                                                        </itg-select>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12" style="margin-left: -240px">
+                                                        <itg-label class="" text="">  </itg-label>
+                                                        <itg-checkbox ng-class="ace" ng-model="ctrl.ph.sx_yn"
+                                                                      ng-true-value="true"
+                                                                      ng-false-value="false"
+                                                                      text="SO1_sx_yn"
+                                                                      tabindex="16"></itg-checkbox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr />
+                                            <div class="panel-body padding0" style="background-color: #fff; padding-bottom: 3px;">
+                                                <div class="col-lg-2 col-md-2 col-xs-12 col-sm-12 padding0 padding-left-10">
+                                                    <itg-select ng-model="ctrl.ph.ds_loai_gia"
+                                                                values="ctrl.ds_bang_gia"
+                                                                root-model="ctrl.ph"
+                                                                root-prop="ma_bang_gia"
+                                                                ref-prop=""
+                                                                key-value="form_value"
+                                                                view-value="form_name"
+                                                                ng-change="ctrl.ChangeCombobox('banggia', ctrl.ph.ma_bang_gia)"
+                                                                tabindex="24">
+                                                    </itg-select>
+                                                </div>
+
+                                                <div class="col-lg-2 col-md-2 col-xs-12 col-sm-12">
+                                                    <itg-checkbox ng-class="ace" ng-model="ctrl.ph.cach_tinh_thue"
+                                                                  ng-change="ctrl.ChangeCheckBox('cach_tinh_thue', ctrl.ph.cach_tinh_thue)"
+                                                                  ng-checked="ctrl.ph.cach_tinh_thue" text="cb_cach_tinh_thue" tabindex="26"></itg-checkbox>
+                                                </div>
+                                                <div class="col-lg-2 col-md-2 col-xs-12 col-sm-12">
+                                                    <itg-checkbox ng-class="ace" ng-model="ctrl.ph.mau_yn"
+                                                                  ng-true-value="true"
+                                                                  ng-false-value="false"
+                                                                  text="SO1_mau_yn"
+                                                                  tabindex="25"></itg-checkbox>
+                                                </div>
+                                                <div class="col-lg-2 col-md-2 col-xs-12 col-sm-12">
+                                                    <itg-checkbox ng-class="ace" ng-model="ctrl.ph.check_price"
+                                                                  ng-true-value="true"
+                                                                  ng-false-value="false"
+                                                                  text="SO1_check_price"
+                                                                  tabindex="25"></itg-checkbox>
+                                                </div>
+                                                <div class="col-lg-2 col-md-2 col-xs-12 col-sm-12 padding0" style="padding: 10px">
+                                                    <itg-button ng-click="ctrl.GetPrice()"
+                                                                class="form-control btn blue"
+                                                                text="Cáº­p nháº­t láº¡i giÃ¡"
+                                                                ng-disabled=" (!ctrl.EditMode && !ctrl.add_yn) ">
+                                                    </itg-button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel-body" style="padding: 0 0 0 10px">
+                                    <itg-tabs>
+                                        <pane required="true" tab-title="t_tab_tonghop" tab-click="ctrl.ShowGridCT('chitiet')">
+                                            <div id="tabmain" class="detail tab-pane fade in active">
+                                                <div id="parentID" class="table-responsive" style="margin:0; height: 400px;overflow: hidden !important">
+                                                    <itg-jqgrid config="ctrl.gridConfig"
+                                                                lang="ctrl.lang"
+                                                                dataset="ctrl.ct64"
+                                                                colnames="ctrl.header.ct64">
+                                                    </itg-jqgrid>
+                                                </div>
+                                            </div>
+                                        </pane>
+
+                                        <pane tab-title="t_tab_lichgiaohang" tab-click="ctrl.ShowGridCT('giaohang')">
+                                            <div id="giaohang">
+                                                <div id="parentGH" class="table-responsive" style="margin:0; height: 400px;overflow: hidden !important">
+                                                    <itg-jqgrid config="ctrl.gridConfigGH"
+                                                                lang="ctrl.lang"
+                                                                dataset="ctrl.ctkhgh"
+                                                                colnames="ctrl.header.ctkhgh">
+                                                    </itg-jqgrid>
+                                                </div>
+                                            </div>
+                                        </pane>
+
+                                        <pane tab-title="t_tab_chietkhau" tab-click="ctrl.ShowGridCT('chietkhau')">
+                                            <div id="parentIDCK" class="table-responsive" style="margin:0; height: 400px;overflow: hidden !important">
+                                                <itg-jqgrid config="ctrl.gridConfigCK"
+                                                            lang="ctrl.lang"
+                                                            dataset="ctrl.ctck20"
+                                                            colnames="ctrl.header.ctck20">
+                                                </itg-jqgrid>
+                                            </div>
+                                        </pane>
+
+                                    </itg-tabs>
+                                </div>
+                            </div>
+                            <div id="proviso" class="detail tab-pane fade">
+                                <div class="widget-box transparent">
+                                    <div id="group_info" class="widget-body" style="display: block;">
+                                        <div class="widget-main">
+                                            <div class="panel-body padding0">
+                                                <div class="col-lg-4 col-md-4 col-xs-12 col-sm-12">
+                                                    <div class="col-lg-12 col-md-12 col-xs-12 col-sm-12 padding0">
+                                                        <itg-label class="" text="SO1_l_khach_hang"></itg-label>
+                                                        <itg-tags-input tag-model="ctrl.ph.khachhang2"
+                                                                        tag-readonly="false"
+                                                                        tag-model-view="ctrl.ph.ten_kh"
+                                                                        tag-model-value="ctrl.ph.ma_kh2"
+                                                                        tag-required="false"
+                                                                        tag-pkey="ma_kh"
+                                                                        tag-view="ten_kh"
+                                                                        tag-value="ma_kh"
+                                                                        tag-add-on-enter="false"
+                                                                        tag-add-on-blur="false"
+                                                                        tag-options="ctrl.LK_KH2"
+                                                                        ng-disabled="ctrl.vertdata_yn || !ctrl.EditMode"
+                                                                        tabindex="2">
+                                                        </itg-tags-input>
+
+                                                    </div>
+
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0">
+                                                        <itg-label class="" text="SO1_l_nguoi_lien_he">  </itg-label>
+                                                        <itg-text type="text"
+                                                                  ng-model="ctrl.ph.ong_ba2"
+                                                                  tabindex="3"></itg-text>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0 padding-left-10">
+                                                        <itg-label class="" text="SO1_l_ma_so_thue2">  </itg-label>
+                                                        <itg-text type="text"
+                                                                  ng-model="ctrl.ph.ma_so_thue2"
+                                                                  tabindex="4"></itg-text>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-xs-12 col-sm-12 padding0">
+                                                        <itg-label class="" text="SO1_l_dia_chi"></itg-label>
+                                                        <itg-text type="text"
+                                                                  ng-model="ctrl.ph.dia_chi2"
+                                                                  tabindex="5"></itg-text>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-xs-12 col-sm-12 ">
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0">
+                                                        <itg-label class="" text="l_ma_tt"></itg-label>
+                                                        <itg-tags-input tag-model="ctrl.ph.thanhtoan"
+                                                                        tag-readonly="false"
+                                                                        tag-model-view="ctrl.ph.ten_tt"
+                                                                        tag-model-value="ctrl.ph.ma_tt"
+                                                                        tag-required="false"
+                                                                        tag-pkey="ma_tt"
+                                                                        tag-view="ma_tt"
+                                                                        tag-value="ma_tt"
+                                                                        tag-add-on-enter="false"
+                                                                        tag-add-on-blur="false"
+                                                                        tag-options="ctrl.LK_MaTT"
+                                                                        tabindex="6">
+                                                        </itg-tags-input>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0 padding-left-10">
+                                                        <itg-label class="" text="l_hinhthuc_tt"></itg-label>
+                                                        <itg-tags-input tag-model="ctrl.ph.ht_tt"
+                                                                        tag-readonly="false"
+                                                                        tag-model-view="ctrl.ph.ten_httt"
+                                                                        tag-model-value="ctrl.ph.ma_httt"
+                                                                        tag-required="false"
+                                                                        tag-pkey="ma_httt"
+                                                                        tag-view="ten_httt"
+                                                                        tag-value="ma_httt"
+                                                                        tag-add-on-enter="false"
+                                                                        tag-add-on-blur="false"
+                                                                        tag-options="ctrl.LK_HTTT"
+                                                                        tabindex="7">
+                                                        </itg-tags-input>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-xs-12 col-sm-12 padding0">
+
+
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0">
+                                                        <itg-label class="" text="SO1_l_cang_di">  </itg-label>
+                                                        <itg-text type="text"
+                                                                  ng-model="ctrl.ph.cang_di"
+                                                                  maxlength="128"
+                                                                  tabindex="9"></itg-text>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0 padding-left-10">
+                                                        <itg-label class="" text="SO1_l_cang_den">  </itg-label>
+                                                        <itg-text type="text"
+                                                                  ng-model="ctrl.ph.cang_den"
+                                                                  maxlength="128"
+                                                                  tabindex="10"></itg-text>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0">
+                                                        <itg-label class="" text="SO1_l_hinhthucvc">  </itg-label>
+                                                        <itg-select ng-model="ctrl.ph.htvc"
+                                                                    value-default="chon_hinhthuc_vc"
+                                                                    root-model="ctrl.ph"
+                                                                    root-prop="ma_htvc"
+                                                                    values="ctrl.ds_htvc"
+                                                                    key-value="form_value"
+                                                                    view-value="form_name"
+                                                                    ng-change="ctrl.ChangeCombobox('htvc',ctrl.ph.htvc)"
+                                                                    tabindex="11"
+                                                                    ng-disabled="!ctrl.EditMode">
+                                                        </itg-select>
+
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0 padding-left-10">
+                                                        <itg-label class="" text="SO1_l_dkthuongmai"></itg-label>
+                                                        <itg-tags-input tag-model="ctrl.ph.dk_tm"
+                                                                        tag-readonly="false"
+                                                                        tag-model-view="ctrl.ph.ten_dkthuongmai"
+                                                                        tag-model-value="ctrl.ph.ma_dkthuongmai"
+                                                                        tag-required="false"
+                                                                        tag-pkey="ma_dkthuongmai"
+                                                                        tag-view="ten_dkthuongmai"
+                                                                        tag-value="ma_dkthuongmai"
+                                                                        tag-add-on-enter="false"
+                                                                        tag-add-on-blur="false"
+                                                                        tag-options="ctrl.LK_DKTM"
+                                                                        tabindex="12">
+                                                        </itg-tags-input>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-xs-12 col-sm-12">
+                                                    <div class="col-lg-6 col-md-6 col-xs-12 col-sm-12 padding0 ">
+                                                        <itg-label class="" text="l_ngay_hhtt">  </itg-label>
+                                                        <itg-datepicker date-model="ctrl.ph.ngay_tt"
+                                                                        tabindex="8"
+                                                                        date-disabled="!ctrl.EditMode"></itg-datepicker>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="process" class="detail tab-pane fade">
+                                <div class="panel-body padding0">
+                                    <div class="" ng-include="'/Scripts/SYSTEM/Htmls/SystemProcess.html'"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <style>
+                @media (min-width: 992px) {
+                    #group_total_SO1 .col-md-2 {
+                        width: 10% !important;
+                    }
+
+                    #group_total_SO1 .col-lg-2 {
+                        width: 10% !important;
+                    }
+
+                    #group_total_SO1 .col-md-1 {
+                        width: 8% !important;
+                    }
+
+                    #group_total_SO1 .col-lg-1 {
+                        width: 8% !important;
+                    }
+
+                    #group_total_SO1 .col-sm-1 {
+                        width: 8% !important;
+                    }
+
+                    #group_total_SO1 .col-sm-2 {
+                        width: 8% !important;
+                    }
+                }
+            </style>
+            <div id="group_total_SO1" class="panel-body padding0 fix-bottom-voucher"
+                 ng-show="ctrl.show_yn" style="max-height:195px !important;">
+                <div class="row">
+                    <div class="form-group col-lg-12 col-md-12 col-xs-12 col-sm-12">
+                        <div class="col-lg-1 col-md-1 col-xs-1 col-sm-1 pull-left padding0"></div>
+                        <!--@* BÃªn trÃ¡i *@-->
+                        <label class="col-lg-1 col-md-2 col-xs-2 col-sm-2 text-limit pull-left col-form-label bolder padding0" style="margin-top: 5px;" translate="t_so_luong">Tá»ng</label>
+                        <div class="col-lg-1 col-md-2 col-xs-2 col-sm-2 pull-left">
+                            <itg-number ng-model="ctrl.ph.t_so_luong"
+                                        min="0"
+                                        tabindex="-1"
+                                        format="FORMAT_SL"
+                                        readonly="true"></itg-number>
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-xs-3 col-sm-3 pull-left padding-left-0" ng-if="ctrl.ph.ma_nt != ctrl.ma_nt">
+                            <itg-number ng-model="ctrl.ph.t_tien_nt2"
+                                        tabindex="-1"
+                                        format="FORMAT_TIEN_NT"
+                                        readonly="true"></itg-number>
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-xs-3 col-sm-3 pull-left">
+                            <itg-number ng-model="ctrl.ph.t_tien2"
+                                        tabindex="-1"
+                                        format="FORMAT_TIEN"
+                                        readonly="true"></itg-number>
+                        </div>
+
+                        <!--  Giá»¯a  -->
+                        <div class="col-lg-1 col-md-1 col-xs-3 col-sm-3 pull-left padding-left-0" ng-if="ctrl.ph.ma_nt == ctrl.ma_nt">
+                        </div>
+                        <label class="col-lg-1 col-md-2 col-xs-3 col-sm-3 text-limit pull-left col-form-label bolder padding0"
+                               style="margin-top: 5px;" translate="t_ckmh">Tá»ng CKMH</label>
+                        <div class="col-lg-2 col-md-2 col-xs-3 col-sm-3 pull-left" ng-if="ctrl.ph.ma_nt != ctrl.ma_nt">
+                            <itg-number ng-model="ctrl.ph.t_ck_nt"
+                                        tabindex="-1"
+                                        format="FORMAT_TIEN_NT"
+                                        readonly="true"></itg-number>
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-xs-3 col-sm-3 pull-left">
+                            <itg-number ng-model="ctrl.ph.t_ck"
+                                        tabindex="-1"
+                                        format="FORMAT_TIEN"
+                                        readonly="true"></itg-number>
+                        </div>
+
+                        <!--@* BÃªn pháº£i *@-->
+                        <div class="col-lg-2 col-md-2 col-xs-3 col-sm-3 pull-right padding-right-0">
+                            <itg-number ng-model="ctrl.ph.t_thue"
+                                        tabindex="-1"
+                                        format="FORMAT_TIEN"
+                                        readonly="true"></itg-number>
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-xs-3 col-sm-3 pull-right padding-right-0" ng-if="ctrl.ph.ma_nt != ctrl.ma_nt">
+                            <itg-number ng-model="ctrl.ph.t_thue_nt"
+                                        min="0"
+                                        tabindex="-1"
+                                        format="FORMAT_TIEN_NT"
+                                        readonly="true"></itg-number>
+                        </div>
+
+                        <label class="col-lg-1 col-md-2 col-xs-2 col-sm-2 text-limit pull-right col-form-label bolder padding0"
+                               style="margin-top: 5px;" translate="t_tien_thue">Tiá»n thuáº¿</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-12 col-md-12 col-xs-12 col-sm-12">
+                        <extension-fun-voucher pass-data="ctrl.passData"
+                                               result-data="ctrl.resultData">
+                        </extension-fun-voucher>
+                        <!--@* BÃªn trÃ¡i *@-->
+                        <label class="col-lg-1 col-md-2 col-xs-2 col-sm-2 text-limit pull-left col-form-label bolder padding0" style="margin-top: 5px;"></label>
+                        <div class="col-lg-1 col-md-2 col-xs-2 col-sm-2 pull-left"></div>
+                        <div class="col-lg-2 col-md-2 col-xs-3 col-sm-3 pull-left" ng-if="ctrl.ph.ma_nt != ctrl.ma_nt"></div>
+                        <div class="col-lg-2 col-md-2 col-xs-3 col-sm-3 pull-left"></div>
+
+                        <!--  Giá»¯a  -->
+                        <div class="col-lg-1 col-md-1 col-xs-3 col-sm-3 pull-left padding-left-0" ng-if="ctrl.ph.ma_nt == ctrl.ma_nt">
+                        </div>
+                        <label class="col-lg-1 col-md-2 col-xs-3 col-sm-3 text-limit pull-left col-form-label bolder padding0"
+                               style="margin-top: 5px;" translate="t_ckdh">Tá»ng CKÄH</label>
+                        <div class="col-lg-2 col-md-2 col-xs-3 col-sm-3 pull-left" ng-if="ctrl.ph.ma_nt != ctrl.ma_nt">
+                            <itg-number ng-model="ctrl.ph.t_ck_hd_nt"
+                                        tabindex="-1"
+                                        format="FORMAT_TIEN_NT"
+                                        readonly="true"></itg-number>
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-xs-3 col-sm-3 pull-left">
+                            <itg-number ng-model="ctrl.ph.t_ck_hd"
+                                        tabindex="-1"
+                                        format="FORMAT_TIEN"
+                                        readonly="true"></itg-number>
+                        </div>
+
+                        <!--@* BÃªn pháº£i *@-->
+                        <div class="col-lg-2 col-md-2 col-xs-3 col-sm-3 pull-right padding-right-0">
+                            <itg-number ng-model="ctrl.ph.t_tt"
+                                        tabindex="-1"
+                                        format="FORMAT_TIEN"
+                                        readonly="true"></itg-number>
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-xs-3 col-sm-3 pull-right padding-right-0" ng-if="ctrl.ph.ma_nt != ctrl.ma_nt">
+                            <itg-number ng-model="ctrl.ph.t_tt_nt"
+                                        tabindex="-1"
+                                        format="FORMAT_TIEN_NT"
+                                        readonly="true"></itg-number>
+                        </div>
+
+                        <label class="col-lg-1 col-md-2  col-xs-2 col-sm-2 pull-right col-form-label bolder padding0"
+                               style="margin-top: 5px;" translate="t_thanh_toan">Tá»ng thanh toÃ¡n</label>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <itg-right-click-menu menu="ctrl.right_click"></itg-right-click-menu>
+    </div>
+</div>
+

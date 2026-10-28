@@ -1,0 +1,10 @@
+﻿{
+    "screen_state":  "TEST_07",
+    "evidence_status":  "MENU_LIVE",
+    "screen_title":  "TEST_07",
+    "url":  "",
+    "type":  "N/A",
+    "reason":  "No standalone HTTP grid endpoint; container or client-side action.",
+    "classification":  "SPECIAL_PAGE",
+    "templateUrl":  ""
+}

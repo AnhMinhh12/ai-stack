@@ -29,7 +29,12 @@ PLANNER_CANDIDATE_TABLES = int(os.getenv("HTMP_DB_CANDIDATE_TABLES", "12"))
 PLANNER_ATTEMPTS = int(os.getenv("HTMP_DB_PLANNER_ATTEMPTS", "3"))
 ERP_CONVERSATION_STATE = ConversationStateStore()
 ERP_REPORTS_DIR = Path(os.getenv("HTMP_ERP_REPORTS_DIR", "/app/backend/data/erp-reports"))
-ERP_BUSINESS_INTENTS_PATH = Path(os.getenv("HTMP_ERP_BUSINESS_INTENTS_PATH", "/app/backend/data/erp-business-intents.json"))
+ERP_BUSINESS_INTENTS_PATH = Path(
+    os.getenv("HTMP_ERP_BUSINESS_INTENTS_PATH",
+              "/app/backend/config/erp-business-intents.json"
+              if Path("/app/backend/config/erp-business-intents.json").exists()
+              else "/app/backend/data/erp-business-intents.json")
+)
 READ_QUERY = re.compile(r"^\s*(?:select|with)\b", re.I | re.S)
 FORBIDDEN = re.compile(r"\b(?:insert|update|delete|merge|alter|drop|create|grant|revoke|copy|call|do|vacuum|analyze|truncate|listen|notify|execute|prepare|deallocate|set|show|reset|discard|lock)\b", re.I)
 
@@ -191,7 +196,7 @@ def split_batched_erp_questions(question: str) -> list[str]:
     # or "Chi tiết từng dòng..." should not be split off as orphan requests.
     inline_items = [
         item.strip()
-        for item in re.split(r"(?<=[?!.])\s*(?:,\s*)?", source)
+        for item in re.split(r"(?<=[?!])\s*(?:,\s*)?|(?<=\.)\s+(?:,\s*)?", source)
         if item.strip()
     ]
     if len(inline_items) > 1:
@@ -1875,45 +1880,72 @@ class Tools:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
                     cursor.execute("""
-                        SELECT ma_vt, ten_vt, dvt, coalesce(packs0, 0), coalesce(packs, 0)
+                        SELECT ma_vt, ten_vt, dvt, coalesce(packs0, 0), coalesce(packs, 0),
+                               coalesce(ma_thung, ''), coalesce(ma_khay, ''), coalesce(so_luong_vt_khay, 0)
                         FROM public.dmvt WHERE upper(trim(ma_vt)) = %s
                     """, (material_code,))
                     vt_row = cursor.fetchone()
                     if not vt_row:
                         return None
-                    ma_vt, ten_vt, dvt, packs0, packs = vt_row
+                    ma_vt, ten_vt, dvt, packs0, packs, ma_thung, ma_khay, sl_khay = vt_row
 
                     cursor.execute("""
-                        SELECT ma_kho, sum(sl_nhap) - sum(sl_xuat) as ton_kho
-                        FROM public.ct70
-                        WHERE upper(trim(ma_vt)) = %s
+                        WITH opening AS (
+                            SELECT c.ma_kho, sum(c.ton00) AS qty
+                            FROM public.cdvt c
+                            WHERE c.nam = extract(year FROM CURRENT_DATE)::smallint
+                              AND upper(trim(c.ma_vt)) = %s
+                            GROUP BY c.ma_kho
+                        ),
+                        movements AS (
+                            SELECT c.ma_kho, sum(c.sl_nhap - c.sl_xuat) AS qty
+                            FROM public.ct70 c
+                            WHERE upper(trim(c.ma_vt)) = %s
+                              AND c.ngay_ct >= make_date(extract(year FROM CURRENT_DATE)::integer, 1, 1)
+                            GROUP BY c.ma_kho
+                        ),
+                        combined AS (
+                            SELECT ma_kho, qty FROM opening
+                            UNION ALL
+                            SELECT ma_kho, qty FROM movements
+                        )
+                        SELECT ma_kho, sum(qty) AS ton_kho
+                        FROM combined
                         GROUP BY ma_kho
-                        HAVING sum(sl_nhap) - sum(sl_xuat) > 0
+                        HAVING sum(qty) > 0
                         ORDER BY ton_kho DESC
-                    """, (material_code,))
+                    """, (material_code, material_code))
                     stock_rows = cursor.fetchall()
         except Exception:
             return None
 
         std_pack = int(packs0) if packs0 and packs0 > 0 else (int(packs) if packs and packs > 0 else 0)
-        quy_cach_text = f"{std_pack} {dvt}/thùng" if std_pack > 0 else "Chưa khai báo chuẩn thùng"
+        tray_pack = int(sl_khay) if sl_khay and sl_khay > 0 else 0
+        tray_desc = f", Khay: {ma_khay} ({tray_pack} {dvt}/khay)" if ma_khay else ""
+        thung_desc = f"Thùng: {ma_thung} ({std_pack} {dvt}/thùng)" if ma_thung else f"{std_pack} {dvt}/thùng"
+        quy_cach_text = f"{thung_desc}{tray_desc}" if std_pack > 0 else "Chưa khai báo chuẩn thùng"
 
         conversions = []
+        total_thung, total_le, total_ton = 0, 0, 0
         for kho, ton in stock_rows:
             ton_val = int(ton)
+            total_ton += ton_val
             if std_pack > 0:
                 thung = ton_val // std_pack
                 le = ton_val % std_pack
-                desc = f"{kho}: {ton_val} {dvt} ({thung} thùng"
+                total_thung += thung
+                total_le += le
+                desc = f"{kho}: {ton_val:,} {dvt} ({thung:,} thùng"
                 if le > 0:
                     desc += f" + {le} {dvt} lẻ)"
                 else:
                     desc += ")"
                 conversions.append(desc)
             else:
-                conversions.append(f"{kho}: {ton_val} {dvt}")
+                conversions.append(f"{kho}: {ton_val:,} {dvt}")
 
         quy_doi_text = "; ".join(conversions) if conversions else "Không có tồn kho dương"
+        overall_quy_doi = f"Tổng toàn bộ: {total_ton:,} {dvt} quy đổi thành {total_thung:,} thùng đầy" + (f" và {total_le} {dvt} lẻ" if total_le > 0 else "")
 
         return json.dumps({
             "report": {"id": "quy-cach-dong-goi", "title": "Quy cách đóng gói và quy đổi tồn kho"},
@@ -1925,7 +1957,7 @@ class Tools:
                 "quy_cach_chuan": quy_cach_text,
                 "quy_doi_ton": quy_doi_text,
             }],
-            "message": f"Mã {ma_vt} có quy cách đóng gói tiêu chuẩn: {quy_cach_text} (packs0={std_pack}). Tồn kho hiện tại hoàn toàn quy đổi được theo thùng: {quy_doi_text}.",
+            "message": f"Mã {ma_vt} có quy cách đóng gói: {quy_cach_text}. Tồn kho hiện tại hoàn toàn quy đổi được theo quy cách đóng gói ({overall_quy_doi}). Chi tiết từng kho: {quy_doi_text}.",
         }, ensure_ascii=False, default=str)
 
     def _material_bom_structure(self, question: str) -> str | None:
@@ -2240,13 +2272,31 @@ class Tools:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
                     cursor.execute("""
-                        SELECT ma_kho, sum(sl_nhap) - sum(sl_xuat) AS ton_kho
-                        FROM public.ct70
-                        WHERE upper(trim(ma_vt)) = %s
+                        WITH opening AS (
+                            SELECT c.ma_kho, sum(c.ton00) AS qty
+                            FROM public.cdvt c
+                            WHERE c.nam = extract(year FROM CURRENT_DATE)::smallint
+                              AND upper(trim(c.ma_vt)) = %s
+                            GROUP BY c.ma_kho
+                        ),
+                        movements AS (
+                            SELECT c.ma_kho, sum(c.sl_nhap - c.sl_xuat) AS qty
+                            FROM public.ct70 c
+                            WHERE upper(trim(c.ma_vt)) = %s
+                              AND c.ngay_ct >= make_date(extract(year FROM CURRENT_DATE)::integer, 1, 1)
+                            GROUP BY c.ma_kho
+                        ),
+                        combined AS (
+                            SELECT ma_kho, qty FROM opening
+                            UNION ALL
+                            SELECT ma_kho, qty FROM movements
+                        )
+                        SELECT ma_kho, sum(qty) AS ton_kho
+                        FROM combined
                         GROUP BY ma_kho
-                        HAVING sum(sl_nhap) - sum(sl_xuat) > 0
+                        HAVING sum(qty) > 0
                         ORDER BY ton_kho DESC
-                    """, (material_code,))
+                    """, (material_code, material_code))
                     rows = cursor.fetchall()
         except Exception:
             return None
@@ -2457,27 +2507,59 @@ class Tools:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
                     cursor.execute("""
-                        SELECT so_luong, count(*) AS rows
+                        SELECT DISTINCT id, date0
                         FROM public.mfkhsx_po_fc
-                        WHERE upper(trim(ma_vt)) = %s AND nguon_du_lieu IN ('FC', 'SO')
-                        GROUP BY so_luong
-                        ORDER BY rows DESC
-                        LIMIT 1
+                        WHERE upper(trim(ma_vt)) = %s AND nguon_du_lieu = 'FC'
+                        ORDER BY date0 DESC, id DESC
+                        LIMIT 2
                     """, (material_code,))
-                    row = cursor.fetchone()
+                    fc_runs = cursor.fetchall()
+                    cur_fc, prev_fc = 0, 0
+                    if len(fc_runs) >= 2:
+                        cursor.execute("""
+                            SELECT coalesce(sum(so_luong), 0) FROM public.mfkhsx_po_fc
+                            WHERE upper(trim(ma_vt)) = %s AND nguon_du_lieu = 'FC' AND id = %s
+                        """, (material_code, fc_runs[0][0]))
+                        cur_fc = int(cursor.fetchone()[0] or 0)
+                        cursor.execute("""
+                            SELECT coalesce(sum(so_luong), 0) FROM public.mfkhsx_po_fc
+                            WHERE upper(trim(ma_vt)) = %s AND nguon_du_lieu = 'FC' AND id = %s
+                        """, (material_code, fc_runs[1][0]))
+                        prev_fc = int(cursor.fetchone()[0] or 0)
+                    elif len(fc_runs) == 1:
+                        cursor.execute("""
+                            SELECT coalesce(sum(so_luong), 0) FROM public.mfkhsx_po_fc
+                            WHERE upper(trim(ma_vt)) = %s AND nguon_du_lieu = 'FC' AND id = %s
+                        """, (material_code, fc_runs[0][0]))
+                        cur_fc = int(cursor.fetchone()[0] or 0)
+                    diff_fc = cur_fc - prev_fc
+
+                    cursor.execute("""
+                        SELECT h.so_ct, h.ngay_ct, d.so_luong
+                        FROM public.ph96 h JOIN public.ct96 d USING(stt_rec)
+                        WHERE upper(trim(d.ma_vt)) = %s
+                        ORDER BY h.ngay_ct DESC, h.stt_rec DESC
+                        LIMIT 2
+                    """, (material_code,))
+                    do_rows = cursor.fetchall()
+                    cur_do = int(do_rows[0][2]) if len(do_rows) >= 1 else 0
+                    prev_do = int(do_rows[1][2]) if len(do_rows) >= 2 else 0
+                    diff_do = cur_do - prev_do
         except Exception:
             return None
 
-        qty_str = f"{int(row[0]):,} PCS" if row and row[0] is not None else "1.200 PCS"
-        msg = (
-            f"Dữ liệu kế hoạch/dự báo FCST của mã {material_code} trên ERP ghi nhận mức {qty_str} cho mỗi đợt tính toán. "
-            f"Về so sánh biến động: Hệ thống ERP hiện tại lưu dữ liệu theo snapshot từng đợt tính toán, "
-            f"chưa lưu lịch sử các phiên bản FCST quá khứ (versioning) để tính chênh lệch tăng/giảm trực tiếp."
-        )
+        fc_trend = f"tăng {diff_fc:,} PCS" if diff_fc > 0 else (f"giảm {abs(diff_fc):,} PCS" if diff_fc < 0 else "không đổi")
+        do_trend = f"tăng {diff_do:,} PCS" if diff_do > 0 else (f"giảm {abs(diff_do):,} PCS" if diff_do < 0 else "không đổi")
+        fc_detail = f"FCST hiện tại ({fc_runs[0][1] if fc_runs else ''}): {cur_fc:,} PCS vs bản trước ({fc_runs[1][1] if len(fc_runs) > 1 else ''}): {prev_fc:,} PCS -> {fc_trend} ({diff_fc:+,} PCS)"
+        do_detail = f"DO gần nhất ({do_rows[0][0] if do_rows else ''}): {cur_do:,} PCS vs bản trước ({do_rows[1][0] if len(do_rows) > 1 else ''}): {prev_do:,} PCS -> {do_trend} ({diff_do:+,} PCS)"
+        msg = f"So sánh DO và FCST mã {material_code} với bản trước: {fc_detail}. {do_detail}."
         return json.dumps({
             "report": {"id": "so-sanh-do-fcst", "title": "So sánh kế hoạch DO và FCST"},
             "lookup": {"ma_vt": material_code},
-            "rows": [{"ma_vt": material_code, "so_luong": qty_str}],
+            "rows": [
+                {"chi_tieu": "FCST", "hien_tai": cur_fc, "ban_truoc": prev_fc, "chenh_lech": diff_fc},
+                {"chi_tieu": "DO", "hien_tai": cur_do, "ban_truoc": prev_do, "chenh_lech": diff_do},
+            ],
             "message": msg,
         }, ensure_ascii=False, default=str)
 
@@ -2564,6 +2646,1161 @@ class Tools:
             {"source": "public.dmvt (Danh mục vật tư)", "lookup": {"ma_vt": material_code}, "row_count": len(result), "rows": result},
             ensure_ascii=False, default=str,
         )
+
+    def _carton_packing_register(self, question: str) -> str | None:
+        """Tra cứu Bảng kê đóng gói, đóng thùng (mes_oi_dong_thung) theo mã SP, số WO hoặc gần đây nhất."""
+        normalized = normalize_text(question)
+        keywords = ("bang ke dong thung", "bang ke dong goi", "dong goi dong thung", "dong thung", "dong goi", "thung thanh pham", "so thung", "serial thung", "packing list")
+        if not any(kw in normalized for kw in keywords):
+            return None
+        if "quy cach" in normalized or "quy doi" in normalized:
+            return None
+        code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
+        code = code_match.group(1).upper() if code_match else None
+        if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX"):
+            code = None
+        try:
+            import datetime
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    if code:
+                        sql = """
+                            SELECT 
+                                to_char(create_date, 'YYYY-MM-DD') as ngay_sx_thuc_te,
+                                station_code as ma_day_chuyen,
+                                mes_scheduling_code as so_wo,
+                                product_code as ma_san_pham,
+                                product_name as ten_san_pham,
+                                quantity as so_luong_thuc_te,
+                                coalesce(moq, quantity::text) as so_luong_theo_thung,
+                                serial_tem_thung as serial_thung_tp,
+                                (create_date || ' ' || create_time) as thoi_gian_dong_thung,
+                                coalesce(phan_loai, 0) as phan_loai
+                            FROM public.mes_oi_dong_thung
+                            WHERE stt = 1 AND create_date >= CURRENT_DATE - 7 
+                              AND (product_code = %s OR mes_scheduling_code = %s OR serial_tem_thung = %s)
+                            ORDER BY serial_tem_thung DESC
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql, (code, code, code))
+                        rows = cursor.fetchall()
+                        if not rows:
+                            # Try 60 days fallback
+                            sql_fallback = """
+                                SELECT 
+                                    to_char(create_date, 'YYYY-MM-DD') as ngay_sx_thuc_te,
+                                    station_code as ma_day_chuyen,
+                                    mes_scheduling_code as so_wo,
+                                    product_code as ma_san_pham,
+                                    product_name as ten_san_pham,
+                                    quantity as so_luong_thuc_te,
+                                    coalesce(moq, quantity::text) as so_luong_theo_thung,
+                                    serial_tem_thung as serial_thung_tp,
+                                    (create_date || ' ' || create_time) as thoi_gian_dong_thung,
+                                    coalesce(phan_loai, 0) as phan_loai
+                                FROM public.mes_oi_dong_thung
+                                WHERE stt = 1 AND create_date >= CURRENT_DATE - 60
+                                  AND (product_code = %s OR mes_scheduling_code = %s OR serial_tem_thung = %s)
+                                ORDER BY serial_tem_thung DESC
+                                LIMIT 30;
+                            """
+                            cursor.execute(sql_fallback, (code, code, code))
+                            rows = cursor.fetchall()
+                    else:
+                        # Ultra-fast index backward scan for recent packing list without code
+                        prefix = (datetime.date.today() - datetime.timedelta(days=2)).strftime('%Y%m%d000000000000')
+                        sql = """
+                            SELECT 
+                                to_char(create_date, 'YYYY-MM-DD') as ngay_sx_thuc_te,
+                                station_code as ma_day_chuyen,
+                                mes_scheduling_code as so_wo,
+                                product_code as ma_san_pham,
+                                product_name as ten_san_pham,
+                                quantity as so_luong_thuc_te,
+                                coalesce(moq, quantity::text) as so_luong_theo_thung,
+                                serial_tem_thung as serial_thung_tp,
+                                (create_date || ' ' || create_time) as thoi_gian_dong_thung,
+                                coalesce(phan_loai, 0) as phan_loai
+                            FROM public.mes_oi_dong_thung
+                            WHERE stt = 1 AND serial_tem_thung >= %s
+                            ORDER BY serial_tem_thung DESC
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql, (prefix,))
+                        rows = cursor.fetchall()
+        except Exception:
+            return None
+        for idx, r in enumerate(rows, 1):
+            r["stt"] = idx
+        return json.dumps({
+            "source": "public.mes_oi_dong_thung (Bảng kê đóng gói, đóng thùng)",
+            "lookup": {"ma_vt": code},
+            "row_count": len(rows),
+            "rows": rows
+        }, ensure_ascii=False, default=str)
+
+    def _carton_merge_split_register(self, question: str) -> str | None:
+        """Tra cứu Bảng kê gộp, tách thùng (intem_carton_log, intem_log)."""
+        normalized = normalize_text(question)
+        keywords = ("bang ke gop tach thung", "gop tach thung", "gop thung", "tach thung", "chia thung", "lich su tach thung", "lich su gop thung")
+        if not any(kw in normalized for kw in keywords):
+            return None
+        code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
+        code = code_match.group(1).upper() if code_match else None
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    where_clauses = ["c.date0 >= CURRENT_DATE - 7"]
+                    params = []
+                    if code:
+                        where_clauses.append("(upper(trim(e_cu->>'ma_vt')) = %s OR upper(trim(e_moi->>'ma_vt')) = %s OR upper(trim(e_cu->>'ma_thung')) = %s OR upper(trim(e_moi->>'ma_thung')) = %s OR c.id_carton = %s OR c.id_carton_new = %s)")
+                        params.extend([code, code, code, code, code, code])
+                    sql = f"""
+                        SELECT 
+                            to_char(c.date0, 'YYYY-MM-DD') AS ngay_ghi_nhan,
+                            to_char(c.time0, 'HH24:MI:SS') AS gio_tao,
+                            c.id_carton AS id_tem_cu,
+                            c.id_carton_new AS id_tem_moi,
+                            coalesce(e_cu->>'ma_vt', e_moi->>'ma_vt') AS ma_sp,
+                            coalesce(e_cu->>'ten_vt', e_moi->>'ten_vt') AS ten_sp,
+                            coalesce(e_cu->>'dvt', e_moi->>'dvt') AS dvt,
+                            e_cu->>'ma_thung' AS ma_thung_cu,
+                            (e_cu->>'so_luong')::numeric AS sl_cu,
+                            e_moi->>'ma_thung' AS ma_thung_moi,
+                            (e_moi->>'so_luong')::numeric AS sl_moi,
+                            u.user_name AS user_tao
+                        FROM public.intem_carton_log c
+                        LEFT JOIN public.intem_log l_cu ON l_cu.id_tem = c.id_carton
+                        LEFT JOIN LATERAL jsonb_array_elements(
+                            CASE WHEN jsonb_typeof(l_cu.data_tem) = 'array' THEN l_cu.data_tem ELSE '[]'::jsonb END
+                        ) e_cu ON true
+                        LEFT JOIN public.intem_log l_moi ON l_moi.id_tem = c.id_carton_new
+                        LEFT JOIN LATERAL jsonb_array_elements(
+                            CASE WHEN jsonb_typeof(l_moi.data_tem) = 'array' THEN l_moi.data_tem ELSE '[]'::jsonb END
+                        ) e_moi ON true
+                        LEFT JOIN public.userinfo u ON u.user_id = l_moi.user_id0
+                        WHERE {' AND '.join(where_clauses)}
+                        ORDER BY c.date0 DESC, c.time0 DESC
+                        LIMIT 30;
+                    """
+                    cursor.execute(sql, params)
+                    rows = cursor.fetchall()
+        except Exception:
+            return None
+        for idx, r in enumerate(rows, 1):
+            r["stt"] = idx
+        return json.dumps({
+            "source": "public.intem_carton_log (Bảng kê gộp, tách thùng)",
+            "lookup": {"ma_vt": code},
+            "row_count": len(rows),
+            "rows": rows
+        }, ensure_ascii=False, default=str)
+
+    def _mold_shot_adjust_register(self, question: str) -> str | None:
+        """Tra cứu Bảng kê bổ sung shot / bỏ shot khuôn (mes_oi_bo_shot)."""
+        normalized = normalize_text(question)
+        keywords = ("bang ke bo sung shot", "bo sung shot", "bo shot", "shot bo sung", "shot huy", "shot khuon", "lich su shot")
+        if not any(kw in normalized for kw in keywords):
+            return None
+        code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
+        code = code_match.group(1).upper() if code_match else None
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    where_clauses = ["date0 >= CURRENT_DATE - 14"]
+                    params = []
+                    if code:
+                        where_clauses.append("(upper(trim(product_code)) = %s OR upper(trim(machine_code)) = %s OR upper(trim(mes_scheduling_code)) = %s)")
+                        params.extend([code, code, code])
+                    sql = f"""
+                        SELECT 
+                            to_char(date0, 'YYYY-MM-DD') AS ngay,
+                            to_char(time0, 'HH24:MI:SS') AS gio,
+                            machine_code AS ma_may,
+                            station_code AS ma_line,
+                            mes_scheduling_code AS so_wo,
+                            product_code AS ma_sp,
+                            quantity AS so_shot,
+                            cavity,
+                            staff_code AS nguoi_thuc_hien
+                        FROM public.mes_oi_bo_shot
+                        WHERE {' AND '.join(where_clauses)}
+                        ORDER BY date0 DESC, time0 DESC
+                        LIMIT 30;
+                    """
+                    cursor.execute(sql, params)
+                    rows = cursor.fetchall()
+        except Exception:
+            return None
+        for idx, r in enumerate(rows, 1):
+            r["stt"] = idx
+        return json.dumps({
+            "source": "public.mes_oi_bo_shot (Bảng kê bổ sung shot)",
+            "lookup": {"ma_vt": code},
+            "row_count": len(rows),
+            "rows": rows
+        }, ensure_ascii=False, default=str)
+
+    def _mes_work_order_register(self, question: str) -> str | None:
+        """Tra cứu Bảng kê Work Order / Điều độ sản xuất / Lệnh sản xuất (mes_scheduling_output, phlsx, ctlsx)."""
+        normalized = normalize_text(question)
+        keywords = ("bang ke work order", "bang ke wo", "dieu do san xuat", "tien do wo", "bang ke dieu do", "work order", "danh sach wo", "ke hoach san xuat", "lenh san xuat", "so lsx", "phlsx")
+        if not any(kw in normalized for kw in keywords):
+            return None
+        code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
+        code = code_match.group(1).upper() if code_match else None
+        if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX", "WO", "LSX"):
+            code = None
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    rows = []
+                    if code:
+                        sql_wo = """
+                            SELECT 
+                                o.mes_scheduling_code AS so_wo,
+                                o.product_code AS ma_sp,
+                                coalesce(v.ten_vt, o.product_code) AS ten_sp,
+                                o.bom_version AS version_bom,
+                                o.machine_code AS ma_may,
+                                o.mold_code AS ma_khuon,
+                                o.quantity AS sl_ke_hoach,
+                                to_char(o.start_date, 'YYYY-MM-DD') || ' ' || coalesce(to_char(o.start_time, 'HH24:MI:SS'), '') AS bat_dau,
+                                to_char(o.end_date, 'YYYY-MM-DD') || ' ' || coalesce(to_char(o.end_time, 'HH24:MI:SS'), '') AS ket_thuc,
+                                o.production_order AS so_lsx,
+                                o.status_wo AS trang_thai
+                            FROM public.mes_scheduling_output o
+                            LEFT JOIN public.dmvt v ON v.ma_vt = o.product_code
+                            WHERE o.mes_scheduling_code = %s
+                            ORDER BY o.start_date DESC
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql_wo, (code,))
+                        rows = cursor.fetchall()
+                        if not rows:
+                            sql_lsx = """
+                                SELECT 
+                                    coalesce(h.mes_scheduling_code, h.so_ct) AS so_wo,
+                                    d.ma_vt AS ma_sp,
+                                    coalesce(v.ten_vt, d.ma_vt) AS ten_sp,
+                                    d.ma_version AS version_bom,
+                                    h.ma_phan_xuong AS ma_may,
+                                    '' AS ma_khuon,
+                                    d.so_luong AS sl_ke_hoach,
+                                    to_char(h.ngay_ct, 'YYYY-MM-DD') AS bat_dau,
+                                    to_char(h.ngay_ht, 'YYYY-MM-DD') AS ket_thuc,
+                                    h.so_ct AS so_lsx,
+                                    h.status AS trang_thai
+                                FROM public.phlsx h
+                                JOIN public.ctlsx d USING(stt_rec)
+                                LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                                WHERE h.ngay_ct >= CURRENT_DATE - 60
+                                  AND (d.ma_vt = %s OR h.mes_scheduling_code = %s OR h.so_ct = %s)
+                                ORDER BY h.ngay_ct DESC, h.so_ct DESC
+                                LIMIT 30;
+                            """
+                            cursor.execute(sql_lsx, (code, code, code))
+                            rows = cursor.fetchall()
+                    else:
+                        sql_recent = """
+                            SELECT 
+                                coalesce(h.mes_scheduling_code, h.so_ct) AS so_wo,
+                                d.ma_vt AS ma_sp,
+                                coalesce(v.ten_vt, d.ma_vt) AS ten_sp,
+                                d.ma_version AS version_bom,
+                                h.ma_phan_xuong AS ma_may,
+                                '' AS ma_khuon,
+                                d.so_luong AS sl_ke_hoach,
+                                to_char(h.ngay_ct, 'YYYY-MM-DD') AS bat_dau,
+                                to_char(h.ngay_ht, 'YYYY-MM-DD') AS ket_thuc,
+                                h.so_ct AS so_lsx,
+                                h.status AS trang_thai
+                            FROM public.phlsx h
+                            JOIN public.ctlsx d USING(stt_rec)
+                            LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                            WHERE h.ngay_ct >= CURRENT_DATE - 7
+                            ORDER BY h.ngay_ct DESC, h.so_ct DESC
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql_recent)
+                        rows = cursor.fetchall()
+        except Exception:
+            return None
+        for idx, r in enumerate(rows, 1):
+            r["stt"] = idx
+        return json.dumps({
+            "source": "public.mes_scheduling_output / phlsx (Bảng kê Work Order)",
+            "lookup": {"ma_vt": code},
+            "row_count": len(rows),
+            "rows": rows
+        }, ensure_ascii=False, default=str)
+
+    def _mes_machine_downtime_register(self, question: str) -> str | None:
+        """Tra cứu Bảng kê dừng máy, dừng chuyền (mes_oi_stop_line, dmnndungmay)."""
+        normalized = normalize_text(question)
+        keywords = ("bang ke dung may", "dung may", "dung chuyen", "su co may", "nguyen nhan dung may", "thoi gian dung may", "lich su dung may", "downtime", "dung line", "stop line")
+        if not any(kw in normalized for kw in keywords):
+            return None
+        code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
+        code = code_match.group(1).upper() if code_match else None
+        if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX"):
+            code = None
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    if code:
+                        sql = """
+                            SELECT 
+                                to_char(s.create_date, 'YYYY-MM-DD') AS ngay_dung,
+                                to_char(s.create_time, 'HH24:MI:SS') AS gio_bat_dau,
+                                to_char(s.end_time, 'HH24:MI:SS') AS gio_ket_thuc,
+                                round(extract(epoch from (s.end_date + s.end_time - (s.create_date + s.create_time))) / 60)::numeric AS phut_dung,
+                                s.machine_code AS ma_may,
+                                s.station_code AS ma_line,
+                                s.mes_scheduling_code AS so_wo,
+                                s.error_code AS ma_loi,
+                                coalesce(nn.ten_loi, s.error_code) AS ten_nguyen_nhan,
+                                coalesce(s.note, '') AS ghi_chu
+                            FROM public.mes_oi_stop_line s
+                            LEFT JOIN public.dmnndungmay nn ON nn.ma_loi = s.error_code
+                            WHERE s.create_date >= CURRENT_DATE - 30
+                              AND (s.machine_code = %s OR s.station_code = %s OR s.mes_scheduling_code = %s OR s.error_code = %s)
+                            ORDER BY s.create_date DESC, s.create_time DESC
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql, (code, code, code, code))
+                        rows = cursor.fetchall()
+                    else:
+                        sql = """
+                            SELECT 
+                                to_char(s.create_date, 'YYYY-MM-DD') AS ngay_dung,
+                                to_char(s.create_time, 'HH24:MI:SS') AS gio_bat_dau,
+                                to_char(s.end_time, 'HH24:MI:SS') AS gio_ket_thuc,
+                                round(extract(epoch from (s.end_date + s.end_time - (s.create_date + s.create_time))) / 60)::numeric AS phut_dung,
+                                s.machine_code AS ma_may,
+                                s.station_code AS ma_line,
+                                s.mes_scheduling_code AS so_wo,
+                                s.error_code AS ma_loi,
+                                coalesce(nn.ten_loi, s.error_code) AS ten_nguyen_nhan,
+                                coalesce(s.note, '') AS ghi_chu
+                            FROM public.mes_oi_stop_line s
+                            LEFT JOIN public.dmnndungmay nn ON nn.ma_loi = s.error_code
+                            WHERE s.create_date >= CURRENT_DATE - 7
+                            ORDER BY s.create_date DESC, s.create_time DESC
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql)
+                        rows = cursor.fetchall()
+        except Exception:
+            return None
+        for idx, r in enumerate(rows, 1):
+            r["stt"] = idx
+        return json.dumps({
+            "source": "public.mes_oi_stop_line (Bảng kê dừng máy)",
+            "lookup": {"ma_may": code},
+            "row_count": len(rows),
+            "rows": rows
+        }, ensure_ascii=False, default=str)
+
+    def _mes_production_ng_register(self, question: str) -> str | None:
+        """Tra cứu Bảng kê lỗi / phế phẩm sản xuất NG (mes_oi_ng_confirm, dmloi, dmvt)."""
+        normalized = normalize_text(question)
+        keywords = ("bang ke loi", "bang ke phe pham", "hang ng", "phe pham", "loi san xuat", "san pham loi", "ng linh kien", "danh sach ng", "loi phe pham", "ti le ng")
+        if not any(kw in normalized for kw in keywords):
+            return None
+        if "giao bu" in normalized or "bu ng" in normalized or "nhan lai" in normalized:
+            return None
+        code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
+        code = code_match.group(1).upper() if code_match else None
+        if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX", "NG"):
+            code = None
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    if code:
+                        sql = """
+                            SELECT 
+                                to_char(n.create_date, 'YYYY-MM-DD') AS ngay,
+                                to_char(n.create_time, 'HH24:MI:SS') AS gio,
+                                n.machine_code AS ma_may,
+                                n.station_code AS ma_line,
+                                n.production_order AS so_lsx,
+                                n.mes_scheduling_code AS so_wo,
+                                n.product_code AS ma_sp,
+                                coalesce(v.ten_vt, n.product_code) AS ten_sp,
+                                n.ng_qty AS sl_ng,
+                                n.error_code AS ma_loi,
+                                coalesce(l.ten_loi, n.error_code) AS ten_loi,
+                                n.step_code AS cong_doan,
+                                n.ma_nv AS nhan_vien
+                            FROM public.mes_oi_ng_confirm n
+                            LEFT JOIN public.dmloi l ON l.ma_loi = n.error_code
+                            LEFT JOIN public.dmvt v ON v.ma_vt = n.product_code
+                            WHERE n.create_date >= CURRENT_DATE - 30
+                              AND (n.product_code = %s OR n.machine_code = %s OR n.mes_scheduling_code = %s OR n.production_order = %s OR n.error_code = %s)
+                            ORDER BY n.create_date DESC, n.create_time DESC
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql, (code, code, code, code, code))
+                        rows = cursor.fetchall()
+                    else:
+                        sql = """
+                            SELECT 
+                                to_char(n.create_date, 'YYYY-MM-DD') AS ngay,
+                                to_char(n.create_time, 'HH24:MI:SS') AS gio,
+                                n.machine_code AS ma_may,
+                                n.station_code AS ma_line,
+                                n.production_order AS so_lsx,
+                                n.mes_scheduling_code AS so_wo,
+                                n.product_code AS ma_sp,
+                                coalesce(v.ten_vt, n.product_code) AS ten_sp,
+                                n.ng_qty AS sl_ng,
+                                n.error_code AS ma_loi,
+                                coalesce(l.ten_loi, n.error_code) AS ten_loi,
+                                n.step_code AS cong_doan,
+                                n.ma_nv AS nhan_vien
+                            FROM public.mes_oi_ng_confirm n
+                            LEFT JOIN public.dmloi l ON l.ma_loi = n.error_code
+                            LEFT JOIN public.dmvt v ON v.ma_vt = n.product_code
+                            WHERE n.create_date >= CURRENT_DATE - 7
+                            ORDER BY n.create_date DESC, n.create_time DESC
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql)
+                        rows = cursor.fetchall()
+        except Exception:
+            return None
+        for idx, r in enumerate(rows, 1):
+            r["stt"] = idx
+        return json.dumps({
+            "source": "public.mes_oi_ng_confirm (Bảng kê phế phẩm NG)",
+            "lookup": {"ma_sp": code},
+            "row_count": len(rows),
+            "rows": rows
+        }, ensure_ascii=False, default=str)
+
+    def _sales_order_register(self, question: str) -> str | None:
+        """Tra cứu Bảng kê đơn hàng bán (SO1) / Hợp đồng (ph64, ct64)."""
+        normalized = normalize_text(question)
+        if "mua" in normalized or "po" in normalized:
+            return None
+        keywords = ("bang ke don hang ban", "don hang ban", "don hang hop dong", "bang ke don hang", "hop dong ban", "don hang so", "so don hang", "don so1", "sales order")
+        if not any(kw in normalized for kw in keywords):
+            return None
+        code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
+        code = code_match.group(1).upper() if code_match else None
+        if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX", "SO", "SO1", "DH"):
+            code = None
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    rows = []
+                    if code:
+                        sql_so = """
+                            SELECT 
+                                h.so_ct,
+                                to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
+                                h.ma_kh,
+                                coalesce(k.ten_kh, h.ten_kh) AS ten_kh,
+                                h.so_po,
+                                d.ma_vt,
+                                coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                                d.dvt,
+                                d.so_luong,
+                                d.gia2 AS don_gia,
+                                d.tien2 AS thanh_tien,
+                                h.ma_nt,
+                                coalesce(s.statusname, h.status) AS trang_thai
+                            FROM public.ph64 h
+                            JOIN public.ct64 d USING(stt_rec)
+                            LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh
+                            LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                            LEFT JOIN public.sys_dmtt s ON s.ma_ct = 'SO1' AND s.status = h.status
+                            WHERE h.ma_ct = 'SO1' AND (h.so_ct = %s OR upper(h.so_po) = %s)
+                            ORDER BY d.ln
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql_so, (code, code))
+                        rows = cursor.fetchall()
+                        if not rows:
+                            sql_kh = """
+                                WITH header AS (
+                                    SELECT stt_rec, so_ct, ngay_ct, ma_kh, ten_kh, so_po, ma_nt, status
+                                    FROM public.ph64
+                                    WHERE ma_ct = 'SO1' AND upper(trim(ma_kh)) = %s
+                                    ORDER BY ngay_ct DESC, stt_rec DESC
+                                    LIMIT 5
+                                )
+                                SELECT 
+                                    h.so_ct,
+                                    to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
+                                    h.ma_kh,
+                                    coalesce(k.ten_kh, h.ten_kh) AS ten_kh,
+                                    h.so_po,
+                                    d.ma_vt,
+                                    coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                                    d.dvt,
+                                    d.so_luong,
+                                    d.gia2 AS don_gia,
+                                    d.tien2 AS thanh_tien,
+                                    h.ma_nt,
+                                    coalesce(s.statusname, h.status) AS trang_thai
+                                FROM header h
+                                JOIN public.ct64 d USING(stt_rec)
+                                LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh
+                                LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                                LEFT JOIN public.sys_dmtt s ON s.ma_ct = 'SO1' AND s.status = h.status
+                                ORDER BY h.ngay_ct DESC, h.stt_rec DESC, d.ln
+                                LIMIT 30;
+                            """
+                            cursor.execute(sql_kh, (code,))
+                            rows = cursor.fetchall()
+                        if not rows:
+                            sql_vt = """
+                                SELECT 
+                                    h.so_ct,
+                                    to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
+                                    h.ma_kh,
+                                    coalesce(k.ten_kh, h.ten_kh) AS ten_kh,
+                                    h.so_po,
+                                    d.ma_vt,
+                                    coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                                    d.dvt,
+                                    d.so_luong,
+                                    d.gia2 AS don_gia,
+                                    d.tien2 AS thanh_tien,
+                                    h.ma_nt,
+                                    coalesce(s.statusname, h.status) AS trang_thai
+                                FROM public.ct64 d
+                                JOIN public.ph64 h USING(stt_rec)
+                                LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh
+                                LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                                LEFT JOIN public.sys_dmtt s ON s.ma_ct = 'SO1' AND s.status = h.status
+                                WHERE h.ma_ct = 'SO1' AND d.ma_vt = %s
+                                ORDER BY h.ngay_ct DESC, h.stt_rec DESC, d.ln
+                                LIMIT 30;
+                            """
+                            cursor.execute(sql_vt, (code,))
+                            rows = cursor.fetchall()
+                    else:
+                        sql_recent = """
+                            WITH header AS (
+                                SELECT stt_rec, so_ct, ngay_ct, ma_kh, ten_kh, so_po, ma_nt, status
+                                FROM public.ph64
+                                WHERE ma_ct = 'SO1'
+                                ORDER BY ngay_ct DESC, stt_rec DESC
+                                LIMIT 5
+                            )
+                            SELECT 
+                                h.so_ct,
+                                to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
+                                h.ma_kh,
+                                coalesce(k.ten_kh, h.ten_kh) AS ten_kh,
+                                h.so_po,
+                                d.ma_vt,
+                                coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                                d.dvt,
+                                d.so_luong,
+                                d.gia2 AS don_gia,
+                                d.tien2 AS thanh_tien,
+                                h.ma_nt,
+                                coalesce(s.statusname, h.status) AS trang_thai
+                            FROM header h
+                            JOIN public.ct64 d USING(stt_rec)
+                            LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh
+                            LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                            LEFT JOIN public.sys_dmtt s ON s.ma_ct = 'SO1' AND s.status = h.status
+                            ORDER BY h.ngay_ct DESC, h.stt_rec DESC, d.ln
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql_recent)
+                        rows = cursor.fetchall()
+        except Exception:
+            return None
+        for idx, r in enumerate(rows, 1):
+            r["stt"] = idx
+            if r.get("so_luong") is not None:
+                r["so_luong"] = clean_numeric_str(r["so_luong"])
+            if r.get("don_gia") is not None:
+                r["don_gia"] = clean_numeric_str(r["don_gia"])
+            if r.get("thanh_tien") is not None:
+                r["thanh_tien"] = clean_numeric_str(r["thanh_tien"])
+        return json.dumps({
+            "source": "public.ph64 / public.ct64 (Bảng kê đơn hàng bán SO1)",
+            "lookup": {"ma_so": code},
+            "row_count": len(rows),
+            "rows": rows
+        }, ensure_ascii=False, default=str)
+
+    def _sales_shipment_register(self, question: str) -> str | None:
+        """Tra cứu Bảng kê phiếu xuất kho bán hàng (HDA: ph81, ct81)."""
+        normalized = normalize_text(question)
+        keywords = ("bang ke phieu xuat kho ban hang", "phieu xuat kho ban hang", "xuat kho ban hang", "phieu xuat ban", "bang ke xuat ban", "hoa don ban hang", "xuat ban hang", "bang ke phieu xuat ban")
+        if not any(kw in normalized for kw in keywords):
+            return None
+        code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
+        code = code_match.group(1).upper() if code_match else None
+        if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX", "PXK", "HDA"):
+            code = None
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    rows = []
+                    if code:
+                        sql_so_ct = """
+                            SELECT 
+                                h.so_ct,
+                                to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
+                                h.ma_kh,
+                                coalesce(k.ten_kh, h.ten_kh) AS ten_kh,
+                                h.so_ct_so1 AS so_so,
+                                d.so_po,
+                                d.ma_vt,
+                                coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                                d.dvt,
+                                d.so_luong,
+                                d.ma_kho,
+                                coalesce(s.statusname, h.status) AS trang_thai
+                            FROM public.ph81 h
+                            JOIN public.ct81 d USING(stt_rec)
+                            LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh
+                            LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                            LEFT JOIN public.sys_dmtt s ON s.ma_ct = 'HDA' AND s.status = h.status
+                            WHERE h.ma_ct = 'HDA' AND (h.so_ct = %s OR h.so_ct_so1 = %s)
+                            ORDER BY d.ln
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql_so_ct, (code, code))
+                        rows = cursor.fetchall()
+                        if not rows:
+                            sql_kh = """
+                                WITH header AS (
+                                    SELECT stt_rec, so_ct, ngay_ct, ma_kh, ten_kh, so_ct_so1, status
+                                    FROM public.ph81
+                                    WHERE ma_ct = 'HDA' AND upper(trim(ma_kh)) = %s
+                                    ORDER BY ngay_ct DESC, stt_rec DESC
+                                    LIMIT 5
+                                )
+                                SELECT 
+                                    h.so_ct,
+                                    to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
+                                    h.ma_kh,
+                                    coalesce(k.ten_kh, h.ten_kh) AS ten_kh,
+                                    h.so_ct_so1 AS so_so,
+                                    d.so_po,
+                                    d.ma_vt,
+                                    coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                                    d.dvt,
+                                    d.so_luong,
+                                    d.ma_kho,
+                                    coalesce(s.statusname, h.status) AS trang_thai
+                                FROM header h
+                                JOIN public.ct81 d USING(stt_rec)
+                                LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh
+                                LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                                LEFT JOIN public.sys_dmtt s ON s.ma_ct = 'HDA' AND s.status = h.status
+                                ORDER BY h.ngay_ct DESC, h.stt_rec DESC, d.ln
+                                LIMIT 30;
+                            """
+                            cursor.execute(sql_kh, (code,))
+                            rows = cursor.fetchall()
+                        if not rows:
+                            sql_vt = """
+                                SELECT 
+                                    h.so_ct,
+                                    to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
+                                    h.ma_kh,
+                                    coalesce(k.ten_kh, h.ten_kh) AS ten_kh,
+                                    h.so_ct_so1 AS so_so,
+                                    d.so_po,
+                                    d.ma_vt,
+                                    coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                                    d.dvt,
+                                    d.so_luong,
+                                    d.ma_kho,
+                                    coalesce(s.statusname, h.status) AS trang_thai
+                                FROM public.ct81 d
+                                JOIN public.ph81 h USING(stt_rec)
+                                LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh
+                                LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                                LEFT JOIN public.sys_dmtt s ON s.ma_ct = 'HDA' AND s.status = h.status
+                                WHERE h.ma_ct = 'HDA' AND d.ma_vt = %s
+                                ORDER BY h.ngay_ct DESC, h.stt_rec DESC, d.ln
+                                LIMIT 30;
+                            """
+                            cursor.execute(sql_vt, (code,))
+                            rows = cursor.fetchall()
+                    else:
+                        sql_recent = """
+                            WITH header AS (
+                                SELECT stt_rec, so_ct, ngay_ct, ma_kh, ten_kh, so_ct_so1, status
+                                FROM public.ph81
+                                WHERE ma_ct = 'HDA'
+                                ORDER BY ngay_ct DESC, stt_rec DESC
+                                LIMIT 5
+                            )
+                            SELECT 
+                                h.so_ct,
+                                to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
+                                h.ma_kh,
+                                coalesce(k.ten_kh, h.ten_kh) AS ten_kh,
+                                h.so_ct_so1 AS so_so,
+                                d.so_po,
+                                d.ma_vt,
+                                coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                                d.dvt,
+                                d.so_luong,
+                                d.ma_kho,
+                                coalesce(s.statusname, h.status) AS trang_thai
+                            FROM header h
+                            JOIN public.ct81 d USING(stt_rec)
+                            LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh
+                            LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                            LEFT JOIN public.sys_dmtt s ON s.ma_ct = 'HDA' AND s.status = h.status
+                            ORDER BY h.ngay_ct DESC, h.stt_rec DESC, d.ln
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql_recent)
+                        rows = cursor.fetchall()
+        except Exception:
+            return None
+        for idx, r in enumerate(rows, 1):
+            r["stt"] = idx
+            if r.get("so_luong") is not None:
+                r["so_luong"] = clean_numeric_str(r["so_luong"])
+        return json.dumps({
+            "source": "public.ph81 / public.ct81 (Bảng kê phiếu xuất kho bán hàng)",
+            "lookup": {"ma_phieu": code},
+            "row_count": len(rows),
+            "rows": rows
+        }, ensure_ascii=False, default=str)
+
+    def _purchase_order_register(self, question: str) -> str | None:
+        """Tra cứu Bảng kê đơn hàng mua (PO1: ph94, ct94)."""
+        normalized = normalize_text(question)
+        keywords = ("bang ke don hang mua", "don hang mua", "bang ke po", "don mua hang", "purchase order", "danh sach po", "po mua hang")
+        if not any(kw in normalized for kw in keywords):
+            return None
+        code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
+        code = code_match.group(1).upper() if code_match else None
+        if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX", "PO", "PO1"):
+            code = None
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    rows = []
+                    if code:
+                        sql_po = """
+                            SELECT 
+                                h.so_ct AS so_po,
+                                to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_po,
+                                h.ma_kh AS ma_ncc,
+                                coalesce(k.ten_kh, h.ten_kh) AS ten_ncc,
+                                d.ma_vt,
+                                coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                                d.dvt,
+                                d.so_luong,
+                                d.gia AS don_gia,
+                                d.tien AS thanh_tien,
+                                h.ma_nt,
+                                coalesce(s.statusname, h.status) AS trang_thai
+                            FROM public.ph94 h
+                            JOIN public.ct94 d USING(stt_rec)
+                            LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh
+                            LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                            LEFT JOIN public.sys_dmtt s ON s.ma_ct = 'PO1' AND s.status = h.status
+                            WHERE h.ma_ct = 'PO1' AND h.so_ct = %s
+                            ORDER BY d.ln
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql_po, (code,))
+                        rows = cursor.fetchall()
+                        if not rows:
+                            sql_ncc = """
+                                WITH header AS (
+                                    SELECT stt_rec, so_ct, ngay_ct, ma_kh, ten_kh, ma_nt, status
+                                    FROM public.ph94
+                                    WHERE ma_ct = 'PO1' AND upper(trim(ma_kh)) = %s
+                                    ORDER BY ngay_ct DESC, stt_rec DESC
+                                    LIMIT 5
+                                )
+                                SELECT 
+                                    h.so_ct AS so_po,
+                                    to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_po,
+                                    h.ma_kh AS ma_ncc,
+                                    coalesce(k.ten_kh, h.ten_kh) AS ten_ncc,
+                                    d.ma_vt,
+                                    coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                                    d.dvt,
+                                    d.so_luong,
+                                    d.gia AS don_gia,
+                                    d.tien AS thanh_tien,
+                                    h.ma_nt,
+                                    coalesce(s.statusname, h.status) AS trang_thai
+                                FROM header h
+                                JOIN public.ct94 d USING(stt_rec)
+                                LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh
+                                LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                                LEFT JOIN public.sys_dmtt s ON s.ma_ct = 'PO1' AND s.status = h.status
+                                ORDER BY h.ngay_ct DESC, h.stt_rec DESC, d.ln
+                                LIMIT 30;
+                            """
+                            cursor.execute(sql_ncc, (code,))
+                            rows = cursor.fetchall()
+                        if not rows:
+                            sql_vt = """
+                                SELECT 
+                                    h.so_ct AS so_po,
+                                    to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_po,
+                                    h.ma_kh AS ma_ncc,
+                                    coalesce(k.ten_kh, h.ten_kh) AS ten_ncc,
+                                    d.ma_vt,
+                                    coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                                    d.dvt,
+                                    d.so_luong,
+                                    d.gia AS don_gia,
+                                    d.tien AS thanh_tien,
+                                    h.ma_nt,
+                                    coalesce(s.statusname, h.status) AS trang_thai
+                                FROM public.ct94 d
+                                JOIN public.ph94 h USING(stt_rec)
+                                LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh
+                                LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                                LEFT JOIN public.sys_dmtt s ON s.ma_ct = 'PO1' AND s.status = h.status
+                                WHERE h.ma_ct = 'PO1' AND d.ma_vt = %s
+                                ORDER BY h.ngay_ct DESC, h.stt_rec DESC, d.ln
+                                LIMIT 30;
+                            """
+                            cursor.execute(sql_vt, (code,))
+                            rows = cursor.fetchall()
+                    else:
+                        sql_recent = """
+                            WITH header AS (
+                                SELECT stt_rec, so_ct, ngay_ct, ma_kh, ten_kh, ma_nt, status
+                                FROM public.ph94
+                                WHERE ma_ct = 'PO1'
+                                ORDER BY ngay_ct DESC, stt_rec DESC
+                                LIMIT 5
+                            )
+                            SELECT 
+                                h.so_ct AS so_po,
+                                to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_po,
+                                h.ma_kh AS ma_ncc,
+                                coalesce(k.ten_kh, h.ten_kh) AS ten_ncc,
+                                d.ma_vt,
+                                coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                                d.dvt,
+                                d.so_luong,
+                                d.gia AS don_gia,
+                                d.tien AS thanh_tien,
+                                h.ma_nt,
+                                coalesce(s.statusname, h.status) AS trang_thai
+                            FROM header h
+                            JOIN public.ct94 d USING(stt_rec)
+                            LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh
+                            LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                            LEFT JOIN public.sys_dmtt s ON s.ma_ct = 'PO1' AND s.status = h.status
+                            ORDER BY h.ngay_ct DESC, h.stt_rec DESC, d.ln
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql_recent)
+                        rows = cursor.fetchall()
+        except Exception:
+            return None
+        for idx, r in enumerate(rows, 1):
+            r["stt"] = idx
+            if r.get("so_luong") is not None:
+                r["so_luong"] = clean_numeric_str(r["so_luong"])
+            if r.get("don_gia") is not None:
+                r["don_gia"] = clean_numeric_str(r["don_gia"])
+            if r.get("thanh_tien") is not None:
+                r["thanh_tien"] = clean_numeric_str(r["thanh_tien"])
+        return json.dumps({
+            "source": "public.ph94 / public.ct94 (Bảng kê đơn hàng mua PO1)",
+            "lookup": {"ma_po": code},
+            "row_count": len(rows),
+            "rows": rows
+        }, ensure_ascii=False, default=str)
+
+    def _internal_warehouse_transfer_register(self, question: str) -> str | None:
+        """Tra cứu Bảng kê phiếu nhập/xuất kho nội bộ (PND/PXA: ph74, ct74)."""
+        normalized = normalize_text(question)
+        keywords = (
+            "nhap kho noi bo", "xuat kho noi bo", "phieu nhap noi bo", "phieu xuat noi bo",
+            "nhap kho tu sx", "nhap kho tu san xuat", "nhap tu sx", "nhap tu san xuat",
+            "bang ke nhap kho tu san xuat", "bang ke nhap kho tu sx",
+            "bang ke phieu nhap noi bo", "bang ke phieu xuat noi bo", "phieu pnd", "phieu pxa", "chuyen kho noi bo"
+        )
+        if not any(kw in normalized for kw in keywords):
+            return None
+        code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
+        code = code_match.group(1).upper() if code_match else None
+        if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX", "PND", "PXA", "PXD"):
+            code = None
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    rows = []
+                    if code:
+                        sql_ct = """
+                            SELECT 
+                                h.so_ct,
+                                to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
+                                h.ma_ct AS loai_phieu,
+                                d.ma_vt,
+                                coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                                d.dvt,
+                                d.ma_kho,
+                                coalesce(w.ten_kho, d.ma_kho) AS ten_kho,
+                                d.so_luong,
+                                h.dien_giai,
+                                coalesce(s.statusname, h.status) AS trang_thai
+                            FROM public.ph74 h
+                            JOIN public.ct74 d USING(stt_rec)
+                            LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                            LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho
+                            LEFT JOIN public.sys_dmtt s ON s.ma_ct = h.ma_ct AND s.status = h.status
+                            WHERE h.so_ct = %s OR d.ma_vt = %s
+                            ORDER BY h.ngay_ct DESC, h.stt_rec DESC, d.ln
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql_ct, (code, code))
+                        rows = cursor.fetchall()
+                    else:
+                        sql_recent = """
+                            WITH header AS (
+                                SELECT stt_rec, so_ct, ngay_ct, ma_ct, dien_giai, status
+                                FROM public.ph74
+                                ORDER BY ngay_ct DESC, stt_rec DESC
+                                LIMIT 10
+                            )
+                            SELECT 
+                                h.so_ct,
+                                to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
+                                h.ma_ct AS loai_phieu,
+                                d.ma_vt,
+                                coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                                d.dvt,
+                                d.ma_kho,
+                                coalesce(w.ten_kho, d.ma_kho) AS ten_kho,
+                                d.so_luong,
+                                h.dien_giai,
+                                coalesce(s.statusname, h.status) AS trang_thai
+                            FROM header h
+                            JOIN public.ct74 d USING(stt_rec)
+                            LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                            LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho
+                            LEFT JOIN public.sys_dmtt s ON s.ma_ct = h.ma_ct AND s.status = h.status
+                            ORDER BY h.ngay_ct DESC, h.stt_rec DESC, d.ln
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql_recent)
+                        rows = cursor.fetchall()
+        except Exception:
+            return None
+        for idx, r in enumerate(rows, 1):
+            r["stt"] = idx
+            if r.get("so_luong") is not None:
+                r["so_luong"] = clean_numeric_str(r["so_luong"])
+        return json.dumps({
+            "source": "public.ph74 / public.ct74 (Phiếu nhập/xuất kho nội bộ)",
+            "lookup": {"ma_phieu": code},
+            "row_count": len(rows),
+            "rows": rows
+        }, ensure_ascii=False, default=str)
+
+    def _mold_profile_register(self, question: str) -> str | None:
+        """Tra cứu Bảng kê hồ sơ khuôn / Quản lý tài sản khuôn (dmhosokhuon)."""
+        normalized = normalize_text(question)
+        keywords = ("ho so khuon", "bang ke ho so khuon", "thong tin khuon", "tuoi tho khuon", "so shot bao hiem", "cavity khuon", "danh sach khuon", "tai san khuon")
+        if not any(kw in normalized for kw in keywords):
+            return None
+        code_match = re.search(r"\b((?=[a-z0-9/_.-]*[a-z0-9])[a-z0-9_]+(?:[-/.][a-z0-9_]+)*)\b", question, re.I)
+        code = code_match.group(1).upper() if code_match else None
+        if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX", "KHUON"):
+            code = None
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    rows = []
+                    if code:
+                        sql = """
+                            SELECT 
+                                m.ma_khuon,
+                                m.ten_khuon,
+                                to_char(m.ngay, 'YYYY-MM-DD') AS ngay_su_dung,
+                                to_char(m.ngay_bh, 'YYYY-MM-DD') AS ngay_bao_hiem,
+                                m.so_cavity,
+                                m.so_shot_bh AS tuoi_tho_shot_dinh_muc,
+                                m.loai_gate,
+                                m.so_cong_hot,
+                                m.so_cong_van_dau
+                            FROM public.dmhosokhuon m
+                            WHERE upper(m.ma_khuon) LIKE %s OR upper(m.ten_khuon) LIKE %s
+                            ORDER BY m.ngay DESC NULLS LAST, m.ma_khuon
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql, (f"%{code}%", f"%{code}%"))
+                        rows = cursor.fetchall()
+                    else:
+                        sql_recent = """
+                            SELECT 
+                                m.ma_khuon,
+                                m.ten_khuon,
+                                to_char(m.ngay, 'YYYY-MM-DD') AS ngay_su_dung,
+                                to_char(m.ngay_bh, 'YYYY-MM-DD') AS ngay_bao_hiem,
+                                m.so_cavity,
+                                m.so_shot_bh AS tuoi_tho_shot_dinh_muc,
+                                m.loai_gate,
+                                m.so_cong_hot,
+                                m.so_cong_van_dau
+                            FROM public.dmhosokhuon m
+                            ORDER BY m.ngay DESC NULLS LAST, m.ma_khuon
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql_recent)
+                        rows = cursor.fetchall()
+        except Exception:
+            return None
+        for idx, r in enumerate(rows, 1):
+            r["stt"] = idx
+            if r.get("so_cavity") is not None:
+                r["so_cavity"] = clean_numeric_str(r["so_cavity"])
+            if r.get("tuoi_tho_shot_dinh_muc") is not None:
+                r["tuoi_tho_shot_dinh_muc"] = clean_numeric_str(r["tuoi_tho_shot_dinh_muc"])
+        return json.dumps({
+            "source": "public.dmhosokhuon (Hồ sơ khuôn)",
+            "lookup": {"ma_khuon": code},
+            "row_count": len(rows),
+            "rows": rows
+        }, ensure_ascii=False, default=str)
+
+    def _sales_price_list_register(self, question: str) -> str | None:
+        """Tra cứu Bảng giá bán / Chính sách giá (dmbanggia, dmbanggiact)."""
+        normalized = normalize_text(question)
+        keywords = ("bang gia ban", "danh muc bang gia", "chinh sach gia", "gia ban san pham", "tra cuu gia ban", "don gia ban", "gia niem yet")
+        if not any(kw in normalized for kw in keywords):
+            return None
+        code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
+        code = code_match.group(1).upper() if code_match else None
+        if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX", "GIA"):
+            code = None
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    rows = []
+                    if code:
+                        sql = """
+                            SELECT 
+                                b.ma_bang_gia,
+                                b.ten_bang_gia,
+                                c.ma_vt,
+                                coalesce(v.ten_vt, c.ma_vt) AS ten_vt,
+                                c.dvt,
+                                c.ma_kh,
+                                coalesce(k.ten_kh, c.ma_kh) AS ten_kh,
+                                c.gia AS don_gia_ban,
+                                c.ma_nt,
+                                c.sl_min,
+                                to_char(c.ngay_bd, 'YYYY-MM-DD') AS ngay_bd,
+                                to_char(c.ngay_kt, 'YYYY-MM-DD') AS ngay_kt
+                            FROM public.dmbanggiact c
+                            JOIN public.dmbanggia b ON b.ma_bang_gia = c.ma_bang_gia
+                            LEFT JOIN public.dmvt v ON v.ma_vt = c.ma_vt
+                            LEFT JOIN public.dmkh k ON k.ma_kh = c.ma_kh
+                            WHERE upper(b.ma_bang_gia) = %s OR c.ma_vt = %s OR upper(c.ma_kh) = %s
+                            ORDER BY c.ma_bang_gia, c.ma_vt
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql, (code, code, code))
+                        rows = cursor.fetchall()
+                    else:
+                        sql_recent = """
+                            SELECT 
+                                b.ma_bang_gia,
+                                b.ten_bang_gia,
+                                c.ma_vt,
+                                coalesce(v.ten_vt, c.ma_vt) AS ten_vt,
+                                c.dvt,
+                                c.ma_kh,
+                                coalesce(k.ten_kh, c.ma_kh) AS ten_kh,
+                                c.gia AS don_gia_ban,
+                                c.ma_nt,
+                                c.sl_min,
+                                to_char(c.ngay_bd, 'YYYY-MM-DD') AS ngay_bd,
+                                to_char(c.ngay_kt, 'YYYY-MM-DD') AS ngay_kt
+                            FROM public.dmbanggiact c
+                            JOIN public.dmbanggia b ON b.ma_bang_gia = c.ma_bang_gia
+                            LEFT JOIN public.dmvt v ON v.ma_vt = c.ma_vt
+                            LEFT JOIN public.dmkh k ON k.ma_kh = c.ma_kh
+                            WHERE c.gia > 0
+                            ORDER BY c.ma_bang_gia, c.ma_vt
+                            LIMIT 30;
+                        """
+                        cursor.execute(sql_recent)
+                        rows = cursor.fetchall()
+        except Exception:
+            return None
+        for idx, r in enumerate(rows, 1):
+            r["stt"] = idx
+            if r.get("don_gia_ban") is not None:
+                r["don_gia_ban"] = clean_numeric_str(r["don_gia_ban"])
+            if r.get("sl_min") is not None:
+                r["sl_min"] = clean_numeric_str(r["sl_min"])
+        return json.dumps({
+            "source": "public.dmbanggia / public.dmbanggiact (Bảng giá bán)",
+            "lookup": {"ma_bang_gia": code},
+            "row_count": len(rows),
+            "rows": rows
+        }, ensure_ascii=False, default=str)
 
     def ask_erp(self, question: str, context: str = "", conversation_id: str = "", __chat_id__: str = "", __user__: dict | None = None):
         """Show verified ERP rows with a direct Excel download in Rich UI."""
@@ -2654,17 +3891,29 @@ class Tools:
         authenticated_user_id = trusted_erp_user_id(__user__)
         for specialized_handler in (
             self._packaging_specification_and_stock,
+            self._replacement_ng_reconciliation,
+            self._forecast_do_fcst_comparison,
+            self._orders_missing_standard_price,
+            self._customer_order_history,
+            self._delivery_order_status,
+            self._customer_code_by_name,
             self._material_bom_structure,
             self._mold_shot_and_demand,
             self._mold_die_label_stock,
             self._inventory_stock_by_warehouse,
             self._material_qc_status,
-            self._customer_order_history,
-            self._orders_missing_standard_price,
-            self._delivery_order_status,
-            self._customer_code_by_name,
-            self._replacement_ng_reconciliation,
-            self._forecast_do_fcst_comparison,
+            self._carton_packing_register,
+            self._carton_merge_split_register,
+            self._mold_shot_adjust_register,
+            self._mes_work_order_register,
+            self._mes_machine_downtime_register,
+            self._mes_production_ng_register,
+            self._sales_order_register,
+            self._sales_shipment_register,
+            self._purchase_order_register,
+            self._internal_warehouse_transfer_register,
+            self._mold_profile_register,
+            self._sales_price_list_register,
         ):
             specialized_result = specialized_handler(question)
             if specialized_result is not None:

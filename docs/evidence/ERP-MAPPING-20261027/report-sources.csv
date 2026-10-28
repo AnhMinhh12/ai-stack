@@ -1,0 +1,413 @@
+﻿report_id,screen_title,declared_source,live_catalog_checked,origin
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,ph94,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,ct94,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,dmvt,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,userinfo,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-don-hang-mua,Bảng kê đơn hàng mua,dmkho,false,config/erp-reports/bang-ke-don-hang-mua.json
+bang-ke-iqc-ipqc,"Bảng kê IQC, IPQC",phiqc,false,config/erp-reports/bang-ke-iqc-ipqc.json
+bang-ke-len-khuon,Bảng kê lên khuôn,mes_oi_van_hanh_khuon,false,config/erp-reports/bang-ke-len-khuon.json
+bang-ke-len-khuon,Bảng kê lên khuôn,mes_oi_confirm,false,config/erp-reports/bang-ke-len-khuon.json
+bang-ke-len-khuon,Bảng kê lên khuôn,userinfo,false,config/erp-reports/bang-ke-len-khuon.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ph96,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ct96,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ct96lo,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ctkhgh,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,ct81,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,dmkh,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,dmvt,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,sys_dmtt,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,userinfo,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-lenh-giao-hang,Bảng kê lệnh giao hàng,dmkho,false,config/erp-reports/bang-ke-lenh-giao-hang.json
+bang-ke-ng-linh-kien,Bảng kê NG linh kiện,mes_oi_ng_materrial,false,config/erp-reports/bang-ke-ng-linh-kien.json
+bang-ke-ng-linh-kien,Bảng kê NG linh kiện,mes_oi_confirm,false,config/erp-reports/bang-ke-ng-linh-kien.json
+bang-ke-ng-linh-kien,Bảng kê NG linh kiện,mes_oi_material,false,config/erp-reports/bang-ke-ng-linh-kien.json
+bang-ke-ng-linh-kien,Bảng kê NG linh kiện,dmvt,false,config/erp-reports/bang-ke-ng-linh-kien.json
+bang-ke-ng-linh-kien,Bảng kê NG linh kiện,dmloi,false,config/erp-reports/bang-ke-ng-linh-kien.json
+bang-ke-ng-linh-kien,Bảng kê NG linh kiện,dmkh,false,config/erp-reports/bang-ke-ng-linh-kien.json
+bang-ke-ng-linh-kien,Bảng kê NG linh kiện,sys_listoptions,false,config/erp-reports/bang-ke-ng-linh-kien.json
+bang-ke-ng-linh-kien,Bảng kê NG linh kiện,userinfo,false,config/erp-reports/bang-ke-ng-linh-kien.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",ph85,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",ct85,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",ctlo,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",ct70bsp,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",dmvt,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",dmkh,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",dmkho,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",sys_dmmagd,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-dieu-chuyen,"Bảng kê phiếu nhập, xuất điều chuyển",userinfo,false,config/erp-reports/bang-ke-nhap-xuat-dieu-chuyen.json
+bang-ke-nhap-xuat-theo-lo,Bảng kê nhập xuất theo lô,ct70,false,config/erp-reports/bang-ke-nhap-xuat-theo-lo.json
+bang-ke-phat-sinh-san-xuat,Bảng kê phát sinh trong sản xuất,mes_oi_confirm,false,config/erp-reports/bang-ke-phat-sinh-san-xuat.json
+bang-ke-phieu-nhap-hang,Bảng kê phiếu nhập hàng,ph77,false,config/erp-reports/bang-ke-phieu-nhap-hang.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,ct70,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,ph74,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,ct74,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,phdnv,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,dmvt,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,dmkh,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,dmkho,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,dmvv,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,dmbp,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,dmcp,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,dmcdgt,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,sys_dmmagd,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,sys_options,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-nhap-kho,Bảng kê phiếu nhập kho,userinfo,false,config/erp-reports/bang-ke-phieu-nhap-kho.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,ph81,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,ct81,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,ctkhgh,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,dmkh,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,dmvt,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,dmkho,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,sys_dmtt,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho-ban-hang,Bảng kê phiếu xuất kho bán hàng,userinfo,false,config/erp-reports/bang-ke-phieu-xuat-kho-ban-hang.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,ct70,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,ph84,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,ct84,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,dmkh,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,dmvt,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,dmkho,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,dmvv,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,dmbp,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,dmcp,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,dmcdgt,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,sys_dmmagd,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,sys_dmtt,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-xuat-kho,Bảng kê phiếu xuất kho,userinfo,false,config/erp-reports/bang-ke-phieu-xuat-kho.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ph91,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ct91,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ctkhnh_po1,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ctkhnh,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ph94,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,ct77,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,dmvt,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,dmkh,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,dmbp,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,userinfo,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,dmkho,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-mua-hang,Bảng kê phiếu yêu cầu mua hàng,sys_dmtt,false,config/erp-reports/bang-ke-phieu-yeu-cau-mua-hang.json
+bang-ke-phieu-yeu-cau-nhap-hang,Bảng kê phiếu yêu cầu nhập hàng,phycn,false,config/erp-reports/bang-ke-phieu-yeu-cau-nhap-hang.json
+bang-ke-setup-van-hanh-may,"Bảng kê setup, vận hành máy",mes_oi_setup_may,false,config/erp-reports/bang-ke-setup-van-hanh-may.json
+bang-ke-setup-van-hanh-may,"Bảng kê setup, vận hành máy",mes_oi_confirm,false,config/erp-reports/bang-ke-setup-van-hanh-may.json
+bang-ke-setup-van-hanh-may,"Bảng kê setup, vận hành máy",userinfo,false,config/erp-reports/bang-ke-setup-van-hanh-may.json
+bang-ke-work-order,Bảng kê Work Order,mes_scheduling,false,config/erp-reports/bang-ke-work-order.json
+bang-ke-work-order,Bảng kê Work Order,userinfo,false,config/erp-reports/bang-ke-work-order.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,mfbom,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,mfbom_material,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,mfbom_material_indirect,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,mfbom_material_replace,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,dmvt,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-cau-truc-san-pham,Báo cáo cấu trúc sản phẩm,userinfo,false,config/erp-reports/bao-cao-cau-truc-san-pham.json
+bao-cao-lich-su-thay-doi-bom,Báo cáo lịch sử thay đổi BOM list,history_bom_change,false,config/erp-reports/bao-cao-lich-su-thay-doi-bom.json
+bao-cao-lich-su-thay-doi-bom,Báo cáo lịch sử thay đổi BOM list,mfbom,false,config/erp-reports/bao-cao-lich-su-thay-doi-bom.json
+bao-cao-lich-su-thay-doi-bom,Báo cáo lịch sử thay đổi BOM list,dmvt,false,config/erp-reports/bao-cao-lich-su-thay-doi-bom.json
+bao-cao-lich-su-thay-doi-bom,Báo cáo lịch sử thay đổi BOM list,userinfo,false,config/erp-reports/bao-cao-lich-su-thay-doi-bom.json
+bao-cao-lich-su-thay-doi-gia-ncc,Báo cáo lịch sử thay đổi giá NCC,dmgiamua,false,config/erp-reports/bao-cao-lich-su-thay-doi-gia-ncc.json
+bao-cao-lich-su-thay-doi-gia-ncc,Báo cáo lịch sử thay đổi giá NCC,dmgiamuact,false,config/erp-reports/bao-cao-lich-su-thay-doi-gia-ncc.json
+bao-cao-lich-su-thay-doi-gia-ncc,Báo cáo lịch sử thay đổi giá NCC,dmvt,false,config/erp-reports/bao-cao-lich-su-thay-doi-gia-ncc.json
+bao-cao-lich-su-thay-doi-gia-ncc,Báo cáo lịch sử thay đổi giá NCC,userinfo,false,config/erp-reports/bao-cao-lich-su-thay-doi-gia-ncc.json
+bao-cao-thong-tin-sp-theo-ho-so-khuon,Báo cáo thông tin sản phẩm theo hồ sơ khuôn,dmhosokhuonsp,false,config/erp-reports/bao-cao-thong-tin-sp-theo-ho-so-khuon.json
+bao-cao-thong-tin-sp-theo-ho-so-khuon,Báo cáo thông tin sản phẩm theo hồ sơ khuôn,dmhosokhuon,false,config/erp-reports/bao-cao-thong-tin-sp-theo-ho-so-khuon.json
+bao-cao-thong-tin-sp-theo-ho-so-khuon,Báo cáo thông tin sản phẩm theo hồ sơ khuôn,dmvt,false,config/erp-reports/bao-cao-thong-tin-sp-theo-ho-so-khuon.json
+bao-cao-thong-tin-sp-theo-ho-so-khuon,Báo cáo thông tin sản phẩm theo hồ sơ khuôn,userinfo,false,config/erp-reports/bao-cao-thong-tin-sp-theo-ho-so-khuon.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,ph64,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,ct64,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,ctkhgh,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,ph96,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,ct81,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,ph81,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,dmkh,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,dmvt,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,sys_dmtt,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,userinfo,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tien-do-giao-hang,Báo cáo tiến độ giao hàng,dmkho,false,config/erp-reports/bao-cao-tien-do-giao-hang.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,ph94,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,ct94,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,ct77,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,ct71,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,dmvt,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-tinh-trang-don-hang-mua,Báo cáo tình trạng đơn hàng mua,dmkh,false,config/erp-reports/bao-cao-tinh-trang-don-hang-mua.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,intem_log,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,dmvt,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,dmlo,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,dmkho,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,dmvitri,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-so-khuon,Báo cáo tồn kho theo số khuôn,userinfo,false,config/erp-reports/bao-cao-ton-kho-theo-so-khuon.json
+bao-cao-ton-kho-theo-trang-thai-tem,Báo cáo tồn kho theo trạng thái tem,intem_log,false,config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json
+bao-cao-ton-kho-theo-trang-thai-tem,Báo cáo tồn kho theo trạng thái tem,dmvt,false,config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json
+bao-cao-ton-kho-theo-trang-thai-tem,Báo cáo tồn kho theo trạng thái tem,sys_listoptions,false,config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json
+bao-cao-ton-kho-theo-trang-thai-tem,Báo cáo tồn kho theo trạng thái tem,dmkho,false,config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json
+bao-cao-ton-kho-theo-trang-thai-tem,Báo cáo tồn kho theo trạng thái tem,userinfo,false,config/erp-reports/bao-cao-ton-kho-theo-trang-thai-tem.json
+bao-cao-ton-kho,Báo cáo tồn kho,cdvt,false,config/erp-reports/bao-cao-ton-kho.json
+bao-cao-ton-kho,Báo cáo tồn kho,ct70,false,config/erp-reports/bao-cao-ton-kho.json
+bao-cao-ton-kho,Báo cáo tồn kho,dmvt,false,config/erp-reports/bao-cao-ton-kho.json
+bao-cao-ton-kho,Báo cáo tồn kho,dmkho,false,config/erp-reports/bao-cao-ton-kho.json
+bao-cao-ton-kho,Báo cáo tồn kho,userinfo,false,config/erp-reports/bao-cao-ton-kho.json
+bao-cao-ton-lo-theo-vi-tri-kho,Báo cáo tồn lô theo vị trí,cdbsp,false,config/erp-reports/bao-cao-ton-lo-theo-vi-tri-kho.json
+bao-cao-ton-lo-theo-vi-tri-kho,Báo cáo tồn lô theo vị trí,dmkho,false,config/erp-reports/bao-cao-ton-lo-theo-vi-tri-kho.json
+bao-cao-ton-lo-theo-vi-tri-kho,Báo cáo tồn lô theo vị trí,userinfo,false,config/erp-reports/bao-cao-ton-lo-theo-vi-tri-kho.json
+bao-cao-ton-theo-kho,Báo cáo tồn theo kho,cdvt,false,config/erp-reports/bao-cao-ton-theo-kho.json
+bao-cao-ton-theo-kho,Báo cáo tồn theo kho,ct70,false,config/erp-reports/bao-cao-ton-theo-kho.json
+bao-cao-ton-theo-kho,Báo cáo tồn theo kho,dmvt,false,config/erp-reports/bao-cao-ton-theo-kho.json
+bao-cao-ton-theo-kho,Báo cáo tồn theo kho,dmkho,false,config/erp-reports/bao-cao-ton-theo-kho.json
+bao-cao-ton-theo-kho,Báo cáo tồn theo kho,userinfo,false,config/erp-reports/bao-cao-ton-theo-kho.json
+bo-sung-shot,Bổ sung shot,mes_oi_add_quantity,false,config/erp-reports/bo-sung-shot.json
+bo-sung-shot,Bổ sung shot,mes_oi_confirm,false,config/erp-reports/bo-sung-shot.json
+bo-sung-shot,Bổ sung shot,dmvt,false,config/erp-reports/bo-sung-shot.json
+bo-sung-shot,Bổ sung shot,dmkh,false,config/erp-reports/bo-sung-shot.json
+bo-sung-shot,Bổ sung shot,userinfo,false,config/erp-reports/bo-sung-shot.json
+chi-tiet-bai-kiem-tra-theo-ma-hang,Chi tiết bài kiểm tra theo mã hàng,qcdmvt,false,config/erp-reports/chi-tiet-bai-kiem-tra-theo-ma-hang.json
+chi-tiet-bai-kiem-tra-theo-ma-hang,Chi tiết bài kiểm tra theo mã hàng,qcdmvtct,false,config/erp-reports/chi-tiet-bai-kiem-tra-theo-ma-hang.json
+chi-tiet-bai-kiem-tra-theo-ma-hang,Chi tiết bài kiểm tra theo mã hàng,qcdmchitieu,false,config/erp-reports/chi-tiet-bai-kiem-tra-theo-ma-hang.json
+chi-tiet-bai-kiem-tra-theo-ma-hang,Chi tiết bài kiểm tra theo mã hàng,dmvt,false,config/erp-reports/chi-tiet-bai-kiem-tra-theo-ma-hang.json
+chi-tiet-bai-kiem-tra-theo-ma-hang,Chi tiết bài kiểm tra theo mã hàng,userinfo,false,config/erp-reports/chi-tiet-bai-kiem-tra-theo-ma-hang.json
+chi-tiet-bo-shot,Chi tiết bỏ shot,mes_oi_bo_shot,false,config/erp-reports/chi-tiet-bo-shot.json
+chi-tiet-bo-shot,Chi tiết bỏ shot,mes_oi_confirm,false,config/erp-reports/chi-tiet-bo-shot.json
+chi-tiet-bo-shot,Chi tiết bỏ shot,userinfo,false,config/erp-reports/chi-tiet-bo-shot.json
+danh-muc-bai-kiem-tra,Danh mục bài kiểm tra,qcdmchitieu,false,config/erp-reports/danh-muc-bai-kiem-tra.json
+danh-muc-bai-kiem-tra,Danh mục bài kiểm tra,userinfo,false,config/erp-reports/danh-muc-bai-kiem-tra.json
+danh-muc-bang-gia,Danh mục bảng giá,dmbanggia,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,dmbanggiact,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,dmvt,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,dmkh,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-bang-gia,Danh mục bảng giá,userinfo,false,config/erp-reports/danh-muc-bang-gia.json
+danh-muc-cau-truc-san-pham,Danh mục cấu trúc sản phẩm,mfbom,false,config/erp-reports/danh-muc-cau-truc-san-pham.json
+danh-muc-cau-truc-san-pham,Danh mục cấu trúc sản phẩm,dmvt,false,config/erp-reports/danh-muc-cau-truc-san-pham.json
+danh-muc-cau-truc-san-pham,Danh mục cấu trúc sản phẩm,userinfo,false,config/erp-reports/danh-muc-cau-truc-san-pham.json
+danh-muc-day-chuyen-san-xuat,Danh mục dây chuyền sản xuất,mflist_line,false,config/erp-reports/danh-muc-day-chuyen-san-xuat.json
+danh-muc-day-chuyen-san-xuat,Danh mục dây chuyền sản xuất,userinfo,false,config/erp-reports/danh-muc-day-chuyen-san-xuat.json
+danh-muc-khach-hang,Danh mục khách hàng,dmkh,false,config/erp-reports/danh-muc-khach-hang.json
+danh-muc-khach-hang,Danh mục khách hàng,userinfo,false,config/erp-reports/danh-muc-khach-hang.json
+danh-muc-khuon,Danh mục khuôn,mfdmkhuon,false,config/erp-reports/danh-muc-khuon.json
+danh-muc-khuon,Danh mục khuôn,userinfo,false,config/erp-reports/danh-muc-khuon.json
+danh-muc-may,Danh mục máy,mflist_machine,false,config/erp-reports/danh-muc-may.json
+danh-muc-may,Danh mục máy,userinfo,false,config/erp-reports/danh-muc-may.json
+danh-muc-nguyen-nhan-dung-may,Danh mục nguyên nhân dừng máy,dmnndungmay,false,config/erp-reports/danh-muc-nguyen-nhan-dung-may.json
+danh-muc-nguyen-nhan-dung-may,Danh mục nguyên nhân dừng máy,userinfo,false,config/erp-reports/danh-muc-nguyen-nhan-dung-may.json
+danh-muc-san-pham-vat-tu,"Danh mục sản phẩm, vật tư",dmvt,false,config/erp-reports/danh-muc-san-pham-vat-tu.json
+danh-muc-san-pham-vat-tu,"Danh mục sản phẩm, vật tư",userinfo,false,config/erp-reports/danh-muc-san-pham-vat-tu.json
+doanh-so-ban-hang-theo-khach-hang,Doanh số bán hàng theo khách hàng,ph81,false,config/erp-reports/doanh-so-ban-hang-theo-khach-hang.json
+doanh-so-ban-hang-theo-khach-hang,Doanh số bán hàng theo khách hàng,ct81,false,config/erp-reports/doanh-so-ban-hang-theo-khach-hang.json
+doanh-so-ban-hang-theo-khach-hang,Doanh số bán hàng theo khách hàng,dmkh,false,config/erp-reports/doanh-so-ban-hang-theo-khach-hang.json
+doanh-so-ban-hang-theo-khach-hang,Doanh số bán hàng theo khách hàng,dmvt,false,config/erp-reports/doanh-so-ban-hang-theo-khach-hang.json
+doanh-so-ban-hang-theo-khach-hang,Doanh số bán hàng theo khách hàng,dmkho,false,config/erp-reports/doanh-so-ban-hang-theo-khach-hang.json
+doanh-so-ban-hang-theo-khach-hang,Doanh số bán hàng theo khách hàng,userinfo,false,config/erp-reports/doanh-so-ban-hang-theo-khach-hang.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,ph96,false,config/erp-reports/doi-soat-giao-bu-ng.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,ct96,false,config/erp-reports/doi-soat-giao-bu-ng.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,ph66,false,config/erp-reports/doi-soat-giao-bu-ng.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,ct66,false,config/erp-reports/doi-soat-giao-bu-ng.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,dmkh,false,config/erp-reports/doi-soat-giao-bu-ng.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,dmvt,false,config/erp-reports/doi-soat-giao-bu-ng.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,dmkho,false,config/erp-reports/doi-soat-giao-bu-ng.json
+doi-soat-giao-bu-ng,Đối soát giao bù NG,userinfo,false,config/erp-reports/doi-soat-giao-bu-ng.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ph64,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ct64,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),ctkhgh,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),dmvt,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),dmkh,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),sys_dmtt,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),userinfo,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-hop-dong,Đơn hàng (Hợp đồng),dmkho,false,config/erp-reports/don-hang-hop-dong.json
+don-hang-mua,Đơn hàng mua,ph94,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,ct94,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,dmkh,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,dmvt,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,dmbp,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,dmvv,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,sys_dmmagd,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,sys_dmtt,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,userinfo,false,config/erp-reports/don-hang-mua.json
+don-hang-mua,Đơn hàng mua,dmkho,false,config/erp-reports/don-hang-mua.json
+dong-goi-dong-thung,"Đóng gói, đóng thùng",mes_oi_confirm,false,config/erp-reports/dong-goi-dong-thung.json
+dong-goi-dong-thung,"Đóng gói, đóng thùng",mes_oi_dong_thung,false,config/erp-reports/dong-goi-dong-thung.json
+dong-goi-dong-thung,"Đóng gói, đóng thùng",mes_scheduling_output,false,config/erp-reports/dong-goi-dong-thung.json
+dong-goi-dong-thung,"Đóng gói, đóng thùng",mes_scheduling,false,config/erp-reports/dong-goi-dong-thung.json
+dong-goi-dong-thung,"Đóng gói, đóng thùng",dmvt,false,config/erp-reports/dong-goi-dong-thung.json
+dong-goi-dong-thung,"Đóng gói, đóng thùng",userinfo,false,config/erp-reports/dong-goi-dong-thung.json
+du-bao-tuoi-tho-khuon,Dự báo tuổi thọ khuôn,dmhosokhuon,false,config/erp-reports/du-bao-tuoi-tho-khuon.json
+du-bao-tuoi-tho-khuon,Dự báo tuổi thọ khuôn,dmhosokhuonsp,false,config/erp-reports/du-bao-tuoi-tho-khuon.json
+du-bao-tuoi-tho-khuon,Dự báo tuổi thọ khuôn,mfkhsx_po_fc,false,config/erp-reports/du-bao-tuoi-tho-khuon.json
+du-bao-tuoi-tho-khuon,Dự báo tuổi thọ khuôn,userinfo,false,config/erp-reports/du-bao-tuoi-tho-khuon.json
+gia-han-han-su-dung,Gia hạn hạn sử dụng,dmlo,false,config/erp-reports/gia-han-han-su-dung.json
+gia-han-han-su-dung,Gia hạn hạn sử dụng,dmvt,false,config/erp-reports/gia-han-han-su-dung.json
+gia-han-han-su-dung,Gia hạn hạn sử dụng,cdvt13,false,config/erp-reports/gia-han-han-su-dung.json
+gia-han-han-su-dung,Gia hạn hạn sử dụng,dmloupdatehsd,false,config/erp-reports/gia-han-han-su-dung.json
+gop-tach-thung,"Gộp, tách thùng",intem_carton_log,false,config/erp-reports/gop-tach-thung.json
+gop-tach-thung,"Gộp, tách thùng",intem_log,false,config/erp-reports/gop-tach-thung.json
+gop-tach-thung,"Gộp, tách thùng",mes_oi_dong_thung,false,config/erp-reports/gop-tach-thung.json
+gop-tach-thung,"Gộp, tách thùng",phlsx,false,config/erp-reports/gop-tach-thung.json
+gop-tach-thung,"Gộp, tách thùng",dmvt,false,config/erp-reports/gop-tach-thung.json
+gop-tach-thung,"Gộp, tách thùng",dmdvcs,false,config/erp-reports/gop-tach-thung.json
+gop-tach-thung,"Gộp, tách thùng",userinfo,false,config/erp-reports/gop-tach-thung.json
+ho-so-khuon,Hồ sơ khuôn,dmhosokhuon,false,config/erp-reports/ho-so-khuon.json
+ho-so-khuon,Hồ sơ khuôn,dmhosokhuonsp,false,config/erp-reports/ho-so-khuon.json
+ho-so-khuon,Hồ sơ khuôn,dmvt,false,config/erp-reports/ho-so-khuon.json
+ho-so-khuon,Hồ sơ khuôn,userinfo,false,config/erp-reports/ho-so-khuon.json
+ket-qua-van-hanh-theo-phien,Kết quả vận hành theo phiên,mes_scheduling_output,false,config/erp-reports/ket-qua-van-hanh-theo-phien.json
+khai-bao-bai-kiem-tra-theo-ma-hang,Khai báo bài kiểm tra theo mã hàng,qcdmvt,false,config/erp-reports/khai-bao-bai-kiem-tra-theo-ma-hang.json
+khai-bao-bai-kiem-tra-theo-ma-hang,Khai báo bài kiểm tra theo mã hàng,dmvt,false,config/erp-reports/khai-bao-bai-kiem-tra-theo-ma-hang.json
+khai-bao-bai-kiem-tra-theo-ma-hang,Khai báo bài kiểm tra theo mã hàng,userinfo,false,config/erp-reports/khai-bao-bai-kiem-tra-theo-ma-hang.json
+khai-bao-quy-trinh-san-xuat-sp,Khai báo quy trình sản xuất SP,mfbom,false,config/erp-reports/khai-bao-quy-trinh-san-xuat-sp.json
+khai-bao-quy-trinh-san-xuat-sp,Khai báo quy trình sản xuất SP,mflist_routing,false,config/erp-reports/khai-bao-quy-trinh-san-xuat-sp.json
+khai-bao-quy-trinh-san-xuat-sp,Khai báo quy trình sản xuất SP,dmvt,false,config/erp-reports/khai-bao-quy-trinh-san-xuat-sp.json
+lenh-giao-hang,Lệnh giao hàng,ph96,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,ct96,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,ctkhgh,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,dmvt,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,userinfo,false,config/erp-reports/lenh-giao-hang.json
+lenh-giao-hang,Lệnh giao hàng,dmkho,false,config/erp-reports/lenh-giao-hang.json
+lenh-san-xuat,Lệnh sản xuất,phlsx,false,config/erp-reports/lenh-san-xuat.json
+lich-san-xuat-import,Lịch sản xuất (Import),mes_scheduling,false,config/erp-reports/lich-san-xuat-import.json
+lich-san-xuat-import,Lịch sản xuất (Import),userinfo,false,config/erp-reports/lich-san-xuat-import.json
+nhan-su-van-hanh-theo-phien,Nhân sự vận hành theo phiên,mes_oi_nv_dung_may,false,config/erp-reports/nhan-su-van-hanh-theo-phien.json
+nhan-su-van-hanh-theo-phien,Nhân sự vận hành theo phiên,userinfo,false,config/erp-reports/nhan-su-van-hanh-theo-phien.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ct70,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,dmvt,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,dmkh,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,userinfo,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,sys_dmtt,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ph74,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nhat-ky-nhap-xuat-ton,Nhật ký nhập xuất tồn,ph84,false,config/erp-reports/nhat-ky-nhap-xuat-ton.json
+nvl-dung-theo-phien-lo-kh,NVL dùng theo phiên/lô KH,mes_oi_material,false,config/erp-reports/nvl-dung-theo-phien-lo-kh.json
+oqc-xac-nhan-chat-luong,OQC xác nhận chất lượng,intem_log,false,config/erp-reports/oqc-xac-nhan-chat-luong.json
+oqc-xac-nhan-chat-luong,OQC xác nhận chất lượng,mes_oi_dong_thung,false,config/erp-reports/oqc-xac-nhan-chat-luong.json
+oqc-xac-nhan-chat-luong,OQC xác nhận chất lượng,palletct,false,config/erp-reports/oqc-xac-nhan-chat-luong.json
+oqc-xac-nhan-chat-luong,OQC xác nhận chất lượng,dmvt,false,config/erp-reports/oqc-xac-nhan-chat-luong.json
+oqc-xac-nhan-chat-luong,OQC xác nhận chất lượng,sys_listoptions,false,config/erp-reports/oqc-xac-nhan-chat-luong.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,mes_oi_confirm,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,new_oi_cbsx,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,mes_oi_allocation_stop_line,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,dmnndungmay,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phan-bo-thoi-gian-dung-chuyen,Bảng kê phân bổ thời gian dừng chuyền giữa các phiên làm việc,userinfo,false,config/erp-reports/phan-bo-thoi-gian-dung-chuyen.json
+phieu-ipqc,Phiếu IPQC,phpqc,false,config/erp-reports/phieu-ipqc.json
+phieu-iqc,Phiếu IQC,phiqc,false,config/erp-reports/phieu-iqc.json
+phieu-iqc,Phiếu IQC,ctiqc,false,config/erp-reports/phieu-iqc.json
+phieu-iqc,Phiếu IQC,qcdmchitieu,false,config/erp-reports/phieu-iqc.json
+phieu-iqc,Phiếu IQC,dmvt,false,config/erp-reports/phieu-iqc.json
+phieu-iqc,Phiếu IQC,userinfo,false,config/erp-reports/phieu-iqc.json
+phieu-nhap-hang,Phiếu nhập hàng,ph77,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,ct77,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,ph94,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,ct94,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,ph91,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,ct91,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,dmkh,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,dmvt,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,dmvv,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,dmbp,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,sys_dmmagd,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,sys_dmtt,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,userinfo,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-hang,Phiếu nhập hàng,dmkho,false,config/erp-reports/phieu-nhap-hang.json
+phieu-nhap-kho,Phiếu nhập kho,ph74,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,ct74,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,dmkh,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,dmvt,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,dmkho,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,dmvv,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,dmbp,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,sys_dmtt,false,config/erp-reports/phieu-nhap-kho.json
+phieu-nhap-kho,Phiếu nhập kho,userinfo,false,config/erp-reports/phieu-nhap-kho.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,ph81,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,ct81,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,sys_dmmagd,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,sys_dmtt,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho-ban-hang,Phiếu xuất kho bán hàng,dmkh,false,config/erp-reports/phieu-xuat-kho-ban-hang.json
+phieu-xuat-kho,Phiếu xuất kho,ph84,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,ct84,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,dmkh,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,dmvt,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,dmkho,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,dmvv,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,dmbp,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,dmcp,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,dmcdgt,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,sys_dmmagd,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,sys_dmtt,false,config/erp-reports/phieu-xuat-kho.json
+phieu-xuat-kho,Phiếu xuất kho,userinfo,false,config/erp-reports/phieu-xuat-kho.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",ph66,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",ct66,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",dmkh,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",dmvt,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",dmvv,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",sys_dmtt,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",userinfo,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-doi-tra-hang-ban,"Phiếu yêu cầu đổi, trả hàng bán",dmkho,false,config/erp-reports/phieu-yeu-cau-doi-tra-hang-ban.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,ph91,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,ct91,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,ctkhnh_po1,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,ctkhnh,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,ph94,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,ct77,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,dmkh,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,dmvt,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,dmvv,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,dmbp,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,sys_dmtt,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,userinfo,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-mua-hang,Phiếu yêu cầu mua hàng,dmkho,false,config/erp-reports/phieu-yeu-cau-mua-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,phycn,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ctycn,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ct94,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ph94,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ct91,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ph91,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ct71,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,ctgt30,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,dmkh,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,dmvt,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,dmvv,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,dmbp,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,sys_dmmagd,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,sys_dmtt,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,userinfo,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-hang,Phiếu yêu cầu nhập hàng,dmkho,false,config/erp-reports/phieu-yeu-cau-nhap-hang.json
+phieu-yeu-cau-nhap-kho,Phiếu yêu cầu nhập kho,phdnv,false,config/erp-reports/phieu-yeu-cau-nhap-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,phdxnvl,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,ctdxnvl,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,ct84,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,dmvt,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,dmbp,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,dmkho,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,sys_dmtt,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+phieu-yeu-cau-xuat-kho,Phiếu yêu cầu xuất kho,userinfo,false,config/erp-reports/phieu-yeu-cau-xuat-kho.json
+quy-cach-dong-goi-ton-kho,Quy cách đóng gói và tồn quy đổi,dmvt,false,config/erp-reports/quy-cach-dong-goi-ton-kho.json
+quy-cach-dong-goi-ton-kho,Quy cách đóng gói và tồn quy đổi,intem_log,false,config/erp-reports/quy-cach-dong-goi-ton-kho.json
+quy-cach-dong-goi-ton-kho,Quy cách đóng gói và tồn quy đổi,dmkho,false,config/erp-reports/quy-cach-dong-goi-ton-kho.json
+quy-cach-dong-goi-ton-kho,Quy cách đóng gói và tồn quy đổi,userinfo,false,config/erp-reports/quy-cach-dong-goi-ton-kho.json
+so-sanh-do-fcst,So sánh DO và FCST,mfkhsx_po_fc,false,config/erp-reports/so-sanh-do-fcst.json
+so-sanh-do-fcst,So sánh DO và FCST,userinfo,false,config/erp-reports/so-sanh-do-fcst.json
+thay-doi-cavity,Thay đổi cavity,mes_oi_change_cativity,false,config/erp-reports/thay-doi-cavity.json
+thay-doi-cavity,Thay đổi cavity,mes_oi_confirm,false,config/erp-reports/thay-doi-cavity.json
+thay-doi-cavity,Thay đổi cavity,userinfo,false,config/erp-reports/thay-doi-cavity.json
+thoi-gian-dung-chuyen-theo-phien,Thời gian dừng chuyền theo phiên,mes_oi_stop_line,false,config/erp-reports/thoi-gian-dung-chuyen-theo-phien.json
+thoi-gian-dung-chuyen-theo-phien,Thời gian dừng chuyền theo phiên,mes_oi_confirm,false,config/erp-reports/thoi-gian-dung-chuyen-theo-phien.json
+thoi-gian-dung-chuyen-theo-phien,Thời gian dừng chuyền theo phiên,userinfo,false,config/erp-reports/thoi-gian-dung-chuyen-theo-phien.json
+thong-ke-cap-nvl,Thống kê cấp NVL,mes_oi_material,false,config/erp-reports/thong-ke-cap-nvl.json
+thong-ke-cap-nvl,Thống kê cấp NVL,mes_oi_confirm,false,config/erp-reports/thong-ke-cap-nvl.json
+thong-ke-cap-nvl,Thống kê cấp NVL,userinfo,false,config/erp-reports/thong-ke-cap-nvl.json
+thong-ke-dang-ky-ng-sx,Thống kê đăng ký NG SX,mes_oi_confirm,false,config/erp-reports/thong-ke-dang-ky-ng-sx.json
+thong-ke-dang-ky-ng-sx,Thống kê đăng ký NG SX,mes_oi_ng_confirm,false,config/erp-reports/thong-ke-dang-ky-ng-sx.json
+thong-ke-dang-ky-ng-sx,Thống kê đăng ký NG SX,userinfo,false,config/erp-reports/thong-ke-dang-ky-ng-sx.json
+thu-hoi-nvl,Thu hồi NVL,mes_oi_material_history,false,config/erp-reports/thu-hoi-nvl.json
+thu-hoi-nvl,Thu hồi NVL,mes_oi_confirm,false,config/erp-reports/thu-hoi-nvl.json
+thu-hoi-nvl,Thu hồi NVL,userinfo,false,config/erp-reports/thu-hoi-nvl.json
+tong-hop-ban-hang,Tổng hợp hàng bán,ph81,false,config/erp-reports/tong-hop-ban-hang.json
+tong-hop-ban-hang,Tổng hợp hàng bán,ct81,false,config/erp-reports/tong-hop-ban-hang.json
+tong-hop-ban-hang,Tổng hợp hàng bán,dmvt,false,config/erp-reports/tong-hop-ban-hang.json
+tong-hop-ban-hang,Tổng hợp hàng bán,dmkh,false,config/erp-reports/tong-hop-ban-hang.json
+tong-hop-ban-hang,Tổng hợp hàng bán,dmkho,false,config/erp-reports/tong-hop-ban-hang.json
+tong-hop-ban-hang,Tổng hợp hàng bán,userinfo,false,config/erp-reports/tong-hop-ban-hang.json
+tong-hop-hang-ng-theo-phien,Tổng hợp hàng NG theo phiên,mes_oi_confirm,false,config/erp-reports/tong-hop-hang-ng-theo-phien.json
+tong-hop-hang-ng-theo-phien,Tổng hợp hàng NG theo phiên,mes_oi_ng_confirm,false,config/erp-reports/tong-hop-hang-ng-theo-phien.json
+tong-hop-nhap-xuat-ton,Tổng hợp nhập xuất tồn,cdvt,false,config/erp-reports/tong-hop-nhap-xuat-ton.json
+tong-hop-nhap-xuat-ton,Tổng hợp nhập xuất tồn,ct70,false,config/erp-reports/tong-hop-nhap-xuat-ton.json
+tong-hop-nhap-xuat-ton,Tổng hợp nhập xuất tồn,dmvt,false,config/erp-reports/tong-hop-nhap-xuat-ton.json
+tong-hop-nhap-xuat-ton,Tổng hợp nhập xuất tồn,dmkho,false,config/erp-reports/tong-hop-nhap-xuat-ton.json
+tong-hop-nhap-xuat-ton,Tổng hợp nhập xuất tồn,userinfo,false,config/erp-reports/tong-hop-nhap-xuat-ton.json
+tong-hop-nxt-theo-lo,Tổng hợp NXT theo lô,cdbsp,false,config/erp-reports/tong-hop-nxt-theo-lo.json
+tong-hop-nxt-theo-lo,Tổng hợp NXT theo lô,ct70bsp,false,config/erp-reports/tong-hop-nxt-theo-lo.json
+tong-hop-nxt-theo-lo,Tổng hợp NXT theo lô,dmvt,false,config/erp-reports/tong-hop-nxt-theo-lo.json
+tong-hop-nxt-theo-lo,Tổng hợp NXT theo lô,dmlo,false,config/erp-reports/tong-hop-nxt-theo-lo.json
+version-oi-theo-day-chuyen,Version OI theo dây chuyền,mflist_line_station,false,config/erp-reports/version-oi-theo-day-chuyen.json
+version-oi-theo-day-chuyen,Version OI theo dây chuyền,mflist_line,false,config/erp-reports/version-oi-theo-day-chuyen.json
+version-oi-theo-day-chuyen,Version OI theo dây chuyền,mes_oi_version,false,config/erp-reports/version-oi-theo-day-chuyen.json

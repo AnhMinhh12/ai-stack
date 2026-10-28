@@ -1,0 +1,10 @@
+Die cases: [('QC7-9498-001', 2, Decimal('317563.00000000000000000000')), ('QC5-9775-001', 2, Decimal('137064.00000000000000000000')), ('432-00136', 2, Decimal('25896.00000000000000000000'))]
+Stock by warehouse cases: [('606270', 2, Decimal('1953563.00000000000000000000')), ('606267', 2, Decimal('1768685.00000000000000000000')), ('H10A15000010', 2, Decimal('1611244.00000000000000000000'))]
+Traceback (most recent call last):
+  File "/home/admin/ai-stack/scratch/find_diverse_test_cases.py", line 36, in <module>
+    cur.execute("""
+  File "/home/admin/.local/lib/python3.12/site-packages/psycopg/cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedTable: relation "ph70" does not exist
+LINE 4:     JOIN ph70 h ON d.stt_rec = h.stt_rec
+                 ^

@@ -111,8 +111,21 @@
 
 		<script>
 			function resizeIframe(obj) {
-				obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+				try {
+					obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+				} catch (e) {}
 			}
+			window.addEventListener('message', function(e) {
+				if (e.data && e.data.type === 'iframe:height' && e.data.height) {
+					const iframes = document.querySelectorAll('iframe');
+					for (const iframe of iframes) {
+						if (iframe.contentWindow === e.source) {
+							iframe.style.height = e.data.height + 'px';
+							break;
+						}
+					}
+				}
+			});
 		</script>
 
 		<script>
@@ -196,84 +209,12 @@
 			})();
 		</script>
 
-		<script>
-			// The chat UI calls these around each assistant response.
-			(() => {
-				let activeRequests = 0;
-				let indicator;
-				let positionFrame;
-				let errorCountAtShow = 0;
-				const responseErrorPattern = /Invalid input\[|Unauthorized|Uh-oh! There was an issue with the response|Server Connection Error/gi;
-				const countResponseErrors = () => (document.body?.innerText.match(responseErrorPattern) || []).length;
-				const clearIndicator = () => {
-					activeRequests = 0;
-					if (indicator) indicator.remove();
-					indicator = undefined;
-				};
-
-				const positionIndicator = () => {
-					if (!indicator) return;
-					const candidates = [...document.querySelectorAll('span, div, p')]
-						.filter((element) => !element.closest('button') && /^(gpt|qwen|claude|gemini|llama|mistral)[\w.-]*$/i.test(element.textContent.trim()))
-						.map((element) => ({ element, rect: element.getBoundingClientRect() }))
-						.filter(({ rect }) => rect.width > 0 && rect.top >= 0 && rect.top < window.innerHeight - 150);
-					if (!candidates.length) return;
-					const latestTop = Math.max(...candidates.map(({ rect }) => rect.top));
-					const anchor = candidates
-						.filter(({ rect }) => Math.abs(rect.top - latestTop) < 4)
-						.sort((a, b) => a.rect.width - b.rect.width)[0].rect;
-					indicator.style.left = `${Math.round(anchor.left)}px`;
-					indicator.style.top = `${Math.round(anchor.bottom + 2)}px`;
-					indicator.style.transform = 'none';
-				};
-
-				const schedulePosition = () => {
-					cancelAnimationFrame(positionFrame);
-					positionFrame = requestAnimationFrame(positionIndicator);
-				};
-
-				const showIndicator = () => {
-					activeRequests += 1;
-					if (indicator || !document.body) return;
-					errorCountAtShow = countResponseErrors();
-					indicator = document.createElement('div');
-					indicator.setAttribute('role', 'status');
-					indicator.setAttribute('aria-live', 'polite');
-					indicator.style.cssText = 'position:fixed;top:18vh;left:50%;transform:translateX(-50%);z-index:99999;display:flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid rgba(59,130,246,.2);border-radius:999px;background:rgba(255,255,255,.94);color:#334155;box-shadow:0 2px 9px rgba(15,23,42,.1);backdrop-filter:blur(8px);font:500 12px/1.25 Inter,ui-sans-serif,system-ui,sans-serif;letter-spacing:.01em;white-space:nowrap;pointer-events:none';
-					if (document.documentElement.classList.contains('dark')) {
-						indicator.style.background = 'rgba(30,41,59,.94)';
-						indicator.style.color = '#e2e8f0';
-					}
-					const spinner = document.createElement('span');
-					spinner.style.cssText = 'width:13px;height:13px;border:2px solid rgba(59,130,246,.18);border-top-color:#3b82f6;border-radius:50%;animation:htmp-image-spin .8s linear infinite;flex:none';
-					const label = document.createElement('span');
-					label.textContent = 'Đang xử lý…';
-					indicator.append(spinner, label);
-					document.body.appendChild(indicator);
-					schedulePosition();
-				};
-
-				const hideIndicator = () => {
-					activeRequests = Math.max(0, activeRequests - 1);
-					if (activeRequests === 0 && indicator) {
-						indicator.remove();
-						indicator = undefined;
-					}
-				};
-
-				const style = document.createElement('style');
-				style.textContent = '@keyframes htmp-image-spin{to{transform:rotate(360deg)}}';
-				document.head.appendChild(style);
-				const errorObserver = new MutationObserver(() => {
-					if (indicator && countResponseErrors() > errorCountAtShow) clearIndicator();
-				});
-				errorObserver.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
-				window.addEventListener('htmp-chat-start', showIndicator);
-				window.addEventListener('htmp-chat-finish', hideIndicator);
-				window.addEventListener('scroll', schedulePosition, true);
-				window.addEventListener('resize', schedulePosition);
-			})();
-		</script>
+		<style>
+			/* Ẩn các badge nổi trạng thái xử lý/suy nghĩ thô */
+			div[role="status"][aria-live="polite"] {
+				display: none !important;
+			}
+		</style>
 
 		<title>HTMP AI Chat</title>
 

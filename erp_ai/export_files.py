@@ -93,12 +93,14 @@ def blocks_from_rows(payload):
         )
         if details:
             blocks.insert(0, {"type": "summary", "text": f"Thống kê ERP — {details}"})
-    if {"ngay_ct", "sl_nhap", "dvt"}.issubset(keys):
-        units = {str(row.get("dvt") or "") for row in rows}
+    # 1. Nhập kho theo ngày
+    qty_key = "sl_nhap" if "sl_nhap" in keys else ("so_luong" if "so_luong" in keys and "ngay_ct" in keys and "ma_kho" in keys else None)
+    if qty_key and "ngay_ct" in keys:
+        units = {str(row.get("dvt") or "PCS") for row in rows}
         grouped = {}
         for row in rows:
             try:
-                value = float(row["sl_nhap"])
+                value = float(row[qty_key])
             except (TypeError, ValueError):
                 grouped = {}
                 break
@@ -107,14 +109,102 @@ def blocks_from_rows(payload):
                 break
             day = str(row.get("ngay_ct") or "")
             grouped[day] = grouped.get(day, 0) + value
-        if len(units) == 1 and len(grouped) > 1:
+        if len(grouped) > 1:
+            unit = next(iter(units)) if units else "PCS"
             partial = blocks[-1]["has_more"] or (isinstance(total, int) and total > len(rows))
             blocks.append({
                 "type": "chart", "chart_type": "line", "allowed_chart_types": ["bar", "line"],
                 "title": "Số lượng nhập theo ngày", "x": {"label": "Ngày nhập"},
-                "series": [{"label": "Số lượng nhập", "unit": next(iter(units))}],
+                "series": [{"label": "Số lượng nhập", "unit": unit}],
                 "points": [{"category": day, "quantity": value} for day, value in sorted(grouped.items())],
                 "scope": f"{len(rows)} dòng đang hiển thị" if partial else "Toàn bộ dòng trong bảng",
+            })
+
+    # 2. Tồn kho theo khuôn / Die
+    elif ("die_no" in keys or "mold" in keys) and "so_luong" in keys and len(rows) >= 2:
+        cat_key = "die_no" if "die_no" in keys else "mold"
+        points = []
+        for row in rows:
+            try:
+                val = float(row["so_luong"])
+                if isfinite(val) and val > 0:
+                    lbl = str(row.get(cat_key) or "Khác").strip()
+                    points.append({"category": f"Khuôn/Die {lbl}" if not lbl.lower().startswith("khuon") else lbl, "quantity": val})
+            except (TypeError, ValueError):
+                pass
+        if len(points) >= 2:
+            blocks.append({
+                "type": "chart", "chart_type": "pie", "allowed_chart_types": ["pie", "bar", "line"],
+                "title": "Cơ cấu tồn kho tem thành phẩm theo Khuôn / Die", "x": {"label": "Khuôn / Die"},
+                "series": [{"label": "Số lượng tồn", "unit": "PCS"}],
+                "points": points,
+                "scope": "Tem thành phẩm active ERP/MES",
+            })
+
+    # 3. Tồn kho theo từng kho
+    elif "ma_kho" in keys and "ton_kho" in keys and len(rows) >= 2:
+        points = []
+        for row in rows:
+            try:
+                val = float(row["ton_kho"])
+                if isfinite(val) and val > 0:
+                    points.append({"category": str(row.get("ma_kho")).strip(), "quantity": val})
+            except (TypeError, ValueError):
+                pass
+        if len(points) >= 2:
+            blocks.append({
+                "type": "chart", "chart_type": "bar", "allowed_chart_types": ["bar", "pie", "line"],
+                "title": "Phân bổ tồn kho theo từng kho", "x": {"label": "Kho hàng"},
+                "series": [{"label": "Số lượng tồn", "unit": "PCS"}],
+                "points": points,
+                "scope": "Số dư sổ sách kho",
+            })
+
+    # 4. So sánh DO và FCST
+    elif "chi_tieu" in keys and "hien_tai" in keys and len(rows) >= 1:
+        points = []
+        for row in rows:
+            ct = str(row.get("chi_tieu") or "").strip()
+            try:
+                cur_val = float(row["hien_tai"])
+                if isfinite(cur_val):
+                    points.append({"category": f"{ct} hiện tại", "quantity": cur_val})
+            except (TypeError, ValueError):
+                pass
+            if "ban_truoc" in row:
+                try:
+                    prev_val = float(row["ban_truoc"])
+                    if isfinite(prev_val):
+                        points.append({"category": f"{ct} bản trước", "quantity": prev_val})
+                except (TypeError, ValueError):
+                    pass
+        if len(points) >= 2:
+            blocks.append({
+                "type": "chart", "chart_type": "bar", "allowed_chart_types": ["bar"],
+                "title": "So sánh kế hoạch DO và FCST với bản trước", "x": {"label": "Chỉ tiêu"},
+                "series": [{"label": "Số lượng", "unit": "PCS"}],
+                "points": points,
+                "scope": "Đối sánh 2 đợt cập nhật",
+            })
+
+    # 5. Trạng thái kiểm định QC
+    elif ("status_qc" in keys or "form_name" in keys) and "so_luong" in keys and len(rows) >= 1:
+        cat_key = "form_name" if "form_name" in keys else "status_qc"
+        points = []
+        for row in rows:
+            try:
+                val = float(row["so_luong"])
+                if isfinite(val) and val > 0:
+                    points.append({"category": str(row.get(cat_key) or "QC").strip(), "quantity": val})
+            except (TypeError, ValueError):
+                pass
+        if points:
+            blocks.append({
+                "type": "chart", "chart_type": "pie", "allowed_chart_types": ["pie", "bar", "line"],
+                "title": "Tỷ lệ kiểm định chất lượng tem thành phẩm", "x": {"label": "Trạng thái"},
+                "series": [{"label": "Số lượng tem", "unit": "PCS"}],
+                "points": points,
+                "scope": "Giám định OQC",
             })
     return blocks
 

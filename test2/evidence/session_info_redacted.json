@@ -1,0 +1,20 @@
+﻿{
+    "token":  "[REDACTED_SESSION_TOKEN]",
+    "userinfo":  {
+                     "user_id":  78,
+                     "user_name":  "[REDACTED_USER]",
+                     "ten":  "NhÃ³m IT-ERP",
+                     "is_admin":  1,
+                     "is_super":  0,
+                     "email":  "[REDACTED_EMAIL]",
+                     "ma_dvcs":  "001"
+                 },
+    "customerID":  "[REDACTED_CUSTOMER_ID]",
+    "survey_metadata":  {
+                            "language":  "vi-VN",
+                            "endpoint":  "http://10.0.6.2:1004",
+                            "timestamp":  "2026-10-27T08:57:00+07:00",
+                            "company_unit":  "001 / HTMP QM",
+                            "account_role":  "Admin (is_admin=1)"
+                        }
+}

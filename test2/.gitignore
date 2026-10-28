@@ -1,0 +1,19 @@
+# Sensitive session & credential artifacts
+session_info.json
+*token*
+*.credential*
+*.secret
+
+# Raw screenshots containing sensitive customer PII (Customer name, address, phone)
+*so1_grid_screenshot.png
+*so1_screenshot.png
+
+# Raw response dumps with potential business data
+scratch_*
+*.log
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

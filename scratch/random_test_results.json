@@ -1,0 +1,127 @@
+[
+  {
+    "idx": 1,
+    "label": "QC7-9498-001 / Khuôn Die",
+    "question": "Mã QC7-9498-001 hiện có tồn kho thuộc những khuôn nào, số lượng từng khuôn?",
+    "duration": 2.119,
+    "is_html": true,
+    "has_table": true,
+    "has_chart": true,
+    "chart_kind": "pie",
+    "allowed_charts": [
+      "bar",
+      "line",
+      "pie"
+    ],
+    "row_count": 2,
+    "snippet": "Mã QC7-9498-001 có tồn kho tem thành phẩm theo từng khuôn/die: Khuôn/Die 11A: 224,958 PCS; Khuôn/Die 21A: 92,605 PCS (Tổng cộng: 317,563 PCS). Lưu ý: Trường mã khuôn (mold) trên te"
+  },
+  {
+    "idx": 2,
+    "label": "QL3-4766-000 / Khuôn Die",
+    "question": "Mã QL3-4766-000 hiện có tồn kho thuộc những khuôn nào?",
+    "duration": 1.949,
+    "is_html": true,
+    "has_table": true,
+    "has_chart": true,
+    "chart_kind": "pie",
+    "allowed_charts": [
+      "bar",
+      "line",
+      "pie"
+    ],
+    "row_count": 3,
+    "snippet": "Mã QL3-4766-000 có tồn kho tem thành phẩm theo từng khuôn/die: Khuôn/Die 11A: 8,040 PCS; Khuôn/Die 21A: 4,350 PCS; Khuôn/Die 31A: 10,476 PCS (Tổng cộng: 22,866 PCS). Lưu ý: Trường "
+  },
+  {
+    "idx": 3,
+    "label": "QC7-5146-000 / Phân bổ kho",
+    "question": "Tồn kho hiện tại của mã QC7-5146-000 là bao nhiêu ở từng kho?",
+    "duration": 2.932,
+    "is_html": true,
+    "has_table": true,
+    "has_chart": true,
+    "chart_kind": "bar",
+    "allowed_charts": [
+      "bar",
+      "line",
+      "pie"
+    ],
+    "row_count": 3,
+    "snippet": "Tồn kho hiện tại của mã QC7-5146-000 ở từng kho: KHOTP00: 3,900 PCS; KHO_TAIMAY: 840 PCS; KHO-HANG-LE: 40 PCS (Tổng cộng: 4,780 PCS)."
+  },
+  {
+    "idx": 4,
+    "label": "QC7-5146-000 / Nhập theo ngày",
+    "question": "Từ ngày 01/10/2026 đến hết ngày 20/10/2026, mã QC7-5146-000 được nhập kho vào những ngày nào, từ kho nào sang kho nào, số lượng bao nhiêu?",
+    "duration": 2.006,
+    "is_html": true,
+    "has_table": true,
+    "has_chart": true,
+    "chart_kind": "line",
+    "allowed_charts": [
+      "bar",
+      "line"
+    ],
+    "row_count": 200,
+    "snippet": "Mã hàng QC7-5146-000 từ ngày 01/10/2026 đến ngày 20/10/2026: Ghi nhận 200 dòng chứng từ nhập kho (tổng số lượng: 237500 PCS). Các kho nhập: KHO-HANG-LE, KHO-XHLOT2, KHO-XHLOT3, KHO"
+  },
+  {
+    "idx": 5,
+    "label": "QC7-5146-000 / So sánh DO vs FCST",
+    "question": "So sánh DO và FCST hiện tại với bản trước của mã QC7-5146-000: số lượng tăng hay giảm bao nhiêu?",
+    "duration": 2.955,
+    "is_html": true,
+    "has_table": true,
+    "has_chart": true,
+    "chart_kind": "bar",
+    "allowed_charts": [
+      "bar"
+    ],
+    "row_count": 2,
+    "snippet": "So sánh DO và FCST mã QC7-5146-000 với bản trước: FCST hiện tại (2026-10-28): 833,340 PCS vs bản trước (2026-10-27): 837,840 PCS -> giảm 4,500 PCS (-4,500 PCS). DO gần nhất (001-26"
+  },
+  {
+    "idx": 6,
+    "label": "QC7-5146-000 / Trạng thái QC",
+    "question": "Mã QC7-5146-000 hiện có lot thành phẩm nào ở trạng thái QC cần chú ý? Cho biết trạng thái QC đúng như dữ liệu ERP.",
+    "duration": 1.864,
+    "is_html": true,
+    "has_table": true,
+    "has_chart": true,
+    "chart_kind": "pie",
+    "allowed_charts": [
+      "bar",
+      "line",
+      "pie"
+    ],
+    "row_count": 1,
+    "snippet": "Kiểm tra trạng thái QC mã QC7-5146-000: Trạng thái 3 - OK (status_qc=3): 15,160 PCS. Toàn bộ tem thành phẩm đều ở trạng thái 3 - OK (đạt chất lượng), không có lot nào bị khóa hoặc "
+  },
+  {
+    "idx": 7,
+    "label": "QC7-5146-000 / Cấu trúc BOM",
+    "question": "Mã hàng QC7-5146-000 dùng loại nhựa gì? Cấu trúc sản phẩm của mã hàng này gồm những gì?",
+    "duration": 1.014,
+    "is_html": true,
+    "has_table": true,
+    "has_chart": false,
+    "chart_kind": null,
+    "allowed_charts": [],
+    "row_count": 1,
+    "snippet": "Mã hàng QC7-5146-000 dùng loại nhựa PS-576D (HIPS 576H GR21  PSMT VE0271-33 Nu-0215 Dim black MBB3%), định mức: 0.026000000000000002 KG. Cấu trúc sản phẩm theo BOM QC7-5146-000-1.0"
+  },
+  {
+    "idx": 8,
+    "label": "QC7-5146-000 / Giá MOQ",
+    "question": "MOQ báo giá hiện tại của mã QC7-5146-000 là bao nhiêu? Giá áp dụng hiện tại theo từng mức MOQ là bao nhiêu?",
+    "duration": 1.027,
+    "is_html": true,
+    "has_table": true,
+    "has_chart": false,
+    "chart_kind": null,
+    "allowed_charts": [],
+    "row_count": 1,
+    "snippet": "Mã QC7-5146-000 có bảng giá đang áp dụng: khách KH0015: MOQ tối thiểu = 1 PCS, giá áp dụng hiện tại = 0.07959 USD/PCS (hiệu lực 2026-10-24 đến 2026-12-31)"
+  }
+]
