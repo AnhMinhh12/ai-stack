@@ -1,6 +1,0 @@
-defaults.plugins.legend.labels: [Object: null prototype] {
-  color: [Function: color],
-  boxWidth: 40,
-  padding: 10,
-  generateLabels: [Function: generateLabels]
-}

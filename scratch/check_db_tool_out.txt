@@ -1,5 +1,0 @@
-Tools in /home/admin/ai-stack/local_webui.db: [('htmp_postgres_query', 'Tra cứu PostgreSQL ERP', 1793154606), ('freecad_laptop_0065', 'FreeCAD Planner', 1790302190), ('htmp_erp_agent', 'ERP nhiều lượt staging', 1792557649), ('htmp_office_editor', 'Chỉnh sửa file Office', 1792571303)]
-Tool htmp_postgres_query content length: 246096, has ask_erp: True
-Tool freecad_laptop_0065 content length: 8802, has ask_erp: False
-Tool htmp_erp_agent content length: 2765, has ask_erp: True
-Tool htmp_office_editor content length: 11229, has ask_erp: False

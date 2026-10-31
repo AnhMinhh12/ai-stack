@@ -1,0 +1,116 @@
+{
+  "sales_order_lines": {
+    "status": "approved",
+    "scope": "sales_orders_scoped_v1",
+    "version": "2026-10-30-v2",
+    "view": {},
+    "tables": ["public.ph64", "public.ct64"],
+    "dimensions": {"customer": "customer", "currency": "currency", "day": "day"},
+    "metrics": {
+      "order_amount": {"aggregate": "sum", "column": "amount", "unit_dimension": "currency"},
+      "order_count": {"aggregate": "count_distinct", "column": "order_id"}
+    },
+    "filters": {
+      "day": {"column": "day", "type": "date", "ops": ["gte", "lte"]},
+      "customer": {"column": "customer", "type": "text", "ops": ["eq"]},
+      "currency": {"column": "currency", "type": "text", "ops": ["eq"]}
+    }
+  },
+  "sales_delivery_hda": {
+    "status": "approved",
+    "scope": "sales_delivery_hda_v1",
+    "version": "2026-10-30-v2",
+    "tables": ["public.ph81", "public.ct81"],
+    "dimensions": {"customer_code": "ma_kh", "material_code": "ma_vt", "issue_date": "ngay_ct", "warehouse": "ma_kho"},
+    "metrics": {
+      "quantity": {"aggregate": "sum", "column": "so_luong"},
+      "amount": {"aggregate": "sum", "column": "tien2"}
+    }
+  },
+  "delivery_order_lines": {
+    "status": "approved",
+    "scope": "delivery_orders_to2_v1",
+    "version": "2026-10-30-v2",
+    "tables": ["public.ph96", "public.ct96"],
+    "dimensions": {"customer_code": "ma_kh", "material_code": "ma_vt", "delivery_date": "ngay_ct", "warehouse": "ma_kho", "status": "status"},
+    "metrics": {
+      "quantity": {"aggregate": "sum", "column": "so_luong"}
+    }
+  },
+  "purchase_order_lines": {
+    "status": "approved",
+    "scope": "purchase_orders_po1_v1",
+    "version": "2026-10-30-v2",
+    "tables": ["public.ph94", "public.ct94"],
+    "dimensions": {"supplier_code": "ma_ncc", "material_code": "ma_vt", "order_date": "ngay_ct", "warehouse": "ma_kho"},
+    "metrics": {
+      "quantity": {"aggregate": "sum", "column": "so_luong"},
+      "amount": {"aggregate": "sum", "column": "tien2"}
+    }
+  },
+  "mfkhsx_bom": {
+    "status": "approved",
+    "scope": "production_bom_v1",
+    "version": "2026-10-30-v2",
+    "table": "public.mfkhsx_bom",
+    "dimensions": {"product_code": "ma_sp", "material_code": "ma_vt", "bom_version": "bom_version"},
+    "metrics": {
+      "bom_quantity": {"aggregate": "sum", "column": "so_luong_dm"},
+      "scrap_rate": {"aggregate": "avg", "column": "ty_le_hao_hut"}
+    }
+  },
+  "iqc_inspection_lines": {
+    "status": "approved",
+    "scope": "quality_iqc_v1",
+    "version": "2026-10-30-v2",
+    "tables": ["public.phiqc", "public.ctiqc"],
+    "dimensions": {"supplier_code": "ma_ncc", "material_code": "ma_vt", "inspection_date": "ngay_ct", "criterion": "ma_chi_tieu"},
+    "metrics": {
+      "lot_quantity": {"aggregate": "sum", "column": "so_luong"},
+      "test_count": {"aggregate": "count", "column": "stt_rec"}
+    }
+  },
+  "goods_issue_lines": {
+    "status": "approved",
+    "scope": "warehouse_issue_pxk_v1",
+    "version": "2026-10-30-v2",
+    "tables": ["public.ph85", "public.ct85"],
+    "dimensions": {"customer_code": "ma_kh", "material_code": "ma_vt", "issue_date": "ngay_ct", "warehouse": "ma_kho"},
+    "metrics": {
+      "quantity": {"aggregate": "sum", "column": "so_luong"},
+      "amount": {"aggregate": "sum", "column": "tien2"}
+    }
+  },
+  "production_transfer_lines": {
+    "status": "approved",
+    "scope": "production_transfer_v1",
+    "version": "2026-10-30-v2",
+    "tables": ["public.ph76", "public.ct76", "public.ph77", "public.ct77"],
+    "dimensions": {"transfer_type": "type", "workshop": "phan_xuong", "material_code": "ma_vt", "date": "ngay_ct", "warehouse": "ma_kho"},
+    "metrics": {
+      "quantity": {"aggregate": "sum", "column": "so_luong"}
+    }
+  },
+  "pallet_inventory": {
+    "status": "approved",
+    "scope": "mes_pallet_tracking_v1",
+    "version": "2026-10-30-v2",
+    "tables": ["public.pallet", "public.palletct"],
+    "dimensions": {"pallet_id": "id_pallet", "material_code": "ma_vt", "production_date": "ngay_sx", "status": "status"},
+    "metrics": {
+      "carton_count": {"aggregate": "sum", "column": "so_luong_thung"},
+      "total_quantity": {"aggregate": "sum", "column": "so_luong"}
+    }
+  },
+  "mold_tooling_profiles": {
+    "status": "approved",
+    "scope": "mold_tooling_v1",
+    "version": "2026-10-30-v2",
+    "table": "public.dmhosokhuon",
+    "dimensions": {"mold_code": "ma_khuon", "mold_name": "ten_khuon", "cavity": "cavity"},
+    "metrics": {
+      "total_shots": {"aggregate": "sum", "column": "tong_so_shot"},
+      "warranty_shots": {"aggregate": "sum", "column": "so_shot_bh"}
+    }
+  }
+}

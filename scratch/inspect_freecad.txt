@@ -1,5 +1,0 @@
-=== Tools in local_webui.db ===
-Tool: ('htmp_postgres_query', 'Tra cứu PostgreSQL ERP', '160d05b7-0520-4cce-a604-e39d9a7de143')
-Tool: ('freecad_laptop_0065', 'FreeCAD Planner', '160d05b7-0520-4cce-a604-e39d9a7de143')
-Tool: ('htmp_erp_agent', 'ERP nhiều lượt staging', '160d05b7-0520-4cce-a604-e39d9a7de143')
-Tool: ('htmp_office_editor', 'Chỉnh sửa file Office', '160d05b7-0520-4cce-a604-e39d9a7de143')

@@ -1,3 +1,0 @@
-Traceback (most recent call last):
-  File "<string>", line 3, in <module>
-sqlite3.OperationalError: unable to open database file

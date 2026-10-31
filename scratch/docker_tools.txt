@@ -1,1 +1,0 @@
-[('htmp_postgres_query', 'Tra cứu PostgreSQL ERP', 1793154651), ('freecad_laptop_0065', 'FreeCAD Planner', 1790302190), ('htmp_erp_agent', 'ERP nhiều lượt staging', 1792557649), ('htmp_office_editor', 'Chỉnh sửa file Office', 1792571303)]

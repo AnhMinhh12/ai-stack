@@ -1,0 +1,452 @@
+[
+  {
+    "id": "Q01",
+    "part": "Phần 1 - Báo cáo tồn kho",
+    "question": "Cho tôi xem báo cáo top 10 vật tư có số lượng tồn kho lớn nhất hiện tại",
+    "ai_status": "TEXT_JSON",
+    "ai_rows_count": 0,
+    "ai_duration_sec": 0.151,
+    "db_status": "VERIFIED (10 records in DB)",
+    "db_sample": "('606267', 'Terminal Lug', Decimal('764235.00000000000000000000'))"
+  },
+  {
+    "id": "Q02",
+    "part": "Phần 1 - Báo cáo tồn kho",
+    "question": "Tổng hợp số lượng tồn kho phân bổ theo từng kho hàng trong hệ thống",
+    "ai_status": "OK",
+    "ai_rows_count": 1,
+    "ai_duration_sec": 12.396,
+    "db_status": "VERIFIED (26 records in DB)",
+    "db_sample": "('KHOLK00', 'Kho LK Mua ngoài', Decimal('7496867.91000000000000000000'))"
+  },
+  {
+    "id": "Q03",
+    "part": "Phần 1 - Báo cáo tồn kho",
+    "question": "Báo cáo tổng hợp số lượng nhập kho và xuất kho theo từng ngày từ ngày 01/10/2026 đến ngày 20/10/2026",
+    "ai_status": "TEXT_MSG",
+    "ai_rows_count": 0,
+    "ai_duration_sec": 0.012,
+    "db_status": "VERIFIED (20 records in DB)",
+    "db_sample": "(datetime.date(2026, 10, 1), Decimal('4811765.77000000000000000000'), Decimal('5337897.97000000000000000000'))"
+  },
+  {
+    "id": "Q04",
+    "part": "Phần 1 - Bán hàng & Đơn hàng",
+    "question": "Cho tôi báo cáo top khách hàng có số lượng đặt hàng lớn nhất trong các đơn hàng bán gần đây",
+    "ai_status": "OK",
+    "ai_rows_count": 25,
+    "ai_duration_sec": 1.189,
+    "db_status": "VERIFIED (10 records in DB)",
+    "db_sample": "('KH0047', 'Công ty TNHH Anam Electronics Việt Nam', 3528, Decimal('554457052.00000000000000000000'))"
+  },
+  {
+    "id": "Q05",
+    "part": "Phần 1 - Bán hàng & Đơn hàng",
+    "question": "Tổng hợp sản lượng xuất kho bán hàng cho các khách hàng từ ngày 01/10/2026 đến hết ngày 20/10/2026",
+    "ai_status": "TEXT_JSON",
+    "ai_rows_count": 0,
+    "ai_duration_sec": 2.522,
+    "db_status": "VERIFIED (53 records in DB)",
+    "db_sample": "('KH0015', 'Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long', 750, Decimal('3350640.00000000000000000000'))"
+  },
+  {
+    "id": "Q06",
+    "part": "Phần 1 - Bán hàng & Đơn hàng",
+    "question": "Tổng hợp số lượng xuất kho bán hàng của mã hàng QC7-5146-000 theo từng ngày xuất từ ngày 01/10/2026 đến ngày 20/10/2026",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 1.897,
+    "db_status": "VERIFIED (19 records in DB)",
+    "db_sample": "(datetime.date(2026, 10, 1), 18, Decimal('8280.00000000000000000000'))"
+  },
+  {
+    "id": "Q07",
+    "part": "Phần 1 - Mua hàng & Nhà cung cấp",
+    "question": "Tổng hợp số lượng đơn hàng mua và tổng số lượng vật tư đặt mua theo từng nhà cung cấp gần đây",
+    "ai_status": "OK",
+    "ai_rows_count": 9,
+    "ai_duration_sec": 0.184,
+    "db_status": "VERIFIED (10 records in DB)",
+    "db_sample": "('NCC0189', 'CÔNG TY TNHH INABATA VIỆT NAM', 1348, Decimal('4547552.00000000000000000000'))"
+  },
+  {
+    "id": "Q08",
+    "part": "Phần 1 - Mua hàng & Nhà cung cấp",
+    "question": "Tổng hợp lịch sử các lần đặt mua, đơn giá mua thấp nhất, cao nhất và giá bình quân của mã nhựa PS-576D",
+    "ai_status": "OK",
+    "ai_rows_count": 50,
+    "ai_duration_sec": 0.724,
+    "db_status": "DB_QUERY_ERROR: column d.gia2 does not exist\nLINE 2:             SELECT count(*) AS so_lan_mua, min(d.gia2) AS gi...",
+    "db_sample": ""
+  },
+  {
+    "id": "Q09",
+    "part": "Phần 1 - MES Sản xuất & Chất lượng",
+    "question": "Báo cáo tổng hợp số lượng sản phẩm lỗi NG theo từng máy sản xuất trong các ca làm việc gần đây",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 0.171,
+    "db_status": "DB_QUERY_ERROR: relation \"public.mes_oi_loi\" does not exist\nLINE 3:             FROM public.mes_oi_loi\n             ",
+    "db_sample": ""
+  },
+  {
+    "id": "Q10",
+    "part": "Phần 1 - MES Sản xuất & Chất lượng",
+    "question": "Tổng hợp số lượng lỗi sản phẩm theo từng mã lỗi và nguyên nhân lỗi trong bảng kê xác nhận NG",
+    "ai_status": "TEXT_JSON",
+    "ai_rows_count": 0,
+    "ai_duration_sec": 31.472,
+    "db_status": "DB_QUERY_ERROR: relation \"public.mes_oi_loi\" does not exist\nLINE 3:             FROM public.mes_oi_loi\n             ",
+    "db_sample": ""
+  },
+  {
+    "id": "Q11",
+    "part": "Phần 1 - MES Sản xuất & Chất lượng",
+    "question": "Báo cáo tổng số phút dừng máy theo từng nguyên nhân dừng chuyền trong bảng kê stop line gần đây",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 0.228,
+    "db_status": "DB_QUERY_ERROR: relation \"public.mes_oi_stopline\" does not exist\nLINE 3:             FROM public.mes_oi_stopline\n   ",
+    "db_sample": ""
+  },
+  {
+    "id": "Q12",
+    "part": "Phần 1 - MES Sản xuất & Chất lượng",
+    "question": "Tổng hợp số lượng kế hoạch sản xuất theo từng Work Order trong bảng điều độ sản xuất gần đây",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 0.138,
+    "db_status": "DB_QUERY_ERROR: relation \"public.mes_oi_khsx\" does not exist\nLINE 3:             FROM public.mes_oi_khsx\n           ",
+    "db_sample": ""
+  },
+  {
+    "id": "Q13",
+    "part": "Phần 2 - Đơn hàng bán SO",
+    "question": "Cho tôi xem bảng kê đơn hàng bán gần đây nhất",
+    "ai_status": "OK",
+    "ai_rows_count": 25,
+    "ai_duration_sec": 1.587,
+    "db_status": "VERIFIED (5 records in DB)",
+    "db_sample": "('001-2610-010544', datetime.date(2026, 10, 28), 'KH0004')"
+  },
+  {
+    "id": "Q14",
+    "part": "Phần 2 - Đơn hàng bán SO",
+    "question": "Bảng kê đơn hàng bán của khách hàng mã KH0047",
+    "ai_status": "OK",
+    "ai_rows_count": 5,
+    "ai_duration_sec": 0.147,
+    "db_status": "VERIFIED (5 records in DB)",
+    "db_sample": "('001-2610-010542', datetime.date(2026, 10, 28), 'KH0047')"
+  },
+  {
+    "id": "Q15",
+    "part": "Phần 2 - Đơn hàng bán SO",
+    "question": "Tra cứu chi tiết đơn hàng bán số 001-2610-010164",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 0.732,
+    "db_status": "VERIFIED (173 records in DB)",
+    "db_sample": "('001-2610-010164', datetime.date(2026, 10, 27), 'KH0047', 'VGL1A416', Decimal('2400.00000000000000000000'), Decimal('0E-20'))"
+  },
+  {
+    "id": "Q16",
+    "part": "Phần 2 - Đơn hàng bán SO",
+    "question": "Tìm kiếm các đơn hàng bán có chứa mã hàng VGL1A416",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 1.476,
+    "db_status": "VERIFIED (5 records in DB)",
+    "db_sample": "('001-2610-010163', datetime.date(2026, 10, 27), 'KH0047', 'VGL1A416', Decimal('2400.00000000000000000000'))"
+  },
+  {
+    "id": "Q17",
+    "part": "Phần 2 - Xuất kho HDA",
+    "question": "Bảng kê phiếu xuất kho bán hàng phát sinh ngày hôm nay",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 0.407,
+    "db_status": "VERIFIED (5 records in DB)",
+    "db_sample": "('001-2610-002601', datetime.date(2026, 10, 28), 'KH0053')"
+  },
+  {
+    "id": "Q18",
+    "part": "Phần 2 - Xuất kho HDA",
+    "question": "Bảng kê các phiếu xuất bán cho khách hàng mã KH0049",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 0.456,
+    "db_status": "VERIFIED (5 records in DB)",
+    "db_sample": "('001-2610-002660', datetime.date(2026, 10, 28), 'KH0049')"
+  },
+  {
+    "id": "Q19",
+    "part": "Phần 2 - Xuất kho HDA",
+    "question": "Xem chi tiết phiếu xuất kho bán hàng số 001-2610-002643",
+    "ai_status": "OK",
+    "ai_rows_count": 1,
+    "ai_duration_sec": 0.073,
+    "db_status": "VERIFIED (6 records in DB)",
+    "db_sample": "('001-2610-002643', datetime.date(2026, 10, 28), 'KH0049', 'TFF7410-E/VI-6M', Decimal('1140.00000000000000000000'))"
+  },
+  {
+    "id": "Q20",
+    "part": "Phần 2 - Xuất kho HDA",
+    "question": "Lot giao gần nhất của mã hàng QC7-5146-000 là khi nào và số lượng bao nhiêu?",
+    "ai_status": "OK",
+    "ai_rows_count": 1,
+    "ai_duration_sec": 2.214,
+    "db_status": "VERIFIED (1 records in DB)",
+    "db_sample": "('001-2610-002680', datetime.date(2026, 10, 28), Decimal('480.00000000000000000000'))"
+  },
+  {
+    "id": "Q21",
+    "part": "Phần 2 - Mua hàng PO",
+    "question": "Bảng kê đơn hàng mua gần đây nhất của công ty",
+    "ai_status": "OK",
+    "ai_rows_count": 9,
+    "ai_duration_sec": 0.194,
+    "db_status": "VERIFIED (5 records in DB)",
+    "db_sample": "('001-2610-000713', datetime.date(2026, 10, 28), 'NCC0004')"
+  },
+  {
+    "id": "Q22",
+    "part": "Phần 2 - Mua hàng PO",
+    "question": "Bảng kê đơn hàng mua của nhà cung cấp mã NCC0220",
+    "ai_status": "OK",
+    "ai_rows_count": 9,
+    "ai_duration_sec": 0.272,
+    "db_status": "VERIFIED (5 records in DB)",
+    "db_sample": "('001-2610-000702', datetime.date(2026, 10, 28), 'NCC0220')"
+  },
+  {
+    "id": "Q23",
+    "part": "Phần 2 - Mua hàng PO",
+    "question": "Tra cứu đơn hàng mua số 001-2610-000702",
+    "ai_status": "OK",
+    "ai_rows_count": 1,
+    "ai_duration_sec": 0.077,
+    "db_status": "DB_QUERY_ERROR: column d.gia2 does not exist\nLINE 1: ...h.so_ct, h.ngay_ct, h.ma_kh, d.ma_vt, d.so_luong, d.gia2 FRO",
+    "db_sample": ""
+  },
+  {
+    "id": "Q24",
+    "part": "Phần 2 - Mua hàng PO",
+    "question": "Mã hàng PS-576D đã mua bao nhiêu lần và giá mua gần nhất là bao nhiêu?",
+    "ai_status": "OK",
+    "ai_rows_count": 50,
+    "ai_duration_sec": 0.712,
+    "db_status": "DB_QUERY_ERROR: column d.gia2 does not exist\nLINE 1: SELECT count(*) AS so_lan_mua, (SELECT d.gia2 FROM public.ct...",
+    "db_sample": ""
+  },
+  {
+    "id": "Q25",
+    "part": "Phần 2 - Mua hàng PO",
+    "question": "Kiểm tra trạng thái duyệt giá và báo giá nhà cung cấp của mã vật tư PS-576D",
+    "ai_status": "OK",
+    "ai_rows_count": 44,
+    "ai_duration_sec": 0.148,
+    "db_status": "DB_QUERY_ERROR: relation \"public.dmbanggiancc\" does not exist\nLINE 1: ...ECT ma_vt, ma_ncc, gia2, ngay_hl, trang_tha",
+    "db_sample": ""
+  },
+  {
+    "id": "Q26",
+    "part": "Phần 2 - Kho vận nội bộ",
+    "question": "Bảng kê phiếu nhập kho nội bộ từ sản xuất phát sinh gần đây",
+    "ai_status": "OK",
+    "ai_rows_count": 11,
+    "ai_duration_sec": 0.469,
+    "db_status": "DB_QUERY_ERROR: column \"ma_kho\" does not exist\nLINE 1: SELECT so_ct, ngay_ct, ma_kho FROM public.ph74 ORDER BY ngay.",
+    "db_sample": ""
+  },
+  {
+    "id": "Q27",
+    "part": "Phần 2 - Kho vận nội bộ",
+    "question": "Chi tiết phiếu nhập kho nội bộ số 001-2610-011362",
+    "ai_status": "OK",
+    "ai_rows_count": 1,
+    "ai_duration_sec": 1.502,
+    "db_status": "VERIFIED (1 records in DB)",
+    "db_sample": "('001-2610-011362', datetime.date(2026, 10, 28), 'RC4-3049-000', Decimal('4400.00000000000000000000'), 'KHO_TAIMAY')"
+  },
+  {
+    "id": "Q28",
+    "part": "Phần 2 - Kho vận nội bộ",
+    "question": "Bảng kê nhập kho từ sản xuất của mã hàng RC4-3049-000",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 1.289,
+    "db_status": "VERIFIED (5 records in DB)",
+    "db_sample": "('001-2610-011362', datetime.date(2026, 10, 28), Decimal('4400.00000000000000000000'), 'KHO_TAIMAY')"
+  },
+  {
+    "id": "Q29",
+    "part": "Phần 2 - Kho vận nội bộ",
+    "question": "Mã hàng QC7-5146-000 được nhập kho khi nào trong tháng 10/2026? Từ kho nào sang và ai lập phiếu?",
+    "ai_status": "OK",
+    "ai_rows_count": 1,
+    "ai_duration_sec": 0.826,
+    "db_status": "VERIFIED (5 records in DB)",
+    "db_sample": "('001-2610-011350', datetime.date(2026, 10, 28), 'KHO_TAIMAY', 169)"
+  },
+  {
+    "id": "Q30",
+    "part": "Phần 2 - Kho vận nội bộ",
+    "question": "Tra cứu lần nhập kho gần đây nhất của mã vật tư RC4-3049-000",
+    "ai_status": "OK",
+    "ai_rows_count": 91,
+    "ai_duration_sec": 0.757,
+    "db_status": "VERIFIED (1 records in DB)",
+    "db_sample": "('001-2610-011362', datetime.date(2026, 10, 28), Decimal('4400.00000000000000000000'), 'KHO_TAIMAY')"
+  },
+  {
+    "id": "Q31",
+    "part": "Phần 2 - MES Sản xuất & Khuôn",
+    "question": "Bảng kê đóng gói đóng thùng thành phẩm gần đây nhất",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 0.067,
+    "db_status": "DB_QUERY_ERROR: column \"id\" does not exist\nLINE 1: SELECT id, ngay_ct, ma_vt, so_thung, so_luong FROM public.me...\n ",
+    "db_sample": ""
+  },
+  {
+    "id": "Q32",
+    "part": "Phần 2 - MES Sản xuất & Khuôn",
+    "question": "Cho tôi xem bảng kê gộp tách thùng tem carton gần đây",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 0.804,
+    "db_status": "DB_QUERY_ERROR: column \"id\" does not exist\nLINE 1: SELECT id, ngay_ct, ma_carton, loai_thao_tac, so_luong FROM ...\n ",
+    "db_sample": ""
+  },
+  {
+    "id": "Q33",
+    "part": "Phần 2 - MES Sản xuất & Khuôn",
+    "question": "Bảng kê bổ sung hoặc bỏ shot khuôn trong ca sản xuất gần đây",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 0.154,
+    "db_status": "DB_QUERY_ERROR: column \"id\" does not exist\nLINE 1: SELECT id, ngay_ct, ma_khuon, so_shot_bo_sung, so_shot_bo FR...\n ",
+    "db_sample": ""
+  },
+  {
+    "id": "Q34",
+    "part": "Phần 2 - MES Sản xuất & Khuôn",
+    "question": "Tra cứu hồ sơ khuôn của mã khuôn K_VGY1A061",
+    "ai_status": "TEXT_JSON",
+    "ai_rows_count": 0,
+    "ai_duration_sec": 0.069,
+    "db_status": "DB_QUERY_ERROR: column \"tong_shot\" does not exist\nLINE 1: SELECT ma_khuon, ten_khuon, tong_shot, shot_dinh_muc FROM ",
+    "db_sample": ""
+  },
+  {
+    "id": "Q35",
+    "part": "Phần 2 - MES Sản xuất & Khuôn",
+    "question": "Danh sách các hồ sơ khuôn và tuổi thọ shot định mức mới cập nhật gần đây",
+    "ai_status": "TEXT_JSON",
+    "ai_rows_count": 0,
+    "ai_duration_sec": 0.063,
+    "db_status": "DB_QUERY_ERROR: column \"tong_shot\" does not exist\nLINE 1: SELECT ma_khuon, ten_khuon, tong_shot, shot_dinh_muc FROM ",
+    "db_sample": ""
+  },
+  {
+    "id": "Q36",
+    "part": "Phần 2 - MES Sản xuất & Khuôn",
+    "question": "Bảng kê điều độ sản xuất và danh sách Work Order đang chạy",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 0.119,
+    "db_status": "DB_QUERY_ERROR: relation \"public.mes_oi_khsx\" does not exist\nLINE 1: ...wo_code, ma_vt, ma_may, ma_khuon, trang_thai",
+    "db_sample": ""
+  },
+  {
+    "id": "Q37",
+    "part": "Phần 2 - MES Sản xuất & Khuôn",
+    "question": "Lịch sử các lần dừng máy stop line gần đây nhất",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 0.241,
+    "db_status": "DB_QUERY_ERROR: relation \"public.mes_oi_stopline\" does not exist\nLINE 1: ...CT id, ngay_ct, ma_may, so_phut, nguyen_",
+    "db_sample": ""
+  },
+  {
+    "id": "Q38",
+    "part": "Phần 2 - MES Sản xuất & Khuôn",
+    "question": "Bảng kê xác nhận phế phẩm NG sản xuất gần đây nhất",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 0.169,
+    "db_status": "DB_QUERY_ERROR: relation \"public.mes_oi_loi\" does not exist\nLINE 1: SELECT id, ngay_ct, ma_may, ma_loi, so_luong FRO",
+    "db_sample": ""
+  },
+  {
+    "id": "Q39",
+    "part": "Phần 2 - Bảng giá & BOM",
+    "question": "Danh mục bảng giá bán sản phẩm đang có hiệu lực hiện hành",
+    "ai_status": "OK",
+    "ai_rows_count": 30,
+    "ai_duration_sec": 0.073,
+    "db_status": "DB_QUERY_ERROR: column \"ma_bg\" does not exist\nLINE 1: SELECT ma_bg, ten_bg, ngay_hl, ngay_hhet FROM public.dmbangg..",
+    "db_sample": ""
+  },
+  {
+    "id": "Q40",
+    "part": "Phần 2 - Bảng giá & BOM",
+    "question": "Mã hàng QC7-5146-000 dùng loại hạt nhựa gì theo định mức BOM?",
+    "ai_status": "OK",
+    "ai_rows_count": 1,
+    "ai_duration_sec": 0.104,
+    "db_status": "DB_QUERY_ERROR: relation \"public.dmbom\" does not exist\nLINE 1: ....ma_vt_me, c.ma_vt_con, v.ten_vt, c.dinh_muc FROM ",
+    "db_sample": ""
+  },
+  {
+    "id": "Q41",
+    "part": "Phần 2 - Bảng giá & BOM",
+    "question": "MOQ báo giá và đơn giá bán hiện hành áp dụng cho mã hàng QC7-5146-000 là bao nhiêu?",
+    "ai_status": "OK",
+    "ai_rows_count": 11,
+    "ai_duration_sec": 0.104,
+    "db_status": "DB_QUERY_ERROR: column \"stt_rec\" specified in USING clause does not exist in left table",
+    "db_sample": ""
+  },
+  {
+    "id": "Q42",
+    "part": "Phần 2 - Bảng giá & BOM",
+    "question": "Mã hàng QC7-5146-000 thuộc quyền quản lý của khách hàng nào?",
+    "ai_status": "OK",
+    "ai_rows_count": 1,
+    "ai_duration_sec": 0.115,
+    "db_status": "DB_QUERY_ERROR: relation \"public.dmkhvt\" does not exist\nLINE 1: ..., k.ma_kh, kh.ten_kh FROM public.dmvt v LEFT JOIN",
+    "db_sample": ""
+  },
+  {
+    "id": "Q43",
+    "part": "Phần 3 - So sánh kỳ",
+    "question": "So sánh số lượng xuất bán của mã hàng QC7-5146-000 từ ngày 01/10/2026 đến ngày 10/10/2026 so với từ ngày 11/10/2026 đến ngày 20/10/2026",
+    "ai_status": "OK",
+    "ai_rows_count": 1,
+    "ai_duration_sec": 2.289,
+    "db_status": "VERIFIED (1 records in DB)",
+    "db_sample": "(Decimal('41520.00000000000000000000'), Decimal('47580.00000000000000000000'))"
+  },
+  {
+    "id": "Q44",
+    "part": "Phần 3 - So sánh kỳ",
+    "question": "Đối chiếu doanh thu và số lượng xuất bán của khách hàng KH0015 từ ngày 01/10/2026 đến ngày 10/10/2026 và từ ngày 11/10/2026 đến ngày 20/10/2026",
+    "ai_status": "TEXT_MSG",
+    "ai_rows_count": 0,
+    "ai_duration_sec": 0.002,
+    "db_status": "VERIFIED (1 records in DB)",
+    "db_sample": "(Decimal('1631107.00000000000000000000'), Decimal('8178296313.21280000000000000000'), Decimal('1719533.00000000000000000000'), Decimal('8077144771.03280000000000000000'))"
+  },
+  {
+    "id": "Q45",
+    "part": "Phần 3 - Đối soát SO vs HDA",
+    "question": "Kiểm tra tổng số lượng đặt hàng trong đơn SO và tổng số lượng đã xuất kho giao hàng của mã QC7-5146-000 trong tháng 10/2026",
+    "ai_status": "OK",
+    "ai_rows_count": 1,
+    "ai_duration_sec": 0.113,
+    "db_status": "VERIFIED (1 records in DB)",
+    "db_sample": "(Decimal('138930.00000000000000000000'), Decimal('134640.00000000000000000000'))"
+  }
+]

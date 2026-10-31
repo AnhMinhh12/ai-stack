@@ -9,7 +9,7 @@
     {
       "id": "latest_sales_delivery",
       "description": "Tra lần/lô/đợt giao gần nhất và tổng số lượng của một mã hàng trên phiếu xuất kho bán hàng.",
-      "match": {"all": ["ma_vt"], "any": ["giao gan nhat", "lan giao gan nhat", "lot giao gan nhat", "lo giao gan nhat", "dot giao gan nhat", "lot gan nhat", "lo gan nhat", "xuat giao gan nhat", "xuat gan nhat", "lan xuat gan nhat", "dot xuat gan nhat"]},
+      "match": {"all": ["ma_vt"], "any": ["giao gan nhat", "lan giao gan nhat", "lot giao gan nhat", "lo giao gan nhat", "dot giao gan nhat", "lot gan nhat", "lo gan nhat", "xuat giao gan nhat", "xuat gan nhat", "lan xuat gan nhat", "dot xuat gan nhat", "lo xuat hang gan nhat", "xuat hang gan nhat", "phieu xuat gan nhat", "phieu xuat hang gan nhat", "chung tu xuat gan nhat", "chung tu xuat hang gan nhat", "lo xuat gan nhat", "lot xuat gan nhat", "xuat hang moi nhat", "giao hang gan nhat", "lan xuat hang gan nhat", "dot xuat hang gan nhat"]},
       "source": {"header": "public.ph81", "line": "public.ct81", "kind": "sales_warehouse_issue"},
       "access": "authenticated_erp_user",
       "result": ["lan_giao_gan_nhat", "so_luong_giao", "dvt", "so_ct", "ma_kh"]

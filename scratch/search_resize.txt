@@ -1,1 +1,0 @@
-ui-patches/index.html:113:			function resizeIframe(obj) {

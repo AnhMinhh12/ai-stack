@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import json
 import base64
+from decimal import Decimal
 from html import escape
+from .system_dictionary import get_column_caption, get_document_status_name, get_list_option_text
 
 
 # Use local static asset first for fast offline loading, fallback to jsdelivr CDN
@@ -18,12 +20,13 @@ def _script_json(value):
     return json.dumps(value, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
 
 
-def render_erp_embed(result, downloads=()):
+def render_erp_embed(result, downloads=(), show_table=True):
     """Only backend-created blocks enter HTML; model prose never becomes markup."""
     blocks = result.get("blocks") or []
     if not any(b.get("type") == "table" for b in blocks):
         return None
-    sections, chart_data = ['<p class="intro">Dưới đây là kết quả tra cứu ERP theo yêu cầu của bạn:</p>'], []
+    sections = ['<p class="intro">Dưới đây là kết quả tra cứu ERP theo yêu cầu của bạn:</p>'] if show_table else []
+    chart_data = []
     if downloads:
         buttons = "".join(
             f'<button type="button" class="btn-dl btn-{_text(item["name"].rsplit(".", 1)[-1].lower())}" data-download-index="{index}">Tải {_text(item["name"].rsplit(".", 1)[-1].upper())}</button>'
@@ -37,11 +40,65 @@ def render_erp_embed(result, downloads=()):
         elif kind == "warning":
             sections.append(f'<p class="warning">{_text(block.get("text"))}</p>')
         elif kind == "table":
+            if not show_table:
+                continue
             columns = block.get("columns") or []
-            headers = "".join(f'<th scope="col">{_text(c.get("label"))}</th>' for c in columns)
-            rows = "".join("<tr>" + "".join(f'<td>{_text(row.get(c.get("key")))}</td>' for c in columns) + "</tr>"
+            grid_id = block.get("grid_id") or block.get("gridid")
+            def _col_label(c):
+                lbl = c.get("label")
+                key = str(c.get("key") or "")
+                if not lbl or lbl == key or lbl in ("hien_tai", "ban_truoc", "chenh_lech", "chi_tieu"):
+                    return get_column_caption(key, grid_id=grid_id)
+                return lbl
+            headers = "".join(f'<th scope="col">{_text(_col_label(c))}</th>' for c in columns)
+            def _cell(row, c):
+                key = str(c.get("key") or "")
+                val = row.get(key)
+                if key in ("status", "trang_thai") and str(val).isdigit():
+                    doc_type = row.get("ma_ct") or "SO1"
+                    val = get_document_status_name(doc_type, val)
+                elif key == "status_qc" and str(val).strip():
+                    val = get_list_option_text("OQC", val)
+                
+                num_val = None
+                if isinstance(val, (int, float, Decimal)):
+                    num_val = float(val)
+                elif isinstance(val, str) and val.replace(".", "", 1).replace("-", "", 1).isdigit():
+                    try:
+                        num_val = float(val)
+                    except ValueError:
+                        num_val = None
+
+                if num_val is not None:
+                    if key in ("so_luong", "so_luong_dat", "tong_so_luong_dat", "so_don_hang", "sl_nhap", "sl_xuat", "so_luong_ton", "gia", "gia2", "don_gia", "tien", "tien2", "tong_gia_tri", "doanh_thu", "tong_doanh_thu", "tien_thanh_toan", "so_luong_lo", "so_luong_mau", "so_shot", "so_shot_dinh_muc", "so_shot_con_lai", "thoi_gian_dung", "so_thung", "hien_tai", "ban_truoc"):
+                        if num_val.is_integer():
+                            val = f"{int(num_val):,}"
+                        else:
+                            val = f"{num_val:,.2f}"
+
+                txt = _text(val)
+                cls = []
+                if key in ("ten_kh", "ten_ncc", "ten_vt", "ten_sp", "ghi_chu", "nguyen_nhan", "ten_kho", "ten_loi", "ten_may", "gia_tri_do"):
+                    cls.append("col-wrap")
+                elif key in ("so_luong", "so_luong_dat", "tong_so_luong_dat", "so_don_hang", "sl_nhap", "sl_xuat", "so_luong_ton", "gia", "gia2", "don_gia", "tien", "tien2", "tong_gia_tri", "doanh_thu", "tong_doanh_thu", "tien_thanh_toan", "so_luong_lo", "so_luong_mau", "so_shot", "so_shot_dinh_muc", "so_shot_con_lai", "thoi_gian_dung", "so_thung", "hien_tai", "ban_truoc", "chenh_lech"):
+                    cls.append("num-cell")
+                elif key == "stt":
+                    cls.append("stt-cell")
+                if key in ("ket_qua", "status", "trang_thai", "status_qc"):
+                    if any(ok in txt for ok in ("Đạt", "OK", "Hoàn thành", "Duyệt")):
+                        return f'<td class="status-cell"><span class="badge badge-ok">{txt}</span></td>'
+                    elif any(ng in txt for ng in ("Không", "NG", "Hủy", "Từ chối")):
+                        return f'<td class="status-cell"><span class="badge badge-ng">{txt}</span></td>'
+                class_attr = f' class="{" ".join(cls)}"' if cls else ""
+                return f'<td{class_attr}>{txt}</td>'
+
+            rows = "".join("<tr>" + "".join(_cell(row, c) for c in columns) + "</tr>"
                            for row in block.get("rows") or [])
             sections.append(f'<div class="table-scroll" role="region" aria-label="{_text(block.get("title"))}" tabindex="0"><table><thead><tr>{headers}</tr></thead><tbody>{rows}</tbody></table></div>')
+            if block.get("has_more"):
+                total = block.get("total_rows")
+                detail = f" trên tổng {total} dòng" if isinstance(total, int) else ""
+                sections.append(f'<p class="warning">Chỉ hiển thị {len(block.get("rows") or [])} dòng{detail}; bảng và file tải xuống chưa đầy đủ.</p>')
         elif kind == "chart":
             index = len(chart_data)
             points = block.get("points") or []
@@ -61,7 +118,7 @@ def render_erp_embed(result, downloads=()):
                 f'<button type="button" data-chart-index="{index}" data-chart-kind="{k}" aria-pressed="{str(k == chart_type).lower()}"'
                 + ('' if k in allowed else ' disabled')
                 + f'>{title}</button>'
-                for k, title in (("bar", "Cột"), ("line", "Đường"), ("pie", "Tròn")))
+                for k, title in (("bar", "Cột"), ("line", "Đường"), ("pie", "Tròn")) if k in allowed)
             sections.append(f'<section class="chart"><h2>{_text(block.get("title"))}</h2><p class="scope">{_text(block.get("scope"))} · {_text(unit)}</p><div class="chart-controls" role="group" aria-label="Chọn loại biểu đồ">{controls}</div><div class="canvas-wrap"><canvas id="chart-{index}" role="img" aria-label="{_text(block.get("title"))}"></canvas></div><ul id="fallback-{index}" class="fallback" style="display:none">{fallback}</ul></section>')
     payload = _script_json(chart_data)
     download_payload = _script_json([
@@ -81,17 +138,37 @@ function contrastColor(hex) {
   return luminance[0] * 0.2126 + luminance[1] * 0.7152 + luminance[2] * 0.0722 > 0.32 ? '#172033' : '#ffffff';
 }
 
-function applyTheme() {
+function applyTheme(override) {
+  if (override === 'dark' || override === 'light') {
+    const isDark = (override === 'dark');
+    document.documentElement.setAttribute('data-theme', override);
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.classList.toggle('light', !isDark);
+    return isDark;
+  }
+  let isDark = false;
   try {
     const parentDoc = window.parent && window.parent.document;
     if (parentDoc && parentDoc.documentElement) {
-      const isDark = parentDoc.documentElement.classList.contains('dark');
+      isDark = parentDoc.documentElement.classList.contains('dark');
       document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      document.documentElement.classList.toggle('dark', isDark);
+      document.documentElement.classList.toggle('light', !isDark);
       return isDark;
     }
   } catch (e) {}
-  document.documentElement.setAttribute('data-theme', 'light');
-  return false;
+
+  try {
+    const local = localStorage.getItem('theme');
+    if (local === 'light') isDark = false;
+    else if (local === 'dark') isDark = true;
+    else if (window.matchMedia) isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  } catch (e) {}
+
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  document.documentElement.classList.toggle('dark', isDark);
+  document.documentElement.classList.toggle('light', !isDark);
+  return isDark;
 }
 
 const valueLabelPlugin = {
@@ -132,7 +209,7 @@ const valueLabelPlugin = {
         ctx.fillStyle = isDark ? '#f1f5f9' : '#1e293b';
         ctx.textBaseline = 'bottom';
         if (element.y != null && element.x != null) {
-          ctx.fillText(`${formatNumber(val)} (${pct})`, element.x, element.y - 4);
+          ctx.fillText(`${formatNumber(val)}`, element.x, element.y - 4);
         }
       } else if (chart.config.type === 'line') {
         ctx.fillStyle = isDark ? '#f1f5f9' : '#1e293b';
@@ -152,7 +229,7 @@ function showChart(index, kind) {
   const canvas = document.getElementById('chart-' + index);
   if (!canvas) return;
 
-  const isDark = applyTheme();
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const textColor = isDark ? '#f1f5f9' : '#0f172a';
   const subColor = isDark ? '#94a3b8' : '#64748b';
   const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
@@ -257,7 +334,7 @@ function showChart(index, kind) {
             label: function(ctx) {
               const val = ctx.raw;
               const total = item.values.reduce((s, v) => s + v, 0);
-              const pct = total ? ((val / total) * 100).toFixed(1) + '%' : '';
+              const pct = kind === 'pie' && total ? ((val / total) * 100).toFixed(1) + '%' : '';
               return ` ${formatNumber(val)} ${item.unit}` + (pct ? ` (${pct})` : '');
             }
           }
@@ -311,10 +388,28 @@ document.addEventListener('click', event => {
   showChart(Number(button.dataset.chartIndex), button.dataset.chartKind);
 });
 
+window.addEventListener('message', event => {
+  if (event.data && (event.data.type === 'erp:theme' || event.data.theme)) {
+    const theme = event.data.theme || (event.data.isDark ? 'dark' : 'light');
+    if (document.documentElement.getAttribute('data-theme') === theme) return;
+    applyTheme(theme);
+    if (window.Chart && activeCharts.size > 0) {
+      charts.forEach((item, index) => {
+        const btn = document.querySelector('[data-chart-index="' + index + '"][aria-pressed="true"]');
+        const kind = btn ? btn.dataset.chartKind : item.kind;
+        showChart(index, kind);
+      });
+    }
+  }
+});
+
+let lastReportedHeight = 0;
 function reportHeight() {
   const root = document.getElementById('erp-root') || document.body;
   const height = Math.ceil(Math.max(root.getBoundingClientRect().height, root.scrollHeight) + 24);
-  parent.postMessage({type:'iframe:height', height: height}, '*');
+  if (height === lastReportedHeight) return;
+  lastReportedHeight = height;
+  parent.postMessage({type:'iframe:height', height: height, themeRequest: true}, '*');
 }
 
 reportHeight();
@@ -322,40 +417,115 @@ window.addEventListener('load', () => { drawCharts(); reportHeight(); setTimeout
 if (window.ResizeObserver) new ResizeObserver(reportHeight).observe(document.getElementById('erp-root') || document.body);
 </script>""".replace("PAYLOAD", payload).replace("DOWNLOADS", download_payload)
     head = """<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<script>
+(function() {
+  function getTheme() {
+    try {
+      if (window.parent && window.parent.document && window.parent.document.documentElement) {
+        return window.parent.document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      }
+    } catch(e) {}
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'light') return 'light';
+      if (t === 'dark') return 'dark';
+    } catch(e) {}
+    try {
+      if (window.matchMedia) return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    } catch(e) {}
+    return 'light';
+  }
+  var theme = getTheme();
+  document.documentElement.setAttribute('data-theme', theme);
+  document.documentElement.classList.toggle('dark', theme === 'dark');
+  document.documentElement.classList.toggle('light', theme === 'light');
+})();
+</script>
 <style>
 [hidden]{display:none!important}
 html,body{overflow-y:hidden;background:transparent!important}
-:root{
-  --text-main:#0f172a;--text-sub:#64748b;--border:rgba(0,0,0,0.08);
-  --th-bg:rgba(0,0,0,0.03);--tr-hover:rgba(0,0,0,0.02);
-  --ctrl-bg:rgba(0,0,0,0.05);--ctrl-active:#ffffff;--ctrl-active-color:#2563eb;
-  --ctrl-shadow:0 1px 3px rgba(0,0,0,0.12);
+
+/* Dark-first tokens by default: matches Open WebUI's dark theme (#171717) */
+:root, [data-theme="dark"], .dark {
+  --text-main: #f8fafc;
+  --text-sub: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border: rgba(255, 255, 255, 0.14);
+  --th-bg: rgba(255, 255, 255, 0.08);
+  --tr-hover: rgba(255, 255, 255, 0.04);
+  --ctrl-bg: rgba(255, 255, 255, 0.08);
+  --ctrl-active: rgba(255, 255, 255, 0.22);
+  --ctrl-active-color: #60a5fa;
+  --ctrl-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  --table-bg: rgba(255, 255, 255, 0.04);
+  --table-card-border: rgba(255, 255, 255, 0.12);
+  --summary-color: #38bdf8;
+  --summary-bg: rgba(56, 189, 248, 0.12);
+  --summary-border: #38bdf8;
+  --warning-color: #fbbf24;
+  --warning-bg: rgba(251, 191, 36, 0.12);
+  --warning-border: #fbbf24;
+  --badge-ok-color: #4ade80;
+  --badge-ok-bg: rgba(74, 222, 128, 0.16);
+  --badge-ok-border: rgba(74, 222, 128, 0.35);
+  --badge-ng-color: #f87171;
+  --badge-ng-bg: rgba(248, 113, 113, 0.16);
+  --badge-ng-border: rgba(248, 113, 113, 0.35);
 }
-[data-theme="dark"]{
-  --text-main:#f1f5f9;--text-sub:#94a3b8;--border:rgba(255,255,255,0.1);
-  --th-bg:rgba(255,255,255,0.04);--tr-hover:rgba(255,255,255,0.025);
-  --ctrl-bg:rgba(255,255,255,0.08);--ctrl-active:rgba(255,255,255,0.18);--ctrl-active-color:#60a5fa;
-  --ctrl-shadow:0 1px 3px rgba(0,0,0,0.3);
+
+/* Explicit Light theme tokens */
+[data-theme="light"], .light {
+  --text-main: #0f172a;
+  --text-sub: #475569;
+  --text-muted: #64748b;
+  --border: rgba(0, 0, 0, 0.09);
+  --th-bg: rgba(0, 0, 0, 0.04);
+  --tr-hover: rgba(0, 0, 0, 0.025);
+  --ctrl-bg: rgba(0, 0, 0, 0.05);
+  --ctrl-active: #ffffff;
+  --ctrl-active-color: #2563eb;
+  --ctrl-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --table-bg: #ffffff;
+  --table-card-border: rgba(0, 0, 0, 0.08);
+  --summary-color: #0369a1;
+  --summary-bg: rgba(2, 132, 199, 0.08);
+  --summary-border: #0284c7;
+  --warning-color: #b45309;
+  --warning-bg: rgba(217, 119, 6, 0.08);
+  --warning-border: #d97706;
+  --badge-ok-color: #16a34a;
+  --badge-ok-bg: rgba(22, 163, 74, 0.12);
+  --badge-ok-border: rgba(22, 163, 74, 0.25);
+  --badge-ng-color: #dc2626;
+  --badge-ng-bg: rgba(220, 38, 38, 0.12);
+  --badge-ng-border: rgba(220, 38, 38, 0.25);
 }
+
 body{font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;color:var(--text-main);margin:0;padding:4px 0}
 #erp-root{background:transparent}
 .intro{font-size:13px;font-weight:500;color:var(--text-sub);margin:0 0 10px}
-.summary{font-weight:600;font-size:13px;color:#0284c7;margin:0 0 10px;padding:6px 10px;background:rgba(2,132,199,0.08);border-left:3px solid #0284c7;border-radius:0 6px 6px 0}
-.warning{color:#d97706;font-size:12px;margin:0 0 10px;padding:6px 10px;background:rgba(217,119,6,0.08);border-left:3px solid #d97706;border-radius:0 6px 6px 0}
+.summary{font-weight:600;font-size:13px;color:var(--summary-color);margin:0 0 10px;padding:7px 12px;background:var(--summary-bg);border-left:3px solid var(--summary-border);border-radius:0 6px 6px 0}
+.warning{color:var(--warning-color);font-size:12px;margin:0 0 10px;padding:7px 12px;background:var(--warning-bg);border-left:3px solid var(--warning-border);border-radius:0 6px 6px 0}
 .download-controls{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px}
-.btn-dl{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:7px;font-size:12px;font-weight:600;letter-spacing:0.02em;border:none;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.1);transition:all 0.15s ease}
-.btn-dl:hover{transform:translateY(-1px);box-shadow:0 3px 6px rgba(0,0,0,0.15)}
+.btn-dl{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:7px;font-size:12px;font-weight:600;letter-spacing:0.02em;border:none;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.15);transition:all 0.15s ease}
+.btn-dl:hover{transform:translateY(-1px);box-shadow:0 3px 6px rgba(0,0,0,0.2)}
 .btn-dl:active{transform:translateY(0)}
 .btn-xlsx{background:#059669;color:#ffffff}
 .btn-docx{background:#2563eb;color:#ffffff}
 .btn-pdf{background:#e11d48;color:#ffffff}
-.table-scroll{overflow-x:auto;max-width:100%;border:1px solid var(--border);border-radius:8px;background:transparent;margin-bottom:12px}
-table{border-collapse:collapse;width:100%;table-layout:auto;box-sizing:border-box}
-th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);white-space:normal;word-break:break-word;vertical-align:middle}
-th{background:var(--th-bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-sub)}
+.table-scroll{overflow-x:auto;max-width:100%;border:1px solid var(--table-card-border);border-radius:8px;background:var(--table-bg);margin-bottom:12px;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;min-width:100%;width:max-content;box-sizing:border-box}
+th,td{text-align:left;padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap;color:var(--text-main)}
+th{background:var(--th-bg);font-size:12px;font-weight:600;color:var(--text-sub);letter-spacing:0.02em}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:var(--tr-hover)}
-td:nth-child(4),td:nth-child(5){text-align:right;font-variant-numeric:tabular-nums}
+td.col-wrap{white-space:normal;min-width:160px;max-width:320px;word-break:normal;overflow-wrap:break-word;line-height:1.45}
+td.num-cell{text-align:right;font-variant-numeric:tabular-nums}
+td.stt-cell{text-align:center;width:48px;color:var(--text-muted)}
+td.status-cell{text-align:center}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.02em}
+.badge-ok{background:var(--badge-ok-bg);color:var(--badge-ok-color);border:1px solid var(--badge-ok-border)}
+.badge-ng{background:var(--badge-ng-bg);color:var(--badge-ng-color);border:1px solid var(--badge-ng-border)}
 .chart{margin-top:14px;background:transparent;border:none;padding:0;box-shadow:none}
 .chart h2{font-size:14px;font-weight:700;margin:0 0 2px;color:var(--text-main)}
 .scope{font-size:11px;color:var(--text-sub);margin:0 0 10px}
@@ -366,8 +536,8 @@ td:nth-child(4),td:nth-child(5){text-align:right;font-variant-numeric:tabular-nu
 .chart-controls button:disabled{opacity:0.35;cursor:not-allowed}
 .canvas-wrap{height:280px;max-width:760px;margin-bottom:8px}
 .fallback{padding:0;list-style:none;max-width:760px;margin:8px 0 0}
-.fallback li{display:grid;grid-template-columns:140px 1fr 100px;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)}
-.bar-track{height:12px;background:rgba(37,99,235,0.1);border-radius:6px;overflow:hidden}
+.fallback li{display:grid;grid-template-columns:140px 1fr 100px;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);color:var(--text-main)}
+.bar-track{height:12px;background:rgba(37,99,235,0.15);border-radius:6px;overflow:hidden}
 .bar-fill{display:block;height:100%;background:linear-gradient(90deg,#3b82f6,#2563eb);border-radius:6px}
 </style>
 {chart_script}</head><body><div id="erp-root">""".replace("{chart_script}", CHART_JS_TAG if chart_data else '')

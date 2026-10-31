@@ -63,11 +63,92 @@ def blocks_from_rows(payload):
         for item in requested if isinstance(item, dict) and item.get("field")
     }
     field_labels = {
-        "ma_vt": "Mã VT", "ten_vt": "Tên vật tư", "dvt": "ĐVT",
-        "so_luong": "Số lượng", "doanh_thu": "Doanh thu", "so_ct": "Số CT",
-        "ngay_ct": "Ngày CT", "ma_kho": "Mã kho", "ten_kho": "Tên kho",
-        "sl_nhap": "SL nhập", "sl_xuat": "SL xuất", "tien2": "Tiền hàng",
-        "nguoi_lap": "Người lập", "gia": "Đơn giá", "gia2": "Đơn giá",
+        "stt": "STT",
+        "so_ct": "Số CT",
+        "ngay_ct": "Ngày CT",
+        "so_phieu": "Số phiếu",
+        "ngay_lap": "Ngày lập",
+        "nguoi_lap": "Người lập",
+        "trang_thai": "Trạng thái",
+        "ghi_chu": "Ghi chú",
+        "ma_kh": "Mã KH",
+        "ten_kh": "Tên khách hàng",
+        "ma_ncc": "Mã NCC",
+        "ten_ncc": "Tên nhà cung cấp",
+        "ma_vt": "Mã vật tư",
+        "ten_vt": "Tên vật tư",
+        "ma_sp": "Mã SP",
+        "ten_sp": "Tên sản phẩm",
+        "dvt": "ĐVT",
+        "loai_vt": "Loại vật tư",
+        "so_luong": "Số lượng",
+        "so_luong_dat": "SL đặt",
+        "tong_so_luong_dat": "Tổng SL đặt",
+        "so_don_hang": "Số đơn hàng",
+        "sl_nhap": "SL nhập",
+        "sl_xuat": "SL xuất",
+        "so_luong_ton": "Tồn kho",
+        "gia": "Đơn giá",
+        "gia2": "Đơn giá",
+        "don_gia": "Đơn giá",
+        "tien2": "Tiền hàng",
+        "tong_gia_tri": "Tổng giá trị",
+        "doanh_thu": "Doanh thu",
+        "tong_doanh_thu": "Tổng doanh thu",
+        "tien_thanh_toan": "Tiền thanh toán",
+        "ma_kho": "Mã kho",
+        "ten_kho": "Tên kho",
+        "ma_kho_xuat": "Kho xuất",
+        "ma_kho_nhap": "Kho nhập",
+        "so_phieu_iqc": "Số phiếu IQC",
+        "ngay_kiem": "Ngày kiểm",
+        "so_lo": "Số lô",
+        "ma_lo": "Mã lô",
+        "so_luong_lo": "SL lô",
+        "so_luong_mau": "SL mẫu",
+        "chi_tieu": "Chỉ tiêu kiểm tra",
+        "ma_chi_tieu": "Chỉ tiêu",
+        "gia_tri_do": "Giá trị đo",
+        "gia_tri": "Giá trị đo",
+        "ket_qua": "Kết quả",
+        "kq_danh_gia": "Đánh giá",
+        "so_luong_ng": "SL phế phẩm (NG)",
+        "ma_loi": "Mã lỗi",
+        "ten_loi": "Tên lỗi",
+        "nguyen_nhan": "Nguyên nhân",
+        "so_luong_dm": "Định mức BOM",
+        "ty_le_hao_hut": "Hao hụt (%)",
+        "ty_le_tron": "Tỷ lệ trộn (%)",
+        "bom_version": "BOM Ver",
+        "ma_khuon": "Mã khuôn",
+        "ten_khuon": "Tên khuôn",
+        "tinh_trang_khuon": "Tình trạng",
+        "so_shot": "Số shot đã chạy",
+        "so_shot_da_chay": "Shot đã chạy",
+        "so_shot_dinh_muc": "Shot định mức",
+        "tuoi_tho_shot_dinh_muc": "Shot định mức",
+        "so_shot_con_lai": "Shot còn lại",
+        "so_cavity": "Số cavity",
+        "loai_gate": "Loại gate",
+        "so_cong_hot": "Cổng hot",
+        "so_cong_van_dau": "Cổng van dầu",
+        "ngay_su_dung": "Ngày sử dụng",
+        "ngay_bao_hiem": "Ngày bảo hiểm",
+        "ma_may": "Mã máy",
+        "ten_may": "Tên máy",
+        "ma_ca": "Ca SX",
+        "thoi_gian_dung": "Dừng máy (phút)",
+        "work_order": "Lệnh SX (WO)",
+        "ma_wo": "Lệnh SX (WO)",
+        "so_luong_ke_hoach": "SL kế hoạch",
+        "so_luong_hoan_thanh": "SL hoàn thành",
+        "pallet_id": "Mã Pallet",
+        "so_thung": "Số thùng",
+        "ngay_dong_thung": "Ngày đóng gói",
+        "nguoi_dong": "Người đóng",
+        "ngay_giao": "Ngày giao",
+        "so_luong_giao": "SL đã giao",
+        "ty_le_giao": "Tỷ lệ giao (%)",
     }
     columns = [{"key": key, "label": labels.get(key) or field_labels.get(key) or key, "type": "text"} for key in keys]
     total = payload.get("total_rows")
@@ -162,28 +243,21 @@ def blocks_from_rows(payload):
 
     # 4. So sánh DO và FCST
     elif "chi_tieu" in keys and "hien_tai" in keys and len(rows) >= 1:
-        points = []
         for row in rows:
             ct = str(row.get("chi_tieu") or "").strip()
             try:
                 cur_val = float(row["hien_tai"])
-                if isfinite(cur_val):
-                    points.append({"category": f"{ct} hiện tại", "quantity": cur_val})
-            except (TypeError, ValueError):
-                pass
-            if "ban_truoc" in row:
-                try:
-                    prev_val = float(row["ban_truoc"])
-                    if isfinite(prev_val):
-                        points.append({"category": f"{ct} bản trước", "quantity": prev_val})
-                except (TypeError, ValueError):
-                    pass
-        if len(points) >= 2:
+                prev_val = float(row["ban_truoc"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            if not ct or not isfinite(cur_val) or not isfinite(prev_val):
+                continue
             blocks.append({
-                "type": "chart", "chart_type": "bar", "allowed_chart_types": ["bar"],
-                "title": "So sánh kế hoạch DO và FCST với bản trước", "x": {"label": "Chỉ tiêu"},
+                "type": "chart", "chart_type": "bar", "allowed_chart_types": ["bar", "line"],
+                "title": f"So sánh {ct} với bản trước", "x": {"label": "Phiên bản"},
                 "series": [{"label": "Số lượng", "unit": "PCS"}],
-                "points": points,
+                "points": [{"category": "Bản trước", "quantity": prev_val},
+                           {"category": "Hiện tại", "quantity": cur_val}],
                 "scope": "Đối sánh 2 đợt cập nhật",
             })
 
@@ -312,11 +386,14 @@ def build_downloads(blocks, formats):
     for format_name in formats:
         if format_name not in FILE_TYPES:
             continue
-        if format_name == "xlsx":
-            data = _xlsx(blocks)
-        else:
-            if docx_data is None:
-                docx_data = _docx(blocks)
-            data = docx_data if format_name == "docx" else _pdf(docx_data)
-        output.append({"name": f"bao-cao-erp.{format_name}", "mime": FILE_TYPES[format_name], "data": data})
+        try:
+            if format_name == "xlsx":
+                data = _xlsx(blocks)
+            else:
+                if docx_data is None:
+                    docx_data = _docx(blocks)
+                data = docx_data if format_name == "docx" else _pdf(docx_data)
+            output.append({"name": f"bao-cao-erp.{format_name}", "mime": FILE_TYPES[format_name], "data": data})
+        except Exception:
+            continue
     return output

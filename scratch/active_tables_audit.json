@@ -1,0 +1,2183 @@
+[
+  {
+    "table": "data_intem",
+    "rows": 50586349,
+    "sample_cols": [
+      "id_tem (character varying)",
+      "ma_thung (character varying)",
+      "ma_khay (character varying)",
+      "ma_kho (character varying)",
+      "ma_vi_tri (character varying)",
+      "status (character varying)",
+      "nxt (smallint)",
+      "so_luong_khay_thung (numeric)"
+    ]
+  },
+  {
+    "table": "intem_log",
+    "rows": 28841419,
+    "sample_cols": [
+      "id_tem (character varying)",
+      "data_tem (jsonb)",
+      "status (character varying)",
+      "nxt (smallint)",
+      "ma_kho (character varying)",
+      "ma_vi_tri (character varying)",
+      "itg_ghi_chu (character varying)",
+      "date0 (date)"
+    ]
+  },
+  {
+    "table": "ct70bsp",
+    "rows": 12177714,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ln (smallint)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_lct (date)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_kh (character varying)"
+    ]
+  },
+  {
+    "table": "ct70",
+    "rows": 10572612,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ln (smallint)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_lct (date)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_kh (character varying)"
+    ]
+  },
+  {
+    "table": "mes_oi_material",
+    "rows": 5673443,
+    "sample_cols": [
+      "id_material (character varying)",
+      "id_oi (character varying)",
+      "station_code (character varying)",
+      "machine_code (character varying)",
+      "production_order (character varying)",
+      "mes_scheduling_code (character varying)",
+      "product_code (character varying)",
+      "material_code (character varying)"
+    ]
+  },
+  {
+    "table": "mfdmfc1",
+    "rows": 1645106,
+    "sample_cols": [
+      "ma_fc (character varying)",
+      "ma_kh (character varying)",
+      "ma_vi_tri_kh (character varying)",
+      "ma_vt (character varying)",
+      "stt (smallint)",
+      "ngay_ct1 (date)",
+      "ngay_ct2 (date)",
+      "so_luong (numeric)"
+    ]
+  },
+  {
+    "table": "mfkhsx_po_fc_btp",
+    "rows": 1411602,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ngay_giao_hang (date)",
+      "ngay_tinh_toan (date)",
+      "so_luong (numeric)",
+      "nguon_du_lieu (character varying)",
+      "loai_du_lieu (character varying)"
+    ]
+  },
+  {
+    "table": "mfkhsx_po_fc",
+    "rows": 1263380,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ngay_giao_hang (date)",
+      "ngay_tinh_toan (date)",
+      "so_luong (numeric)",
+      "nguon_du_lieu (character varying)",
+      "loai_du_lieu (character varying)"
+    ]
+  },
+  {
+    "table": "dmlo",
+    "rows": 654278,
+    "sample_cols": [
+      "ma_vt (character varying)",
+      "ma_lo (character varying)",
+      "ten_lo (character varying)",
+      "ten_lo2 (character varying)",
+      "ngay_nhap (date)",
+      "ngay_sx (date)",
+      "sl_nhap (numeric)",
+      "sl_xuat (numeric)"
+    ]
+  },
+  {
+    "table": "cdvt13",
+    "rows": 533464,
+    "sample_cols": [
+      "ma_kho (character varying)",
+      "ma_vt (character varying)",
+      "ma_lo (character varying)",
+      "so_seri_vt (character varying)",
+      "ma_vi_tri (character varying)",
+      "ton13 (numeric)",
+      "date0 (date)",
+      "time0 (time without time zone)"
+    ]
+  },
+  {
+    "table": "intem_serisp_log",
+    "rows": 470741,
+    "sample_cols": [
+      "ma_kh (character varying)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "dvt (character varying)",
+      "ngay_sx (date)",
+      "ma_ban_ve (character varying)",
+      "ma_in (character varying)",
+      "ma_dinh_danh (character varying)"
+    ]
+  },
+  {
+    "table": "intemeerolog",
+    "rows": 470741,
+    "sample_cols": [
+      "ma_kh (character varying)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "dvt (character varying)",
+      "ngay_sx (date)",
+      "ma_ban_ve (character varying)",
+      "ma_in (character varying)",
+      "ma_dinh_danh (character varying)"
+    ]
+  },
+  {
+    "table": "mes_oi_dong_thung_eero",
+    "rows": 240025,
+    "sample_cols": [
+      "serial_tem_thung (character varying)",
+      "serial_tem_sp (character varying)",
+      "stt (smallint)",
+      "ma_sp (character varying)",
+      "cavity (smallint)",
+      "so_luong (numeric)",
+      "t_so_luong (numeric)",
+      "date0 (date)"
+    ]
+  },
+  {
+    "table": "mfkhsx_po_pending_linhkien",
+    "rows": 184780,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "ma_ncc (character varying)",
+      "ten_ncc (character varying)",
+      "so_luong (numeric)",
+      "ngay_yc (date)"
+    ]
+  },
+  {
+    "table": "mfkhsx_bom",
+    "rows": 161442,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_sp (character varying)",
+      "ten_sp (character varying)",
+      "leadtime_sx (numeric)",
+      "so_luong_sp (numeric)",
+      "bom_version (character varying)",
+      "ma_vt (character varying)"
+    ]
+  },
+  {
+    "table": "mfkhsx_ton_nhua",
+    "rows": 104296,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "model (character varying)",
+      "ma_kho (character varying)",
+      "so_luong (numeric)",
+      "ma_lo (character varying)"
+    ]
+  },
+  {
+    "table": "mfkhsx_ton_kho_ok",
+    "rows": 79450,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "model (character varying)",
+      "ma_kho (character varying)",
+      "ma_vi_tri (character varying)",
+      "so_luong (numeric)"
+    ]
+  },
+  {
+    "table": "ct81tem",
+    "rows": 60188,
+    "sample_cols": [
+      "stt_rec (character)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "so_luong (character varying)",
+      "ma_kho (character varying)",
+      "ma_vi_tri (character varying)",
+      "ngay_ct (date)",
+      "serial_tem (character varying)"
+    ]
+  },
+  {
+    "table": "palletct",
+    "rows": 56963,
+    "sample_cols": [
+      "id_pallet (character varying)",
+      "id_carton (character varying)",
+      "serial_carton (character varying)",
+      "ma_vt (character varying)",
+      "ma_lo (character varying)",
+      "dvt (character varying)",
+      "he_so (numeric)",
+      "so_luong (numeric)"
+    ]
+  },
+  {
+    "table": "mes_oi_dong_thung",
+    "rows": 51874,
+    "sample_cols": [
+      "id_thung (smallint)",
+      "station_code (character varying)",
+      "production_order (character varying)",
+      "mes_scheduling_code (character varying)",
+      "serial_tem_thung (character varying)",
+      "serial_tem_sp (character varying)",
+      "stt (smallint)",
+      "product_code (character varying)"
+    ]
+  },
+  {
+    "table": "sys_userrights",
+    "rows": 36345,
+    "sample_cols": [
+      "user_id (smallint)",
+      "state (character varying)",
+      "r_access (boolean)",
+      "r_add (boolean)",
+      "r_edit (boolean)",
+      "r_delete (boolean)",
+      "r_print (boolean)",
+      "r_import (boolean)"
+    ]
+  },
+  {
+    "table": "ctlo",
+    "rows": 33073,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_kho (character varying)",
+      "ma_lo (character varying)",
+      "ma_lo_ncc (character varying)"
+    ]
+  },
+  {
+    "table": "mfkhsx_thongtin_khuon",
+    "rows": 26214,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_kh (character varying)",
+      "ma_khuon (character varying)",
+      "chi_tiet_su_co_khuon (text)",
+      "loai_su_co (character varying)",
+      "ten_kh (character varying)",
+      "trang_thai (character varying)"
+    ]
+  },
+  {
+    "table": "mfkhsx_ton_linhkien",
+    "rows": 20791,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "model (character varying)",
+      "ma_kho (character varying)",
+      "so_luong (numeric)",
+      "date0 (date)"
+    ]
+  },
+  {
+    "table": "mfkhsx_nhua",
+    "rows": 20336,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "ma_ncc (character varying)",
+      "ten_viet_tat (character varying)",
+      "leadtime (numeric)",
+      "leadtime_kfc (numeric)"
+    ]
+  },
+  {
+    "table": "ctlo_check_hil",
+    "rows": 19918,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_kho (character varying)",
+      "ma_lo (character varying)",
+      "ma_lo_ncc (character varying)"
+    ]
+  },
+  {
+    "table": "mfkhsx_ton_nhua_yc",
+    "rows": 18684,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "model (character varying)",
+      "ma_kho (character varying)",
+      "ty_le_ts (numeric)",
+      "ns (numeric)"
+    ]
+  },
+  {
+    "table": "ct85",
+    "rows": 16103,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "dvt (character varying)",
+      "he_so (numeric)",
+      "so_luong (numeric)"
+    ]
+  },
+  {
+    "table": "mfkhsx_linh_kien",
+    "rows": 16049,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "ma_ncc (character varying)",
+      "ten_viet_tat (character varying)",
+      "leadtime (numeric)",
+      "leadtime_kfc (numeric)"
+    ]
+  },
+  {
+    "table": "ctkhgh",
+    "rows": 15675,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ngay_gh (date)",
+      "gio_gh (time without time zone)",
+      "ma_vt (character varying)",
+      "so_luong (numeric)"
+    ]
+  },
+  {
+    "table": "log_pxb_exception",
+    "rows": 15259,
+    "sample_cols": [
+      "stt_rec (character)",
+      "id_tem (character varying)",
+      "result (text)",
+      "create_date (date)",
+      "create_time (time without time zone)"
+    ]
+  },
+  {
+    "table": "mfkhsx_dmkh",
+    "rows": 14300,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_kh (character varying)",
+      "ten_kh (character varying)",
+      "ten_kh2 (character varying)",
+      "dia_chi (character varying)",
+      "ong_ba (character varying)",
+      "dien_thoai (character varying)"
+    ]
+  },
+  {
+    "table": "ph91",
+    "rows": 12358,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_dvcs (character varying)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_lct (date)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_nt (character)"
+    ]
+  },
+  {
+    "table": "temp_log_updatetem",
+    "rows": 12301,
+    "sample_cols": [
+      "create_date (date)",
+      "create_time (time without time zone)",
+      "paramjson (text)",
+      "stt_rec (character)"
+    ]
+  },
+  {
+    "table": "mfkhsx_po_nhua_pending",
+    "rows": 12091,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "ma_ncc (character varying)",
+      "ten_ncc (character varying)",
+      "so_luong (numeric)",
+      "ngay_yc (date)"
+    ]
+  },
+  {
+    "table": "dmbanggiact",
+    "rows": 11225,
+    "sample_cols": [
+      "ma_bang_gia (character varying)",
+      "ma_vt (character varying)",
+      "loai_gia (smallint)",
+      "nh_kh1 (character varying)",
+      "nh_kh2 (character varying)",
+      "nh_kh3 (character varying)",
+      "nh_kh4 (character varying)",
+      "nh_kh5 (character varying)"
+    ]
+  },
+  {
+    "table": "mfkhsx_bom_vat_tu_phu",
+    "rows": 10518,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_sp (character varying)",
+      "ten_sp (character varying)",
+      "so_luong_sp (numeric)",
+      "bom_version (character varying)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)"
+    ]
+  },
+  {
+    "table": "ph85",
+    "rows": 10358,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "so_ct (character varying)",
+      "ma_kh (character varying)"
+    ]
+  },
+  {
+    "table": "ct81ccdc",
+    "rows": 8548,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "dvt (character varying)",
+      "he_so (numeric)",
+      "so_luong (numeric)"
+    ]
+  },
+  {
+    "table": "ct96lo",
+    "rows": 8096,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_kho (character varying)",
+      "ma_lo (character varying)",
+      "ma_lo_ncc (character varying)"
+    ]
+  },
+  {
+    "table": "ct81",
+    "rows": 8027,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ngay_de_nghi_gh (date)",
+      "ngay_hua_gh (date)",
+      "ngay_ch (date)",
+      "thoi_gian_ch (character varying)"
+    ]
+  },
+  {
+    "table": "mfkhsx_nhua_thay_the",
+    "rows": 7321,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_sp (character varying)",
+      "ma_vt (character varying)",
+      "ma_vt_thay_the (character varying)",
+      "sl_sp (numeric)",
+      "sl_gate_runner (numeric)",
+      "so_luong (numeric)"
+    ]
+  },
+  {
+    "table": "ct81th",
+    "rows": 5687,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ngay_de_nghi_gh (date)",
+      "ngay_hua_gh (date)",
+      "ngay_ch (date)",
+      "thoi_gian_ch (character varying)"
+    ]
+  },
+  {
+    "table": "ct96",
+    "rows": 5587,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_lct (date)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ngay_gh (date)",
+      "gio_gh (time without time zone)",
+      "ma_vt (character varying)"
+    ]
+  },
+  {
+    "table": "mes_oi_machine",
+    "rows": 5325,
+    "sample_cols": [
+      "station_code (character varying)",
+      "machine_code (character varying)",
+      "status (character varying)",
+      "note (character varying)",
+      "id (character)",
+      "create_date (date)",
+      "create_time (time without time zone)",
+      "error_code (character varying)"
+    ]
+  },
+  {
+    "table": "mfkhsx_ton_nhua_theokho",
+    "rows": 4348,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "model (character varying)",
+      "ma_kho (character varying)",
+      "so_luong_ng (numeric)",
+      "sl_tap_chat (numeric)"
+    ]
+  },
+  {
+    "table": "mfkhsx_ton_kho_ng",
+    "rows": 4121,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "model (character varying)",
+      "ma_kho (character varying)",
+      "ma_vi_tri (character varying)",
+      "so_luong (numeric)"
+    ]
+  },
+  {
+    "table": "sys_roledt",
+    "rows": 4027,
+    "sample_cols": [
+      "role_id (character varying)",
+      "state (character varying)",
+      "r_access (boolean)",
+      "r_add (boolean)",
+      "r_edit (boolean)",
+      "r_delete (boolean)",
+      "r_print (boolean)",
+      "r_import (boolean)"
+    ]
+  },
+  {
+    "table": "mfdmfc",
+    "rows": 3783,
+    "sample_cols": [
+      "ma_fc (character)",
+      "ma_dvcs (character varying)",
+      "ma_kh (character varying)",
+      "ma_vi_tri_kh (character varying)",
+      "kieu_fc (smallint)",
+      "period_type (character)",
+      "ngay_ct1 (date)",
+      "ngay_ct2 (date)"
+    ]
+  },
+  {
+    "table": "ct64",
+    "rows": 3280,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "dvt (character varying)",
+      "he_so (numeric)",
+      "so_luong (numeric)"
+    ]
+  },
+  {
+    "table": "ct00",
+    "rows": 3066,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_dvcs (character varying)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "so_ct (character varying)",
+      "dien_giai (character varying)"
+    ]
+  },
+  {
+    "table": "ct84",
+    "rows": 2400,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "dvt (character varying)",
+      "ma_kho (character varying)",
+      "ton13 (numeric)"
+    ]
+  },
+  {
+    "table": "mes_oi_stop_line",
+    "rows": 2320,
+    "sample_cols": [
+      "station_code (character varying)",
+      "machine_code (character varying)",
+      "status (character varying)",
+      "note (character varying)",
+      "id (character)",
+      "create_date (date)",
+      "create_time (time without time zone)",
+      "end_date (date)"
+    ]
+  },
+  {
+    "table": "tmp_saveparam",
+    "rows": 2247,
+    "sample_cols": [
+      "ghi_chu (text)",
+      "param (text)",
+      "date0 (date)",
+      "time0 (time without time zone)"
+    ]
+  },
+  {
+    "table": "dmhosokhuon",
+    "rows": 2185,
+    "sample_cols": [
+      "ma_khuon (character varying)",
+      "ten_khuon (character varying)",
+      "ngay (date)",
+      "ngay_bh (date)",
+      "so_shot_bh (numeric)",
+      "say_nhua_yn (smallint)",
+      "so_cavity (numeric)",
+      "loai_gate (character varying)"
+    ]
+  },
+  {
+    "table": "ct74",
+    "rows": 2135,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "dvt (character varying)",
+      "he_so (numeric)",
+      "ma_kho (character varying)"
+    ]
+  },
+  {
+    "table": "mes_oi_nv_dung_may",
+    "rows": 2001,
+    "sample_cols": [
+      "id_oi (character)",
+      "ln (smallint)",
+      "stt (smallint)",
+      "staff_code (character varying)",
+      "staff_name (character varying)",
+      "select_yn (smallint)",
+      "date0 (date)",
+      "time0 (time without time zone)"
+    ]
+  },
+  {
+    "table": "pallet",
+    "rows": 1923,
+    "sample_cols": [
+      "id_pallet (character varying)",
+      "serial_tem (character varying)",
+      "type_tem (character varying)",
+      "so_luong_thung (numeric)",
+      "so_luong (numeric)",
+      "ma_lo (character varying)",
+      "ma_lo_ncc (character varying)",
+      "ngay_sx (date)"
+    ]
+  },
+  {
+    "table": "ctlsxvt",
+    "rows": 1916,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "dvt (character varying)",
+      "ton13 (numeric)",
+      "he_so (numeric)"
+    ]
+  },
+  {
+    "table": "intem_carton_log",
+    "rows": 1792,
+    "sample_cols": [
+      "id_carton (character varying)",
+      "id_carton_new (character varying)",
+      "date0 (date)",
+      "time0 (time without time zone)"
+    ]
+  },
+  {
+    "table": "ph64",
+    "rows": 1778,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "so_ct (character varying)",
+      "ma_kh (character varying)"
+    ]
+  },
+  {
+    "table": "ph74",
+    "rows": 1515,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "so_ct (character varying)",
+      "ma_kh (character varying)"
+    ]
+  },
+  {
+    "table": "dmvt_intem",
+    "rows": 1426,
+    "sample_cols": [
+      "ma_vt (character varying)",
+      "ngay_in (date)",
+      "stt (smallint)"
+    ]
+  },
+  {
+    "table": "ph84",
+    "rows": 1335,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_lct (date)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_kh (character varying)"
+    ]
+  },
+  {
+    "table": "activity_stamps",
+    "rows": 1306,
+    "sample_cols": [
+      "ip_handy (character varying)",
+      "id_tem (character varying)",
+      "id_pallet (character varying)",
+      "ma_ct_temp (character varying)",
+      "stt_rec (character varying)",
+      "status (character varying)",
+      "user_id0 (smallint)",
+      "date0 (date)"
+    ]
+  },
+  {
+    "table": "mfkhsx_ton_nhua_tai_may",
+    "rows": 1206,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "so_luong (numeric)",
+      "date0 (date)",
+      "time0 (time without time zone)"
+    ]
+  },
+  {
+    "table": "mes_oi_change_cativity",
+    "rows": 1077,
+    "sample_cols": [
+      "id_oi (character varying)",
+      "id_change_cavity (character varying)",
+      "ma_khuon (character varying)",
+      "ma_sp (character varying)",
+      "ln (smallint)",
+      "id_cap (character varying)",
+      "chu_ky (numeric)",
+      "chinh_phu (smallint)"
+    ]
+  },
+  {
+    "table": "mes_oi_confirm",
+    "rows": 1041,
+    "sample_cols": [
+      "station_code (character varying)",
+      "machine_code (character varying)",
+      "production_order (character varying)",
+      "product_code (character varying)",
+      "step_code (character varying)",
+      "quantity (numeric)",
+      "in_que (numeric)",
+      "in_process (numeric)"
+    ]
+  },
+  {
+    "table": "mfkhsx_ton_tai_may",
+    "rows": 964,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "machine_code (character varying)",
+      "ma_vi_tri (character varying)",
+      "so_luong (numeric)",
+      "date0 (date)"
+    ]
+  },
+  {
+    "table": "ctlsx",
+    "rows": 926,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "ma_cau_truc (character varying)",
+      "dvt (character varying)",
+      "ton13 (numeric)"
+    ]
+  },
+  {
+    "table": "ctlsxqt",
+    "rows": 926,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "stt (smallint)",
+      "ma_cong_doan (character varying)",
+      "ma_bp (character varying)",
+      "ln (smallint)"
+    ]
+  },
+  {
+    "table": "mes_scheduling_output",
+    "rows": 893,
+    "sample_cols": [
+      "mes_scheduling_code (character varying)",
+      "machine_code (character varying)",
+      "priority (smallint)",
+      "product_code (character varying)",
+      "bom_version (character varying)",
+      "uom (character varying)",
+      "quantity (numeric)",
+      "start_time (time without time zone)"
+    ]
+  },
+  {
+    "table": "phlsx",
+    "rows": 892,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "so_ct (character varying)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "ma_nt (character)"
+    ]
+  },
+  {
+    "table": "intem_carton_log20261026",
+    "rows": 840,
+    "sample_cols": [
+      "id_carton (character varying)",
+      "id_carton_new (character varying)",
+      "date0 (date)",
+      "time0 (time without time zone)"
+    ]
+  },
+  {
+    "table": "mes_oi_inbound",
+    "rows": 838,
+    "sample_cols": [
+      "station_code (character varying)",
+      "machine_code (character varying)",
+      "production_order (character varying)",
+      "product_code (character varying)",
+      "step_code (character varying)",
+      "station_previous_code (character varying)",
+      "inbound (numeric)",
+      "id_inbound (character)"
+    ]
+  },
+  {
+    "table": "sys_role_actionrights",
+    "rows": 826,
+    "sample_cols": [
+      "role_id (character varying)",
+      "state (character varying)",
+      "action_id (character varying)",
+      "right_yn (smallint)",
+      "status (character varying)"
+    ]
+  },
+  {
+    "table": "ctiqc",
+    "rows": 812,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_chi_tieu (character varying)",
+      "ma_dvdl (character varying)",
+      "ma_ccdc (character varying)",
+      "kieu_gia_tri (smallint)"
+    ]
+  },
+  {
+    "table": "mfkhsx_ton_linhkien_tai_may",
+    "rows": 763,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "so_luong (numeric)",
+      "date0 (date)",
+      "time0 (time without time zone)"
+    ]
+  },
+  {
+    "table": "mes_oi_ng_confirm",
+    "rows": 747,
+    "sample_cols": [
+      "station_code (character varying)",
+      "machine_code (character varying)",
+      "production_order (character varying)",
+      "product_code (character varying)",
+      "step_code (character varying)",
+      "ng_qty (numeric)",
+      "status (character varying)",
+      "note (character varying)"
+    ]
+  },
+  {
+    "table": "sys_tokens",
+    "rows": 697,
+    "sample_cols": [
+      "row_id (bigint)",
+      "user_id (smallint)",
+      "authtoken (character varying)",
+      "issuedon (timestamp without time zone)",
+      "expireson (timestamp without time zone)",
+      "ma_dvcs (character varying)",
+      "languages (character varying)",
+      "is_super (smallint)"
+    ]
+  },
+  {
+    "table": "ctkhnh",
+    "rows": 668,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "so_luong (numeric)",
+      "ngay_de_nghi_nh (date)",
+      "ngay_hua_nh (date)"
+    ]
+  },
+  {
+    "table": "ctkhnh_po1",
+    "rows": 667,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "so_luong (numeric)",
+      "ngay_de_nghi_nh (date)",
+      "ngay_hua_nh (date)"
+    ]
+  },
+  {
+    "table": "new_oi_cbsxct",
+    "rows": 631,
+    "sample_cols": [
+      "id_cbsx (character)",
+      "ver (smallint)",
+      "mes_scheduling_code (character varying)",
+      "line_code (character varying)",
+      "date0 (date)",
+      "time0 (time without time zone)",
+      "data_document (json)",
+      "data_material (json)"
+    ]
+  },
+  {
+    "table": "mes_oi_ng_materrial",
+    "rows": 607,
+    "sample_cols": [
+      "id_oi_ng (bigint)",
+      "station_code (character varying)",
+      "machine_code (character varying)",
+      "production_order (character varying)",
+      "product_code (character varying)",
+      "step_code (character varying)",
+      "ng_qty (numeric)",
+      "status (character varying)"
+    ]
+  },
+  {
+    "table": "new_oi_cbsx",
+    "rows": 595,
+    "sample_cols": [
+      "id_cbsx (character)",
+      "stt (smallint)",
+      "mes_scheduling_code (character varying)",
+      "line_code (character varying)",
+      "date0 (date)",
+      "time0 (time without time zone)",
+      "user_id0 (smallint)",
+      "status (character varying)"
+    ]
+  },
+  {
+    "table": "ct94",
+    "rows": 573,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "ma_kho (character varying)",
+      "ma_vv (character varying)",
+      "dvt (character varying)"
+    ]
+  },
+  {
+    "table": "mfkhsx_ton_linhkien_theokho",
+    "rows": 553,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "model (character varying)",
+      "ma_kho (character varying)",
+      "so_luong_ng (numeric)",
+      "date0 (date)"
+    ]
+  },
+  {
+    "table": "mfkhsx_bom_nhua_tron",
+    "rows": 528,
+    "sample_cols": [
+      "id (character varying)",
+      "stt (integer)",
+      "ma_sp (character varying)",
+      "ten_sp (character varying)",
+      "leadtime_sx (numeric)",
+      "so_luong_sp (numeric)",
+      "bom_version (character varying)",
+      "ma_vt (character varying)"
+    ]
+  },
+  {
+    "table": "ctycn",
+    "rows": 518,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ngay_de_nghi_nh (date)",
+      "ngay_hua_nh (date)",
+      "ma_vt (character varying)",
+      "ma_kho (character varying)"
+    ]
+  },
+  {
+    "table": "mes_oi_add_quantity",
+    "rows": 493,
+    "sample_cols": [
+      "id_add (character)",
+      "id_oi (character)",
+      "line_code (character varying)",
+      "mes_scheduling_code (character varying)",
+      "product_code (character varying)",
+      "quantity (numeric)",
+      "user_xac_nhan (character varying)",
+      "user_id0 (smallint)"
+    ]
+  },
+  {
+    "table": "ph81",
+    "rows": 395,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "ngay_de_nghi_gh (date)",
+      "ngay_hua_gh (date)"
+    ]
+  },
+  {
+    "table": "ct91",
+    "rows": 385,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "ma_bp (character varying)",
+      "dvt (character varying)",
+      "ton13 (numeric)"
+    ]
+  },
+  {
+    "table": "mes_oi_van_hanh_khuon",
+    "rows": 384,
+    "sample_cols": [
+      "id_vh (character)",
+      "station_code (character varying)",
+      "machine_code (character varying)",
+      "status (character varying)",
+      "note (character varying)",
+      "create_date (date)",
+      "create_time (time without time zone)",
+      "end_date (date)"
+    ]
+  },
+  {
+    "table": "ct77",
+    "rows": 371,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ngay_de_nghi_nh (date)",
+      "ngay_hua_nh (date)",
+      "ma_vt (character varying)",
+      "ma_kho (character varying)"
+    ]
+  },
+  {
+    "table": "ph96",
+    "rows": 371,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "so_ct (character varying)",
+      "ma_kh (character varying)"
+    ]
+  },
+  {
+    "table": "mes_oi_setup_may",
+    "rows": 332,
+    "sample_cols": [
+      "id_setup (character)",
+      "station_code (character varying)",
+      "machine_code (character varying)",
+      "status (character varying)",
+      "note (character varying)",
+      "ty_le_nhua (smallint)",
+      "create_date (date)",
+      "create_time (time without time zone)"
+    ]
+  },
+  {
+    "table": "intemeero",
+    "rows": 328,
+    "sample_cols": [
+      "ma_kh (character varying)",
+      "ma_vt (character varying)",
+      "ngay_sx (date)",
+      "ma_ban_ve (character varying)",
+      "mold (text)",
+      "so_luong_tem (numeric)",
+      "stt_bd (integer)",
+      "stt_kt (integer)"
+    ]
+  },
+  {
+    "table": "mes_oi_material_history",
+    "rows": 321,
+    "sample_cols": [
+      "id_oi (character varying)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "dvt (character varying)",
+      "sl_yc (numeric)",
+      "sl_ton (numeric)",
+      "sl_da_cap (numeric)",
+      "sl_can_cap (numeric)"
+    ]
+  },
+  {
+    "table": "mes_oi_bo_shot",
+    "rows": 300,
+    "sample_cols": [
+      "id_oi (character)",
+      "station_code (character varying)",
+      "production_order (character varying)",
+      "step_code (character varying)",
+      "machine_code (character varying)",
+      "mes_scheduling_code (character varying)",
+      "quantity (numeric)",
+      "staff_code (character varying)"
+    ]
+  },
+  {
+    "table": "userinfo",
+    "rows": 241,
+    "sample_cols": [
+      "user_id (smallint)",
+      "user_name (character varying)",
+      "pass (character varying)",
+      "ten (character varying)",
+      "is_super (smallint)",
+      "is_admin (smallint)",
+      "phong_ban (character varying)",
+      "chuc_vu (character varying)"
+    ]
+  },
+  {
+    "table": "mes_oi_version",
+    "rows": 202,
+    "sample_cols": [
+      "ip (character varying)",
+      "version (text)",
+      "date0 (date)",
+      "time0 (time without time zone)",
+      "user_id0 (smallint)",
+      "date2 (date)",
+      "time2 (time without time zone)",
+      "user_id2 (smallint)"
+    ]
+  },
+  {
+    "table": "phycn",
+    "rows": 189,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "so_ct (character varying)",
+      "ngay_ct0 (date)"
+    ]
+  },
+  {
+    "table": "mes_oi_towerlightoff",
+    "rows": 167,
+    "sample_cols": [
+      "id_oi (character varying)",
+      "ma_nv (character varying)",
+      "ghi_chu (character varying)",
+      "machine_code (character varying)",
+      "off_yn (smallint)",
+      "date0 (date)",
+      "time0 (time without time zone)"
+    ]
+  },
+  {
+    "table": "ph94",
+    "rows": 157,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "so_ct (character varying)",
+      "ngay_nh (date)"
+    ]
+  },
+  {
+    "table": "ph77",
+    "rows": 155,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "so_ct (character varying)",
+      "ngay_ct0 (date)"
+    ]
+  },
+  {
+    "table": "dmgiamuact",
+    "rows": 150,
+    "sample_cols": [
+      "ma_kh (character varying)",
+      "ngay_bd (date)",
+      "ngay_kt (date)",
+      "ma_vt (character varying)",
+      "gia0 (numeric)",
+      "ma_thue (character varying)",
+      "thue_suat (numeric)",
+      "gia (numeric)"
+    ]
+  },
+  {
+    "table": "intem_mau",
+    "rows": 148,
+    "sample_cols": [
+      "id_tem (character varying)",
+      "ma_vt (character varying)",
+      "data_tem (json)",
+      "status (character varying)",
+      "date0 (date)",
+      "time0 (time without time zone)",
+      "user_id0 (smallint)",
+      "date2 (date)"
+    ]
+  },
+  {
+    "table": "ct64_import",
+    "rows": 131,
+    "sample_cols": [
+      "id_import (bigint)",
+      "stt_rec (character)",
+      "data_import (json)",
+      "date0 (date)",
+      "time0 (time without time zone)",
+      "user_id0 (smallint)"
+    ]
+  },
+  {
+    "table": "ctbgncc",
+    "rows": 126,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "dvt (character varying)",
+      "he_so (numeric)",
+      "so_luong (numeric)"
+    ]
+  },
+  {
+    "table": "qcdmvtct",
+    "rows": 100,
+    "sample_cols": [
+      "ma_vt (character varying)",
+      "step_code (character varying)",
+      "ma_nh_chi_tieu (character varying)",
+      "ma_chi_tieu (character varying)",
+      "ma_dvdl (character varying)",
+      "ma_ccdc (character varying)",
+      "kieu_gia_tri (smallint)",
+      "gia_tri_mac_dinh (text)"
+    ]
+  },
+  {
+    "table": "ctdnv",
+    "rows": 87,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "dvt (character varying)",
+      "xsize (character varying)",
+      "ma_kho (character varying)"
+    ]
+  },
+  {
+    "table": "dmvt",
+    "rows": 86,
+    "sample_cols": [
+      "ma_vt (character varying)",
+      "ma_vt2 (character varying)",
+      "ten_vt (character varying)",
+      "ten_vt2 (character varying)",
+      "part_no (character varying)",
+      "model (character varying)",
+      "dvt (character varying)",
+      "ma_loai_vt (character varying)"
+    ]
+  },
+  {
+    "table": "dmqddvt",
+    "rows": 86,
+    "sample_cols": [
+      "ma_vt (character varying)",
+      "dvt (character varying)",
+      "he_so (numeric)",
+      "xtype (character)",
+      "xdf (smallint)",
+      "dvt1 (character varying)",
+      "date0 (date)",
+      "time0 (time without time zone)"
+    ]
+  },
+  {
+    "table": "sys_actionrights",
+    "rows": 74,
+    "sample_cols": [
+      "user_id (smallint)",
+      "state (character varying)",
+      "action_id (character varying)",
+      "right_yn (smallint)",
+      "status (character varying)"
+    ]
+  },
+  {
+    "table": "mfbom_material",
+    "rows": 73,
+    "sample_cols": [
+      "bom_code (character varying)",
+      "product_code (character varying)",
+      "material_code (character varying)",
+      "bom_version (character varying)",
+      "valid_from (date)",
+      "valid_to (date)",
+      "uom (character varying)",
+      "quantity (numeric)"
+    ]
+  },
+  {
+    "table": "mfbom_step_material",
+    "rows": 68,
+    "sample_cols": [
+      "bom_code (character varying)",
+      "step_code (character varying)",
+      "material_code (character varying)",
+      "uom (character varying)",
+      "quantity (numeric)",
+      "note (text)",
+      "ln (smallint)"
+    ]
+  },
+  {
+    "table": "mes_scheduling",
+    "rows": 57,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "so_ct (character varying)",
+      "ma_nt (character)"
+    ]
+  },
+  {
+    "table": "phiqc",
+    "rows": 54,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_dvcs (character varying)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_lct (date)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_nt (character)"
+    ]
+  },
+  {
+    "table": "ct66",
+    "rows": 52,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "dvt (character varying)",
+      "ma_kho (character varying)",
+      "so_luong_ban (numeric)"
+    ]
+  },
+  {
+    "table": "phbgncc",
+    "rows": 51,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "so_ct (character varying)",
+      "ma_kh (character varying)"
+    ]
+  },
+  {
+    "table": "history_bom_change",
+    "rows": 50,
+    "sample_cols": [
+      "product_code (character varying)",
+      "ver (character varying)",
+      "bom_code (character varying)",
+      "date_change (date)",
+      "time_change (time without time zone)",
+      "user_change (character varying)",
+      "type_change (smallint)",
+      "content_change (text)"
+    ]
+  },
+  {
+    "table": "mes_oi_material_prepare",
+    "rows": 49,
+    "sample_cols": [
+      "id_material (character varying)",
+      "id_oi (character varying)",
+      "station_code (character varying)",
+      "machine_code (character varying)",
+      "production_order (character varying)",
+      "mes_scheduling_code (character varying)",
+      "product_code (character varying)",
+      "material_code (character varying)"
+    ]
+  },
+  {
+    "table": "mes_oi_van_hanh_khuon_pause",
+    "rows": 48,
+    "sample_cols": [
+      "id_pause (character)",
+      "id_vh (character)",
+      "station_code (character varying)",
+      "machine_code (character varying)",
+      "status (character varying)",
+      "note (character varying)",
+      "create_date (date)",
+      "create_time (time without time zone)"
+    ]
+  },
+  {
+    "table": "mes_oi_setup_may_pause",
+    "rows": 41,
+    "sample_cols": [
+      "id_pause (character)",
+      "id_setup (character)",
+      "station_code (character varying)",
+      "machine_code (character varying)",
+      "status (character varying)",
+      "note (character varying)",
+      "ty_le_nhua (smallint)",
+      "create_date (date)"
+    ]
+  },
+  {
+    "table": "ctdsbh",
+    "rows": 40,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ln (smallint)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_gd (smallint)",
+      "status (character varying)",
+      "ma_kh (character varying)"
+    ]
+  },
+  {
+    "table": "ct76",
+    "rows": 40,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "dvt (character varying)",
+      "he_so (numeric)",
+      "so_luong (numeric)"
+    ]
+  },
+  {
+    "table": "dmvv",
+    "rows": 35,
+    "sample_cols": [
+      "ma_vv (character varying)",
+      "ten_vv (character varying)",
+      "ten_vv2 (character varying)",
+      "tk_cn (smallint)",
+      "ma_kh (character varying)",
+      "nh_vv1 (character varying)",
+      "nh_vv2 (character varying)",
+      "nh_vv3 (character varying)"
+    ]
+  },
+  {
+    "table": "phdnv",
+    "rows": 28,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "so_ct (character varying)",
+      "ma_nt (character)"
+    ]
+  },
+  {
+    "table": "mfbom_operation",
+    "rows": 25,
+    "sample_cols": [
+      "bom_code (character varying)",
+      "number_order (smallint)",
+      "operation_code (character varying)",
+      "work_center_code (character varying)",
+      "resource_list (text)",
+      "completion_rate (numeric)",
+      "ln (smallint)"
+    ]
+  },
+  {
+    "table": "mfbom",
+    "rows": 25,
+    "sample_cols": [
+      "bom_code (character varying)",
+      "product_code (character varying)",
+      "bom_version (character varying)",
+      "uom (character varying)",
+      "product_quantity (numeric)",
+      "routing_code (character varying)",
+      "process_group_code (character varying)",
+      "valid_from (date)"
+    ]
+  },
+  {
+    "table": "mfbom_step",
+    "rows": 24,
+    "sample_cols": [
+      "bom_code (character varying)",
+      "number_order (smallint)",
+      "step_code (character varying)",
+      "operation_code (character varying)",
+      "ln (smallint)",
+      "work_center_code (character varying)",
+      "auto_transfer (boolean)"
+    ]
+  },
+  {
+    "table": "sys_gridconfig",
+    "rows": 24,
+    "sample_cols": [
+      "gridid (character varying)",
+      "fieldname (character varying)",
+      "field_root (character varying)",
+      "tablename (character varying)",
+      "leftjoin (json)",
+      "table_as (character varying)",
+      "fieldposition (smallint)",
+      "fieldcaption (character varying)"
+    ]
+  },
+  {
+    "table": "ph66",
+    "rows": 16,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_dvcs (character varying)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "so_ct (character varying)",
+      "ma_kh (character varying)"
+    ]
+  },
+  {
+    "table": "ph76",
+    "rows": 14,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "so_ct (character varying)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "ma_kh (character varying)"
+    ]
+  },
+  {
+    "table": "sys_reportrights",
+    "rows": 13,
+    "sample_cols": [
+      "user_id (smallint)",
+      "state (character varying)",
+      "rep_id (character varying)"
+    ]
+  },
+  {
+    "table": "ctdxnvl",
+    "rows": 12,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_vt (character varying)",
+      "dvt (character varying)",
+      "ma_kho (character varying)",
+      "ton13 (numeric)"
+    ]
+  },
+  {
+    "table": "sys_role_reportrights",
+    "rows": 8,
+    "sample_cols": [
+      "role_id (character varying)",
+      "state (character varying)",
+      "rep_id (character varying)"
+    ]
+  },
+  {
+    "table": "sys_job_schedule_history",
+    "rows": 8,
+    "sample_cols": [
+      "config_id (bigint)",
+      "cycle_type (character varying)",
+      "job_name (character varying)",
+      "function_name (character varying)",
+      "execute_date (date)",
+      "execute_time (time without time zone)",
+      "status (character varying)",
+      "detail_exception (text)"
+    ]
+  },
+  {
+    "table": "sys_document",
+    "rows": 7,
+    "sample_cols": [
+      "id_doc (integer)",
+      "module (character)",
+      "url_path (text)",
+      "file_name (text)",
+      "file_name2 (text)",
+      "dien_giai (character varying)",
+      "parent_doc (integer)",
+      "status (character varying)"
+    ]
+  },
+  {
+    "table": "dmloupdatehsd",
+    "rows": 6,
+    "sample_cols": [
+      "ma_vt (character varying)",
+      "ma_lo (character varying)",
+      "ngay_hhsd (date)",
+      "ngay_ghdk (date)",
+      "date0 (date)",
+      "time0 (time without time zone)",
+      "user_id0 (smallint)",
+      "date2 (date)"
+    ]
+  },
+  {
+    "table": "mfbom_material_replace",
+    "rows": 6,
+    "sample_cols": [
+      "product_code (character varying)",
+      "product_quantity (numeric)",
+      "main_material_code (character varying)",
+      "material_code (character varying)",
+      "valid_from (date)",
+      "valid_to (date)",
+      "uom (character varying)",
+      "quantity (numeric)"
+    ]
+  },
+  {
+    "table": "qcdmvt",
+    "rows": 5,
+    "sample_cols": [
+      "ma_vt (character varying)",
+      "kieu_th (smallint)",
+      "step_code (character varying)",
+      "ma_nh_chi_tieu (character varying)",
+      "process_yn (boolean)",
+      "date0 (date)",
+      "time0 (time without time zone)",
+      "user_id0 (smallint)"
+    ]
+  },
+  {
+    "table": "sys_roleuser",
+    "rows": 4,
+    "sample_cols": [
+      "user_id (smallint)",
+      "role_id (character varying)"
+    ]
+  },
+  {
+    "table": "sys_languages_data",
+    "rows": 4,
+    "sample_cols": [
+      "form (character varying)",
+      "culture (character varying)",
+      "name (character varying)",
+      "value (character varying)"
+    ]
+  },
+  {
+    "table": "phdxnvl",
+    "rows": 3,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "so_ct (character varying)",
+      "ma_nt (character)"
+    ]
+  },
+  {
+    "table": "ct86",
+    "rows": 3,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ngay_de_nghi_nh (date)",
+      "ngay_hua_nh (date)",
+      "thoi_gian_ch (date)",
+      "ngay_nh (date)"
+    ]
+  },
+  {
+    "table": "ctcp30",
+    "rows": 3,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_lct (date)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_cp (character varying)",
+      "tien_cp (numeric)",
+      "tien_cp_nt (numeric)"
+    ]
+  },
+  {
+    "table": "mes_oi_log_error_inprogessqty",
+    "rows": 3,
+    "sample_cols": [
+      "id_oi (character varying)",
+      "ma_vt (character varying)",
+      "mes_scheduling_code (character varying)",
+      "stt (smallint)",
+      "sl_thuc_hien (numeric)",
+      "sl_thuc_hien_old (numeric)",
+      "chinh_phu (smallint)",
+      "cavity (numeric)"
+    ]
+  },
+  {
+    "table": "ct67",
+    "rows": 3,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "so_dh (character varying)",
+      "ma_vt (character varying)",
+      "dvt (character varying)",
+      "ma_kho (character varying)"
+    ]
+  },
+  {
+    "table": "ctdsmh",
+    "rows": 3,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ln (smallint)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_gd (smallint)",
+      "status (character varying)",
+      "ma_kh (character varying)"
+    ]
+  },
+  {
+    "table": "dmnhvt",
+    "rows": 2,
+    "sample_cols": [
+      "loai_nh (smallint)",
+      "ma_nh (character varying)",
+      "ten_nh (character varying)",
+      "ten_nh2 (character varying)",
+      "date0 (date)",
+      "time0 (time without time zone)",
+      "user_id0 (smallint)",
+      "status (character varying)"
+    ]
+  },
+  {
+    "table": "activity_stamps_to2",
+    "rows": 2,
+    "sample_cols": [
+      "ip_handy (character varying)",
+      "stt_rec (character varying)",
+      "so_ct (character varying)",
+      "user_id0 (smallint)",
+      "date0 (date)",
+      "time0 (time without time zone)",
+      "user_id2 (smallint)",
+      "date2 (date)"
+    ]
+  },
+  {
+    "table": "tmp_params",
+    "rows": 2,
+    "sample_cols": [
+      "params (text)"
+    ]
+  },
+  {
+    "table": "temp_bom_nvl",
+    "rows": 1,
+    "sample_cols": [
+      "mes_scheduling_code (character varying)",
+      "ma_cau_truc (character varying)",
+      "ma_version (character varying)",
+      "ma_sp (character varying)",
+      "ma_cong_doan (character varying)",
+      "ma_vt (character varying)",
+      "ten_vt (character varying)",
+      "dvt (character varying)"
+    ]
+  },
+  {
+    "table": "ph86",
+    "rows": 1,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_lct (date)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ngay_de_nghi_nh (date)"
+    ]
+  },
+  {
+    "table": "ph67",
+    "rows": 1,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "so_ct (character varying)",
+      "so_dh (character varying)",
+      "ma_kh (character varying)"
+    ]
+  },
+  {
+    "table": "dmgiamua",
+    "rows": 1,
+    "sample_cols": [
+      "ma_kh (character varying)",
+      "ngay_bd (date)",
+      "ngay_kt (date)",
+      "date0 (date)",
+      "time0 (time without time zone)",
+      "user_id0 (smallint)",
+      "status (character varying)",
+      "date2 (date)"
+    ]
+  },
+  {
+    "table": "ctecn",
+    "rows": 1,
+    "sample_cols": [
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ngay_ct (date)",
+      "so_ct (character varying)",
+      "ma_sp (character varying)",
+      "model (character varying)",
+      "ma_so_ban_ve (character varying)",
+      "ma_khuon (character varying)"
+    ]
+  },
+  {
+    "table": "dmhosokhuonsp",
+    "rows": 1,
+    "sample_cols": [
+      "ma_khuon (character varying)",
+      "ln (smallint)",
+      "ma_sp (character varying)",
+      "id_cap (character varying)",
+      "chu_ki (numeric)",
+      "chinh_phu (smallint)",
+      "cavity (numeric)"
+    ]
+  },
+  {
+    "table": "test_export111",
+    "rows": 1,
+    "sample_cols": [
+      "params (text)"
+    ]
+  },
+  {
+    "table": "phecn",
+    "rows": 1,
+    "sample_cols": [
+      "ma_dvcs (character varying)",
+      "stt_rec (character)",
+      "ma_ct (character)",
+      "ma_gd (smallint)",
+      "ngay_ct (date)",
+      "ngay_lct (date)",
+      "ngay_nhan_tt (date)",
+      "so_ct (character varying)"
+    ]
+  }
+]

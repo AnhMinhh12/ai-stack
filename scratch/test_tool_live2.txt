@@ -1,6 +1,0 @@
-Result type: <class 'tuple'>
-Has canvas chart: True
-Has btn-xlsx: True
-Has Pie chart block: True
-HTML length: 111810
-Charts line snippet: const charts = [{"labels":["Khuôn/Die V1","Khuôn/Die V2"],"values":[13980.0,940.0],"label":"Số lượng tồn","unit":"PCS","kind":"pie","allowed":["bar","line","pie"],"x_label":"Khuôn / Die"}];

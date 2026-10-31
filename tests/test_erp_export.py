@@ -22,6 +22,23 @@ BLOCKS = [{
 
 
 class ExportTests(unittest.TestCase):
+    def test_forecast_and_delivery_charts_compare_each_metric_separately(self):
+        blocks = blocks_from_rows({"rows": [
+            {"chi_tieu": "FCST", "hien_tai": 821040, "ban_truoc": 827580},
+            {"chi_tieu": "DO", "hien_tai": 120, "ban_truoc": 420},
+        ]})
+        charts = [block for block in blocks if block["type"] == "chart"]
+        self.assertEqual(len(charts), 2)
+        self.assertEqual([p["quantity"] for p in charts[0]["points"]], [827580, 821040])
+        self.assertEqual([p["quantity"] for p in charts[1]["points"]], [420, 120])
+        self.assertTrue(all(c["allowed_chart_types"] == ["bar", "line"] for c in charts))
+        html = render_erp_embed({"blocks": blocks})
+        self.assertEqual(html.count('data-chart-kind="line"'), 2)
+        self.assertNotIn('data-chart-kind="pie"', html)
+        compact = render_erp_embed({"blocks": blocks}, show_table=False)
+        self.assertNotIn('<table>', compact)
+        self.assertIn('So sánh FCST với bản trước', compact)
+
     def test_requested_formats(self):
         self.assertEqual(requested_formats("xem báo cáo"), ("xlsx", "docx", "pdf"))
         self.assertEqual(requested_formats("xuất Word và PDF"), ("xlsx", "docx", "pdf"))
@@ -32,6 +49,12 @@ class ExportTests(unittest.TestCase):
         self.assertEqual(blocks[0]["columns"][0]["key"], "ma_vt")
         self.assertEqual(blocks_from_rows({"rows": ["unstructured"]}), [])
         self.assertEqual(blocks_from_rows({"status": "invalid_result", "rows": [{"dvt": "PCS"}]}), [])
+
+    def test_partial_table_is_explicitly_marked_in_ui(self):
+        blocks = blocks_from_rows({"rows": [{"so_ct": "A"}], "total_rows": 5, "truncated": True})
+        html = render_erp_embed({"blocks": blocks})
+        self.assertIn('Chỉ hiển thị 1 dòng trên tổng 5 dòng', html)
+        self.assertIn('file tải xuống chưa đầy đủ', html)
 
     def test_blocks_from_rows_cleans_trailing_zeros(self):
         payload = {

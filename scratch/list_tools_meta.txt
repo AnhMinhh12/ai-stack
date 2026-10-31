@@ -1,4 +1,0 @@
-ID: htmp_postgres_query | Name: Tra cứu PostgreSQL ERP
-ID: freecad_laptop_0065 | Name: FreeCAD Planner
-ID: htmp_erp_agent | Name: ERP nhiều lượt staging
-ID: htmp_office_editor | Name: Chỉnh sửa file Office

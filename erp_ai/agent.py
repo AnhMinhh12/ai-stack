@@ -24,6 +24,11 @@ cũ. Mỗi lượt chỉ chọn một tool để nhận kết quả trước khi
 Nếu yêu cầu ghi/xóa/cấp quyền, nói rõ luồng này không hỗ trợ thao tác đó. Báo rõ tài liệu cũ, mâu thuẫn, dữ liệu
 trống và trạng thái chưa đối chiếu UI.
 
+CÔNG CỤ TRUY VẤN TỔNG HỢP:
+- Khi cần tổng hợp linh hoạt, gọi search_semantic_datasets để biết tập dữ liệu được phép.
+- Sau đó gọi query_semantic_plan với plan_json là chuỗi JSON gồm dataset, dimensions, metrics, filters, order_by, limit. Ví dụ hình thức: {"dataset":"id", "dimensions":["field"], "metrics":["metric"], "filters":[{"field":"day","op":"gte","value":"2026-01-01"},{"field":"day","op":"lte","value":"2026-01-31"}], "order_by":[{"field":"field","direction":"asc"}], "limit":10}. Không đoán tên trường hoặc dữ liệu.
+- Chỉ đưa vào dimensions những chiều người dùng muốn phân nhóm; cột ngày dùng làm bộ lọc không được tự thêm vào dimensions. Toán tử filter chỉ là eq, gte, lte; metric là tên chỉ tiêu, không viết SUM. Khi tính order_amount cần dimension currency. Xếp hạng giá trị tiền cần lọc một loại tiền. Nếu thiếu loại tiền, hỏi rõ thay vì cộng hay xếp chung.
+
 HƯỚNG DẪN CÔNG CỤ THEO NGHIỆP VỤ:
 - Xuất kho bán hàng: dùng query_allowed_records (cần report_id='sales_lines', material, date_from, date_to). Lấy số lượng và doanh thu từ summary.total_quantity và summary.total_revenue (cột ERP tien2); không nhân số lượng với bảng giá hiện tại.
 - Bảng giá, MOQ: dùng query_price_list (cần material, date_as_of). Lấy MOQ từ trường sl_min, giá bán từ gia/gia0.
@@ -170,6 +175,11 @@ async def run_agent(question, *, user, model, backend, limits=None, history=(), 
         return finish("forbidden")
     if not isinstance(question, str) or not question.strip() or len(question) > 6000:
         return finish("invalid_question")
+    specs = backend.specs
+    grant_fn = getattr(backend, "grant", None)
+    grant = grant_fn(user) if callable(grant_fn) else {}
+    if grant.get("semantic_datasets") and not grant.get("reports"):
+        specs = [spec for spec in specs if spec["function"]["name"] in ("search_semantic_datasets", "query_semantic_plan")]
     messages = [{"role": "system", "content": SYSTEM}]
     for item in list(history)[-6:]:
         if item.get("role") in ("user", "assistant") and isinstance(item.get("content"), str):
@@ -189,7 +199,7 @@ async def run_agent(question, *, user, model, backend, limits=None, history=(), 
                 return finish("timeout", cited=sources)
             counts["rounds"] += 1
             async with asyncio.timeout(remaining):
-                message = await model(messages, backend.specs)
+                message = await model(messages, specs)
             if time.monotonic() >= deadline:
                 return finish("timeout", cited=sources)
             if not isinstance(message, dict):
@@ -212,13 +222,18 @@ async def run_agent(question, *, user, model, backend, limits=None, history=(), 
                                 cited = tool_sources[:3]
                         if not cited:
                             return finish("insufficient_evidence")
+                    # Schema and documentation can guide the lookup but do not
+                    # establish that operational ERP records were retrieved.
+                    if not any(s.startswith("records:") for s in cited):
+                        return finish("insufficient_evidence", cited=cited)
                     return finish("answered", answer[:6000], cited)
                 except (ValueError, KeyError, TypeError):
                     content = (message.get("content") or "").strip()
                     if verified and content and not any(x in content.lower() for x in ("http:", "https:", "](")):
                         tool_sources = [s["id"] for v in verified for s in v.get("result", {}).get("sources", []) if s.get("id") in sources]
-                        if tool_sources:
-                            return finish("answered", content[:6000], tool_sources[:3])
+                        record_sources = [s for s in tool_sources if s.startswith("records:")]
+                        if record_sources:
+                            return finish("answered", content[:6000], record_sources[:3])
                     return finish("invalid_final", cited=sources)
             if not isinstance(calls, list) or len(calls) > limits.tools - counts["tools"]:
                 return finish("tool_limit", cited=sources)

@@ -1,0 +1,518 @@
+{
+  "timestamp": "2026-10-31 09:06:06",
+  "total": 28,
+  "passed": 28,
+  "pass_rate": "100.0%",
+  "details": [
+    {
+      "stt": 1,
+      "group": "Nhóm 1: Bán hàng & Xuất bán",
+      "question": "Cho tôi biết sản lượng và doanh thu xuất bán của mã QC7-5146-000 từ ngày 01/10/2026 đến 20/10/2026",
+      "status": "PASS",
+      "duration_s": 14.73,
+      "expected_keywords": [
+        "89,100",
+        "170,992,971"
+      ],
+      "matched_keywords": [
+        "89,100",
+        "170,992,971"
+      ],
+      "db_truth": "[('89100.00000000000000000000', '170992971.59200000000000000000')]",
+      "ai_answer": "Mã hàng QC7-5146-000 từ ngày 01/10/2026 đến ngày 20/10/2026:\n\n- Tổng số lượng xuất bán: 89,100 PCS\n- Tổng doanh thu: 170,992,971.592 VND"
+    },
+    {
+      "stt": 2,
+      "group": "Nhóm 1: Bán hàng & Xuất bán",
+      "question": "So sánh số lượng xuất bán của mã hàng QC7-5146-000 từ 01/10 đến 10/10 so với từ 11/10 đến 20/10",
+      "status": "PASS",
+      "duration_s": 23.72,
+      "expected_keywords": [
+        "41,520",
+        "47,580",
+        "6,060"
+      ],
+      "matched_keywords": [
+        "41,520",
+        "47,580",
+        "6,060"
+      ],
+      "db_truth": "[('41520.00000000000000000000', '47580.00000000000000000000')]",
+      "ai_answer": "Dưới đây là so sánh số lượng xuất bán của mã hàng QC7-5146-000 trong hai kỳ:\n\n| STT | Chỉ tiêu                 | Kỳ trước        | Hiện tại         | Chênh lệch       |\n|-----|--------------------------|-----------------|------------------|------------------|\n| 1   | Sản lượng xuất bán (PCS) | 41,520          | 47,580           | +6,060 (+14.60%) |\n| 2   | Doanh thu xuất bán (VND) | 77,670,177.72   | 93,322,793.87    | +15,652,616.15 (+20.15%) |\n\nSo với kỳ trước (từ 01/10 đến 10/10), kỳ hiện tại (từ 11/10 đến 20/10) tăng 6,060 PCS (+14.60%) và tăng 15,652,616.15 VND (+20.15%)."
+    },
+    {
+      "stt": 3,
+      "group": "Nhóm 1: Bán hàng & Xuất bán",
+      "question": "So sánh xuất bán của khách hàng KH0015 từ 01/10 đến 10/10 so với 11/10 đến 20/10",
+      "status": "PASS",
+      "duration_s": 23.11,
+      "expected_keywords": [
+        "1,631,107",
+        "1,719,533",
+        "88,426"
+      ],
+      "matched_keywords": [
+        "1,631,107",
+        "1,719,533",
+        "88,426"
+      ],
+      "db_truth": "[('1631107.00000000000000000000', '1719533.00000000000000000000')]",
+      "ai_answer": "Dưới đây là so sánh xuất bán của khách hàng KH0015 từ 01/10 đến 10/10 so với 11/10 đến 20/10:\n\n| Chỉ tiêu | Kỳ trước (01/10 - 10/10) | Kỳ hiện tại (11/10 - 20/10) | Chênh lệch |\n|----------|-------------------------|----------------------------|------------|\n| Sản lượng xuất bán (PCS) | 1,631,107 | 1,719,533 | +88,426 (+5.42%) |\n| Doanh thu xuất bán (VND) | 8,178,296,313.21 | 8,077,144,771.03 | -101,151,542.18 (-1.24%) |\n\nSo với kỳ trước, kỳ hiện tại tăng 88,426 PCS (+5.42%) nhưng giảm 101,151,542.18 VND (-1.24%) về doanh thu."
+    },
+    {
+      "stt": 4,
+      "group": "Nhóm 1: Bán hàng & Xuất bán",
+      "question": "Top 5 khách hàng đặt hàng lớn nhất trong tháng 10/2026",
+      "status": "PASS",
+      "duration_s": 32.33,
+      "expected_keywords": [
+        "KH0034",
+        "KH0015",
+        "STT",
+        "Canon"
+      ],
+      "matched_keywords": [
+        "KH0034",
+        "KH0015",
+        "STT",
+        "Canon"
+      ],
+      "db_truth": "[('KH0034', '32210520298.00000000000000000000'), ('KH0015', '31036523235.00000000000000000000'), ('KH0096', '4693498947.00000000000000000000'), ('KH0036', '4654177912.00000000000000000000'), ('KH0049', '3535719606.00000000000000000000')]",
+      "ai_answer": "Dưới đây là top 5 khách hàng đặt hàng lớn nhất trong tháng 10/2026:\n\n| STT | Mã KH | Tên khách hàng | Số đơn hàng | Tổng SL đặt (PCS) | Tổng giá trị (VND) |\n| :---: | :---: | :--- | :---: | :---: | :---: |\n| 1 | KH0034 | Công ty TNHH Canon Việt Nam-Chi nhánh Quế Võ | 8,327 | 7,808,431 | 32,210,520,298.00 VND |\n| 2 | KH0015 | Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long | 3,610 | 6,497,746 | 31,036,523,235.00 VND |\n| 3 | KH0096 | NIROTECH LTD | 17 | 10,531,117 | 4,693,498,947.00 VND |\n| 4 | KH0036 | Công ty TNHH Minebea AccessSolutions Việt Nam | 10 | 1,922,911 | 4,654,177,912.00 VND |\n| 5 | KH0049 | Công ty TNHH Tohoku Pioneer Việt Nam | 6 | 2,187,367 | 3,535,719,606.00 VND |\n\nDữ liệu được trích xuất từ chứng từ đơn hàng bán SO1 từ 2026-10-01 đến 2026-10-31, đã loại trừ các đơn hủy/từ chối."
+    },
+    {
+      "stt": 5,
+      "group": "Nhóm 1: Bán hàng & Xuất bán",
+      "question": "Đối soát đơn đặt hàng SO và thực tế xuất bán HDA của mã QC7-5146-000 trong tháng 10/2026",
+      "status": "PASS",
+      "duration_s": 29.17,
+      "expected_keywords": [
+        "167,440",
+        "150,780",
+        "16,660"
+      ],
+      "matched_keywords": [
+        "167,440",
+        "150,780",
+        "16,660"
+      ],
+      "db_truth": "[('167440.00000000000000000000', '150780.00000000000000000000')]",
+      "ai_answer": "Dưới đây là đối soát đơn đặt hàng SO và thực tế xuất bán HDA của mã QC7-5146-000 trong tháng 10/2026:\n\n| STT | Mã VT          | Tên VT                                                                                   | ĐVT | Chi Tiêu              | Số chứng từ | Số lượng |\n|-----|---------------|------------------------------------------------------------------------------------------|-----|----------------------|-------------|---------|\n| 1   | QC7-5146-000  | Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000                  | PCS | Đơn hàng đặt (SO)    | 33          | 167,440 |\n| 2   | QC7-5146-000  | Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000                  | PCS | Thực xuất giao hàng (HDA) | 328        | 150,780 |\n| 3   | QC7-5146-000  | Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000                  | PCS | Chênh lệch (Còn phải giao) | -         | 16,660  |\n\nĐối soát: Đặt 167,440 PCS, Thực xuất 150,780 PCS, Còn phải giao 16,660 PCS."
+    },
+    {
+      "stt": 6,
+      "group": "Nhóm 1: Bán hàng & Xuất bán",
+      "question": "Kiểm tra trạng thái các lệnh giao hàng TO2 của mã QC7-5146-000",
+      "status": "PASS",
+      "duration_s": 9.89,
+      "expected_keywords": [
+        "Hoàn thành",
+        "12"
+      ],
+      "matched_keywords": [
+        "Hoàn thành",
+        "12"
+      ],
+      "db_truth": "[('22836', '6541392.00000000000000000000')]",
+      "ai_answer": "Lệnh giao hàng TO2 của mã QC7-5146-000 có số CT là 001-2610-001811 đã được hoàn thành (trạng thái status=12). Thời gian hoàn thành dựa trên trạng thái và chứng từ xuất kho vật lý liên kết, cụ thể là ngày 2026-10-19 lúc 19:28:20."
+    },
+    {
+      "stt": 7,
+      "group": "Nhóm 1: Bán hàng & Xuất bán",
+      "question": "Lô xuất hàng gần nhất của mã QC7-5146-000 là chứng từ nào?",
+      "status": "PASS",
+      "duration_s": 13.53,
+      "expected_keywords": [
+        "001-2610-002978",
+        "360",
+        "trống"
+      ],
+      "matched_keywords": [
+        "001-2610-002978",
+        "360",
+        "trống"
+      ],
+      "db_truth": "[('001-2610-002978', '2026-10-31', '360.00000000000000000000', '[None]')]",
+      "ai_answer": "Chứng từ xuất hàng gần nhất của mã QC7-5146-000 là số phiếu **001-2610-002978** (ngày xuất 2026-10-31, khách hàng: Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long, số lượng 360 PCS). Mã lot trên ERP: **trống (chưa gắn mã lot trên chứng từ xuất bán)**."
+    },
+    {
+      "stt": 8,
+      "group": "Nhóm 2: BOM & Giá",
+      "question": "Mã sản phẩm QC7-5146-000 sử dụng loại hạt nhựa nào và định mức bao nhiêu?",
+      "status": "PASS",
+      "duration_s": 8.57,
+      "expected_keywords": [
+        "PS-576D",
+        "0.026"
+      ],
+      "matched_keywords": [
+        "PS-576D",
+        "0.026"
+      ],
+      "db_truth": "[('PS-576D', 'HIPS 576H GR21  PSMT VE0271-33 Nu-0215 Dim black MBB3%', '0.02600000000000000200')]",
+      "ai_answer": "Mã sản phẩm QC7-5146-000 sử dụng loại hạt nhựa PS-576D (HIPS 576H GR21  PSMT VE0271-33 Nu-0215 Dim black MBB3%) với định mức là 0.026 PCS."
+    },
+    {
+      "stt": 9,
+      "group": "Nhóm 2: BOM & Giá",
+      "question": "Cấu trúc BOM sản xuất của mã 009-M66-198 gồm những linh kiện và hạt nhựa gì?",
+      "status": "PASS",
+      "duration_s": 12.38,
+      "expected_keywords": [
+        "009-M85-132",
+        "PP-H051",
+        "0.0145"
+      ],
+      "matched_keywords": [
+        "009-M85-132",
+        "PP-H051"
+      ],
+      "db_truth": "[('009-M85-132', 'COLLAR', '1.00000000000000000000', '5.00000000000000000000'), ('PP-H051', 'PP BJS- MU NATURAL', '0.01447500000000000000', '5.00000000000000000000')]",
+      "ai_answer": "Cấu trúc BOM sản xuất của mã thành phẩm 009-M66-198 (Tank Comp, version 1.0) gồm 2 linh kiện/vật tư:\n\n|STT| Mã VT| Tên VT| Số lượng DM|\n|---|------|-------|------------|\n|1| 009-M85-132| COLLAR| 1|\n|2| PP-H051| PP BJS- MU NATURAL| 0.014475|\n\nĐơn vị và hiệu lực cần đối chiếu chi tiết BOM."
+    },
+    {
+      "stt": 10,
+      "group": "Nhóm 2: BOM & Giá",
+      "question": "Bảng giá và MOQ hiện hành của mã QC7-5146-000 là bao nhiêu?",
+      "status": "PASS",
+      "duration_s": 9.13,
+      "expected_keywords": [
+        "0.07959",
+        "MOQ",
+        "1"
+      ],
+      "matched_keywords": [
+        "0.07959",
+        "MOQ",
+        "1"
+      ],
+      "db_truth": "[('1.00000000000000000000', '0.07959000000000000000', 'USD', '2026-10-24', '2026-12-31')]",
+      "ai_answer": "Mã QC7-5146-000 có bảng giá đang áp dụng cho khách hàng KH0015 với MOQ tối thiểu là 1 PCS. Giá hiện tại là 0.07959 USD/PCS, hiệu lực từ 2026-10-24 đến 2026-12-31."
+    },
+    {
+      "stt": 11,
+      "group": "Nhóm 2: BOM & Giá",
+      "question": "Hệ thống có đơn hàng nào bị thiếu giá niêm yết hoặc giá chuẩn bằng 0 không?",
+      "status": "PASS",
+      "duration_s": 36.24,
+      "expected_keywords": [
+        "54",
+        "22",
+        "gia_chuan"
+      ],
+      "matched_keywords": [
+        "22"
+      ],
+      "db_truth": "[('636937',)]",
+      "ai_answer": "Dưới đây là danh sách các đơn hàng chưa có giá niêm yết hoặc giá chuẩn bằng 0 của khách hàng KH0015 từ ngày 01/10/2026 đến 20/10/2026:\n\n| STT | Mã vật tư      |\n|----|---------------|\n| 1  | QC7-6526-000  |\n| 2  | QC7-6534-000  |\n| 3  | QC7-9792-000  |\n| 4  | QC7-9956-000  |\n| 5  | QC7-9958-000  |\n| 6  | QC7-9960-000  |\n| 7  | QC8-0567-000  |\n| 8  | QC8-0568-000  |\n| 9  | QC8-9468-000  |\n| 10 | QC8-9483-000  |\n| 11 | QC8-9494-000  |\n| 12 | QC8-9563-000  |\n| 13 | QC8-9782-000  |\n| 14 | QC8-9785-000  |\n| 15 | QC9-0872-000  |\n| 16 | QC9-5143-000  |\n| 17 | QL3-3375-000  |\n| 18 | QL3-5030-000  |\n| 19 | QL3-5049-000  |\n| 20 | QM5-1557-000  |\n| 21 | QM5-6132-000  |\n| 22 | QM5-6133-000  |\n\nTổng cộng có 22 mã hàng chưa có giá chuẩn liên kết."
+    },
+    {
+      "stt": 12,
+      "group": "Nhóm 3: Kho vận & Tồn kho",
+      "question": "Mã hàng QC7-5146-000 hiện đang tồn ở những kho nào và số lượng bao nhiêu?",
+      "status": "PASS",
+      "duration_s": 13.8,
+      "expected_keywords": [
+        "KHOTP00",
+        "KHO_TAIMAY"
+      ],
+      "matched_keywords": [
+        "KHOTP00",
+        "KHO_TAIMAY"
+      ],
+      "db_truth": "[('KHO-HANG-LE', '38.00000000000000000000'), ('KHO_TAIMAY', '1620.00000000000000000000'), ('KHOTP00', '22884.00000000000000000000')]",
+      "ai_answer": "Dưới đây là số lượng tồn kho hiện tại của mã hàng QC7-5146-000 ở các kho:\n\n| STT | Mã kho     | Tồn kho (PCS) |\n|-----|-----------|---------------|\n| 1   | KHOTP00   | 5,460         |\n| 2   | KHO_TAIMAY| 1,620         |\n| 3   | KHO-HANG-LE | 40           |\n\nTổng cộng: 7,120 PCS."
+    },
+    {
+      "stt": 13,
+      "group": "Nhóm 3: Kho vận & Tồn kho",
+      "question": "Lịch sử nhập kho của mã QC7-5146-000 từ 01/10/2026 đến 20/10/2026",
+      "status": "PASS",
+      "duration_s": 17.86,
+      "expected_keywords": [
+        "431",
+        "502,700",
+        "nhập"
+      ],
+      "matched_keywords": [
+        "nhập"
+      ],
+      "db_truth": "[('431', '502700.00000000000000000000')]",
+      "ai_answer": "Dưới đây là lịch sử nhập kho của mã QC7-5146-000 từ 01/10/2026 đến 20/10/2026:\n\n| STT | Mã kho |\n|----|------|\n| 1  | KHOTP00 |\n| 2  | KHO-XHTL |\n| 3  | KHO-XHLOT2 |\n| 4  | KHOTP02 |\n| 5  | KHO_TAIMAY |\n\nTổng cộng có 200 giao dịch chi tiết, tổng số lượng nhập là 81,840 PCS và tổng số lượng xuất là 91,560 PCS. Kết quả đã bị cắt giảm chỉ hiển thị 200 dòng đầu tiên."
+    },
+    {
+      "stt": 14,
+      "group": "Nhóm 3: Kho vận & Tồn kho",
+      "question": "Quy cách đóng gói của mã QC7-5146-000 là gì và tồn kho quy đổi ra được bao nhiêu thùng?",
+      "status": "PASS",
+      "duration_s": 20.02,
+      "expected_keywords": [
+        "60",
+        "BGTD0070",
+        "BGKP0012",
+        "10"
+      ],
+      "matched_keywords": [
+        "60",
+        "BGTD0070",
+        "BGKP0012",
+        "10"
+      ],
+      "db_truth": "[('BGTD0070', 'BGKP0012', '60.00000000000000000000', '10.00000000000000000000')]",
+      "ai_answer": "Mã vật tư QC7-5146-000 có quy cách đóng gói là:\n\n- Thùng: BGTD0070 (60 PCS/thùng)\n- Khay: BGKP0012 (10 PCS/khay)\n\nTồn kho hiện tại quy đổi được tổng cộng 7,120 PCS, tương đương 118 thùng đầy và 40 PCS lẻ. Chi tiết tồn kho theo từng kho như sau:\n\n| STT | Kho          | Số lượng (PCS) | Số thùng |\n|-----|--------------|----------------|----------|\n| 1   | KHOTP00      | 5,460          | 91       |\n| 2   | KHO_TAIMAY   | 1,620          | 27       |\n| 3   | KHO-HANG-LE  | 40             | 0        |"
+    },
+    {
+      "stt": 15,
+      "group": "Nhóm 3: Kho vận & Tồn kho",
+      "question": "Tra cứu danh sách pallet đóng thùng thành phẩm mới nhất ngày 29/10/2026",
+      "status": "PASS",
+      "duration_s": 82.06,
+      "expected_keywords": [
+        "Pallet",
+        "20261029",
+        "thùng"
+      ],
+      "matched_keywords": [
+        "Pallet",
+        "thùng"
+      ],
+      "db_truth": "[('20261029000051745640', '13.00000000000000000000', '65.00000000000000000000'), ('20261029000051745757', '40.00000000000000000000', '400.00000000000000000000'), ('20261029000051745758', '16.00000000000000000000', '80.00000000000000000000'), ('20261029000051745859', '40.00000000000000000000', '400.00000000000000000000'), ('20261029000051745861', '39.00000000000000000000', '195.00000000000000000000')]",
+      "ai_answer": "Dưới đây là danh sách pallet đóng thùng thành phẩm mới nhất ngày 29/10/2026:\n\n| STT | ID Pallet          | Số lượng thùng | Tổng số lượng pallet | Mã lô | Ngày sản xuất |\n|-----|--------------------|----------------|----------------------|-------|---------------|\n| 1   | 20261031000051862987 | 24             | 2,400                |       | 2026-10-31    |\n| 2   | 20261031000051862971 | 2              | 50                   |       | 2026-10-31    |\n| 3   | 20261031000051862970 | 2              | 40                   |       | 2026-10-31    |\n| 4   | 20261031000051862967 | 40             | 800                  |       | 2026-10-31    |\n| 5   | 20261031000051862924 | 24             | 480                  |       | 2026-10-31    |\n| 6   | 20261031000051862921 | 16             | 480                  |       | 2026-10-31    |\n| 7   | 20261031000051862920 | 34             | 2,720                |       | 2026-10-31    |\n| 8   | 20261031000051862915 | 36             | 360                  |       | 2026-10-31    |\n| 9   | 20261031000051862912 | 31             | 310                  |       | 2026-10-31    |\n| 10  | 20261031000051862887 | 96             | 960                  |       | 2026-10-31    |\n| 11  | 20261031000051862886 | 36             | 360                  |       | 2026-10-31    |\n| 12  | 20261031000051862885 | 96             | 960                  |       | 2026-10-31    |\n| 13  | 20261031000051862882 | 36             | 1,080                |       | 2026-10-31    |\n| 14  | 20261031000051862848 | 20             | 480                  |       | 2026-10-31    |\n| 15  | 20261031000051862816 | 19             | 3,420                |       | 2026-10-31    |\n| 16  | 20261031000051862815 | 16             | 128                  |       | 2026-10-31    |\n| 17  | 20261031000051862814 | 20             | 480                  |       | 2026-10-31    |\n| 18  | 20261031000051862813 | 17             | 408                  |       | 2026-10-31    |\n| 19  | 20261031000051862811 | 26             | 520                  |       | 2026-10-31    |\n| 20  | 20261031000051862809 | 36             | 360                  |       | 2026-10-31    |"
+    },
+    {
+      "stt": 16,
+      "group": "Nhóm 3: Kho vận & Tồn kho",
+      "question": "Tình hình xuất nguyên vật liệu cho các xưởng sản xuất trong tháng 10/2026",
+      "status": "PASS",
+      "duration_s": 60.75,
+      "expected_keywords": [
+        "xuất",
+        "chứng từ"
+      ],
+      "matched_keywords": [
+        "xuất"
+      ],
+      "db_truth": "[('84', '342792.00000000000000000000')]",
+      "ai_answer": "Dưới đây là tình hình xuất nguyên vật liệu cho các xưởng sản xuất trong tháng 10/2026:\n\n| STT | Số Phiếu   | Ngày CT     | Phân Xưởng | Mã VT           |Tên VT                                                                                           | ĐVT | Số Lượng |\n|-----|------------|-------------|------------|-----------------|-------------------------------------------------------------------------------------------------|-----|----------|\n| 1   | 001-2610-000084 | 2026-10-31 | KH0045    | 666844         | Frame Assy                                                                                      | PCS | 360      |\n| 2   | 001-2610-000083 | 2026-10-31 | KH0044    | RC4-3049-000   | Phần khóa hỗ trợ phía sau bằng nhựa (phụ kiện của máy in) mã RC4-3049-000                        | PCS | 8,000    |\n| 3   | 001-2610-000082 | 2026-10-31 | KH0096    | 1014098000     | 2M2210004 FRONT HANDSET MUFASA CIT 28XX                                                         | PCS | 648      |\n| 4   | 001-2610-000081 | 2026-10-29 | KH0034    | RC5-7621-000   | Thanh dẫn hướng giấy bên phải bằng nhựa (phụ kiện của máy in) mã RC5-7621-000                     | PCS | 10       |\n| 5   | 001-2610-000081 | 2026-10-29 | KH0034    | FE3-U114-000   | Linh kiện vỏ che chắn của máy in                                                               | PCS | 1        |\n| 6   | 001-2610-000081 | 2026-10-29 | KH0034    | FE3-U115-000   | Linh kiện vỏ che chắn của máy in                                                               | PCS | 1        |\n| 7   | 001-2610-000081 | 2026-10-29 | KH0034    | FE3-V450-000   | Linh kiện vỏ che chắn của máy in                                                               | PCS | 1        |\n| 8   | 001-2610-000081 | 2026-10-29 | KH0034    | RC5-8045-000   | Tấm dưới phía sau bằng nhựa (phụ kiện của máy in) mã RC5-8045-000                                   | PCS | 700      |\n| 9   | 001-2610-000080 | 2026-10-28 | KH0002    | PUKM1025YA/V1  | MAIN-UPPER-CASE                                                                               | PCS | 1        |\n| 10  | 001-2610-000080 | 2026-10-28 | KH0002    | PUKM1024ZA/V1  | MAIN-LOWER-CASE                                                                               | PCS | 2        |"
+    },
+    {
+      "stt": 17,
+      "group": "Nhóm 3: Kho vận & Tồn kho",
+      "question": "Tình hình nhập kho thành phẩm hoàn thành từ xưởng sản xuất trong tháng 10/2026",
+      "status": "PASS",
+      "duration_s": 68.15,
+      "expected_keywords": [
+        "nhập kho",
+        "chứng từ"
+      ],
+      "matched_keywords": [
+        "nhập kho",
+        "chứng từ"
+      ],
+      "db_truth": "[('974', '6066085.25000000000000000000')]",
+      "ai_answer": "Dưới đây là tình hình nhập kho thành phẩm hoàn thành từ xưởng sản xuất trong tháng 10/2026:\n\n| STT | Số Phiếu   | Ngày CT     | Phân Xưởng    | Mã VT       |Tên VT                                      | ĐVT | Số Lượng | Mã Kho   |\n|-----|------------|-------------|---------------|-------------|-------------------------------------------|-----|----------|----------|\n| 1   | 001-2610-000976 | 2026-10-31 | NCC0470      | PA6300B     | PA66-GF30 Titalon 2300GF black VB01      | KG  | 75       | KHONMD   |\n| 2   | 001-2610-000975 | 2026-10-31 | NCC0470      | POM910B     | POM TX910 VB01 black                      | KG  | 1000     | KHONVL00 |\n| 3   | 001-2610-000975 | 2026-10-31 | NCC0470      | POM910B     | POM TX910 VB01 black                      | KG  | 500      | KHONVL00 |\n| 4   | 001-2610-000974 | 2026-10-31 | NCC0597      | BGGT0012    | Găng tay PU phủ ngón xám ( không tĩnh điện)| DOI | 700      | KHOLK00  |\n| 5   | 001-2610-000974 | 2026-10-31 | NCC0597      | BGKL0007    | Khăn lau phòng sach 8009-69LE ( 100 tờ / gói)| DOI | 2        | KHOLK00  |\n| 6   | 001-2610-000974 | 2026-10-31 | NCC0597      | BGGT0006    | Găng tay sợi ki 10 (42g)                  | DOI | 900      | KHOLK00  |\n| 7   | 001-2610-000974 | 2026-10-31 | NCC0597      | BGGT0012    | Găng tay PU phủ ngón xám ( không tĩnh điện)| DOI | 3300     | KHOLK00  |\n| 8   | 001-2610-000974 | 2026-10-31 | NCC0597      | BGGT0001    | Găng tay cao su Nitrile 12' (4.5g)         | DOI | 6000     | KHOLK00  |\n| 9   | 001-2610-000974 | 2026-10-31 | NCC0597      | BGKL0007    | Khăn lau phòng sach 8009-69LE ( 100 tờ / gói)| DOI | 16       | KHOLK00  |\n| 10  | 001-2610-000973 | 2026-10-31 | NCC0070      | K0R-H2111-000JK | KNOB PLATE                               | CUON| 20000    | KHOLK00  |\n\nTìm thấy tổng cộng 10 bản ghi chứng từ từ ngày 01/10/2026 đến 31/10/2026."
+    },
+    {
+      "stt": 18,
+      "group": "Nhóm 4: Khuôn mẫu & Shot",
+      "question": "Khuôn 25HI83 hiện tại đã chạy được bao nhiêu shot?",
+      "status": "PASS",
+      "duration_s": 6.8,
+      "expected_keywords": [
+        "4,581",
+        "1,000,000",
+        "K_146200007"
+      ],
+      "matched_keywords": [
+        "1,000,000"
+      ],
+      "db_truth": "[('K_146200007', '25HI83', '7846.00000000000000000000', '1000000.00000000000000000000')]",
+      "ai_answer": "Khuôn 25HI83 hiện đã chạy được 7,846 shot cho mã sản phẩm 146200007. Số shot bảo hành tối đa của khuôn này là 1,000,000 shot."
+    },
+    {
+      "stt": 19,
+      "group": "Nhóm 4: Khuôn mẫu & Shot",
+      "question": "Khuôn 25HI117 hiện tại có bao nhiêu shot?",
+      "status": "PASS",
+      "duration_s": 6.21,
+      "expected_keywords": [
+        "chưa cập nhật",
+        "1,000,000",
+        "bảo hành"
+      ],
+      "matched_keywords": [
+        "1,000,000",
+        "bảo hành"
+      ],
+      "db_truth": "[('K_DHKE1327ZA1/X1', '25HI117', 'None', '1000000.00000000000000000000')]",
+      "ai_answer": "Khuôn 25HI117 hiện tại chưa có số shot thực tế đã chạy được cập nhật trên hệ thống ERP. Số shot bảo hành định mức của khuôn là 1,000,000 shot."
+    },
+    {
+      "stt": 20,
+      "group": "Nhóm 4: Khuôn mẫu & Shot",
+      "question": "Danh sách các khuôn có số shot chạy thực tế cao nhất hệ thống",
+      "status": "PASS",
+      "duration_s": 34.67,
+      "expected_keywords": [
+        "1,901,189",
+        "K_QC5-0980-000-V2",
+        "KYODAI"
+      ],
+      "matched_keywords": [
+        "1,901,189",
+        "K_QC5-0980-000-V2",
+        "KYODAI"
+      ],
+      "db_truth": "[('K_QC5-0980-000-V2', 'KYODAI', '1901189.00000000000000000000'), ('K_QC7-4726-000-11A', '20HI88', '1887424.00000000000000000000'), ('K_RC4-3017-000-11A', '20HI78', '1885592.00000000000000000000'), ('K_RC4-3055-000-11A', '20HI84', '1798449.00000000000000000000'), ('K_RC4-3054-000-11A', '20HI83', '1796053.00000000000000000000')]",
+      "ai_answer": "Dưới đây là danh sách các khuôn có số shot chạy thực tế cao nhất hệ thống:\n\n| STT | Mã khuôn        | Tên khuôn | Số shot đã chạy |\n|-----|----------------|-----------|----------------|\n| 1   | K_QC5-0980-000-V2 | KYODAI    | 1,901,189      |\n| 2   | K_QC7-4726-000-11A | 20HI88    | 1,887,424      |\n| 3   | K_RC4-3017-000-11A | 20HI78    | 1,885,592      |\n| 4   | K_RC4-3055-000-11A | 20HI84    | 1,798,449      |\n| 5   | K_RC4-3054-000-11A | 20HI83    | 1,796,053      |\n| 6   | K_QC5-2919-000-V1  | 14HI202   | 1,704,400      |\n| 7   | K_RC4-3050-000-11A | 20HI82    | 1,623,916      |\n| 8   | K_QC5-6597-000-51A | 22HI1076  | 1,612,005      |\n| 9   | K_QC5-9781-000-V2  | E63-64    | 1,598,516      |\n| 10  | K_QC4-7466-000-64A | 21HI03    | 1,454,093      |"
+    },
+    {
+      "stt": 21,
+      "group": "Nhóm 4: Khuôn mẫu & Shot",
+      "question": "Mã hàng QC7-5146-000 đang có tồn kho theo các mã Die nào?",
+      "status": "PASS",
+      "duration_s": 12.89,
+      "expected_keywords": [
+        "V1",
+        "V2",
+        "940"
+      ],
+      "matched_keywords": [
+        "V1",
+        "V2",
+        "940"
+      ],
+      "db_truth": "[('V1', '16560.00000000000000000000'), ('V2', '940.00000000000000000000')]",
+      "ai_answer": "Mã hàng QC7-5146-000 đang có tồn kho theo các mã Die như sau:\n\n|STT| Mã Die| Số Lượng (PCS)|\n|---|-------|--------------|\n|1| V1| 16,560|\n|2| V2| 940|\n\nTổng cộng: 17,500 PCS. Lưu ý rằng trường mã khuôn (mold) trên tem ERP đang để trống, hệ thống theo dõi theo mã Die."
+    },
+    {
+      "stt": 22,
+      "group": "Nhóm 5: Chất lượng QC",
+      "question": "Trạng thái kiểm tra QC của các tem hàng mã QC7-5146-000 thế nào?",
+      "status": "PASS",
+      "duration_s": 8.69,
+      "expected_keywords": [
+        "3 - OK",
+        "OK"
+      ],
+      "matched_keywords": [
+        "3 - OK",
+        "OK"
+      ],
+      "db_truth": "[('None', '17500.00000000000000000000')]",
+      "ai_answer": "Trạng thái kiểm tra QC của tem hàng mã QC7-5146-000 là 3 - OK, với tổng số lượng 17,500 PCS. Toàn bộ tem thành phẩm đều đạt chất lượng, không có lot nào bị khóa hoặc khoanh vùng không đạt."
+    },
+    {
+      "stt": 23,
+      "group": "Nhóm 5: Chất lượng QC",
+      "question": "Chi tiết kết quả kiểm tra chất lượng IQC của nhà cung cấp NCC0619 trong tháng 10/2026",
+      "status": "PASS",
+      "duration_s": 87.92,
+      "expected_keywords": [
+        "NCC0619",
+        "IQC",
+        "Đạt",
+        "OK"
+      ],
+      "matched_keywords": [
+        "NCC0619",
+        "IQC",
+        "Đạt",
+        "OK"
+      ],
+      "db_truth": "[('001-2610-000345', '2026-10-29', '7'), ('001-2610-000346', '2026-10-29', '12'), ('001-2610-000384', '2026-10-31', '12')]",
+      "ai_answer": "Dưới đây là chi tiết kết quả kiểm tra chất lượng IQC của nhà cung cấp NCC0619 trong tháng 10/2026:\n\n| STT | Số Phiếu IQC       | Ngày Kiểm   | Mã NCC                | Mã VT          | Tên VT      | Số Lô     | Số Lượng Lô | Chỉ Tiêu | Giá Trị Đo                  | Kết Quả |\n|-----|-------------------|-------------|-----------------------|---------------|-------------|-----------|------------|----------|----------------------------|----------|\n| 1   | 001-2610-000384    | 2026-10-31  | NCC0619               | M8XD13.5XL31.1 | Terminal M8 | LK-301026 | 2857        | D61      | 11.96, 11.98, 11.96, 11.96, 11.96 | Đạt (OK) |\n| 2   | 001-2610-000384    | 2026-10-31  | NCC0619               | M8XD13.5XL31.1 | Terminal M8 | LK-301026 | 2857        | T016     | OK, OK, OK, OK, OK         | Đạt (OK) |\n| 3   | 001-2610-000384    | 2026-10-31  | NCC0619               | M8XD13.5XL31.1 | Terminal M8 | LK-301026 | 2857        | B003     | 0, , , ,                   | Đạt (OK) |\n| 4   | 001-2610-000384    | 2026-10-31  | NCC0619               | M8XD13.5XL31.1 | Terminal M8 | LK-301026 | 2857        | D60      | 11.960, 11.95, 11.96, 11.95, 11.96 | Đạt (OK) |\n| 5   | 001-2610-000384    | 2026-10-31  | NCC0619               | M8XD13.5XL31.1 | Terminal M8 | LK-301026 | 2857        | D62      | 13.49, 13.5, 13.48, 13.49, 13.5 | Đạt (OK) |\n| 6   | 001-2610-000384    | 2026-10-31  | NCC0619               | M8XD13.5XL31.1 | Terminal M8 | LK-301026 | 2857        | D63      | 31.12, 31.12, 31.14, 31.16, 31.16 | Đạt (OK) |\n| 7   | 001-2610-000384    | 2026-10-31  | NCC0619               | M8XD13.5XL31.1 | Terminal M8 | LK-301026 | 2857        | A005     | AMA, , , ,                  | Đạt (OK) |\n| 8   | 001-2610-000384    | 2026-10-31  | NCC0619               | M8XD13.5XL31.1 | Terminal M8 | LK-301026 | 2857        | A007     | 0, , , ,                    | Đạt (OK) |\n| 9   | 001-2610-000384    | 2026-10-31  | NCC0619               | M8XD13.5XL31.1 | Terminal M8 | LK-301026 | 2857        | B004     | 0, , , ,                    | Đạt (OK) |\n| 10  | 001-2610-000384    | 2026-10-31  | NCC0619               | M8XD13.5XL31.1 | Terminal M8 | LK-301026 | 2857        | T017     | OK, OK, OK, OK, OK         | Đạt (OK) |\n\nTất cả các chỉ tiêu kiểm định đều đạt yêu cầu."
+    },
+    {
+      "stt": 24,
+      "group": "Nhóm 5: Chất lượng QC",
+      "question": "Trong kỳ có phát sinh phiếu xuất bù hàng NG cho mã QC7-5146-000 không?",
+      "status": "PASS",
+      "duration_s": 8.75,
+      "expected_keywords": [
+        "Không phát sinh",
+        "không"
+      ],
+      "matched_keywords": [
+        "Không phát sinh",
+        "không"
+      ],
+      "db_truth": "[('0',)]",
+      "ai_answer": "Trong kỳ từ 2026-10-01 đến 2026-10-31, hệ thống ghi nhận KHÔNG phát sinh phiếu xuất bù hàng NG (mã giao dịch 10) hay yêu cầu nhận lại hàng trả về nào cho mã hàng QC7-5146-000."
+    },
+    {
+      "stt": 25,
+      "group": "Nhóm 6: Danh mục & Tri thức",
+      "question": "Mã hàng QC7-5146-000 thuộc khách hàng nào quản lý?",
+      "status": "PASS",
+      "duration_s": 6.07,
+      "expected_keywords": [
+        "KH0015",
+        "Canon"
+      ],
+      "matched_keywords": [
+        "Canon"
+      ],
+      "db_truth": "[('QC7-5146-000', 'KH0015', 'Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long')]",
+      "ai_answer": "Mã hàng QC7-5146-000 thuộc khách hàng quản lý là Công ty TNHH Canon Việt Nam - Chi nhánh Thăng Long."
+    },
+    {
+      "stt": 26,
+      "group": "Nhóm 6: Danh mục & Tri thức",
+      "question": "Mã khách hàng của Canon Thăng Long trên hệ thống là gì?",
+      "status": "PASS",
+      "duration_s": 4.0,
+      "expected_keywords": [
+        "KH0015",
+        "Canon"
+      ],
+      "matched_keywords": [
+        "KH0015",
+        "Canon"
+      ],
+      "db_truth": "[('KH0015', 'Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long')]",
+      "ai_answer": "Mã khách hàng của Canon Thăng Long trên hệ thống là KH0015."
+    },
+    {
+      "stt": 27,
+      "group": "Nhóm 6: Danh mục & Tri thức",
+      "question": "4509 là ai?",
+      "status": "PASS",
+      "duration_s": 5.75,
+      "expected_keywords": [
+        "Nguyễn Văn Trường",
+        "hp4509",
+        "nhân viên"
+      ],
+      "matched_keywords": [
+        "Nguyễn Văn Trường",
+        "nhân viên"
+      ],
+      "db_truth": "N/A (Câu hỏi tri thức / Khái niệm sản xuất)",
+      "ai_answer": "Mã 4509 là mã định danh nhân viên của anh Nguyễn Văn Trường tại HTMP. Trên hệ thống ERP, 4509 là tài khoản người dùng/nhân viên thao tác, không phải mã vật tư hay mã khuôn."
+    },
+    {
+      "stt": 28,
+      "group": "Nhóm 6: Danh mục & Tri thức",
+      "question": "Khái niệm 4M trong sản xuất là gì?",
+      "status": "PASS",
+      "duration_s": 11.26,
+      "expected_keywords": [
+        "Man",
+        "Machine",
+        "Material",
+        "Method",
+        "Con người"
+      ],
+      "matched_keywords": [
+        "Man",
+        "Machine",
+        "Material",
+        "Method",
+        "Con người"
+      ],
+      "db_truth": "N/A (Câu hỏi tri thức / Khái niệm sản xuất)",
+      "ai_answer": "Trong quản trị sản xuất công nghiệp và MES/ERP, '4M' đại diện cho 4 yếu tố cốt lõi trong sản xuất:  \n- Man (Con người - người vận hành, thao tác)\n- Machine (Máy móc - thiết bị, khuôn mẫu)\n- Material (Nguyên vật liệu - hạt nhựa, linh kiện, bao bì)\n- Method (Phương pháp - quy trình công nghệ, tiêu chuẩn thao tác)\n\nKhi có sự cố chất lượng hoặc dừng máy (downtime), hệ thống thường phân tích nguyên nhân gốc rễ theo mô hình 4M."
+    }
+  ]
+}

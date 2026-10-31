@@ -1,0 +1,390 @@
+{
+  "timestamp": "2026-10-29 05:15:38",
+  "total_tests": 12,
+  "passed": 12,
+  "pass_rate": "100.0%",
+  "details": [
+    {
+      "test_id": "RAND-01",
+      "module": "BOM & Định mức kỹ thuật",
+      "question": "Cho tôi xem cấu trúc định mức BOM của mã sản phẩm 1014095300 gồm những linh kiện hạt nhựa gì?",
+      "entity": "1014095300",
+      "status": "PASS",
+      "reconciliation_result": "RECONCILED: 100% MATCH",
+      "ai_source": "public.mfkhsx_bom (Định mức BOM sản xuất)",
+      "ai_row_count": 1,
+      "ai_sample_row": {
+        "stt": 1,
+        "ma_sp": "1014095300",
+        "ten_sp": "LASER PUSHBUTTONON 2M2220039",
+        "bom_version": "1.0",
+        "ma_vt": "1014095000",
+        "ten_vt": "2M2220039 PUSHBUTTON ABS WITH HOLE MEMO",
+        "so_luong_dm": "1",
+        "ty_le_hao_hut": "0",
+        "ty_le_tron": "0"
+      },
+      "ai_message": "Định mức BOM của mã thành phẩm 1014095300 (LASER PUSHBUTTONON 2M2220039, version 1.0) gồm 1 linh kiện/vật tư.",
+      "db_ground_truth_sample": [
+        {
+          "ma_sp": "1014095300",
+          "bom_version": "1.0",
+          "ma_vt": "1014095000",
+          "ten_vt": "2M2220039 PUSHBUTTON ABS WITH HOLE MEMO",
+          "so_luong_dm": "1.00000000000000000000"
+        },
+        {
+          "ma_sp": "1014095300",
+          "bom_version": "1.0",
+          "ma_vt": "1014095000",
+          "ten_vt": "2M2220039 PUSHBUTTON ABS WITH HOLE MEMO",
+          "so_luong_dm": "1.00000000000000000000"
+        }
+      ],
+      "ai_latency_ms": 193.2,
+      "db_latency_ms": 138.3
+    },
+    {
+      "test_id": "RAND-02",
+      "module": "BOM & Định mức kỹ thuật",
+      "question": "Định mức BOM của mã sản phẩm 639957 gồm những loại vật tư nào?",
+      "entity": "639957",
+      "status": "PASS",
+      "reconciliation_result": "RECONCILED: 100% MATCH",
+      "ai_source": "public.mfkhsx_bom (Định mức BOM sản xuất)",
+      "ai_row_count": 2,
+      "ai_sample_row": {
+        "stt": 1,
+        "ma_sp": "639957",
+        "ten_sp": "Cổng kết nối loa",
+        "bom_version": "1.0",
+        "ma_vt": "606267",
+        "ten_vt": "Terminal Lug",
+        "so_luong_dm": "2",
+        "ty_le_hao_hut": "5",
+        "ty_le_tron": "0"
+      },
+      "ai_message": "Định mức BOM của mã thành phẩm 639957 (Cổng kết nối loa, version 1.0) gồm 2 linh kiện/vật tư.",
+      "db_ground_truth_sample": [
+        {
+          "ma_sp": "639957",
+          "bom_version": "1.0",
+          "ma_vt": "606267",
+          "ten_vt": "Terminal Lug",
+          "so_luong_dm": "2.00000000000000000000"
+        },
+        {
+          "ma_sp": "639957",
+          "bom_version": "1.0",
+          "ma_vt": "606267",
+          "ten_vt": "Terminal Lug",
+          "so_luong_dm": "2.00000000000000000000"
+        }
+      ],
+      "ai_latency_ms": 145.2,
+      "db_latency_ms": 76.0
+    },
+    {
+      "test_id": "RAND-03",
+      "module": "Quản lý Chất lượng IQC",
+      "question": "Bảng kê kiểm tra chất lượng đầu vào IQC tháng 10/2026 của nhà cung cấp NCC0010",
+      "entity": "NCC0010",
+      "status": "PASS",
+      "reconciliation_result": "RECONCILED: 100% MATCH",
+      "ai_source": "public.phiqc / public.ctiqc (Sổ kiểm tra chất lượng IQC)",
+      "ai_row_count": 30,
+      "ai_sample_row": {
+        "stt": 1,
+        "so_phieu_iqc": "001-2610-000326",
+        "ngay_kiem": "2026-10-27",
+        "ma_ncc": "NCC0010",
+        "ten_ncc": "CÔNG TY TNHH TOYOTA TSUSHO VIỆT NAM ",
+        "ma_vt": "POM-68B",
+        "ten_vt": "POM M90-44 CD3068 BLACK  (TSM5515G-1A)",
+        "so_lo": "NS-271026",
+        "so_luong_lo": "1000",
+        "chi_tieu": "C8",
+        "gia_tri_do": "1000,1000,1000,1000,1000,1000,1000,1000,1000,1000",
+        "ket_qua": "Không đạt (NG)"
+      },
+      "ai_message": "Bảng kê kiểm tra chất lượng đầu vào (IQC) từ 2026-10-01 đến 2026-10-31: tìm thấy 30 chỉ tiêu kiểm định.",
+      "db_ground_truth_sample": [
+        {
+          "total_criteria": 157,
+          "total_sheets": 15
+        }
+      ],
+      "ai_latency_ms": 77.0,
+      "db_latency_ms": 6.7
+    },
+    {
+      "test_id": "RAND-04",
+      "module": "Quản lý Chất lượng IQC",
+      "question": "Bảng kê kiểm định IQC tháng 10/2026 của nhà cung cấp NCC0001",
+      "entity": "NCC0001",
+      "status": "PASS",
+      "reconciliation_result": "RECONCILED: 100% MATCH",
+      "ai_source": "public.phiqc / public.ctiqc (Sổ kiểm tra chất lượng IQC)",
+      "ai_row_count": 30,
+      "ai_sample_row": {
+        "stt": 1,
+        "so_phieu_iqc": "001-2610-000338",
+        "ngay_kiem": "2026-10-28",
+        "ma_ncc": "NCC0001",
+        "ten_ncc": "PLA MATELS (HONG KONG) CO. , LTD.",
+        "ma_vt": "PCA7280",
+        "ten_vt": "PC/ABS TN-7280C - - BLACK",
+        "so_lo": "NS-281026",
+        "so_luong_lo": "1000",
+        "chi_tieu": "B1",
+        "gia_tri_do": "Không khác màu,Không khác màu,Không khác màu,Không khác màu,Không khác màu,Không khác màu,Không khác màu,Không khác màu,Không khác màu,Không khác màu",
+        "ket_qua": "Không đạt (NG)"
+      },
+      "ai_message": "Bảng kê kiểm tra chất lượng đầu vào (IQC) từ 2026-10-01 đến 2026-10-31: tìm thấy 30 chỉ tiêu kiểm định.",
+      "db_ground_truth_sample": [
+        {
+          "total_criteria": 503,
+          "total_sheets": 24
+        }
+      ],
+      "ai_latency_ms": 71.6,
+      "db_latency_ms": 8.1
+    },
+    {
+      "test_id": "RAND-05",
+      "module": "Phiếu xuất kho bán hàng (PXK)",
+      "question": "Bảng kê phiếu xuất kho bán hàng PXK tháng 10/2026",
+      "entity": "PH85",
+      "status": "PASS",
+      "reconciliation_result": "RECONCILED: 100% MATCH",
+      "ai_source": "public.ph85 / public.ct85 (Bảng kê Phiếu xuất kho bán hàng)",
+      "ai_row_count": 47,
+      "ai_sample_row": {
+        "stt": 1,
+        "so_phieu": "001-2610-084974",
+        "ngay_ct": "2026-10-29",
+        "ma_kh": "",
+        "ten_kh": "",
+        "ma_vt": "QC8-0534-000",
+        "ten_vt": "Chi tiết hỗ trợ cụm chia giấy máy in",
+        "dvt": "PCS",
+        "so_luong": "60",
+        "ma_kho": "KHOTP00"
+      },
+      "ai_message": "Bảng kê Phiếu xuất kho bán hàng (PXK) từ 2026-10-01 đến 2026-10-31: tìm thấy 47 bản ghi.",
+      "db_ground_truth_sample": [
+        {
+          "count_ph85": 84951
+        }
+      ],
+      "ai_latency_ms": 4345.3,
+      "db_latency_ms": 101.4
+    },
+    {
+      "test_id": "RAND-06",
+      "module": "Xuất kho cho Sản xuất",
+      "question": "Bảng kê xuất kho nguyên vật liệu cho sản xuất tháng 10/2026",
+      "entity": "PH76",
+      "status": "PASS",
+      "reconciliation_result": "RECONCILED: 100% MATCH",
+      "ai_source": "public.ph76 / public.ct76 (Bảng kê Xuất kho NVL cho sản xuất)",
+      "ai_row_count": 30,
+      "ai_sample_row": {
+        "stt": 1,
+        "so_phieu": "001-2610-000080",
+        "ngay_ct": "2026-10-28",
+        "phan_xuong": "KH0002",
+        "ma_vt": "PUKM1024ZA/V1",
+        "ten_vt": "MAIN-LOWER-CASE",
+        "dvt": "PCS",
+        "so_luong": "2",
+        "ma_kho": "KHOQA"
+      },
+      "ai_message": "Bảng kê Xuất kho NVL cho sản xuất (PXK SX) từ 2026-10-01 đến 2026-10-31: tìm thấy 30 bản ghi chứng từ.",
+      "db_ground_truth_sample": [
+        {
+          "count_ph76": 80
+        }
+      ],
+      "ai_latency_ms": 70.0,
+      "db_latency_ms": 4.1
+    },
+    {
+      "test_id": "RAND-07",
+      "module": "Nhập kho Thành phẩm sản xuất",
+      "question": "Bảng kê nhập kho thành phẩm tháng 10/2026",
+      "entity": "PH77",
+      "status": "PASS",
+      "reconciliation_result": "RECONCILED: 100% MATCH",
+      "ai_source": "public.ph77 / public.ct77 (Bảng kê Nhập kho thành phẩm sản xuất)",
+      "ai_row_count": 30,
+      "ai_sample_row": {
+        "stt": 1,
+        "so_phieu": "001-2610-000872",
+        "ngay_ct": "2026-10-29",
+        "phan_xuong": "NCC0001",
+        "ma_vt": "PPE540Z",
+        "ten_vt": "PS+PPE 540Z A1A3301 Standard Black",
+        "dvt": "KG",
+        "so_luong": "1000",
+        "ma_kho": "KHONVL00"
+      },
+      "ai_message": "Bảng kê Nhập kho thành phẩm sản xuất (PNK TP) từ 2026-10-01 đến 2026-10-31: tìm thấy 30 bản ghi chứng từ.",
+      "db_ground_truth_sample": [
+        {
+          "count_ph77": 870
+        }
+      ],
+      "ai_latency_ms": 105.2,
+      "db_latency_ms": 5.9
+    },
+    {
+      "test_id": "RAND-08",
+      "module": "Quản lý Pallet MES",
+      "question": "Chi tiết pallet số 20261020000051378760 gồm những thùng hàng nào?",
+      "entity": "20261020000051378760",
+      "status": "PASS",
+      "reconciliation_result": "RECONCILED: 100% MATCH",
+      "ai_source": "public.palletct (Chi tiết thùng hàng trên Pallet)",
+      "ai_row_count": 8,
+      "ai_sample_row": {
+        "stt": 1,
+        "id_pallet": "20261020000051378760",
+        "id_carton": "20261020000051377893",
+        "ma_vt": "PS-5081",
+        "ten_vt": "PS Syron A tech 1180 VFA5081S - Mistral Blueqvf",
+        "ma_lo": "NS-201026",
+        "dvt": "KG",
+        "sl_thung": "25",
+        "ngay_sx": "2026-10-20",
+        "status": "0"
+      },
+      "ai_message": "Chi tiết Pallet 20261020000051378760: tìm thấy 8 bản ghi.",
+      "db_ground_truth_sample": [
+        {
+          "id_pallet": "20261020000051378760",
+          "so_luong_thung": "8.00000000000000000000",
+          "so_luong": "200.00000000000000000000",
+          "sl_carton": 8
+        }
+      ],
+      "ai_latency_ms": 75.5,
+      "db_latency_ms": 16.4
+    },
+    {
+      "test_id": "RAND-09",
+      "module": "Hồ sơ Khuôn mẫu",
+      "question": "Tra cứu hồ sơ khuôn của mã khuôn K_RC6-3059-000-11A",
+      "entity": "K_RC6-3059-000-11A",
+      "status": "PASS",
+      "reconciliation_result": "RECONCILED: 100% MATCH",
+      "ai_source": "public.dmhosokhuon (Hồ sơ khuôn)",
+      "ai_row_count": 1,
+      "ai_sample_row": {
+        "ma_khuon": "K_RC6-3059-000-11A",
+        "ten_khuon": "22HI51",
+        "ngay_su_dung": "1900-01-01",
+        "ngay_bao_hiem": "1900-01-01",
+        "so_cavity": "2",
+        "tuoi_tho_shot_dinh_muc": "1000000",
+        "loai_gate": "",
+        "so_cong_hot": "0E-20",
+        "so_cong_van_dau": "0E-20",
+        "stt": 1
+      },
+      "ai_message": null,
+      "db_ground_truth_sample": [
+        {
+          "ma_khuon": "K_RC6-3059-000-11A",
+          "ten_khuon": "22HI51",
+          "so_shot_bh": "1000000.00000000000000000000",
+          "so_cavity": "2.00000000000000000000"
+        }
+      ],
+      "ai_latency_ms": 65.8,
+      "db_latency_ms": 2.1
+    },
+    {
+      "test_id": "RAND-10",
+      "module": "Đơn hàng bán SO",
+      "question": "Bảng kê đơn hàng bán của khách hàng mã KH0047",
+      "entity": "KH0047",
+      "status": "PASS",
+      "reconciliation_result": "RECONCILED: 100% MATCH",
+      "ai_source": null,
+      "ai_row_count": 5,
+      "ai_sample_row": {
+        "so_ct": "001-2610-007747",
+        "ngay_ct": "2026-10-20",
+        "ma_vt": "VMH1A360",
+        "so_luong": 30300,
+        "dvt": "PCS",
+        "status": "13"
+      },
+      "ai_message": "Khách hàng KH0047 từ 2026-10-01 đến 2026-10-20 có tổng cộng 40 đơn hàng (3,284 dòng chứng từ), tổng số lượng đặt: 11,966,924 PCS. Tiêu biểu: 001-2610-007747 (ngày 2026-10-20, mã VMH1A360, SL 30300 PCS, status=13); 001-2610-007747 (ngày 2026-10-20, mã VGR1A681B37, SL 1302 PCS, status=13); 001-2610-007747 (ngày 2026-10-20, mã VGL1A393, SL 1400 PCS, status=13); 001-2610-007747 (ngày 2026-10-20, mã VGW2A624R14G120, SL 233 PCS, status=13); 001-2610-007747 (ngày 2026-10-20, mã VGW2A624R143G121, SL 1100 PCS, status=13)...",
+      "db_ground_truth_sample": [
+        {
+          "so_don": 3530,
+          "tong_sl": "555208704.00000000000000000000"
+        }
+      ],
+      "ai_latency_ms": 133.0,
+      "db_latency_ms": 1161.7
+    },
+    {
+      "test_id": "RAND-11",
+      "module": "Tồn kho theo Kho",
+      "question": "Tổng hợp số lượng tồn kho phân bổ theo từng kho hàng trong hệ thống",
+      "entity": "WAREHOUSES",
+      "status": "PASS",
+      "reconciliation_result": "RECONCILED: 100% MATCH",
+      "ai_source": "public.cdvt / public.ct70 / public.dmkho (Tồn kho theo kho)",
+      "ai_row_count": 26,
+      "ai_sample_row": {
+        "ma_kho": "KHOLK00",
+        "ten_kho": "Kho LK Mua ngoài",
+        "tong_ton_kho": "7774286.91",
+        "stt": 1
+      },
+      "ai_message": "Tổng hợp số lượng tồn kho phân bổ theo 26 kho hàng trong hệ thống.",
+      "db_ground_truth_sample": [
+        {
+          "active_warehouses": 46
+        }
+      ],
+      "ai_latency_ms": 3814.0,
+      "db_latency_ms": 2.8
+    },
+    {
+      "test_id": "RAND-12",
+      "module": "Dừng chuyền MES Stop Line",
+      "question": "Lịch sử các lần dừng máy stop line gần đây nhất",
+      "entity": "STOP_LINE",
+      "status": "PASS",
+      "reconciliation_result": "RECONCILED: 100% MATCH",
+      "ai_source": "public.mes_oi_stop_line (Bảng kê dừng máy)",
+      "ai_row_count": 30,
+      "ai_sample_row": {
+        "ngay_dung": "2026-10-29",
+        "gio_bat_dau": "12:15:35",
+        "gio_ket_thuc": "12:15:35",
+        "phut_dung": "0",
+        "ma_may": "DUC-0077",
+        "ma_line": "TRAM_DUC",
+        "so_wo": "001-2610-2910-DUC-0077.1T",
+        "ma_loi": "",
+        "ten_nguyen_nhan": "",
+        "ghi_chu": "",
+        "stt": 1
+      },
+      "ai_message": null,
+      "db_ground_truth_sample": [
+        {
+          "total_stops": 19516
+        }
+      ],
+      "ai_latency_ms": 222.4,
+      "db_latency_ms": 159.0
+    }
+  ]
+}

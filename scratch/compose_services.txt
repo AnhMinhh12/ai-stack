@@ -1,8 +1,0 @@
-langfuse-db
-langfuse-web
-redis
-vllm
-qdrant
-open-webui
-nginx
-tika

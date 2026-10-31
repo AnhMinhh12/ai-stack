@@ -120,13 +120,13 @@ services:
       - ./erp_ai:/app/backend/erp_ai:ro
       # Runtime-matched router override: selects the correct OpenAI project
       # key for a mapped WebUI user while preserving local vLLM routing.
-      - ./scratch_openai.py:/app/backend/open_webui/routers/openai.py:ro
+      - ./backend-patches/openai.py:/app/backend/open_webui/routers/openai.py:ro
       # Route public OpenAI image requests through the authenticated user's
       # project key, matching GPT chat and keeping the shared bootstrap key unused.
-      - ./scratch_images.py:/app/backend/open_webui/routers/images.py:ro
+      - ./backend-patches/images.py:/app/backend/open_webui/routers/images.py:ro
       # Server-side model allowlist: local Nhanh plus GPT-5.6 Sol and Luna.
-      - ./scratch_models.py:/app/backend/open_webui/utils/models.py:ro
-      - ./scratch_middleware.py:/app/backend/open_webui/utils/middleware.py:ro
+      - ./backend-patches/models.py:/app/backend/open_webui/utils/models.py:ro
+      - ./backend-patches/middleware.py:/app/backend/open_webui/utils/middleware.py:ro
       - ./ui-patches/D5GoHi-U.js:/app/build/_app/immutable/chunks/D5GoHi-U.js:ro
       - ./ui-patches/DoNOBSZH.js:/app/build/_app/immutable/chunks/DoNOBSZH.js:ro
       - ./ui-patches/Cskhiuvj.js:/app/build/_app/immutable/chunks/Cskhiuvj.js:ro
@@ -170,7 +170,7 @@ services:
     pids_limit: 256
     command: ["-c", "/tika-config.xml"]
     volumes:
-      - ./tika-config.xml:/tika-config.xml:ro
+      - ./config/tika-config.xml:/tika-config.xml:ro
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:9998/version || exit 1"]
       interval: 15s

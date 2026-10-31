@@ -53,7 +53,17 @@ class Filter:
         messages = body.get("messages", [])
         last_user_index = next((index for index in range(len(messages) - 1, -1, -1) if messages[index].get("role") == "user"), None)
         if last_user_index is not None:
-            last_content = messages[last_user_index].get("content")
+            raw_content = str(messages[last_user_index].get("content") or "")
+            clean_content = raw_content.strip()
+            table_match = re.search(r"\|\s*`?([^`\|\n]+?)`?\s*\|", clean_content)
+            if table_match and len(table_match.group(1).strip()) > 2:
+                clean_content = table_match.group(1).strip()
+            clean_content = re.sub(r"^```(?:markdown)?\s*", "", clean_content, flags=re.I)
+            clean_content = re.sub(r"\s*```$", "", clean_content)
+            clean_content = re.sub(r"^[`\|\s]+|[`\|\s]+$", "", clean_content).strip()
+            if clean_content and clean_content != raw_content:
+                messages[last_user_index]["content"] = clean_content
+            last_content = clean_content
             normalized_last = re.sub(r"[^a-z0-9]+", " ", str(last_content).lower()).strip()
             # Do not cap the alphabetic prefix: valid ERP material codes such
             # as GCCKSC164 have six letters before their digits.  An explicit
@@ -115,8 +125,18 @@ class Filter:
             tool_ids.append("htmp_postgres_query")
 
         body["messages"] = add_or_update_system_message(
-            "Bạn là HTMP ERP. QUY TẮC ĐẦU RA BẮT BUỘC: trước khi nhận được kết quả từ công cụ ask_erp, TUYỆT ĐỐI KHÔNG xuất bất kỳ văn bản tự nhiên nào. "
-            "Đối với MỌI yêu cầu của người dùng, BẮT BUỘC thực hiện ĐÚNG MỘT lệnh gọi công cụ ask_erp ĐẦU TIÊN. "
+            "Bạn là HTMP ERP. BẮT BUỘC TRẢ LỜI 100% BẰNG TIẾNG VIỆT. TUYỆT ĐỐI CẤM SỬ DỤNG TIẾNG TRUNG HOẶC CHỮ HÁN DƯỚI BẤT KỲ HÌNH THỨC NÀO. "
+            "QUY TẮC ĐẦU RA BẮT BUỘC: trước khi nhận được kết quả từ công cụ ask_erp, TUYỆT ĐỐI KHÔNG xuất bất kỳ văn bản tự nhiên nào. "
+            "Đối với MỌI yêu cầu của người dùng (bao gồm tra cứu cơ sở dữ liệu ERP/MES, báo cáo kinh doanh, tồn kho, hồ sơ khuôn, chất lượng, cũng như các khái niệm sản xuất như 4M, định danh nhân viên như 4509...), BẮT BUỘC thực hiện ĐÚNG MỘT lệnh gọi công cụ ask_erp ĐẦU TIÊN. Tuyệt đối không tự ý đánh giá câu hỏi để tự trả lời. "
+            "DỮ LIỆU THỜI GIAN VẬN HÀNH: Hệ thống ERP HTMP hiện đang vận hành trong năm 2026. Mọi mốc thời gian năm 2026 (ví dụ tháng 10/2026, ngày 29/10/2026, 31/10/2026...) là dữ liệu thực tế đang vận hành trong hệ thống, TUYỆT ĐỐI KHÔNG coi là ngày tương lai và TUYỆT ĐỐI KHÔNG từ chối trả lời. BẮT BUỘC gọi ask_erp cho mọi câu hỏi có ngày tháng năm 2026. "
+            "QUY TẮC PHẢN HỒI NGẮN GỌN, TRỰC DIỆN, TUYỆT ĐỐI KHÔNG LAN MAN: Hãy trả lời THẲNG VÀO TRỌNG TÂM câu hỏi, ngắn gọn, súc tích, dứt khoát đúng số liệu. Tuyệt đối KHÔNG xuất các câu rào đón hoặc độc thoại nội tâm của AI như: 'Tôi sẽ tra cứu thêm...', 'Để có thể cung cấp...', 'Tôi sẽ thực hiện...', 'Vui lòng đợi trong giây lát...', 'Kết quả hiện tại chưa cung cấp...'. Tuyệt đối KHÔNG lặp đi lặp lại cùng một câu văn giới thiệu nhiều lần. Sau khi nhận kết quả từ ask_erp, hãy trả lời ngay lập tức và DỪNG LẠI; TUYỆT ĐỐI KHÔNG gọi lại công cụ ask_erp lần thứ hai trong cùng một lượt. "
+            "QUY TẮC ĐỊNH DẠNG CÂU TRẢ LỜI: Hãy trả lời trực tiếp, rõ ràng, mạch lạc vào nội dung chat. "
+            "Khi câu hỏi yêu cầu danh sách, bảng dữ liệu, so sánh hoặc xếp hạng (như Top khách hàng, tồn kho các kho, đối soát SO/HDA...): "
+            "hãy tự động trình bày bằng BẢNG MARKDOWN chuẩn, đẹp mắt, có cột số thứ tự [STT] (1, 2, 3...) ở cột đầu tiên, "
+            "sắp xếp thứ tự logic rõ ràng (ví dụ từ cao xuống thấp), giữ nguyên đơn vị tính tiền tệ (VND) và số lượng (PCS) từ công cụ (tuyệt đối không tự ý đổi thành triệu USD), "
+            "và định dạng số có dấu phẩy phân cách hàng nghìn. "
+            "Đối với các câu hỏi khái niệm sản xuất, giải thích định danh (ví dụ 4509 là ai, khái niệm 4M...): trả lời trực tiếp bằng văn bản mạch lạc, ngắn gọn. "
+            "TUYỆT ĐỐI KHÔNG bao giờ nhắc đến 'bảng ở trên', 'bảng phía trên' hay 'khung phía trên' trong bất kỳ hoàn cảnh nào. "
             "Khi người dùng gửi nhiều câu hỏi ERP trong danh sách hoặc các câu văn thông thường, hãy chuyển toàn bộ nội dung trong một lệnh gọi duy nhất: ask_erp sẽ tự nhận diện từng câu hỏi riêng biệt và trả về kết quả độc lập cho từng câu. "
             "Nếu ask_erp trả về status=batch_success, hãy lặp lại NGUYÊN VĂN rendered_answer và dừng lại. "
             "Sau khi lệnh gọi hoàn tất, hãy trả lời ngay từ kết quả đó; TUYỆT ĐỐI KHÔNG gọi ask_erp lần thứ hai trong cùng một lượt. "
@@ -135,7 +155,7 @@ class Filter:
             "Đối với phản hồi về giá, hãy kiểm tra summary.bao_gia_ncc_gan_nhat. Khi trường này không rỗng, bạn BẮT BUỘC phải nêu rõ giá báo của nhà cung cấp trước VAT VÀ sau VAT, đơn vị tính, ngày hiệu lực và trạng thái phê duyệt. Không bỏ sót bất kỳ mức giá VAT nào chỉ vì nó bằng giá đơn mua gần nhất. Đồng thời hãy gọi giá đơn mua là giá lịch sử và báo giá nhà cung cấp là báo giá; không bao giờ gọi báo giá là đơn mua thực tế. "
             "Nếu công cụ trả về nhiều dòng giao dịch, không tự chọn một dòng tùy ý: hãy nêu các dòng khớp và hỏi thêm ngày, số phiếu hoặc kho nếu chỉ cần một dòng. "
             "Câu hỏi nối tiếp như 'gần nhất' hoặc 'lấy lần nhất' có nghĩa là truy vấn ERP ngay lập tức bằng mã định danh đã kế thừa; không yêu cầu người dùng lặp lại. "
-            "Trả lời người dùng bằng tiếng Việt.",
+            "Kể cả khi giải thích hay tóm tắt kết quả, BẮT BUỘC sử dụng duy nhất tiếng Việt tự nhiên, chuẩn mực. Tuyệt đối không xuất tiếng Trung hoặc bất kỳ ngôn ngữ nào khác.",
             body.get("messages", []),
             append=True,
         )
@@ -154,4 +174,50 @@ class Filter:
         # document context or fall back to RAG based on keyword inference.
         body.pop("files", None)
         body.setdefault("metadata", {}).pop("files", None)
+
+        # Force tool_choice on user turn to ensure ERP tool execution
+        # and prevent hallucinations or premature plain-text responses.
+        # Once a tool result is received (role == 'tool'), strictly set tool_choice="none"
+        # so the model is forced to synthesize the final answer text immediately and never loop.
+        non_system_messages = [m for m in body.get("messages", []) if m.get("role") != "system"]
+        last_msg = non_system_messages[-1] if non_system_messages else None
+        if last_msg and last_msg.get("role") == "tool":
+            body["tool_choice"] = "none"
+        elif last_msg and last_msg.get("role") == "user" and len(non_system_messages) >= 2 and non_system_messages[-2].get("role") == "tool":
+            body["tool_choice"] = "none"
+        elif last_msg and last_msg.get("role") == "user":
+            body["tool_choice"] = {"type": "function", "function": {"name": "ask_erp"}}
+        else:
+            body["tool_choice"] = "none"
+
+        return body
+
+    async def outlet(
+        self, body, __request__, __user__, __model__=None, __event_emitter__=None
+    ):
+        messages = body.get("messages", [])
+        if not messages:
+            return body
+        last_msg = messages[-1]
+        content = str(last_msg.get("content") or "")
+        if not content:
+            return body
+
+        # 1. Clean any raw references to "bảng phía trên", "bảng ở trên", "khung phía trên"
+        patterns_to_remove = [
+            r"(?:[^\.\n]*\b(?:bảng|khung|chi tiết)\s+(?:ở|phía|ở phía)?\s*trên[^\.\n]*[\.\n]?)",
+            r"(?:[^\.\n]*\bxem thêm chi tiết trong bảng[^\.\n]*[\.\n]?)",
+        ]
+        for pat in patterns_to_remove:
+            content = re.sub(pat, "", content, flags=re.I)
+
+        # 2. Strip Chinese/Hanzi characters if any leaked
+        if re.search(r"[\u4e00-\u9fff]", content):
+            content = re.sub(r"[\u4e00-\u9fff]+(?:\s*[\(\uff08][^\)\uff09]+[\)\uff09])?", "", content)
+            content = re.sub(r"^[：:\s]+", "", content)
+
+        # 3. Clean up duplicate empty lines and whitespace
+        content = re.sub(r"[ \t]+", " ", content)
+        content = re.sub(r"\n{3,}", "\n\n", content).strip()
+        last_msg["content"] = content
         return body

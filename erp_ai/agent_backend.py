@@ -8,6 +8,8 @@ import unicodedata
 from datetime import date
 from pathlib import Path
 from .validator import validate_inventory_balance_result
+from .semantic_executor import execute_plan
+from .semantic_query import PlanError
 
 
 def tokens(value):
@@ -23,7 +25,9 @@ def spec(name, description, fields, optional=()):
 
 
 class ReportBackend:
-    specs = [spec("search_knowledge", "Tìm tri thức nghiệp vụ có nguồn và trạng thái hiệu lực", ["query"]),
+    specs = [spec("search_semantic_datasets", "Danh sách tập dữ liệu tổng hợp đã duyệt và được cấp quyền", []),
+             spec("query_semantic_plan", "Chạy kế hoạch tổng hợp JSON theo tập dữ liệu được duyệt; không cung cấp SQL hoặc danh tính", ["plan_json"]),
+             spec("search_knowledge", "Tìm tri thức nghiệp vụ có nguồn và trạng thái hiệu lực", ["query"]),
              spec("search_schema", "Tìm báo cáo và bảng cho phép theo câu hỏi", ["query"]),
              spec("describe_table", "Mô tả schema của một báo cáo cho phép", ["report_id"]),
              spec("query_allowed_records",
@@ -94,7 +98,7 @@ class ReportBackend:
         return value
 
     def authorized(self, user):
-        return bool(self.grant(user).get("reports"))
+        return bool(self.grant(user).get("reports") or self.grant(user).get("semantic_datasets"))
 
     def allowed(self, user):
         return {k: v for k, v in self.reports.items() if k in self.grant(user).get("reports", [])}
@@ -106,12 +110,42 @@ class ReportBackend:
         return path.read_text()
 
     def schema(self, report):
-        return {k: report[k] for k in ("id", "title", "tables", "join", "fields", "validation")}
+        result = {k: report[k] for k in ("id", "title", "tables", "join", "fields", "validation")}
+        # The manifest is metadata, not an authorization grant or executable SQL.
+        # Include only fields already exposed by the independently granted report.
+        try:
+            manifest = json.loads(self.read(report["manifest"]))
+            if not isinstance(manifest, dict):
+                raise ValueError("invalid manifest")
+            fields = set(report["fields"])
+            columns = manifest.get("columns", [])
+            inputs = manifest.get("inputs", {})
+            output = manifest.get("output", {})
+            filters = inputs.get("filters", []) if isinstance(inputs, dict) else []
+            metrics = output.get("metrics", []) if isinstance(output, dict) else []
+            if not all(isinstance(v, list) for v in (columns, filters, metrics, manifest.get("match_phrases", []))):
+                raise ValueError("invalid semantic metadata")
+            result["semantic_metadata"] = {
+                "phrases": [v for v in manifest.get("match_phrases", []) if isinstance(v, str)][:30],
+                "columns": [{k: col[k] for k in ("field", "label", "aliases") if k in col}
+                            for col in columns if isinstance(col, dict) and col.get("field") in fields],
+                "filters": [{k: f[k] for k in ("parameter", "column", "aliases", "value_type") if k in f}
+                            for f in filters if isinstance(f, dict) and f.get("column") in fields],
+                "metrics": [m for m in metrics if isinstance(m, str) and m in fields],
+                "manifest_validation": manifest.get("validation", {}),
+                "provenance": report["manifest"],
+                "notice": "Metadata chưa xác minh không phải bằng chứng dữ liệu hoặc công thức đã duyệt.",
+            }
+        except (OSError, ValueError, TypeError, KeyError):
+            # Missing or invalid metadata must not turn into an inferred definition.
+            result["semantic_metadata"] = {"status": "unavailable"}
+        return result
 
     def retrieve(self, query, user):
         terms, allowed = tokens(query), self.allowed(user)
-        schemas = sorted(allowed.values(), key=lambda r: -len(terms & tokens(json.dumps(r, ensure_ascii=False))))
-        schemas = [self.schema(r) for r in schemas if terms & tokens(json.dumps(r, ensure_ascii=False))][:3]
+        candidates = [self.schema(r) for r in allowed.values()]
+        scored = [(len(terms & tokens(json.dumps(s, ensure_ascii=False))), s) for s in candidates]
+        schemas = [s for score, s in sorted(scored, key=lambda x: -x[0]) if score][:3]
         matches = []
         for doc in self.config["knowledge"]:
             if doc["report_id"] not in allowed:
@@ -168,6 +202,29 @@ class ReportBackend:
         if not self.authorized(user):
             return {"error": "forbidden"}
         self.validate(name, args)
+        if name == "search_semantic_datasets":
+            contracts = self.config.get("semantic_contracts", {})
+            allowed = set(self.grant(user).get("semantic_datasets", []))
+            datasets = []
+            for key in sorted(allowed):
+                contract = contracts.get(key, {})
+                if not isinstance(contract, dict) or contract.get("status") != "approved" or contract.get("scope") not in ("erp_user_view", "sales_orders_scoped_v1"):
+                    continue
+                datasets.append({"id": key, "version": contract.get("version"),
+                                 "dimensions": sorted(contract.get("dimensions", {})),
+                                 "metrics": sorted(contract.get("metrics", {})),
+                                 "filters": sorted(contract.get("filters", {}))})
+            return {"datasets": datasets, "sources": []}
+        if name == "query_semantic_plan":
+            try:
+                plan = json.loads(args["plan_json"])
+                return await execute_plan(plan, contracts=self.config.get("semantic_contracts", {}),
+                                          allowed_contracts=set(self.grant(user).get("semantic_datasets", [])),
+                                          erp_user_id=self.grant(user)["erp_user_id"], db=self.db, limits=limits)
+            except PlanError as exc:
+                return {"error": "invalid_semantic_plan", "error_code": str(exc)}
+            except (ValueError, TypeError):
+                return {"error": "invalid_semantic_plan", "error_code": "invalid_json"}
         if name in ("search_knowledge", "search_schema"):
             result = self.retrieve(args["query"], user)
             if name == "search_schema":

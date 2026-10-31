@@ -36,7 +36,7 @@
 		<meta name="robots" content="noindex,nofollow" />
 
 		<script src="/static/loader.js" defer crossorigin="use-credentials"></script>
-	<script src="/static/bulk-chat-delete.js" defer crossorigin="use-credentials"></script>
+	<script src="/static/bulk-chat-delete.js?v=erp-incidents-menu-1" defer crossorigin="use-credentials"></script>
 	<script>
 		// Tự động Việt hóa các nhãn/mô tả còn sót tiếng Anh và cho phép đăng nhập bằng Mã nhân viên
 		(() => {
@@ -206,6 +206,39 @@
 
 					if (splash) splash.prepend(logo);
 				});
+
+				// Đồng bộ theme (dark/light) sang tất cả các iframe Rich UI nhúng trong chat
+				const iframeThemes = new WeakMap();
+				document.addEventListener('load', (event) => {
+					if (event.target instanceof HTMLIFrameElement && event.target.contentWindow) {
+						iframeThemes.delete(event.target.contentWindow);
+					}
+				}, true);
+				window.addEventListener('message', (e) => {
+					if (e.data && (e.data.type === 'iframe:height' || e.data.themeRequest || e.data.type === 'erp:init')) {
+						const isDark = document.documentElement.classList.contains('dark') || !document.documentElement.classList.contains('light');
+						const theme = isDark ? 'dark' : 'light';
+						if (e.source && e.source.postMessage && iframeThemes.get(e.source) !== theme) {
+							try {
+								iframeThemes.set(e.source, theme);
+								e.source.postMessage({ type: 'erp:theme', theme }, '*');
+							} catch (err) {}
+						}
+					}
+				});
+				if (window.MutationObserver) {
+					new MutationObserver(() => {
+						const isDark = document.documentElement.classList.contains('dark') || !document.documentElement.classList.contains('light');
+						document.querySelectorAll('iframe').forEach(iframe => {
+							try {
+								if (iframe.contentWindow) {
+									iframeThemes.set(iframe.contentWindow, isDark ? 'dark' : 'light');
+									iframe.contentWindow.postMessage({ type: 'erp:theme', theme: isDark ? 'dark' : 'light' }, '*');
+								}
+							} catch (err) {}
+						});
+					}).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+				}
 			})();
 		</script>
 

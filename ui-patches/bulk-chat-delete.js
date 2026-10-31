@@ -139,6 +139,20 @@
 
 	function scan() {
 		if (!document.body) return;
+		// The admin entry exists only in the account menu for administrators.
+		// Clone its styling, but let the server enforce access to incident data.
+		for (const adminLink of document.querySelectorAll('a[href="/admin"]')) {
+			if (!adminLink.className.includes('h-[1.6875rem]') || !adminLink.parentElement) continue;
+			if (adminLink.parentElement.querySelector('[data-htmp-erp-incidents]')) continue;
+			const incidentLink = adminLink.cloneNode(true);
+			incidentLink.href = '/openai/erp-incidents-page';
+			incidentLink.dataset.htmpErpIncidents = 'true';
+			incidentLink.setAttribute('aria-label', 'Theo dõi sự cố ERP');
+			const label = incidentLink.querySelector('div.truncate');
+			if (!label) continue;
+			label.textContent = 'Theo dõi sự cố ERP';
+			adminLink.insertAdjacentElement('afterend', incidentLink);
+		}
 		createToolbar();
 		for (const { id, link } of chatRows()) {
 			const row = link.parentElement;
