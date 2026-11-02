@@ -2434,6 +2434,8 @@ class Tools:
     def _inventory_stock_by_warehouse(self, question: str) -> str | None:
         """Query inventory balance by warehouse for a material."""
         normalized = normalize_text(question)
+        if any(k in normalized for k in ("tu kho", "chuyen kho", "nhap kho", "ai lap", "ai tao", "tai khoan", "sang kho")):
+            return None
         if not any(k in normalized for k in (
             "o tung kho", "tung kho", "cac kho", "theo kho", "nhung kho", "kho nao", "ton o kho"
         )):
@@ -2863,7 +2865,7 @@ class Tools:
                     if code:
                         sql = """
                             SELECT 
-                                to_char(create_date, 'YYYY-MM-DD') as ngay_sx_thuc_te,
+                                to_char(create_date, 'DD/MM/YYYY') as ngay_sx_thuc_te,
                                 station_code as ma_day_chuyen,
                                 mes_scheduling_code as so_wo,
                                 product_code as ma_san_pham,
@@ -2871,7 +2873,7 @@ class Tools:
                                 quantity as so_luong_thuc_te,
                                 coalesce(moq, quantity::text) as so_luong_theo_thung,
                                 serial_tem_thung as serial_thung_tp,
-                                (create_date || ' ' || create_time) as thoi_gian_dong_thung,
+                                to_char(create_date, 'DD/MM/YYYY') || ' ' || to_char(create_time, 'HH24:MI:SS') as thoi_gian_dong_thung,
                                 coalesce(phan_loai, 0) as phan_loai
                             FROM public.mes_oi_dong_thung
                             WHERE stt = 1 AND create_date >= CURRENT_DATE - 7 
@@ -2885,7 +2887,7 @@ class Tools:
                             # Try 60 days fallback
                             sql_fallback = """
                                 SELECT 
-                                    to_char(create_date, 'YYYY-MM-DD') as ngay_sx_thuc_te,
+                                    to_char(create_date, 'DD/MM/YYYY') as ngay_sx_thuc_te,
                                     station_code as ma_day_chuyen,
                                     mes_scheduling_code as so_wo,
                                     product_code as ma_san_pham,
@@ -2893,7 +2895,7 @@ class Tools:
                                     quantity as so_luong_thuc_te,
                                     coalesce(moq, quantity::text) as so_luong_theo_thung,
                                     serial_tem_thung as serial_thung_tp,
-                                    (create_date || ' ' || create_time) as thoi_gian_dong_thung,
+                                    to_char(create_date, 'DD/MM/YYYY') || ' ' || to_char(create_time, 'HH24:MI:SS') as thoi_gian_dong_thung,
                                     coalesce(phan_loai, 0) as phan_loai
                                 FROM public.mes_oi_dong_thung
                                 WHERE stt = 1 AND create_date >= CURRENT_DATE - 60
@@ -2908,7 +2910,7 @@ class Tools:
                         prefix = (datetime.date.today() - datetime.timedelta(days=2)).strftime('%Y%m%d000000000000')
                         sql = """
                             SELECT 
-                                to_char(create_date, 'YYYY-MM-DD') as ngay_sx_thuc_te,
+                                to_char(create_date, 'DD/MM/YYYY') as ngay_sx_thuc_te,
                                 station_code as ma_day_chuyen,
                                 mes_scheduling_code as so_wo,
                                 product_code as ma_san_pham,
@@ -2916,7 +2918,7 @@ class Tools:
                                 quantity as so_luong_thuc_te,
                                 coalesce(moq, quantity::text) as so_luong_theo_thung,
                                 serial_tem_thung as serial_thung_tp,
-                                (create_date || ' ' || create_time) as thoi_gian_dong_thung,
+                                to_char(create_date, 'DD/MM/YYYY') || ' ' || to_char(create_time, 'HH24:MI:SS') as thoi_gian_dong_thung,
                                 coalesce(phan_loai, 0) as phan_loai
                             FROM public.mes_oi_dong_thung
                             WHERE stt = 1 AND serial_tem_thung >= %s
@@ -2927,14 +2929,18 @@ class Tools:
                         rows = cursor.fetchall()
         except Exception:
             return None
+        if not rows:
+            return "Không tìm thấy dữ liệu đóng gói đóng thùng thành phẩm phù hợp."
+        md_lines = [
+            "Dưới đây là bảng kê đóng gói đóng thùng thành phẩm gần đây nhất:\n",
+            "| STT | Ngày SX | Dây chuyền | Số SO/WO | Mã sản phẩm | Tên sản phẩm | Số lượng (PCS) | Serial thùng TP | Thời gian đóng thùng |",
+            "| :---: | :---: | :---: | :--- | :---: | :--- | :---: | :---: | :---: |"
+        ]
         for idx, r in enumerate(rows, 1):
-            r["stt"] = idx
-        return json.dumps({
-            "source": "public.mes_oi_dong_thung (Bảng kê đóng gói, đóng thùng)",
-            "lookup": {"ma_vt": code},
-            "row_count": len(rows),
-            "rows": rows
-        }, ensure_ascii=False, default=str)
+            qty = f"{int(r['so_luong_thuc_te']):,}" if r.get('so_luong_thuc_te') is not None else "0"
+            md_lines.append(f"| {idx} | {r['ngay_sx_thuc_te']} | {r['ma_day_chuyen']} | {r['so_wo']} | {r['ma_san_pham']} | {r['ten_san_pham']} | {qty} | {r['serial_thung_tp']} | {r['thoi_gian_dong_thung']} |")
+        md_lines.append(f"\n*Tổng cộng có {len(rows)} lượt đóng thùng được liệt kê trong báo cáo.*")
+        return "\n".join(md_lines)
 
     def _carton_merge_split_register(self, question: str) -> str | None:
         """Tra cứu Bảng kê gộp, tách thùng (intem_carton_log, intem_log)."""
@@ -3154,6 +3160,7 @@ class Tools:
         code = code_match.group(1).upper() if code_match else None
         if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX"):
             code = None
+        is_cause_summary = any(k in normalized for k in ("theo tung nguyen nhan", "nguyen nhan dung chuyen", "tong so phut dung", "thoi gian dung may")) and not code
         try:
             import psycopg
             from psycopg.rows import dict_row
@@ -3161,7 +3168,59 @@ class Tools:
                 with conn.cursor(row_factory=dict_row) as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
-                    if code:
+                    if is_cause_summary:
+                        sql = """
+                            SELECT 
+                                coalesce(nn.ten_loi, s.error_code, 'Khác') AS nguyen_nhan,
+                                count(*) AS so_lan_dung,
+                                round(sum(extract(epoch from (s.end_date + s.end_time - (s.create_date + s.create_time))) / 60))::numeric AS tong_phut_dung
+                            FROM public.mes_oi_stop_line s
+                            LEFT JOIN public.dmnndungmay nn ON nn.ma_loi = s.error_code
+                            WHERE s.create_date >= CURRENT_DATE - 30
+                            GROUP BY coalesce(nn.ten_loi, s.error_code, 'Khác')
+                            ORDER BY tong_phut_dung DESC
+                            LIMIT 10;
+                        """
+                        cursor.execute(sql)
+                        rows = cursor.fetchall()
+                        formatted_rows = []
+                        md_lines = [
+                            "Dưới đây là báo cáo tổng số phút dừng máy theo từng nguyên nhân dừng chuyền trong bảng kê stop line gần đây:\n",
+                            "| STT | Nguyên nhân dừng máy | Số lần dừng | Tổng thời gian dừng (Phút) |",
+                            "| :---: | :--- | :---: | :---: |"
+                        ]
+                        for idx, r in enumerate(rows, 1):
+                            mins = float(r["tong_phut_dung"] or 0)
+                            cnt = int(r["so_lan_dung"] or 0)
+                            md_lines.append(f"| {idx} | {r['nguyen_nhan']} | {cnt:,} | {mins:,.0f} |")
+                            formatted_rows.append({
+                                "stt": idx,
+                                "nguyen_nhan": r["nguyen_nhan"],
+                                "so_lan_dung": cnt,
+                                "tong_phut_dung": mins
+                            })
+                        md_lines.append("\n*Ghi chú: Dữ liệu trích xuất từ bảng kê dừng máy mes_oi_stop_line kết hợp danh mục lỗi dmnndungmay trong 30 ngày gần nhất.*")
+                        
+                        mermaid_lines = [
+                            "\n### Biểu đồ cơ cấu thời gian dừng máy theo nguyên nhân (Phút)\n",
+                            "```mermaid",
+                            'pie title "Cơ cấu thời gian dừng máy theo nguyên nhân (Phút)"',
+                        ]
+                        for r in rows:
+                            mins = float(r["tong_phut_dung"] or 0)
+                            cause = str(r["nguyen_nhan"]).strip()
+                            label = cause[:20].replace('"', "'").replace(":", " - ")
+                            mermaid_lines.append(f'    "{label}" : {mins:.0f}')
+                        mermaid_lines.append("```\n")
+                        md_lines.extend(mermaid_lines)
+
+                        return json.dumps({
+                            "source": "public.mes_oi_stop_line / public.dmnndungmay (Stop line MES)",
+                            "row_count": len(formatted_rows),
+                            "rows": formatted_rows,
+                            "message": "\n".join(md_lines)
+                        }, ensure_ascii=False, default=str)
+                    elif code:
                         sql = """
                             SELECT 
                                 to_char(s.create_date, 'YYYY-MM-DD') AS ngay_dung,
@@ -3406,6 +3465,23 @@ class Tools:
             md_lines.append("*- (*) Đơn hàng có giá trị 0.00 VND: Trong dữ liệu ERP gốc, các đơn hàng này được mở để theo dõi số lượng lệnh sản xuất (KHSX), cấp phát linh kiện FDI hoặc giao bù/RMA (gia2 = 0, tien2 = 0), không ghi nhận đơn giá thương mại trên chứng từ SO1.*")
         if has_usd_ratio1:
             md_lines.append("*- (**) Đơn hàng ngoại tệ USD: Giá trị gốc là USD, trên ERP chứng từ lưu tỷ giá 1.0 nên trường quy đổi VND trong hệ thống bằng đúng nguyên tệ USD.*")
+
+        # Thêm biểu đồ trực quan Mermaid Pie
+        mermaid_lines = [
+            "\n### Biểu đồ tỷ trọng số lượng đặt hàng theo khách hàng (PCS)\n",
+            "```mermaid",
+            'pie title "Tỷ trọng số lượng đặt hàng theo khách hàng"',
+        ]
+        for r in rows:
+            qty = float(r["tong_so_luong_dat"] or 0)
+            code = str(r["ma_kh"]).strip()
+            name = str(r.get("ten_kh") or "").strip()
+            label = f"{code} ({name[:16]})" if name else code
+            label = label.replace('"', "'").replace(":", " - ")
+            mermaid_lines.append(f'    "{label}" : {qty:.0f}')
+        mermaid_lines.append("```\n")
+        md_lines.extend(mermaid_lines)
+
         markdown_table = "\n".join(md_lines)
 
         return json.dumps({
@@ -3474,6 +3550,22 @@ class Tools:
             })
 
         md_lines.append("\n*Ghi chú: Đơn vị tính là Số lượng tồn kho thực tế (PCS / KG / Chiếc) tổng hợp từ số dư đầu kỳ (cdvt) và biến động nhập - xuất trong kỳ (ct70), không phải giá trị tiền tệ VND.*")
+
+        # Thêm biểu đồ trực quan Mermaid Pie
+        mermaid_lines = [
+            "\n### Biểu đồ phân bổ tồn kho theo từng kho hàng (PCS)\n",
+            "```mermaid",
+            'pie title "Phân bổ tồn kho theo từng kho hàng"',
+        ]
+        for r in rows[:10]:
+            qty = float(r["tong_ton_kho"] or 0)
+            name = str(r.get("ten_kho") or r["ma_kho"]).strip()
+            label = f"{r['ma_kho']} ({name[:16]})"
+            label = label.replace('"', "'").replace(":", " - ")
+            mermaid_lines.append(f'    "{label}" : {qty:.0f}')
+        mermaid_lines.append("```\n")
+        md_lines.extend(mermaid_lines)
+
         markdown_table = "\n".join(md_lines)
 
         return json.dumps({
@@ -3540,6 +3632,23 @@ class Tools:
             })
 
         md_lines.append("\n*Ghi chú: Đơn vị tính theo ĐVT danh mục vật tư dmvt (PCS, KG...), trích xuất từ số dư đầu kỳ cdvt và phát sinh nhập xuất ct70.*")
+
+        # Thêm biểu đồ trực quan Mermaid Pie
+        mermaid_lines = [
+            "\n### Biểu đồ tỷ trọng Top 10 vật tư tồn kho lớn nhất (PCS)\n",
+            "```mermaid",
+            'pie title "Tỷ trọng Top 10 vật tư tồn kho lớn nhất"',
+        ]
+        for r in rows:
+            qty = float(r["so_luong_ton"] or 0)
+            code = str(r["ma_vt"]).strip()
+            name = str(r.get("ten_vt") or "").strip()
+            label = f"{code} ({name[:16]})" if name else code
+            label = label.replace('"', "'").replace(":", " - ")
+            mermaid_lines.append(f'    "{label}" : {qty:.0f}')
+        mermaid_lines.append("```\n")
+        md_lines.extend(mermaid_lines)
+
         markdown_table = "\n".join(md_lines)
 
         return json.dumps({
@@ -3600,6 +3709,22 @@ class Tools:
             })
 
         md_lines.append("\n*Ghi chú: Đơn vị tính là Số lượng tồn kho thực tế (PCS / KG / Chiếc) tổng hợp từ số dư đầu kỳ (cdvt) và biến động nhập - xuất trong kỳ (ct70), không phải giá trị tiền tệ VND.*")
+
+        # Thêm biểu đồ trực quan Mermaid Pie
+        mermaid_lines = [
+            "\n### Biểu đồ phân bổ tồn kho theo từng kho hàng (PCS)\n",
+            "```mermaid",
+            'pie title "Phân bổ tồn kho theo từng kho hàng"',
+        ]
+        for r in rows[:10]:
+            qty = float(r["tong_ton_kho"] or 0)
+            name = str(r.get("ten_kho") or r["ma_kho"]).strip()
+            label = f"{r['ma_kho']} ({name[:16]})"
+            label = label.replace('"', "'").replace(":", " - ")
+            mermaid_lines.append(f'    "{label}" : {qty:.0f}')
+        mermaid_lines.append("```\n")
+        md_lines.extend(mermaid_lines)
+
         markdown_table = "\n".join(md_lines)
 
         return json.dumps({
@@ -3669,6 +3794,28 @@ class Tools:
             })
 
         md_lines.append("\n*Ghi chú: Đơn vị tính là Số lượng phát sinh thực tế (ct70), không phải giá trị tiền tệ VND.*")
+
+        # Thêm biểu đồ chuỗi thời gian so sánh nhập - xuất theo ngày
+        if len(rows) >= 2:
+            days = [str(r["ngay_ct"])[-5:] for r in rows]
+            nhaps = [int(float(r["tong_nhap"] or 0)) for r in rows]
+            xuats = [int(float(r["tong_xuat"] or 0)) for r in rows]
+            max_v = max(max(nhaps, default=0), max(xuats, default=0)) or 1
+            max_v = int(max_v * 1.15)
+            day_labels = ", ".join(f'"{d}"' for d in days)
+            mermaid_lines = [
+                f"\n### Biểu đồ biến động nhập - xuất kho từ {d_start} đến {d_end} (PCS)\n",
+                "```mermaid",
+                "xychart-beta",
+                f'    title "Biến động nhập xuất ({d_start} - {d_end})"',
+                f'    x-axis [{day_labels}]',
+                f'    y-axis "Số lượng" 0 --> {max_v}',
+                f'    bar [{", ".join(str(v) for v in nhaps)}]',
+                f'    line [{", ".join(str(v) for v in xuats)}]',
+                "```\n"
+            ]
+            md_lines.extend(mermaid_lines)
+
         markdown_table = "\n".join(md_lines)
 
         return json.dumps({
@@ -3820,6 +3967,9 @@ class Tools:
                         rows = cursor.fetchall()
         except Exception:
             return None
+        if not rows:
+            return None
+
         for idx, r in enumerate(rows, 1):
             r["stt"] = idx
             if r.get("so_luong") is not None:
@@ -3828,11 +3978,72 @@ class Tools:
                 r["don_gia"] = clean_numeric_str(r["don_gia"])
             if r.get("thanh_tien") is not None:
                 r["thanh_tien"] = clean_numeric_str(r["thanh_tien"])
+
+        first = rows[0]
+        is_single_so = len(set(r.get("so_ct") for r in rows)) == 1 and bool(first.get("so_ct"))
+
+        md_lines = []
+        if is_single_so:
+            so_ct = first.get("so_ct")
+            ten_kh = first.get("ten_kh") or first.get("ma_kh") or "Khách hàng"
+            ma_kh = first.get("ma_kh") or ""
+            ngay_ct = first.get("ngay_ct") or ""
+            trang_thai = first.get("trang_thai") or ""
+            ma_nt = first.get("ma_nt") or "VND"
+            so_po = first.get("so_po") or ""
+
+            md_lines.append(f"Dưới đây là chi tiết đơn hàng bán số **{so_ct}**:\n")
+            md_lines.append(f"- **Khách hàng**: {ten_kh} (`{ma_kh}`)")
+            meta_parts = [f"**Ngày đặt**: {ngay_ct}"]
+            if trang_thai:
+                meta_parts.append(f"**Trạng thái**: {trang_thai}")
+            if ma_nt:
+                meta_parts.append(f"**Loại tiền**: {ma_nt}")
+            if so_po:
+                meta_parts.append(f"**Số PO**: {so_po}")
+            md_lines.append(f"- {' | '.join(meta_parts)}\n")
+
+            md_lines.append("| STT | Mã vật tư | Tên vật tư / Sản phẩm | ĐVT | Số lượng | Đơn giá | Thành tiền |")
+            md_lines.append("| :---: | :--- | :--- | :---: | :---: | :---: | :---: |")
+
+            tot_qty = 0.0
+            tot_val = 0.0
+            for idx, r in enumerate(rows, 1):
+                sl = float(r.get("so_luong") or 0)
+                gia = float(r.get("don_gia") or 0)
+                tien = float(r.get("thanh_tien") or 0)
+                tot_qty += sl
+                tot_val += tien
+                sl_str = f"{sl:,.0f}" if sl.is_integer() else f"{sl:,.2f}"
+                gia_str = f"{gia:,.0f}" if gia.is_integer() else f"{gia:,.2f}"
+                tien_str = f"{tien:,.0f}" if tien.is_integer() else f"{tien:,.2f}"
+                md_lines.append(f"| {idx} | {r.get('ma_vt','')} | {r.get('ten_vt','')} | {r.get('dvt','')} | {sl_str} | {gia_str} | {tien_str} |")
+
+            tot_qty_str = f"{tot_qty:,.0f}" if tot_qty.is_integer() else f"{tot_qty:,.2f}"
+            tot_val_str = f"{tot_val:,.0f}" if tot_val.is_integer() else f"{tot_val:,.2f}"
+            md_lines.append(f"| | **Tổng cộng** | | | **{tot_qty_str}** | | **{tot_val_str}** |")
+            md_lines.append(f"\n*Ghi chú: Đơn hàng này có tổng cộng {len(rows)} dòng sản phẩm chi tiết.*")
+        else:
+            md_lines.append(f"Dưới đây là bảng kê các đơn hàng bán gần đây trong hệ thống:\n")
+            md_lines.append("| STT | Số CT | Ngày CT | Mã KH | Tên KH | Mã VT | Tên VT | ĐVT | Số Lượng | Đơn Giá | Thành Tiền | Trạng Thái |")
+            md_lines.append("| :---: | :---: | :---: | :---: | :--- | :---: | :--- | :---: | :---: | :---: | :---: | :---: |")
+            for idx, r in enumerate(rows, 1):
+                sl = float(r.get("so_luong") or 0)
+                gia = float(r.get("don_gia") or 0)
+                tien = float(r.get("thanh_tien") or 0)
+                sl_str = f"{sl:,.0f}" if sl.is_integer() else f"{sl:,.2f}"
+                gia_str = f"{gia:,.0f}" if gia.is_integer() else f"{gia:,.2f}"
+                tien_str = f"{tien:,.0f}" if tien.is_integer() else f"{tien:,.2f}"
+                md_lines.append(f"| {idx} | {r.get('so_ct','')} | {r.get('ngay_ct','')} | {r.get('ma_kh','')} | {r.get('ten_kh','')} | {r.get('ma_vt','')} | {r.get('ten_vt','')} | {r.get('dvt','')} | {sl_str} | {gia_str} | {tien_str} | {r.get('trang_thai','')} |")
+            md_lines.append(f"\n*Ghi chú: Tổng hợp {len(rows)} dòng chứng từ đơn hàng bán SO1.*")
+
+        markdown_table = "\n".join(md_lines)
         return json.dumps({
             "source": "public.ph64 / public.ct64 (Bảng kê đơn hàng bán SO1)",
             "lookup": {"ma_so": code},
             "row_count": len(rows),
-            "rows": rows
+            "rows": rows,
+            "message": markdown_table
         }, ensure_ascii=False, default=str)
 
     def _sales_shipment_register(self, question: str) -> str | None:
@@ -4007,17 +4218,78 @@ class Tools:
                         rows = cursor.fetchall()
         except Exception:
             return None
+        if not rows:
+            return None
+
         for idx, r in enumerate(rows, 1):
             r["stt"] = idx
             if r.get("so_luong") is not None:
                 r["so_luong"] = clean_numeric_str(r["so_luong"])
             if r.get("tong_san_luong_xuat") is not None:
                 r["tong_san_luong_xuat"] = clean_numeric_str(r["tong_san_luong_xuat"])
+
+        first = rows[0]
+        md_lines = []
+        if is_customer_aggregate:
+            md_lines.append(f"Dưới đây là tổng hợp sản lượng xuất kho bán hàng (HDA) theo khách hàng từ {d_start} đến {d_end}:\n")
+            md_lines.append("| STT | Mã khách hàng | Tên khách hàng | Số phiếu xuất | Tổng sản lượng xuất (PCS) |")
+            md_lines.append("| :---: | :---: | :--- | :---: | :---: |")
+            tot_p = 0
+            tot_qty = 0.0
+            for idx, r in enumerate(rows, 1):
+                p = int(r.get("so_phieu_xuat") or 0)
+                sl = float(r.get("tong_san_luong_xuat") or 0)
+                tot_p += p
+                tot_qty += sl
+                sl_str = f"{sl:,.0f}" if sl.is_integer() else f"{sl:,.2f}"
+                md_lines.append(f"| {idx} | {r.get('ma_kh','')} | {r.get('ten_kh','')} | {p:,} | {sl_str} |")
+            tot_qty_str = f"{tot_qty:,.0f}" if tot_qty.is_integer() else f"{tot_qty:,.2f}"
+            md_lines.append(f"| | **Tổng cộng** | | **{tot_p:,}** | **{tot_qty_str}** |")
+        elif len(set(r.get("so_ct") for r in rows)) == 1 and bool(first.get("so_ct")):
+            so_ct = first.get("so_ct")
+            ten_kh = first.get("ten_kh") or first.get("ma_kh") or "Khách hàng"
+            ma_kh = first.get("ma_kh") or ""
+            ngay_ct = first.get("ngay_ct") or ""
+            trang_thai = first.get("trang_thai") or ""
+            so_so = first.get("so_so") or ""
+
+            md_lines.append(f"Dưới đây là chi tiết phiếu xuất kho bán hàng số **{so_ct}**:\n")
+            md_lines.append(f"- **Khách hàng**: {ten_kh} (`{ma_kh}`)")
+            meta_parts = [f"**Ngày xuất**: {ngay_ct}"]
+            if so_so:
+                meta_parts.append(f"**Đơn hàng SO**: {so_so}")
+            if trang_thai:
+                meta_parts.append(f"**Trạng thái**: {trang_thai}")
+            md_lines.append(f"- {' | '.join(meta_parts)}\n")
+
+            md_lines.append("| STT | Mã vật tư | Tên vật tư / Sản phẩm | ĐVT | Số lượng | Kho xuất | Số PO |")
+            md_lines.append("| :---: | :--- | :--- | :---: | :---: | :---: | :---: |")
+            tot_qty = 0.0
+            for idx, r in enumerate(rows, 1):
+                sl = float(r.get("so_luong") or 0)
+                tot_qty += sl
+                sl_str = f"{sl:,.0f}" if sl.is_integer() else f"{sl:,.2f}"
+                md_lines.append(f"| {idx} | {r.get('ma_vt','')} | {r.get('ten_vt','')} | {r.get('dvt','')} | {sl_str} | {r.get('ma_kho','')} | {r.get('so_po','')} |")
+            tot_qty_str = f"{tot_qty:,.0f}" if tot_qty.is_integer() else f"{tot_qty:,.2f}"
+            md_lines.append(f"| | **Tổng cộng** | | | **{tot_qty_str}** | | |")
+            md_lines.append(f"\n*Ghi chú: Phiếu xuất này có tổng cộng {len(rows)} dòng sản phẩm.*")
+        else:
+            md_lines.append(f"Dưới đây là bảng kê các phiếu xuất kho bán hàng (HDA) gần đây:\n")
+            md_lines.append("| STT | Số CT | Ngày CT | Mã KH | Tên KH | Số SO | Mã VT | Tên VT | ĐVT | Số lượng | Kho xuất | Trạng thái |")
+            md_lines.append("| :---: | :---: | :---: | :---: | :--- | :---: | :---: | :--- | :---: | :---: | :---: | :---: |")
+            for idx, r in enumerate(rows, 1):
+                sl = float(r.get("so_luong") or 0)
+                sl_str = f"{sl:,.0f}" if sl.is_integer() else f"{sl:,.2f}"
+                md_lines.append(f"| {idx} | {r.get('so_ct','')} | {r.get('ngay_ct','')} | {r.get('ma_kh','')} | {r.get('ten_kh','')} | {r.get('so_so','')} | {r.get('ma_vt','')} | {r.get('ten_vt','')} | {r.get('dvt','')} | {sl_str} | {r.get('ma_kho','')} | {r.get('trang_thai','')} |")
+            md_lines.append(f"\n*Ghi chú: Tổng hợp {len(rows)} dòng phiếu xuất kho bán hàng.*")
+
+        markdown_table = "\n".join(md_lines)
         return json.dumps({
             "source": "public.ph81 / public.ct81 (Bảng kê phiếu xuất kho bán hàng)",
             "lookup": {"ma_phieu": code},
             "row_count": len(rows),
-            "rows": rows
+            "rows": rows,
+            "message": markdown_table
         }, ensure_ascii=False, default=str)
 
     def _purchase_order_register(self, question: str) -> str | None:
@@ -4156,6 +4428,9 @@ class Tools:
                         rows = cursor.fetchall()
         except Exception:
             return None
+        if not rows:
+            return None
+
         for idx, r in enumerate(rows, 1):
             r["stt"] = idx
             if r.get("so_luong") is not None:
@@ -4164,28 +4439,105 @@ class Tools:
                 r["don_gia"] = clean_numeric_str(r["don_gia"])
             if r.get("thanh_tien") is not None:
                 r["thanh_tien"] = clean_numeric_str(r["thanh_tien"])
+
+        first = rows[0]
+        is_single_po = len(set(r.get("so_po") for r in rows)) == 1 and bool(first.get("so_po"))
+
+        md_lines = []
+        if is_single_po:
+            so_po = first.get("so_po")
+            ten_ncc = first.get("ten_ncc") or first.get("ma_ncc") or "Nhà cung cấp"
+            ma_ncc = first.get("ma_ncc") or ""
+            ngay_po = first.get("ngay_po") or ""
+            trang_thai = first.get("trang_thai") or ""
+            ma_nt = first.get("ma_nt") or "VND"
+
+            md_lines.append(f"Dưới đây là chi tiết đơn hàng mua số **{so_po}**:\n")
+            md_lines.append(f"- **Nhà cung cấp**: {ten_ncc} (`{ma_ncc}`)")
+            meta_parts = [f"**Ngày đặt**: {ngay_po}"]
+            if trang_thai:
+                meta_parts.append(f"**Trạng thái**: {trang_thai}")
+            if ma_nt:
+                meta_parts.append(f"**Loại tiền**: {ma_nt}")
+            md_lines.append(f"- {' | '.join(meta_parts)}\n")
+
+            md_lines.append("| STT | Mã vật tư | Tên vật tư / Hàng hóa | ĐVT | Số lượng | Đơn giá | Thành tiền |")
+            md_lines.append("| :---: | :--- | :--- | :---: | :---: | :---: | :---: |")
+
+            tot_qty = 0.0
+            tot_val = 0.0
+            for idx, r in enumerate(rows, 1):
+                sl = float(r.get("so_luong") or 0)
+                gia = float(r.get("don_gia") or 0)
+                tien = float(r.get("thanh_tien") or 0)
+                tot_qty += sl
+                tot_val += tien
+                sl_str = f"{sl:,.0f}" if sl.is_integer() else f"{sl:,.2f}"
+                gia_str = f"{gia:,.0f}" if gia.is_integer() else f"{gia:,.2f}"
+                tien_str = f"{tien:,.0f}" if tien.is_integer() else f"{tien:,.2f}"
+                md_lines.append(f"| {idx} | {r.get('ma_vt','')} | {r.get('ten_vt','')} | {r.get('dvt','')} | {sl_str} | {gia_str} | {tien_str} |")
+
+            tot_qty_str = f"{tot_qty:,.0f}" if tot_qty.is_integer() else f"{tot_qty:,.2f}"
+            tot_val_str = f"{tot_val:,.0f}" if tot_val.is_integer() else f"{tot_val:,.2f}"
+            md_lines.append(f"| | **Tổng cộng** | | | **{tot_qty_str}** | | **{tot_val_str}** |")
+            md_lines.append(f"\n*Ghi chú: Đơn hàng mua này có tổng cộng {len(rows)} dòng chi tiết.*")
+        else:
+            md_lines.append(f"Dưới đây là bảng kê các đơn hàng mua (PO1) gần đây:\n")
+            md_lines.append("| STT | Số PO | Ngày PO | Mã NCC | Tên nhà cung cấp | Mã VT | Tên VT | ĐVT | Số lượng | Đơn giá | Thành tiền | Trạng thái |")
+            md_lines.append("| :---: | :---: | :---: | :---: | :--- | :---: | :--- | :---: | :---: | :---: | :---: | :---: |")
+            for idx, r in enumerate(rows, 1):
+                sl = float(r.get("so_luong") or 0)
+                gia = float(r.get("don_gia") or 0)
+                tien = float(r.get("thanh_tien") or 0)
+                sl_str = f"{sl:,.0f}" if sl.is_integer() else f"{sl:,.2f}"
+                gia_str = f"{gia:,.0f}" if gia.is_integer() else f"{gia:,.2f}"
+                tien_str = f"{tien:,.0f}" if tien.is_integer() else f"{tien:,.2f}"
+                md_lines.append(f"| {idx} | {r.get('so_po','')} | {r.get('ngay_po','')} | {r.get('ma_ncc','')} | {r.get('ten_ncc','')} | {r.get('ma_vt','')} | {r.get('ten_vt','')} | {r.get('dvt','')} | {sl_str} | {gia_str} | {tien_str} | {r.get('trang_thai','')} |")
+            md_lines.append(f"\n*Ghi chú: Tổng hợp {len(rows)} dòng đơn hàng mua PO1.*")
+
+        markdown_table = "\n".join(md_lines)
         return json.dumps({
             "source": "public.ph94 / public.ct94 (Bảng kê đơn hàng mua PO1)",
             "lookup": {"ma_po": code},
             "row_count": len(rows),
-            "rows": rows
+            "rows": rows,
+            "message": markdown_table
         }, ensure_ascii=False, default=str)
 
     def _internal_warehouse_transfer_register(self, question: str) -> str | None:
-        """Tra cứu Bảng kê phiếu nhập/xuất kho nội bộ (PND/PXA: ph74, ct74)."""
+        """Tra cứu Bảng kê phiếu nhập/xuất kho nội bộ & điều chuyển kho (PND/PXA/PNF/PXB: ph74, ct74, ph85, ct85)."""
         normalized = normalize_text(question)
         keywords = (
             "nhap kho noi bo", "xuat kho noi bo", "phieu nhap noi bo", "phieu xuat noi bo",
             "nhap kho tu sx", "nhap kho tu san xuat", "nhap tu sx", "nhap tu san xuat",
             "bang ke nhap kho tu san xuat", "bang ke nhap kho tu sx",
-            "bang ke phieu nhap noi bo", "bang ke phieu xuat noi bo", "phieu pnd", "phieu pxa", "chuyen kho noi bo"
+            "bang ke phieu nhap noi bo", "bang ke phieu xuat noi bo", "phieu pnd", "phieu pxa", "chuyen kho noi bo",
+            "tu kho nao sang", "tu kho nao den", "sang kho nao", "chuyen kho", "dieu chuyen kho", "luan chuyen kho",
+            "duoc nhap kho", "nhap kho vao nhung ngay nao", "nhap kho khi nao", "nhap kho ngay nao",
+            "ai lap phieu", "ai tao phieu", "tai khoan nao tao phieu", "tai khoan nao lap phieu", "nguoi lap phieu", "nguoi tao phieu"
         )
-        if not any(kw in normalized for kw in keywords):
+        is_kw = any(kw in normalized for kw in keywords) or ("nhap kho" in normalized and ("tu kho" in normalized or "ai" in normalized or "tai khoan" in normalized))
+        if not is_kw:
             return None
-        code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
-        code = code_match.group(1).upper() if code_match else None
-        if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX", "PND", "PXA", "PXD"):
-            code = None
+
+        ents = extract_erp_entities(question)
+        code = ents.get("ma_vt") or ""
+        so_ct = ents.get("so_ct") or ""
+
+        if not code:
+            m_vt = re.search(r"\b(?:m[aã]\s+(?:h[aà]ng|v[aậ]t\s+t[uư]|vt)?\s*[:#-]?\s*)([A-Z0-9]+(?:[-/.][A-Z0-9]+)+)\b", question, re.I)
+            if m_vt:
+                code = m_vt.group(1).upper()
+        if not so_ct:
+            m_ct = re.search(r"\b(\d{3}-\d{4}-\d{5,6})\b", question)
+            if m_ct:
+                so_ct = m_ct.group(1).upper()
+
+        if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX", "PND", "PXA", "PXD", "PNF", "PXB"):
+            code = ""
+
+        d_from, d_to = extract_iso_date_range(question, "2026-10-01", "2026-10-31")
+
         try:
             import psycopg
             from psycopg.rows import dict_row
@@ -4193,74 +4545,280 @@ class Tools:
                 with conn.cursor(row_factory=dict_row) as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
-                    rows = []
-                    if code:
-                        sql_ct = """
+
+                    # Case 1: Specific voucher number
+                    if so_ct:
+                        cursor.execute("""
                             SELECT 
-                                h.so_ct,
-                                to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
-                                h.ma_ct AS loai_phieu,
-                                d.ma_vt,
-                                coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
-                                d.dvt,
-                                d.ma_kho,
-                                coalesce(w.ten_kho, d.ma_kho) AS ten_kho,
-                                d.so_luong,
-                                h.dien_giai,
-                                coalesce(s.statusname, h.status) AS trang_thai
+                                h.so_ct, to_char(h.ngay_ct, 'DD/MM/YYYY') AS ngay_ct, h.ma_ct,
+                                d.ma_vt, coalesce(v.ten_vt, d.ma_vt) AS ten_vt, d.dvt,
+                                d.ma_kho, coalesce(w.ten_kho, d.ma_kho) AS ten_kho,
+                                d.so_luong, h.dien_giai, u.user_name, coalesce(u.ten, u.user_name) AS nguoi_lap
                             FROM public.ph74 h
                             JOIN public.ct74 d USING(stt_rec)
                             LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
                             LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho
-                            LEFT JOIN public.sys_dmtt s ON s.ma_ct = h.ma_ct AND s.status = h.status
-                            WHERE h.so_ct = %s OR d.ma_vt = %s
-                            ORDER BY h.ngay_ct DESC, h.stt_rec DESC, d.ln
-                            LIMIT 30;
-                        """
-                        cursor.execute(sql_ct, (code, code))
-                        rows = cursor.fetchall()
-                    else:
-                        sql_recent = """
-                            WITH header AS (
-                                SELECT stt_rec, so_ct, ngay_ct, ma_ct, dien_giai, status
-                                FROM public.ph74
-                                ORDER BY ngay_ct DESC, stt_rec DESC
-                                LIMIT 10
-                            )
-                            SELECT 
-                                h.so_ct,
-                                to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
-                                h.ma_ct AS loai_phieu,
-                                d.ma_vt,
-                                coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
-                                d.dvt,
-                                d.ma_kho,
-                                coalesce(w.ten_kho, d.ma_kho) AS ten_kho,
-                                d.so_luong,
-                                h.dien_giai,
-                                coalesce(s.statusname, h.status) AS trang_thai
-                            FROM header h
-                            JOIN public.ct74 d USING(stt_rec)
+                            LEFT JOIN public.userinfo u ON u.user_id = h.user_id0
+                            WHERE h.so_ct = %s
+                        """, (so_ct,))
+                        rows_ct = cursor.fetchall()
+                        if not rows_ct:
+                            cursor.execute("""
+                                SELECT 
+                                    h.so_ct, to_char(h.ngay_ct, 'DD/MM/YYYY') AS ngay_ct, h.ma_ct,
+                                    d.ma_vt, coalesce(v.ten_vt, d.ma_vt) AS ten_vt, d.dvt,
+                                    h.ma_kho AS kho_xuat, coalesce(kx.ten_kho, h.ma_kho) AS ten_kho_xuat,
+                                    h.ma_khon AS kho_nhan, coalesce(kn.ten_kho, h.ma_khon) AS ten_kho_nhan,
+                                    d.so_luong, h.dien_giai, u.user_name, coalesce(u.ten, u.user_name) AS nguoi_lap
+                            FROM public.ph85 h
+                            JOIN public.ct85 d USING(stt_rec)
                             LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
-                            LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho
-                            LEFT JOIN public.sys_dmtt s ON s.ma_ct = h.ma_ct AND s.status = h.status
-                            ORDER BY h.ngay_ct DESC, h.stt_rec DESC, d.ln
-                            LIMIT 30;
-                        """
-                        cursor.execute(sql_recent)
-                        rows = cursor.fetchall()
+                            LEFT JOIN public.dmkho kx ON kx.ma_kho = h.ma_kho
+                            LEFT JOIN public.dmkho kn ON kn.ma_kho = h.ma_khon
+                            LEFT JOIN public.userinfo u ON u.user_id = h.user_id0
+                            WHERE h.so_ct = %s
+                            """, (so_ct,))
+                            rows_ct = cursor.fetchall()
+
+                        if rows_ct:
+                            formatted_rows = []
+                            md_lines = [
+                                f"### Chi tiết chứng từ nội bộ số **{so_ct}**",
+                                f"- **Ngày chứng từ:** {rows_ct[0]['ngay_ct']} | **Loại phiếu:** {rows_ct[0]['ma_ct']}",
+                                f"- **Người tạo:** {rows_ct[0]['user_name']} ({rows_ct[0]['nguoi_lap']}) | **Diễn giải:** {rows_ct[0].get('dien_giai') or 'Không có'}\n",
+                                "| STT | Mã vật tư | Tên vật tư | ĐVT | Kho xuất / nhận | Số lượng |",
+                                "| :---: | :--- | :--- | :---: | :--- | :---: |"
+                            ]
+                            for idx, r in enumerate(rows_ct, 1):
+                                sl = float(r["so_luong"] or 0)
+                                sl_str = f"{sl:,.0f}" if sl.is_integer() else f"{sl:,.2f}"
+                                kho_str = f"{r.get('kho_xuat', '')} ➔ {r.get('kho_nhan', '')}" if 'kho_xuat' in r else r.get('ten_kho', '')
+                                md_lines.append(f"| {idx} | `{r['ma_vt']}` | {r['ten_vt']} | {r.get('dvt') or 'PCS'} | {kho_str} | {sl_str} |")
+                                formatted_rows.append({
+                                    "stt": idx,
+                                    "so_ct": r["so_ct"],
+                                    "ma_vt": r["ma_vt"],
+                                    "ten_vt": r["ten_vt"],
+                                    "so_luong": sl_str
+                                })
+                            return json.dumps({
+                                "source": "public.ph74/ct74 hoặc public.ph85/ct85",
+                                "row_count": len(formatted_rows),
+                                "rows": formatted_rows,
+                                "message": "\n".join(md_lines)
+                            }, ensure_ascii=False, default=str)
+
+                    # Case 2: Material code provided
+                    if code:
+                        cursor.execute("SELECT ten_vt, dvt FROM public.dmvt WHERE ma_vt = %s", (code,))
+                        vt_info = cursor.fetchone() or {"ten_vt": code, "dvt": "PCS"}
+                        ten_vt = vt_info["ten_vt"]
+                        dvt = vt_info.get("dvt") or "PCS"
+
+                        # 1. PND (SX -> Kho)
+                        cursor.execute("""
+                            SELECT 
+                                to_char(h.ngay_ct, 'DD/MM/YYYY') AS ngay_ct_str,
+                                h.ngay_ct,
+                                h.so_ct,
+                                c.ma_kho AS kho_nhan,
+                                coalesce(kn.ten_kho, c.ma_kho) AS ten_kho_nhan,
+                                c.so_luong,
+                                u.user_name,
+                                coalesce(u.ten, u.user_name) AS ten_nguoi_lap
+                            FROM public.ct74 c
+                            JOIN public.ph74 h USING (stt_rec)
+                            LEFT JOIN public.dmkho kn ON kn.ma_kho = c.ma_kho
+                            LEFT JOIN public.userinfo u ON u.user_id = h.user_id0
+                            WHERE c.ma_vt = %s AND h.ngay_ct BETWEEN %s AND %s
+                            ORDER BY h.ngay_ct, h.so_ct
+                        """, (code, d_from, d_to))
+                        pnd_rows = cursor.fetchall()
+
+                        # Fallback if no records in date range
+                        if not pnd_rows:
+                            cursor.execute("""
+                                SELECT 
+                                    to_char(h.ngay_ct, 'DD/MM/YYYY') AS ngay_ct_str,
+                                    h.ngay_ct,
+                                    h.so_ct,
+                                    c.ma_kho AS kho_nhan,
+                                    coalesce(kn.ten_kho, c.ma_kho) AS ten_kho_nhan,
+                                    c.so_luong,
+                                    u.user_name,
+                                    coalesce(u.ten, u.user_name) AS ten_nguoi_lap
+                                FROM public.ct74 c
+                                JOIN public.ph74 h USING (stt_rec)
+                                LEFT JOIN public.dmkho kn ON kn.ma_kho = c.ma_kho
+                                LEFT JOIN public.userinfo u ON u.user_id = h.user_id0
+                                WHERE c.ma_vt = %s
+                                ORDER BY h.ngay_ct DESC, h.so_ct DESC
+                                LIMIT 15
+                            """, (code,))
+                            pnd_rows = cursor.fetchall()
+
+                        # 2. ct85 transfer routes
+                        cursor.execute("""
+                            SELECT 
+                                h.ma_kho AS kho_xuat,
+                                coalesce(kx.ten_kho, h.ma_kho) AS ten_kho_xuat,
+                                h.ma_khon AS kho_nhan,
+                                coalesce(kn.ten_kho, h.ma_khon) AS ten_kho_nhan,
+                                count(distinct h.so_ct) AS so_phieu,
+                                sum(c.so_luong) AS tong_sl,
+                                string_agg(distinct u.user_name, ', ') AS ds_tai_khoan,
+                                string_agg(distinct coalesce(u.ten, u.user_name), ', ') AS ds_nguoi_lap,
+                                to_char(min(h.ngay_ct), 'DD/MM') AS min_date,
+                                to_char(max(h.ngay_ct), 'DD/MM') AS max_date
+                            FROM public.ct85 c
+                            JOIN public.ph85 h USING (stt_rec)
+                            LEFT JOIN public.dmkho kx ON kx.ma_kho = h.ma_kho
+                            LEFT JOIN public.dmkho kn ON kn.ma_kho = h.ma_khon
+                            LEFT JOIN public.userinfo u ON u.user_id = h.user_id0
+                            WHERE c.ma_vt = %s AND h.ngay_ct BETWEEN %s AND %s
+                            GROUP BY h.ma_kho, kx.ten_kho, h.ma_khon, kn.ten_kho
+                            ORDER BY tong_sl DESC
+                        """, (code, d_from, d_to))
+                        transfer_routes = cursor.fetchall()
+
+                        # Format response
+                        total_pnd_sl = sum(float(r["so_luong"] or 0) for r in pnd_rows)
+                        total_transfer_sl = sum(float(r["tong_sl"] or 0) for r in transfer_routes)
+                        total_transfer_vouchers = sum(int(r["so_phieu"] or 0) for r in transfer_routes)
+
+                        pnd_dates = sorted(list(set(r["ngay_ct_str"] for r in pnd_rows)))
+
+                        md = []
+                        md.append(f"### Báo cáo lịch sử nhập kho và luân chuyển kho mã **{code}**")
+                        md.append(f"- **Tên sản phẩm/vật tư:** {ten_vt}")
+                        md.append(f"- **Khoảng thời gian tra cứu:** Từ ngày **{d_from}** đến hết ngày **{d_to}**\n")
+                        
+                        md.append("#### 📌 Tóm tắt kết quả tra cứu:")
+                        if pnd_rows:
+                            pnd_days_preview = ', '.join(d[:5] for d in pnd_dates[:10]) + (f' (+{len(pnd_dates)-10} ngày khác)' if len(pnd_dates) > 10 else '')
+                            md.append(f"1. **Nhập kho từ sản xuất (PND):** Nhập vào **{len(pnd_dates)} ngày** ({pnd_days_preview}) với tổng số lượng **{total_pnd_sl:,.0f} {dvt}** qua **{len(pnd_rows)} phiếu nhập**, vào kho `{pnd_rows[0]['kho_nhan']}` ({pnd_rows[0]['ten_kho_nhan']}). Tài khoản tạo phiếu: **{pnd_rows[0]['user_name']}**.")
+                        else:
+                            md.append("1. **Nhập kho từ sản xuất (PND):** Không phát sinh phiếu PND trong kỳ.")
+
+                        if transfer_routes:
+                            top_routes_text = []
+                            for r in transfer_routes[:4]:
+                                top_routes_text.append(f"`{r['kho_xuat']}` ➔ `{r['kho_nhan']}`: {float(r['tong_sl']):,.0f} {dvt}")
+                            md.append(f"2. **Điều chuyển giữa các kho (PNF/PXB):** Phát sinh **{total_transfer_vouchers} phiếu điều chuyển** ({len(transfer_routes)} tuyến kho) với tổng lượng luân chuyển **{total_transfer_sl:,.0f} {dvt}**. Các luồng luân chuyển chính: {'; '.join(top_routes_text)}.")
+                            all_tf_users = set()
+                            for r in transfer_routes:
+                                for u in (r["ds_tai_khoan"] or "").split(","):
+                                    if u.strip(): all_tf_users.add(u.strip())
+                            md.append(f"3. **Tài khoản tạo phiếu điều chuyển:** **{', '.join(sorted(all_tf_users))}**.")
+                        md.append("")
+
+                        # Table 1: Route summary
+                        if transfer_routes:
+                            md.append("#### 1. Tổng hợp luồng điều chuyển qua các kho:")
+                            md.append("| STT | Kho xuất | Kho nhận | Số lượng (PCS) | Số phiếu | Thời gian | Tài khoản tạo phiếu | Họ tên người lập |")
+                            md.append("| :---: | :--- | :--- | :---: | :---: | :---: | :--- | :--- |")
+                            for idx, r in enumerate(transfer_routes, 1):
+                                sl = float(r["tong_sl"] or 0)
+                                sl_str = f"{sl:,.0f}" if sl.is_integer() else f"{sl:,.2f}"
+                                md.append(f"| {idx} | **{r['kho_xuat']}** ({r['ten_kho_xuat']}) | **{r['kho_nhan']}** ({r['ten_kho_nhan']}) | {sl_str} | {r['so_phieu']} | {r['min_date']} - {r['max_date']} | {r['ds_tai_khoan']} | {r['ds_nguoi_lap']} |")
+                            md.append("")
+
+                        # Table 2: PND detail
+                        if pnd_rows:
+                            md.append("#### 2. Chi tiết các phiếu nhập kho từ sản xuất (PND):")
+                            md.append("| STT | Số chứng từ | Ngày CT | Kho nhận | Số lượng (PCS) | Tài khoản | Họ tên người lập |")
+                            md.append("| :---: | :--- | :---: | :--- | :---: | :--- | :--- |")
+                            for idx, r in enumerate(pnd_rows, 1):
+                                sl = float(r["so_luong"] or 0)
+                                sl_str = f"{sl:,.0f}" if sl.is_integer() else f"{sl:,.2f}"
+                                md.append(f"| {idx} | `{r['so_ct']}` | {r['ngay_ct_str']} | {r['ten_kho_nhan']} (`{r['kho_nhan']}`) | {sl_str} | {r['user_name']} | {r['ten_nguoi_lap']} |")
+                            md.append("")
+
+                        # Mermaid Flowchart
+                        if transfer_routes:
+                            md.append("#### 3. Sơ đồ chu trình luân chuyển kho thực tế:")
+                            md.append("```mermaid")
+                            md.append("flowchart LR")
+                            pnd_user_str = pnd_rows[0]["user_name"] if pnd_rows else "SX"
+                            md.append(f'    SX["Xưởng Sản Xuất"] -->|"Nhập SX: {total_pnd_sl:,.0f} PCS<br/>User: {pnd_user_str}"| TM["Kho tại máy<br/>(KHO_TAIMAY)"]')
+                            added_edges = 0
+                            for r in transfer_routes:
+                                if r["kho_xuat"] != r["kho_nhan"] and added_edges < 6:
+                                    kx_id = r["kho_xuat"].replace("-", "_")
+                                    kn_id = r["kho_nhan"].replace("-", "_")
+                                    sl_val = float(r["tong_sl"])
+                                    md.append(f'    {kx_id}["{r["kho_xuat"]}<br/>({r["ten_kho_xuat"]})"] -->|"{sl_val:,.0f} PCS<br/>User: {r["ds_tai_khoan"]}"| {kn_id}["{r["kho_nhan"]}<br/>({r["ten_kho_nhan"]})"]')
+                                    added_edges += 1
+                            md.append("```")
+                            md.append("")
+
+                        formatted_rows = []
+                        for idx, r in enumerate(transfer_routes, 1):
+                            formatted_rows.append({
+                                "stt": idx,
+                                "kho_xuat": r["kho_xuat"],
+                                "kho_nhan": r["kho_nhan"],
+                                "tong_sl": float(r["tong_sl"] or 0),
+                                "so_phieu": r["so_phieu"],
+                                "tai_khoan": r["ds_tai_khoan"]
+                            })
+
+                        return json.dumps({
+                            "source": "public.ph85 / public.ct85 (Phiếu chuyển kho) & public.ph74 / public.ct74 (Nhập kho SX)",
+                            "lookup": {"ma_vt": code, "tu_ngay": d_from, "den_ngay": d_to},
+                            "row_count": len(formatted_rows),
+                            "rows": formatted_rows,
+                            "message": "\n".join(md)
+                        }, ensure_ascii=False, default=str)
+
+                    # Case 3: Recent PND list
+                    cursor.execute("""
+                        SELECT 
+                            h.so_ct,
+                            to_char(h.ngay_ct, 'DD/MM/YYYY') AS ngay_ct,
+                            h.ma_ct AS loai_phieu,
+                            d.ma_vt,
+                            coalesce(v.ten_vt, d.ma_vt) AS ten_vt,
+                            d.dvt,
+                            d.ma_kho,
+                            coalesce(w.ten_kho, d.ma_kho) AS ten_kho,
+                            d.so_luong,
+                            u.user_name,
+                            coalesce(u.ten, u.user_name) AS nguoi_lap
+                        FROM public.ph74 h
+                        JOIN public.ct74 d USING(stt_rec)
+                        LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt
+                        LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho
+                        LEFT JOIN public.userinfo u ON u.user_id = h.user_id0
+                        ORDER BY h.ngay_ct DESC, h.stt_rec DESC, d.ln
+                        LIMIT 20;
+                    """)
+                    rows_rec = cursor.fetchall()
+                    formatted_rows = []
+                    md_lines = [
+                        "### Bảng kê phiếu nhập kho nội bộ từ sản xuất phát sinh gần đây",
+                        "| STT | Số chứng từ | Ngày CT | Mã vật tư | Tên vật tư | ĐVT | Kho nhận | Số lượng (PCS) | Người lập |",
+                        "| :---: | :--- | :---: | :--- | :--- | :---: | :--- | :---: | :--- |"
+                    ]
+                    for idx, r in enumerate(rows_rec, 1):
+                        sl = float(r["so_luong"] or 0)
+                        sl_str = f"{sl:,.0f}" if sl.is_integer() else f"{sl:,.2f}"
+                        md_lines.append(f"| {idx} | `{r['so_ct']}` | {r['ngay_ct']} | `{r['ma_vt']}` | {r['ten_vt']} | {r.get('dvt') or 'PCS'} | {r['ten_kho']} (`{r['ma_kho']}`) | {sl_str} | {r['user_name']} ({r['nguoi_lap']}) |")
+                        formatted_rows.append({
+                            "stt": idx,
+                            "so_ct": r["so_ct"],
+                            "ngay_ct": r["ngay_ct"],
+                            "ma_vt": r["ma_vt"],
+                            "so_luong": sl_str
+                        })
+                    return json.dumps({
+                        "source": "public.ph74 / public.ct74 (Phiếu nhập kho nội bộ)",
+                        "row_count": len(formatted_rows),
+                        "rows": formatted_rows,
+                        "message": "\n".join(md_lines)
+                    }, ensure_ascii=False, default=str)
         except Exception:
             return None
-        for idx, r in enumerate(rows, 1):
-            r["stt"] = idx
-            if r.get("so_luong") is not None:
-                r["so_luong"] = clean_numeric_str(r["so_luong"])
-        return json.dumps({
-            "source": "public.ph74 / public.ct74 (Phiếu nhập/xuất kho nội bộ)",
-            "lookup": {"ma_phieu": code},
-            "row_count": len(rows),
-            "rows": rows
-        }, ensure_ascii=False, default=str)
 
     def _mold_profile_register(self, question: str) -> str | None:
         """Tra cứu Bảng kê hồ sơ khuôn / Quản lý tài sản khuôn (dmhosokhuon)."""
