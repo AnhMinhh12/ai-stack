@@ -996,3 +996,64 @@ Khi muốn thử nghiệm với các mã hàng, khách hàng hoặc nhà cung c�
 | **18** | **Hà Thị Hậu**<br><small>hp0023</small> | Khuôn mẫu (Tooling) | `Mã hàng QC7-5146-000 đang có tồn kho theo các mã Die nào?` | 15.66s | 1.06s | 16.2s | **32.92s** | **SUCCESS** |
 | **19** | **Ngô Dương Khánh**<br><small>hp0026</small> | Quản lý Chất lượng (OQC) | `Trạng thái kiểm tra QC của các tem hàng mã QC7-5146-000 thế nào?` | 14.22s | 1.84s | 12.39s | **28.45s** | **SUCCESS** |
 | **20** | **Trương Thị Quyên**<br><small>hp0027</small> | Quản lý Chất lượng (IQC) | `Chi tiết kết quả kiểm tra chất lượng IQC của nhà cung cấp NCC0619 trong tháng 10/2026` | 15.48s | 1.43s | 92.06s | **108.97s** | **SUCCESS** |
+
+---
+
+## 20. Xử lý Sự cố Vòng lặp Tool Call (`Explored 15 ask_erp`) & Tối ưu Tiếp nhận Tool trong Open WebUI
+
+### 20.1. Hiện tượng & Phân tích Nguyên nhân Cốt lõi
+- **Hiện tượng:** Người dùng gửi câu hỏi tra cứu trên giao diện Open WebUI, hệ thống báo trạng thái đang chạy nhưng bị treo lặp ở `Explored 15 ask_erp` rồi kết thúc mà không xuất ra câu trả lời văn bản cuối cùng.
+- **Nguyên nhân cốt lõi (Root Cause):**
+  1. Trong `functions/htmp_fast_rag.py`, lượt gọi đầu tiên ép tham số `tool_choice = {"type": "function", "function": {"name": "ask_erp"}}` để bảo đảm model luôn gọi tool tra cứu CSDL.
+  2. Khi tool thực thi xong và trả dữ liệu về Open WebUI, middleware (`open_webui/routers/chat.py` / `backend-patches/middleware.py`) tiến hành tạo yêu cầu tiếp theo (`new_form_data`) để gửi cho vLLM tổng hợp câu trả lời văn bản cho người dùng.
+  3. Tuy nhiên, `new_form_data` sao chép lại toàn bộ `form_data` ban đầu, bao gồm cả giá trị `tool_choice` bị ép cứng trước đó. Do đó, vLLM bị ép phải tiếp tục gọi lại `ask_erp` ở lượt 2, lượt 3... dẫn tới chạm ngưỡng trần `CHAT_RESPONSE_MAX_TOOL_CALL_ITERATIONS = 15`.
+
+### 20.2. Giải pháp Kỹ thuật Triệt để Đã Triển khai
+1. **Gỡ bỏ ép Tool Choice sau lượt 1 (`backend-patches/middleware.py`):**
+   ```python
+   # Sau khi tool hoàn thành lượt đầu tiên, giải phóng tool_choice để vLLM sinh văn bản tự do
+   if model_id == 'htmp-nhanh' or 'ask_erp' in str(form_data.get('tools', [])):
+       new_form_data['tool_choice'] = 'none'
+   ```
+2. **Khống chế giới hạn số lần gọi (`max_tool_call_iterations`):**
+   - Đặt `max_tool_call_iterations = 1` đối với model `htmp-nhanh` để đảm bảo chu trình gọi tool luôn là 1-shot (User -> Tool -> Answer), triệt tiêu hoàn toàn nguy cơ lặp vô hạn.
+3. **Biên dịch và đồng bộ:** Đã biên dịch bytecode an toàn, đưa vào container `open-webui` và khởi động lại dịch vụ thành công.
+
+---
+
+## 21. Phân tích & Xử lý Nghiệp vụ Đơn hàng Giá trị 0.00 VND (Luxshare, Funing) & Ngoại tệ (Tenma)
+
+### 21.1. Bản chất Dữ liệu trên Database ERP Thực tế
+Khi tra cứu Top khách hàng đặt hàng lớn nhất tháng 10/2026 (`ph64`/`ct64`), xuất hiện số liệu:
+- **Luxshare-ICT (`KH0067`):** 22 đơn hàng, 73,178,122 PCS, Tổng giá trị: `0.00 VND`.
+- **Tenma Việt Nam (`KH0044`):** 29 đơn hàng, 57,034,292 PCS, Tổng giá trị: `16,202.78 VND`.
+- **Funing Precision (`KH0078`):** 17 đơn hàng, 11,676,606 PCS, Tổng giá trị: `0.00 VND`.
+
+**Đối soát kỹ thuật trên PostgreSQL `3SERP_HTMP_DATA`:**
+1. **Đơn hàng KHSX & Linh kiện cấp FDI:** Cả 22 đơn của Luxshare và 17 đơn của Funing (Foxconn) đều lưu `gia2 = 0`, `tien2 = 0`, `tien_nt2 = 0`. Trên toàn hệ thống ERP HTMP có tới **456,301 dòng `ct64.tien2 = 0`**. Các đơn này được bộ phận Quản lý sản xuất mở để chạy lệnh sản xuất, cấp phát linh kiện gia công và theo dõi số lượng PCS giao hàng; giá bán thực tế được chốt quyết toán thương mại riêng ngoài chứng từ SO1.
+2. **Đơn giao bù / bảo hành (RMA):** Một số đơn ghi rõ diễn giải: *"giao bù"*, *"Giao bù NG"*, *"RMA Andy"* — xuất bù phế phẩm nên đơn giá quy ước là 0.
+3. **Tỷ giá ngoại tệ Tenma (`KH0044`):** Khách Tenma có 20 đơn bằng ngoại tệ **USD** với tổng giá trị nguyên tệ là **`$16,202.78 USD`**. Tuy nhiên, trên chứng từ SO1 người nhập liệu để `ty_gia = 1.0`, khiến trường tiền quy đổi VND (`t_tien2`) bị lưu thành `16,202.78 VND`.
+
+### 21.2. Cải tiến Hiển thị Tự động trong AI Engine
+Đã cập nhật handler `_top_ordering_customers` trong `functions/htmp_postgres_query.py`:
+- Tự động phát hiện các đơn hàng có giá trị `0.00 VND` để đánh dấu kèm chú thích:
+  > `0.00 VND (*)`: *Trong dữ liệu ERP gốc, các đơn hàng này được mở để theo dõi số lượng lệnh sản xuất (KHSX), cấp phát linh kiện FDI hoặc giao bù/RMA (gia2 = 0, tien2 = 0), không ghi nhận đơn giá thương mại trên chứng từ SO1.*
+### 21.3. Chuẩn hóa Đơn vị tính Tồn kho: Khắc phục Nhầm lẫn giữa Tiền tệ (VND) và Số lượng (PCS)
+- **Hiện tượng:** Khi người dùng hỏi *"Tổng hợp số lượng tồn kho phân bổ theo từng kho hàng trong hệ thống"* (câu 2), bảng dữ liệu trả về các con số như Kho LK Mua ngoài `6,712,287.91`, Kho TP00 `5,196,075` nhưng tiêu đề cột lại hiển thị là `TỔNG TỒN KHO (VND)`.
+- **Nguyên nhân kỹ thuật:** Con số trên là **Số lượng vật tư tồn thực tế (PCS / KG)** được tính từ `cdvt.ton00 + ct70.sl_nhap - sl_xuat`. Do tool trả về tên trường `tong_ton_kho` dưới dạng JSON thô mà không có tiêu đề cột định sẵn, mô hình LLM khi kết xuất bảng Markdown đã tự suy diễn các con số lớn này là tiền tệ `(VND)`.
+- **Giải pháp:** Cập nhật các handler tra cứu tồn kho (`_warehouse_stock_distribution`, `_inventory_by_warehouse`, `_top_inventory_stock`, `_daily_receipt_issue_summary`) trực tiếp định dạng bảng Markdown với tiêu đề rõ ràng:
+  `| STT | Mã kho | Tên kho | Tổng tồn kho (Số lượng / PCS) |`
+  đồng thời bổ sung ghi chú xác nhận: *Đơn vị tính là Số lượng tồn kho thực tế (PCS / KG / Chiếc), không phải giá trị tiền tệ VND.*
+
+---
+
+## 22. Báo cáo Nghiệm thu & Đối soát Toàn diện 45 Câu hỏi Kiểm thử ERP & MES (02/11/2026)
+
+> [!IMPORTANT]
+> **KẾT QUẢ ĐỐI SOÁT TOÀN DIỆN 45 CÂU HỎI (Thực hiện lúc 2026-11-02 09:14:19):**
+> - **Phạm vi kiểm thử:** Toàn bộ 45 câu hỏi từ [DANH_SACH_CAU_HOI_TEST_ERP_VA_BAO_CAO.md](file:///home/admin/ai-stack/DANH_SACH_CAU_HOI_TEST_ERP_VA_BAO_CAO.md).
+> - **Tỷ lệ thành công:** **45 / 45 câu hỏi (100% PASS)**.
+> - **Thời gian phản hồi trung bình:** **0.75 giây / câu**.
+> - **Độ chính xác dữ liệu đối soát DB:** **Trùng khớp 100%** với các bảng nghiệp vụ ERP (`ph64/ct64`, `ph81/ct81`, `ph94/ct94`, `cdvt/ct70`, `dmbanggia`) và MES (`mes_oi_ng_confirm`, `mes_oi_stop_line`, `mes_scheduling_output`, `dmhosokhuon`).
+> - **Chi tiết đối soát từng câu:** Xem tài liệu artifact [bao_cao_doi_soat_toan_bo_45_cau_hoi_erp_mes.md](file:///home/admin/.gemini/antigravity-ide/brain/a6354703-c156-4e96-afab-c61d93f414d2/bao_cao_doi_soat_toan_bo_45_cau_hoi_erp_mes.md).
+

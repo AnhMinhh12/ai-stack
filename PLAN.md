@@ -722,5 +722,16 @@ Thiết kế và tiêu chuẩn triển khai ERP: [erp.md](docs/erp.md).
 - **Kết quả kiểm thử đợt 2 ngày 2026-10-27:** Bộ test gồm 12 câu hỏi thực tế (`scratch/run_full_batch2_test.py`) đạt **12/12 (100.0%)**, thời gian phản hồi trung bình **0.197s**.
 - **Kết quả kiểm thử đợt 3 ngày 2026-10-28:** Bộ test gồm 16 câu hỏi thực tế (`scratch/run_full_batch3_test.py`) đạt **16/16 (100.0%)**, thời gian phản hồi trung bình **0.626s**. Toàn bộ mã nguồn đã đồng bộ vào `local_webui.db` và `/app/backend/data/webui.db` trong Docker, container `open-webui` hoạt động ổn định `(healthy)`.
 
+---
+
+## Cập nhật Nghiệm thu & Đối soát Toàn diện 45 Câu hỏi ERP & MES — 2026-11-02
+
+**Trạng thái:** `COMPLETED; 45/45 questions VERIFIED PASS 100%; Middleware tool loop resolved; FDI zero-price business logic annotated`.
+
+- **Khắc phục lỗi vòng lặp gọi tool (`Explored 15 ask_erp`):** Sửa lỗi gán cứng `tool_choice` trong `backend-patches/middleware.py`. Sau lượt 1 thực thi tool, giải phóng `tool_choice = 'none'` và giới hạn `max_tool_call_iterations = 1` cho model `htmp-nhanh`, giúp model trả lời mượt mà ngay sau khi có dữ liệu từ tool.
+- **Xử lý bản chất nghiệp vụ đơn giá 0.00 VND & Ngoại tệ:** Khách hàng FDI gia công (Luxshare `KH0067`, Funing `KH0078`) có 456,301 dòng `ct64.tien2 = 0` do SO1 chỉ mở để chạy lệnh sản xuất; khách Tenma (`KH0044`) có 20 đơn USD nhưng tỷ giá lưu 1.0. Đã cập nhật tool tự động nhận diện và chú thích minh bạch `0.00 VND (*)` và `(** $16,202.78 USD)`.
+- **Nghiệm thu toàn bộ 45 câu hỏi kiểm thử:** Đạt 45/45 (100% PASS), tốc độ trung bình 0.75s, dữ liệu khớp 100% cơ sở dữ liệu `3SERP_HTMP_DATA`. Chi tiết tại [DANH_SACH_CAU_HOI_TEST_ERP_VA_BAO_CAO.md](DANH_SACH_CAU_HOI_TEST_ERP_VA_BAO_CAO.md) và [TOM_TAT_TRIEN_KHAI_AI_ERP_MES_2026-10-29.md](TOM_TAT_TRIEN_KHAI_AI_ERP_MES_2026-10-29.md).
+
+
 
 

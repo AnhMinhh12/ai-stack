@@ -1,0 +1,103 @@
+/* ========================================================
+   HTMP ERP - Custom UI Stylesheet & Thinking Indicator
+   ======================================================== */
+
+/* Thinking Box container when AI is analyzing / generating */
+div.text-\[0\.9375rem\].leading-relaxed:has(> span.animate-pulse) {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 8px !important;
+	min-height: 28px !important;
+	margin-top: 6px !important;
+	margin-bottom: 4px !important;
+	padding: 4px 10px 4px 0 !important;
+	color: #64748b !important;
+	font-size: 13.5px !important;
+	font-weight: 500 !important;
+	user-select: none !important;
+	letter-spacing: -0.01em !important;
+}
+
+html.dark div.text-\[0\.9375rem\].leading-relaxed:has(> span.animate-pulse) {
+	color: #94a3b8 !important;
+}
+
+/* "Đang suy nghĩ" text with shimmering gradient animation (ChatGPT style) */
+div.text-\[0\.9375rem\].leading-relaxed:has(> span.animate-pulse)::before {
+	content: "Đang suy nghĩ" !important;
+	font-weight: 500 !important;
+	font-size: 13.5px !important;
+	letter-spacing: -0.01em !important;
+	background: linear-gradient(90deg, #475569 0%, #94a3b8 50%, #475569 100%) !important;
+	background-size: 200% 100% !important;
+	-webkit-background-clip: text !important;
+	-webkit-text-fill-color: transparent !important;
+	animation: htmpThinkingShimmer 2.2s ease-in-out infinite !important;
+}
+
+html.dark div.text-\[0\.9375rem\].leading-relaxed:has(> span.animate-pulse)::before {
+	background: linear-gradient(90deg, #94a3b8 0%, #f1f5f9 50%, #94a3b8 100%) !important;
+	background-size: 200% 100% !important;
+	-webkit-background-clip: text !important;
+	-webkit-text-fill-color: transparent !important;
+}
+
+/* Transform the default vertical blinking pipe into an elegant glowing animated dot */
+div.text-\[0\.9375rem\].leading-relaxed > span.animate-pulse {
+	display: inline-block !important;
+	width: 6.5px !important;
+	height: 6.5px !important;
+	border-radius: 50% !important;
+	background-color: #2563eb !important; /* HTMP Blue accent */
+	box-shadow: 0 0 8px rgba(37, 99, 235, 0.6) !important;
+	margin-left: 2px !important;
+	vertical-align: middle !important;
+	animation: htmpThinkingPulse 1.3s infinite ease-in-out !important;
+}
+
+html.dark div.text-\[0\.9375rem\].leading-relaxed > span.animate-pulse {
+	background-color: #60a5fa !important;
+	box-shadow: 0 0 10px rgba(96, 165, 250, 0.7) !important;
+}
+
+/* When the model has generated actual markdown text/tables/lists, hide "Đang suy nghĩ" and restore normal typing cursor */
+#response-content-container:has(.markdown-prose p, .markdown-prose table, .markdown-prose ul, .markdown-prose ol, .markdown-prose pre, .markdown-prose blockquote, .markdown-prose h1, .markdown-prose h2, .markdown-prose h3) div.text-\[0\.9375rem\].leading-relaxed:has(> span.animate-pulse)::before {
+	display: none !important;
+}
+
+#response-content-container:has(.markdown-prose p, .markdown-prose table, .markdown-prose ul, .markdown-prose ol, .markdown-prose pre, .markdown-prose blockquote, .markdown-prose h1, .markdown-prose h2, .markdown-prose h3) div.text-\[0\.9375rem\].leading-relaxed {
+	margin-top: 0 !important;
+	min-height: 0 !important;
+	padding: 0 !important;
+}
+
+#response-content-container:has(.markdown-prose p, .markdown-prose table, .markdown-prose ul, .markdown-prose ol, .markdown-prose pre, .markdown-prose blockquote, .markdown-prose h1, .markdown-prose h2, .markdown-prose h3) div.text-\[0\.9375rem\].leading-relaxed > span.animate-pulse {
+	width: 2px !important;
+	height: 14px !important;
+	border-radius: 1px !important;
+	background-color: currentColor !important;
+	box-shadow: none !important;
+	animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+}
+
+@keyframes htmpThinkingShimmer {
+	0% { background-position: 100% 0; }
+	100% { background-position: -100% 0; }
+}
+
+@keyframes htmpThinkingPulse {
+	0%, 100% {
+		transform: scale(0.85);
+		opacity: 0.45;
+	}
+	50% {
+		transform: scale(1.3);
+		opacity: 1;
+	}
+}
+
+/* Tool call badge refinement */
+[data-tool-call], .tool-call-item {
+	transition: all 0.2s ease-in-out;
+}
+

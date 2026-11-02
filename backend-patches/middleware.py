@@ -5539,6 +5539,8 @@ async def streaming_chat_response_handler(response, ctx):
                     'max_tool_call_iterations',
                     CHAT_RESPONSE_MAX_TOOL_CALL_ITERATIONS,
                 )
+                if model_id == 'htmp-nhanh':
+                    max_tool_call_iterations = 1
                 tool_call_sources = []  # Track citation sources from tool results
                 all_tool_call_sources = []  # Accumulated sources across all iterations
                 user_message = get_last_user_message(form_data['messages'])
@@ -5923,6 +5925,15 @@ async def streaming_chat_response_handler(response, ctx):
                             'stream': True,
                             'metadata': metadata,
                         }
+
+                        # Prevent tool-call loops by disallowing further forced function calls
+                        if model_id == 'htmp-nhanh' or any(
+                            (tc.get('function', {}).get('name') == 'ask_erp' or tc.get('name') == 'ask_erp')
+                            for tc in response_tool_calls
+                        ):
+                            new_form_data['tool_choice'] = 'none'
+                        elif isinstance(form_data.get('tool_choice'), dict):
+                            new_form_data['tool_choice'] = 'auto'
 
                         if ENABLE_RESPONSES_API_STATEFUL and last_response_id:
                             system_message = get_system_message(form_data['messages'])

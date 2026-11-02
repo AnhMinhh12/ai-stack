@@ -1,6 +1,6 @@
 # BỘ CÂU HỎI KIỂM THỬ TRÍ TUỆ NHÂN TẠO ERP & TỔNG HỢP BÁO CÁO (HTMP AI STACK)
 
-> **Cập nhật:** Ngày 29/10/2026 (Đã kiểm chứng và xác thực 100% dữ liệu thực tế)  
+> **Cập nhật:** Ngày 02/11/2026 (Đã kiểm chứng, đối soát live DB và xác thực đạt 100% trên 45/45 câu hỏi)  
 > **Phạm vi áp dụng:** Open WebUI Chat / Model `htmp-nhanh` (`Qwen2.5-14B`) kết nối cơ sở dữ liệu `3SERP_HTMP_DATA`  
 > **Tính năng tự động kích hoạt:**
 > - 📊 **Rich UI:** Tự động sinh bảng dữ liệu, biểu đồ trực quan (Cột / Đường / Tròn) với nền trong suốt hòa vào khung chat.
@@ -46,7 +46,7 @@
    ```text
    Cho tôi báo cáo top khách hàng có số lượng đặt hàng lớn nhất trong các đơn hàng bán gần đây
    ```
-   *(Kỳ vọng: Bảng thống kê mã KH, tên KH, tổng số lượng đặt + Biểu đồ Cột/Tròn)*
+   *(Kỳ vọng: Bảng thống kê mã KH, tên KH, số đơn hàng, tổng số lượng đặt + Tổng giá trị. Lưu ý nghiệp vụ: Khách hàng FDI gia công như Luxshare KH0067, Funing KH0078 có giá trị 0.00 VND kèm chú thích (*) do chứng từ SO1 chỉ mở để chạy lệnh sản xuất; khách Tenma KH0044 có chú thích ngoại tệ (** $16,202.78 USD) do tỷ giá ERP lưu 1.0)*
 
 5. **Báo cáo sản lượng xuất bán theo khách hàng:**
    ```text
@@ -167,6 +167,7 @@
     ```text
     Kiểm tra tổng số lượng đặt hàng trong đơn SO và tổng số lượng đã xuất kho giao hàng của mã QC7-5146-000 trong tháng 10/2026
     ```
+    *(Kỳ vọng đối soát DB: Đặt SO 167,440 PCS / 33 đơn hàng; Thực tế xuất HDA 150,780 PCS / 338 phiếu xuất; Còn phải giao: 16,660 PCS)*
 
 ---
 

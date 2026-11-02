@@ -134,6 +134,7 @@ services:
       - ./ui-patches/index.html:/app/build/index.html:ro
       - ./ui-patches/bulk-chat-delete.js:/app/backend/open_webui/static/bulk-chat-delete.js:ro
       - ./ui-patches/chart.umd.min.js:/app/backend/open_webui/static/chart.umd.min.js:ro
+      - ./ui-patches/custom.css:/app/backend/open_webui/static/custom.css:ro
       - ./config:/app/backend/config:ro
       - ./sql:/app/backend/sql:ro
       - ./docs:/app/backend/docs:ro

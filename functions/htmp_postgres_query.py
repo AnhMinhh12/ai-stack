@@ -3347,7 +3347,9 @@ class Tools:
                             coalesce(k.ten_kh, h.ten_kh, h.ma_kh) AS ten_kh,
                             count(DISTINCT h.so_ct) AS so_don_hang,
                             sum(h.t_so_luong) AS tong_so_luong_dat,
-                            sum(h.t_tien2) AS tong_tien2_vnd
+                            sum(h.t_tien2) AS tong_tien2_vnd,
+                            sum(h.t_tien_nt2) AS tong_tien_nt2,
+                            max(h.ma_nt) AS ma_nt
                         FROM public.ph64 h
                         LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh
                         WHERE h.ma_ct = 'SO1' 
@@ -3370,11 +3372,24 @@ class Tools:
             "| STT | Mã KH | Tên khách hàng | Số đơn hàng | Tổng SL đặt (PCS) | Tổng giá trị (VND) |",
             "| :---: | :---: | :--- | :---: | :---: | :---: |"
         ]
+        has_zero_price = False
+        has_usd_ratio1 = False
         for idx, r in enumerate(rows, 1):
             sl = float(r["tong_so_luong_dat"] or 0)
             tien = float(r["tong_tien2_vnd"] or 0)
+            tien_nt = float(r.get("tong_tien_nt2") or 0)
+            ma_nt = (r.get("ma_nt") or "VND").strip()
             sl_str = f"{sl:,.0f}" if sl.is_integer() else f"{sl:,.2f}"
-            tien_str = f"{tien:,.2f} VND"
+            
+            if tien == 0 and tien_nt == 0:
+                tien_str = "0.00 VND (*)"
+                has_zero_price = True
+            elif ma_nt == "USD" and abs(tien - tien_nt) < 0.01 and tien > 0:
+                tien_str = f"{tien:,.2f} VND (** ${tien_nt:,.2f} USD)"
+                has_usd_ratio1 = True
+            else:
+                tien_str = f"{tien:,.2f} VND"
+            
             so_don = f"{r['so_don_hang']:,}"
             md_lines.append(f"| {idx} | {r['ma_kh']} | {r['ten_kh']} | {so_don} | {sl_str} | {tien_str} |")
             formatted_rows.append({
@@ -3387,6 +3402,10 @@ class Tools:
             })
 
         md_lines.append(f"\n*Ghi chú: Dữ liệu được trích xuất từ chứng từ đơn hàng bán SO1 (ph64/ct64) từ {d_from} đến {d_to}, đã loại trừ các đơn hủy/từ chối (status 14, 15).*")
+        if has_zero_price:
+            md_lines.append("*- (*) Đơn hàng có giá trị 0.00 VND: Trong dữ liệu ERP gốc, các đơn hàng này được mở để theo dõi số lượng lệnh sản xuất (KHSX), cấp phát linh kiện FDI hoặc giao bù/RMA (gia2 = 0, tien2 = 0), không ghi nhận đơn giá thương mại trên chứng từ SO1.*")
+        if has_usd_ratio1:
+            md_lines.append("*- (**) Đơn hàng ngoại tệ USD: Giá trị gốc là USD, trên ERP chứng từ lưu tỷ giá 1.0 nên trường quy đổi VND trong hệ thống bằng đúng nguyên tệ USD.*")
         markdown_table = "\n".join(md_lines)
 
         return json.dumps({
@@ -3437,15 +3456,31 @@ class Tools:
             return None
         if not rows:
             return None
+        formatted_rows = []
+        md_lines = [
+            f"Dưới đây là tổng hợp số lượng tồn kho phân bổ theo từng kho hàng trong hệ thống:\n",
+            "| STT | Mã kho | Tên kho | Tổng tồn kho (Số lượng / PCS) |",
+            "| :---: | :---: | :--- | :---: |"
+        ]
         for idx, r in enumerate(rows, 1):
-            r["stt"] = idx
-            if r.get("tong_ton_kho") is not None:
-                r["tong_ton_kho"] = clean_numeric_str(r["tong_ton_kho"])
+            qty = float(r["tong_ton_kho"] or 0)
+            qty_str = f"{qty:,.0f}" if qty.is_integer() else f"{qty:,.2f}"
+            md_lines.append(f"| {idx} | {r['ma_kho']} | {r['ten_kho']} | {qty_str} |")
+            formatted_rows.append({
+                "stt": idx,
+                "ma_kho": r["ma_kho"],
+                "ten_kho": r["ten_kho"],
+                "so_luong_ton": qty_str
+            })
+
+        md_lines.append("\n*Ghi chú: Đơn vị tính là Số lượng tồn kho thực tế (PCS / KG / Chiếc) tổng hợp từ số dư đầu kỳ (cdvt) và biến động nhập - xuất trong kỳ (ct70), không phải giá trị tiền tệ VND.*")
+        markdown_table = "\n".join(md_lines)
+
         return json.dumps({
             "source": "public.cdvt / public.ct70 / public.dmkho (Tồn kho ERP)",
-            "row_count": len(rows),
-            "rows": rows,
-            "message": f"Báo cáo tổng hợp số lượng tồn kho phân bổ theo {len(rows)} kho hàng trong hệ thống."
+            "row_count": len(formatted_rows),
+            "rows": formatted_rows,
+            "message": markdown_table
         }, ensure_ascii=False, default=str)
 
     def _top_inventory_stock(self, question: str) -> str | None:
@@ -3485,15 +3520,33 @@ class Tools:
             return None
         if not rows:
             return None
+        formatted_rows = []
+        md_lines = [
+            f"Dưới đây là Top {len(rows)} vật tư có số lượng tồn kho lớn nhất hiện tại:\n",
+            "| STT | Mã vật tư | Tên vật tư | ĐVT | Số lượng tồn kho |",
+            "| :---: | :---: | :--- | :---: | :---: |"
+        ]
         for idx, r in enumerate(rows, 1):
-            r["stt"] = idx
-            if r.get("so_luong_ton") is not None:
-                r["so_luong_ton"] = clean_numeric_str(r["so_luong_ton"])
+            qty = float(r["so_luong_ton"] or 0)
+            qty_str = f"{qty:,.0f}" if qty.is_integer() else f"{qty:,.2f}"
+            dvt = (r.get("dvt") or "PCS").strip()
+            md_lines.append(f"| {idx} | {r['ma_vt']} | {r['ten_vt']} | {dvt} | {qty_str} |")
+            formatted_rows.append({
+                "stt": idx,
+                "ma_vt": r["ma_vt"],
+                "ten_vt": r["ten_vt"],
+                "dvt": dvt,
+                "so_luong_ton": qty_str
+            })
+
+        md_lines.append("\n*Ghi chú: Đơn vị tính theo ĐVT danh mục vật tư dmvt (PCS, KG...), trích xuất từ số dư đầu kỳ cdvt và phát sinh nhập xuất ct70.*")
+        markdown_table = "\n".join(md_lines)
+
         return json.dumps({
             "source": "public.cdvt / public.ct70 / public.dmvt (Tồn kho ERP)",
-            "row_count": len(rows),
-            "rows": rows,
-            "message": f"Báo cáo top {len(rows)} vật tư có số lượng tồn kho lớn nhất hiện tại trên toàn hệ thống."
+            "row_count": len(formatted_rows),
+            "rows": formatted_rows,
+            "message": markdown_table
         }, ensure_ascii=False, default=str)
 
     def _warehouse_stock_distribution(self, question: str) -> str | None:
@@ -3529,15 +3582,31 @@ class Tools:
             return None
         if not rows:
             return None
+        formatted_rows = []
+        md_lines = [
+            f"Dưới đây là tổng hợp số lượng tồn kho phân bổ theo từng kho hàng trong hệ thống:\n",
+            "| STT | Mã kho | Tên kho | Tổng tồn kho (Số lượng / PCS) |",
+            "| :---: | :---: | :--- | :---: |"
+        ]
         for idx, r in enumerate(rows, 1):
-            r["stt"] = idx
-            if r.get("tong_ton_kho") is not None:
-                r["tong_ton_kho"] = clean_numeric_str(r["tong_ton_kho"])
+            qty = float(r["tong_ton_kho"] or 0)
+            qty_str = f"{qty:,.0f}" if qty.is_integer() else f"{qty:,.2f}"
+            md_lines.append(f"| {idx} | {r['ma_kho']} | {r['ten_kho']} | {qty_str} |")
+            formatted_rows.append({
+                "stt": idx,
+                "ma_kho": r["ma_kho"],
+                "ten_kho": r["ten_kho"],
+                "so_luong_ton": qty_str
+            })
+
+        md_lines.append("\n*Ghi chú: Đơn vị tính là Số lượng tồn kho thực tế (PCS / KG / Chiếc) tổng hợp từ số dư đầu kỳ (cdvt) và biến động nhập - xuất trong kỳ (ct70), không phải giá trị tiền tệ VND.*")
+        markdown_table = "\n".join(md_lines)
+
         return json.dumps({
             "source": "public.cdvt / public.ct70 / public.dmkho (Tồn kho theo kho)",
-            "row_count": len(rows),
-            "rows": rows,
-            "message": f"Tổng hợp số lượng tồn kho phân bổ theo {len(rows)} kho hàng trong hệ thống."
+            "row_count": len(formatted_rows),
+            "rows": formatted_rows,
+            "message": markdown_table
         }, ensure_ascii=False, default=str)
 
     def _daily_receipt_issue_summary(self, question: str) -> str | None:
@@ -3580,17 +3649,33 @@ class Tools:
             return None
         if not rows:
             return None
+        formatted_rows = []
+        md_lines = [
+            f"Dưới đây là báo cáo tổng hợp số lượng nhập kho và xuất kho từ {d_start} đến {d_end}:\n",
+            "| STT | Ngày chứng từ | Tổng nhập (Số lượng) | Tổng xuất (Số lượng) |",
+            "| :---: | :---: | :---: | :---: |"
+        ]
         for idx, r in enumerate(rows, 1):
-            r["stt"] = idx
-            if r.get("tong_nhap") is not None:
-                r["tong_nhap"] = clean_numeric_str(r["tong_nhap"])
-            if r.get("tong_xuat") is not None:
-                r["tong_xuat"] = clean_numeric_str(r["tong_xuat"])
+            nhap = float(r["tong_nhap"] or 0)
+            xuat = float(r["tong_xuat"] or 0)
+            nhap_str = f"{nhap:,.0f}" if nhap.is_integer() else f"{nhap:,.2f}"
+            xuat_str = f"{xuat:,.0f}" if xuat.is_integer() else f"{xuat:,.2f}"
+            md_lines.append(f"| {idx} | {r['ngay_ct']} | {nhap_str} | {xuat_str} |")
+            formatted_rows.append({
+                "stt": idx,
+                "ngay_ct": r["ngay_ct"],
+                "tong_nhap": nhap_str,
+                "tong_xuat": xuat_str
+            })
+
+        md_lines.append("\n*Ghi chú: Đơn vị tính là Số lượng phát sinh thực tế (ct70), không phải giá trị tiền tệ VND.*")
+        markdown_table = "\n".join(md_lines)
+
         return json.dumps({
             "source": "public.ct70 (Nhập xuất kho theo ngày)",
-            "row_count": len(rows),
-            "rows": rows,
-            "message": f"Báo cáo tổng hợp số lượng nhập kho và xuất kho theo {len(rows)} ngày từ {d_start} đến {d_end}."
+            "row_count": len(formatted_rows),
+            "rows": formatted_rows,
+            "message": markdown_table
         }, ensure_ascii=False, default=str)
 
     def _sales_order_register(self, question: str) -> str | None:
@@ -4733,7 +4818,7 @@ class Tools:
             "doi soat don hang", "don so va thuc xuat", "dat hang trong don so va tong so luong da xuat",
             "so va hda", "don hang so va thuc xuat hda", "so luong dat hang trong don so",
             "doi soat", "doi chieu so", "so sanh so va hda"
-        )) and any(kw in normalized for kw in ("so", "don hang", "dat hang")) and any(kw in normalized for kw in ("hda", "xuat ban", "thuc xuat", "xuat giao"))
+        )) and any(kw in normalized for kw in ("so", "don hang", "dat hang")) and any(kw in normalized for kw in ("hda", "xuat ban", "thuc xuat", "xuat giao", "xuat kho", "giao hang", "da xuat", "xuat"))
         if not is_reconcile:
             return None
         code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
