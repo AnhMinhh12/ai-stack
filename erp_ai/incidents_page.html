@@ -16,25 +16,207 @@
 })();
 </script>
 <style>
-:root{color-scheme:light;--bg:#f7f8fa;--surface:#fff;--text:#182232;--muted:#758195;--line:#e8ebef;--soft:#f5f7f9;--accent:#087f63;--accent-soft:#e7f6f1;--danger:#b94141;--shadow:0 12px 32px rgba(20,35,50,.035)}
+:root{color-scheme:light;--bg:#f7f8fa;--surface:#fff;--text:#182232;--muted:#758195;--line:#e8ebef;--soft:#f5f7f9;--accent:#087f63;--accent-soft:#e7f6f1;--warning:#d97706;--warning-soft:#fef3c7;--danger:#b94141;--danger-soft:#fee2e2;--shadow:0 12px 32px rgba(20,35,50,.035)}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}button{font:inherit}svg{display:block;flex-shrink:0}
-.shell{max-width:1280px;margin:auto;padding:34px 40px 72px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:32px}.brand{display:flex;align-items:center;gap:11px;font-size:14px;font-weight:700;letter-spacing:.01em}.brand img{width:34px;height:34px;object-fit:contain;border-radius:9px;background:var(--surface);padding:3px}.back{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:13px;font-weight:600}.back:hover{color:var(--text)}
+.shell{max-width:1400px;margin:auto;padding:34px 40px 72px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:32px}.brand{display:flex;align-items:center;gap:11px;font-size:14px;font-weight:700;letter-spacing:.01em}.brand img{width:34px;height:34px;object-fit:contain;border-radius:9px;background:var(--surface);padding:3px}.back{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:13px;font-weight:600}.back:hover{color:var(--text)}
 .heading{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:20px 0 28px}.eyebrow{font-size:11px;font-weight:750;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:0 0 9px}h1{font-size:clamp(25px,3vw,34px);letter-spacing:-.035em;line-height:1.17;margin:0;font-weight:720}.subtitle{color:var(--muted);margin:10px 0 0;font-size:14px}.refresh{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);padding:10px 15px;font-weight:650;white-space:nowrap;cursor:pointer;box-shadow:0 2px 5px rgba(20,35,50,.025)}.refresh:hover{background:var(--soft)}.refresh:disabled{opacity:.65;cursor:wait}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:21px 24px;border-bottom:1px solid var(--line)}.panel-title{font-size:15px;font-weight:700;margin:0}.panel-note{font-size:12px;color:var(--muted);margin:3px 0 0}.count{border-radius:99px;background:var(--soft);color:var(--muted);font-size:12px;font-weight:650;padding:5px 10px;white-space:nowrap}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;text-align:left;min-width:790px}th{background:var(--soft);color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:.08em;font-weight:750;padding:12px 24px}td{padding:16px 24px;border-top:1px solid var(--line);vertical-align:middle;font-size:13px}td:first-child{white-space:nowrap}td:nth-child(2){font-weight:600}.chat{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--muted);overflow-wrap:anywhere}.badge{display:inline-flex;border-radius:7px;padding:4px 8px;background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:650}.empty{padding:72px 24px 80px;text-align:center}.empty-icon{display:grid;place-items:center;margin:0 auto 18px;width:52px;height:52px;border-radius:16px;background:var(--accent-soft);color:var(--accent)}.empty h2{margin:0;font-size:16px;letter-spacing:-.01em}.empty p{margin:7px auto 0;color:var(--muted);font-size:13px;max-width:360px}.empty.error .empty-icon{color:var(--danger);background:#fceeee}.empty.error h2{color:var(--danger)}[hidden]{display:none!important}.footnote{font-size:12px;color:var(--muted);margin:17px 2px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:21px 24px;border-bottom:1px solid var(--line)}.panel-title{font-size:15px;font-weight:700;margin:0}.panel-note{font-size:12px;color:var(--muted);margin:3px 0 0}.count{border-radius:99px;background:var(--soft);color:var(--muted);font-size:12px;font-weight:650;padding:5px 10px;white-space:nowrap}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;text-align:left;min-width:1020px}th{background:var(--soft);color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:.08em;font-weight:750;padding:12px 20px}td{padding:14px 20px;border-top:1px solid var(--line);vertical-align:top;font-size:13px}td:first-child{white-space:nowrap}td:nth-child(2){font-weight:600}.chat{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--muted);overflow-wrap:anywhere}.badge{display:inline-flex;border-radius:7px;padding:4px 8px;background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:650;white-space:nowrap}.badge.warning{background:var(--warning-soft);color:var(--warning)}.badge.danger{background:var(--danger-soft);color:var(--danger)}
+.chat-excerpt-col{max-width:380px;min-width:280px}.excerpt-box{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:12px;line-height:1.5}.excerpt-q{font-weight:600;color:var(--text);margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.excerpt-a{color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px}.excerpt-note{color:var(--warning);font-size:11px;font-weight:600;margin-bottom:6px;display:block}.btn-view{display:inline-flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;color:var(--text);cursor:pointer;transition:all .15s}.btn-view:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}.chat-link{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-weight:600;font-size:12px}.chat-link:hover{text-decoration:underline}
+.empty{padding:72px 24px 80px;text-align:center}.empty-icon{display:grid;place-items:center;margin:0 auto 18px;width:52px;height:52px;border-radius:16px;background:var(--accent-soft);color:var(--accent)}.empty h2{margin:0;font-size:16px;letter-spacing:-.01em}.empty p{margin:7px auto 0;color:var(--muted);font-size:13px;max-width:360px}.empty.error .empty-icon{color:var(--danger);background:#fceeee}.empty.error h2{color:var(--danger)}[hidden]{display:none!important}.footnote{font-size:12px;color:var(--muted);margin:17px 2px}
+/* Modal Dialog */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}.modal-box{background:var(--surface);border:1px solid var(--line);border-radius:16px;width:100%;max-width:720px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 24px 48px rgba(0,0,0,.2)}.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--line)}.modal-title{font-size:16px;font-weight:700;margin:0}.btn-close{background:none;border:none;cursor:pointer;padding:4px;color:var(--muted);border-radius:6px}.btn-close:hover{color:var(--text);background:var(--soft)}.modal-body{padding:20px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}.modal-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 6px}.modal-pre{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:220px;overflow-y:auto;margin:0;font-family:inherit}.modal-foot{padding:14px 24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
 @media(max-width:600px){.shell{padding:22px 18px 50px}.topbar{padding-bottom:24px}.heading{align-items:flex-start;flex-direction:column;margin:14px 0 22px}.panel-head{padding:18px}.empty{padding:58px 20px}.refresh{width:100%}}
-html.dark{color-scheme:dark;--bg:#141719;--surface:#1e2225;--text:#edf0f2;--muted:#9aa5ad;--line:#30363a;--soft:#272c30;--accent:#6bd3ae;--accent-soft:#183b31;--danger:#ff9b9b;--shadow:none}html.dark .empty.error .empty-icon{background:#432829}
+html.dark{color-scheme:dark;--bg:#141719;--surface:#1e2225;--text:#edf0f2;--muted:#9aa5ad;--line:#30363a;--soft:#272c30;--accent:#6bd3ae;--accent-soft:#183b31;--warning:#fbbf24;--warning-soft:#453011;--danger:#ff9b9b;--danger-soft:#432829;--shadow:none}html.dark .empty.error .empty-icon{background:#432829}
 </style>
 </head>
 <body><main class="shell">
 <header class="topbar"><a class="brand" href="/"><img src="/static/favicon.png" alt=""><span>HTMP ERP</span></a><a class="back" href="/"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m15 18-6-6 6-6"/></svg>Quay lại trò chuyện</a></header>
-<section class="heading"><div><p class="eyebrow">Quản trị · HTMP ERP</p><h1>Theo dõi sự cố ERP</h1><p class="subtitle">Theo dõi những sự cố được ghi nhận trong quá trình tra cứu ERP.</p></div><button class="refresh" id="refresh" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.8 9a7 7 0 0 1 11.5-2L20 12M4 12l2.7 5A7 7 0 0 0 18.2 15"/></svg>Làm mới</button></section>
-<section class="panel"><div class="panel-head"><div><h2 class="panel-title">Danh sách sự cố</h2><p class="panel-note">Sự cố được ghi nhận từ khi bật tính năng</p></div><span class="count" id="count">Đang tải</span></div>
-<div class="table-wrap" id="table-wrap" hidden><table><thead><tr><th>Thời gian</th><th>Tài khoản</th><th>Cuộc chat</th><th>Bước xử lý</th><th>Loại sự cố</th></tr></thead><tbody id="events"></tbody></table></div>
+<section class="heading"><div><p class="eyebrow">Quản trị · HTMP ERP</p><h1>Theo dõi sự cố ERP</h1><p class="subtitle">Theo dõi những sự cố và báo cáo kết quả sai từ người dùng trong quá trình tra cứu ERP.</p></div><button class="refresh" id="refresh" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.8 9a7 7 0 0 1 11.5-2L20 12M4 12l2.7 5A7 7 0 0 0 18.2 15"/></svg>Làm mới</button></section>
+<section class="panel"><div class="panel-head"><div><h2 class="panel-title">Danh sách sự cố & Báo cáo từ người dùng</h2><p class="panel-note">Ghi nhận tự động từ hệ thống và các báo cáo trực tiếp từ người dùng</p></div><span class="count" id="count">Đang tải</span></div>
+<div class="table-wrap" id="table-wrap" hidden><table><thead><tr><th>Thời gian</th><th>Tài khoản</th><th>Cuộc chat</th><th>Bước xử lý</th><th>Loại sự cố</th><th>Lịch sử đoạn chat</th></tr></thead><tbody id="events"></tbody></table></div>
 <div class="empty" id="empty" role="status" aria-live="polite"><div class="empty-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v5c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></div><h2 id="status-title">Đang tải dữ liệu</h2><p id="status-detail">Vui lòng chờ trong giây lát.</p></div></section>
 <p class="footnote">Thời gian hiển thị theo múi giờ trên thiết bị của bạn.</p></main>
+
+<!-- Modal xem chi tiết đoạn chat -->
+<div class="modal-overlay" id="detail-modal" hidden>
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 class="modal-title">Chi tiết sự cố & Lịch sử chat</h3>
+      <button class="btn-close" id="modal-close" type="button" aria-label="Đóng"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="modal-section-title">Câu hỏi của người dùng</div>
+        <pre class="modal-pre" id="modal-question"></pre>
+      </div>
+      <div>
+        <div class="modal-section-title">Câu trả lời từ trợ lý AI</div>
+        <pre class="modal-pre" id="modal-answer"></pre>
+      </div>
+      <div id="modal-note-wrap" hidden>
+        <div class="modal-section-title">Ghi chú của người dùng khi báo cáo</div>
+        <pre class="modal-pre" id="modal-note" style="color:var(--warning);font-weight:600"></pre>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <a class="chat-link" id="modal-chat-link" href="#" target="_blank"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>Mở cuộc trò chuyện trong ứng dụng</a>
+      <button class="refresh" id="modal-close-btn" type="button" style="padding:6px 14px;font-size:13px">Đóng</button>
+    </div>
+  </div>
+</div>
+
 <script>
-const stageLabels={lookup:'Tra cứu',validation:'Kiểm tra dữ liệu',planner:'Lập truy vấn'};
-const codeLabels={planner_or_query_failed:'Không thể lập hoặc chạy truy vấn',unexpected_exception:'Lỗi khi tra cứu',unverified_business_rule:'Chưa xác minh quy tắc nghiệp vụ',invalid_json:'Kế hoạch truy vấn không hợp lệ'};
-async function load(){const button=document.getElementById('refresh'),body=document.getElementById('events'),empty=document.getElementById('empty'),table=document.getElementById('table-wrap'),count=document.getElementById('count'),title=document.getElementById('status-title'),detail=document.getElementById('status-detail');button.disabled=true;body.replaceChildren();empty.hidden=false;empty.classList.remove('error');table.hidden=true;count.textContent='Đang tải';title.textContent='Đang tải dữ liệu';detail.textContent='Vui lòng chờ trong giây lát.';try{const token=localStorage.getItem('token');const response=await fetch('/openai/erp-incidents?limit=500',{headers:token?{Authorization:'Bearer '+token}:{},credentials:'same-origin'});if(!response.ok)throw Error(response.status===403||response.status===401?'Vui lòng đăng nhập bằng tài khoản quản trị.':'Không tải được dữ liệu. Vui lòng thử lại.');const data=await response.json();const events=Array.isArray(data.events)?data.events:[];count.textContent=events.length+' sự cố';for(const e of events){const tr=document.createElement('tr');const values=[new Date(e.created_at*1000).toLocaleString('vi-VN'),e.user_name||e.user_id||'Hệ thống (Kiểm thử / CLI)',e.chat_id||'Kiểm thử nội bộ',stageLabels[e.stage]||e.stage,codeLabels[e.code]||e.code];values.forEach((value,index)=>{const td=document.createElement('td');if(index===2)td.className='chat';if(index===3){const badge=document.createElement('span');badge.className='badge';badge.textContent=value||'—';td.append(badge)}else td.textContent=value||'—';tr.append(td)});body.append(tr)}if(events.length){empty.hidden=true;table.hidden=false}else{title.textContent='Chưa có sự cố được ghi nhận';detail.textContent='Các sự cố ERP mới sẽ xuất hiện tại đây khi hệ thống ghi nhận.'}}catch(error){count.textContent='Không có dữ liệu';empty.classList.add('error');title.textContent='Không thể tải danh sách';detail.textContent=error.message}finally{button.disabled=false}}
+const stageLabels={lookup:'Tra cứu',validation:'Kiểm tra dữ liệu',planner:'Lập truy vấn',user_report:'Báo cáo người dùng'};
+const codeLabels={planner_or_query_failed:'Không thể lập hoặc chạy truy vấn',unexpected_exception:'Lỗi khi tra cứu',unverified_business_rule:'Chưa xác minh quy tắc nghiệp vụ',invalid_json:'Kế hoạch truy vấn không hợp lệ',user_flagged_wrong:'Người dùng báo cáo kết quả sai'};
+
+const modal = document.getElementById('detail-modal');
+const modalQ = document.getElementById('modal-question');
+const modalA = document.getElementById('modal-answer');
+const modalN = document.getElementById('modal-note');
+const modalNW = document.getElementById('modal-note-wrap');
+const modalLink = document.getElementById('modal-chat-link');
+
+function openDetailModal(q, a, note, chatId){
+  modalQ.textContent = q || '(Không có nội dung câu hỏi)';
+  modalA.textContent = a || '(Không có nội dung câu trả lời)';
+  if(note){
+    modalN.textContent = note;
+    modalNW.hidden = false;
+  } else {
+    modalNW.hidden = true;
+  }
+  if(chatId && chatId !== 'Kiểm thử nội bộ'){
+    modalLink.href = '/c/' + chatId;
+    modalLink.hidden = false;
+  } else {
+    modalLink.hidden = true;
+  }
+  modal.hidden = false;
+}
+
+function closeDetailModal(){
+  modal.hidden = true;
+}
+
+document.getElementById('modal-close').addEventListener('click', closeDetailModal);
+document.getElementById('modal-close-btn').addEventListener('click', closeDetailModal);
+modal.addEventListener('click', (e) => { if(e.target === modal) closeDetailModal(); });
+
+async function load(){
+  const button=document.getElementById('refresh'),body=document.getElementById('events'),empty=document.getElementById('empty'),table=document.getElementById('table-wrap'),count=document.getElementById('count'),title=document.getElementById('status-title'),detail=document.getElementById('status-detail');
+  button.disabled=true;body.replaceChildren();empty.hidden=false;empty.classList.remove('error');table.hidden=true;count.textContent='Đang tải';title.textContent='Đang tải dữ liệu';detail.textContent='Vui lòng chờ trong giây lát.';
+  try{
+    const token=localStorage.getItem('token');
+    const response=await fetch('/openai/erp-incidents?limit=500',{headers:token?{Authorization:'Bearer '+token}:{},credentials:'same-origin'});
+    if(!response.ok)throw Error(response.status===403||response.status===401?'Vui lòng đăng nhập bằng tài khoản quản trị.':'Không tải được dữ liệu. Vui lòng thử lại.');
+    const data=await response.json();
+    const events=Array.isArray(data.events)?data.events:[];
+    count.textContent=events.length+' sự cố';
+    for(const e of events){
+      const tr=document.createElement('tr');
+      
+      // 1. Thời gian
+      const tdTime=document.createElement('td');
+      tdTime.textContent=new Date(e.created_at*1000).toLocaleString('vi-VN');
+      tr.append(tdTime);
+
+      // 2. Tài khoản
+      const tdUser=document.createElement('td');
+      tdUser.textContent=e.user_name||e.user_id||'Hệ thống (Kiểm thử / CLI)';
+      tr.append(tdUser);
+
+      // 3. Cuộc chat
+      const tdChat=document.createElement('td');
+      tdChat.className='chat';
+      if(e.chat_id && e.chat_id !== 'Kiểm thử nội bộ'){
+        const a=document.createElement('a');
+        a.href='/c/'+e.chat_id;
+        a.target='_blank';
+        a.textContent=e.chat_id.slice(0, 18) + '…';
+        a.title=e.chat_id;
+        a.className='chat-link';
+        tdChat.append(a);
+      } else {
+        tdChat.textContent=e.chat_id||'Kiểm thử nội bộ';
+      }
+      tr.append(tdChat);
+
+      // 4. Bước xử lý
+      const tdStage=document.createElement('td');
+      const badgeStage=document.createElement('span');
+      badgeStage.className='badge' + (e.stage === 'user_report' ? ' warning' : '');
+      badgeStage.textContent=stageLabels[e.stage]||e.stage;
+      tdStage.append(badgeStage);
+      tr.append(tdStage);
+
+      // 5. Loại sự cố
+      const tdCode=document.createElement('td');
+      tdCode.textContent=codeLabels[e.code]||e.code;
+      tr.append(tdCode);
+
+      // 6. Lịch sử đoạn chat (Mới thêm theo yêu cầu)
+      const tdExcerpt=document.createElement('td');
+      tdExcerpt.className='chat-excerpt-col';
+      let excerptData = null;
+      if(e.chat_excerpt){
+        try { excerptData = JSON.parse(e.chat_excerpt); }
+        catch(err){ excerptData = { answer: e.chat_excerpt }; }
+      }
+
+      if(excerptData && (excerptData.question || excerptData.answer)){
+        const box=document.createElement('div');
+        box.className='excerpt-box';
+        
+        if(excerptData.question){
+          const qEl=document.createElement('div');
+          qEl.className='excerpt-q';
+          qEl.textContent='❓ ' + excerptData.question;
+          box.append(qEl);
+        }
+        if(excerptData.answer){
+          const aEl=document.createElement('div');
+          aEl.className='excerpt-a';
+          aEl.textContent='🤖 ' + excerptData.answer;
+          box.append(aEl);
+        }
+        if(excerptData.note){
+          const nEl=document.createElement('div');
+          nEl.className='excerpt-note';
+          nEl.textContent='💬 Báo cáo: ' + excerptData.note;
+          box.append(nEl);
+        }
+
+        const btn=document.createElement('button');
+        btn.type='button';
+        btn.className='btn-view';
+        btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>Xem chi tiết';
+        btn.addEventListener('click', () => {
+          openDetailModal(excerptData.question, excerptData.answer, excerptData.note, e.chat_id);
+        });
+        box.append(btn);
+        tdExcerpt.append(box);
+      } else if(e.chat_id && e.chat_id !== 'Kiểm thử nội bộ') {
+        const a=document.createElement('a');
+        a.href='/c/'+e.chat_id;
+        a.target='_blank';
+        a.className='chat-link';
+        a.textContent='Mở cuộc chat ↗';
+        tdExcerpt.append(a);
+      } else {
+        tdExcerpt.textContent='—';
+        tdExcerpt.style.color='var(--muted)';
+      }
+      tr.append(tdExcerpt);
+
+      body.append(tr);
+    }
+    if(events.length){empty.hidden=true;table.hidden=false}
+    else{title.textContent='Chưa có sự cố được ghi nhận';detail.textContent='Các sự cố ERP mới hoặc báo cáo người dùng sẽ xuất hiện tại đây khi hệ thống ghi nhận.'}
+  }catch(error){
+    count.textContent='Không có dữ liệu';empty.classList.add('error');title.textContent='Không thể tải danh sách';detail.textContent=error.message;
+  }finally{
+    button.disabled=false;
+  }
+}
 document.getElementById('refresh').addEventListener('click',load);load();
 </script></body></html>

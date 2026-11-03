@@ -101,3 +101,203 @@ html.dark div.text-\[0\.9375rem\].leading-relaxed > span.animate-pulse {
 	transition: all 0.2s ease-in-out;
 }
 
+
+/* ========================================================
+   HTMP ERP - Table Layout & Horizontal Scrolling Polish
+   ======================================================== */
+
+/* Table Scroll Wrapper: Enable horizontal scrolling and show clean modern scrollbar */
+.markdown-prose div:has(> table),
+.markdown-prose .overflow-x-auto,
+.scrollbar-hidden {
+	overflow-x: auto !important;
+	max-width: 100% !important;
+	scrollbar-width: thin !important;
+	-webkit-overflow-scrolling: touch !important;
+	border-radius: 8px !important;
+	margin-bottom: 12px !important;
+}
+
+/* Custom scrollbar */
+.markdown-prose div:has(> table)::-webkit-scrollbar,
+.markdown-prose .overflow-x-auto::-webkit-scrollbar,
+.scrollbar-hidden::-webkit-scrollbar {
+	display: block !important;
+	height: 7px !important;
+	width: 7px !important;
+}
+
+.markdown-prose div:has(> table)::-webkit-scrollbar-track,
+.markdown-prose .overflow-x-auto::-webkit-scrollbar-track,
+.scrollbar-hidden::-webkit-scrollbar-track {
+	background: #f1f5f9 !important;
+	border-radius: 4px !important;
+}
+
+html.dark .markdown-prose div:has(> table)::-webkit-scrollbar-track,
+html.dark .markdown-prose .overflow-x-auto::-webkit-scrollbar-track,
+html.dark .scrollbar-hidden::-webkit-scrollbar-track {
+	background: #1e293b !important;
+}
+
+.markdown-prose div:has(> table)::-webkit-scrollbar-thumb,
+.markdown-prose .overflow-x-auto::-webkit-scrollbar-thumb,
+.scrollbar-hidden::-webkit-scrollbar-thumb {
+	background: #cbd5e1 !important;
+	border-radius: 4px !important;
+}
+
+.markdown-prose div:has(> table)::-webkit-scrollbar-thumb:hover,
+.markdown-prose .overflow-x-auto::-webkit-scrollbar-thumb:hover,
+.scrollbar-hidden::-webkit-scrollbar-thumb:hover {
+	background: #94a3b8 !important;
+}
+
+html.dark .markdown-prose div:has(> table)::-webkit-scrollbar-thumb,
+html.dark .markdown-prose .overflow-x-auto::-webkit-scrollbar-thumb,
+html.dark .scrollbar-hidden::-webkit-scrollbar-thumb {
+	background: #475569 !important;
+}
+
+html.dark .markdown-prose div:has(> table)::-webkit-scrollbar-thumb:hover,
+html.dark .markdown-prose .overflow-x-auto::-webkit-scrollbar-thumb:hover,
+html.dark .scrollbar-hidden::-webkit-scrollbar-thumb:hover {
+	background: #64748b !important;
+}
+
+/* Table: Natural width so columns breathe, no squishing */
+.markdown-prose table {
+	width: max-content !important;
+	min-width: 100% !important;
+	max-width: none !important;
+	border-collapse: separate !important;
+	border-spacing: 0 !important;
+	border: 1px solid #e2e8f0 !important;
+	border-radius: 8px !important;
+	margin: 8px 0 14px 0 !important;
+	font-variant-numeric: tabular-nums !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.dark .markdown-prose table {
+	border: 1px solid rgba(255, 255, 255, 0.12) !important;
+	background: rgba(255, 255, 255, 0.02) !important;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Table Header (th): NEVER wrap single words, perfectly aligned baseline */
+.markdown-prose th {
+	white-space: nowrap !important;
+	vertical-align: middle !important;
+	text-align: center !important;
+	padding: 10px 16px !important;
+	font-size: 12px !important;
+	font-weight: 600 !important;
+	letter-spacing: 0.02em !important;
+	color: #334155 !important;
+	background-color: #f8fafc !important;
+	border-bottom: 2px solid #cbd5e1 !important;
+	border-right: 1px solid #e2e8f0 !important;
+	line-height: 1.4 !important;
+}
+
+html.dark .markdown-prose th {
+	color: #f1f5f9 !important;
+	background-color: rgba(255, 255, 255, 0.07) !important;
+	border-bottom: 2px solid rgba(255, 255, 255, 0.16) !important;
+	border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.markdown-prose th:last-child {
+	border-right: none !important;
+}
+
+.markdown-prose th div {
+	white-space: nowrap !important;
+	text-align: inherit !important;
+	justify-content: center !important;
+}
+
+/* Table Cells (td): Clean padding, neat borders, align numbers right, center codes/dates */
+.markdown-prose td {
+	padding: 9px 14px !important;
+	vertical-align: middle !important;
+	white-space: nowrap !important;
+	font-size: 12.5px !important;
+	border-bottom: 1px solid #f1f5f9 !important;
+	border-right: 1px solid rgba(241, 245, 249, 0.8) !important;
+	color: #1e293b !important;
+	line-height: 1.5 !important;
+}
+
+html.dark .markdown-prose td {
+	color: #e2e8f0 !important;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+	border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+.markdown-prose td:last-child {
+	border-right: none !important;
+}
+
+.markdown-prose tbody tr:last-child td {
+	border-bottom: none !important;
+}
+
+.markdown-prose tbody tr:hover td {
+	background-color: rgba(241, 245, 249, 0.6) !important;
+}
+
+html.dark .markdown-prose tbody tr:hover td {
+	background-color: rgba(255, 255, 255, 0.035) !important;
+}
+
+/* Allow text descriptions (e.g. product names) to wrap nicely with min-width */
+.markdown-prose td.col-wrap,
+.markdown-prose td:has(div.break-normal) {
+	white-space: nowrap !important;
+}
+
+/* Export Buttons Styling */
+.htmp-table-export {
+	display: inline-flex !important;
+	gap: 8px !important;
+	margin: 8px 0 10px 0 !important;
+	align-items: center !important;
+}
+
+.htmp-table-export button {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 6px !important;
+	padding: 5px 13px !important;
+	border-radius: 6px !important;
+	font-size: 12px !important;
+	font-weight: 500 !important;
+	border: 1px solid #cbd5e1 !important;
+	background: #ffffff !important;
+	color: #334155 !important;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+	cursor: pointer !important;
+	transition: all 0.15s ease !important;
+}
+
+.htmp-table-export button:hover {
+	background: #f8fafc !important;
+	border-color: #2563eb !important;
+	color: #2563eb !important;
+	transform: translateY(-1px) !important;
+	box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1) !important;
+}
+
+html.dark .htmp-table-export button {
+	background: rgba(255, 255, 255, 0.06) !important;
+	border-color: rgba(255, 255, 255, 0.14) !important;
+	color: #e2e8f0 !important;
+}
+
+html.dark .htmp-table-export button:hover {
+	background: rgba(255, 255, 255, 0.12) !important;
+	border-color: #60a5fa !important;
+	color: #93c5fd !important;
+}

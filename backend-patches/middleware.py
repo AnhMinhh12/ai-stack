@@ -4635,6 +4635,8 @@ async def streaming_chat_response_handler(response, ctx):
                 else:
                     reasoning_tags = DEFAULT_REASONING_TAGS
 
+            turn_start_time = time.time()
+
             try:
                 for event in events:
                     await event_emitter(
@@ -5983,12 +5985,45 @@ async def streaming_chat_response_handler(response, ctx):
                                     }
                                 )
 
-                        res = await generate_chat_completion(
-                            request,
-                            new_form_data,
-                            user,
-                            bypass_system_prompt=True,
-                        )
+                        fast_message = None
+                        for r in results:
+                            c_str = r.get('content', '')
+                            if isinstance(c_str, str) and '{' in c_str and '"message"' in c_str:
+                                try:
+                                    c_obj = json.loads(c_str)
+                                    if isinstance(c_obj, dict) and isinstance(c_obj.get('message'), str):
+                                        m_val = c_obj['message'].strip()
+                                        if len(m_val) >= 20:
+                                            fast_message = m_val
+                                            break
+                                except Exception:
+                                    pass
+
+                        if fast_message:
+                            import uuid
+
+                            async def fast_stream_gen(text: str):
+                                cmpl_id = f"chatcmpl-fast-{uuid.uuid4().hex[:12]}"
+                                chunk_size = 35
+                                for i in range(0, len(text), chunk_size):
+                                    chunk = text[i : i + chunk_size]
+                                    payload = {
+                                        "id": cmpl_id,
+                                        "object": "chat.completion.chunk",
+                                        "choices": [{"delta": {"content": chunk}, "index": 0}],
+                                    }
+                                    yield f"data: {json.dumps(payload, ensure_ascii=False)}\n\n".encode("utf-8")
+                                    await asyncio.sleep(0.005)
+                                yield b"data: [DONE]\n\n"
+
+                            res = StreamingResponse(fast_stream_gen(fast_message), media_type="text/event-stream")
+                        else:
+                            res = await generate_chat_completion(
+                                request,
+                                new_form_data,
+                                user,
+                                bypass_system_prompt=True,
+                            )
 
                         if isinstance(res, StreamingResponse):
                             # Save accumulated output and start fresh.
@@ -6216,13 +6251,26 @@ async def streaming_chat_response_handler(response, ctx):
                     if item.get('status') == 'in_progress':
                         item['status'] = 'completed'
 
+                turn_elapsed = round(max(0.1, time.time() - turn_start_time), 2)
+                end_timestamp = int(time.time())
+
+                usage = usage or {}
+                usage['total_duration'] = int(turn_elapsed * 1_000_000_000)
+                usage['eval_duration'] = int(turn_elapsed * 1_000_000_000)
+                usage['duration'] = f"{turn_elapsed}s"
+                usage['duration_seconds'] = turn_elapsed
+                usage['approximate_total'] = f"{turn_elapsed}s"
+                if usage.get('completion_tokens') and turn_elapsed > 0:
+                    usage['response_token/s'] = round(usage['completion_tokens'] / turn_elapsed, 2)
+
                 current_output = full_output()
                 title = await Chats.get_chat_title_by_id(metadata['chat_id']) if save_to_chat else ''
                 data = {
                     'done': True,
                     'output': current_output,
                     'title': title,
-                    **({'usage': usage} if usage else {}),
+                    'timestamp': end_timestamp,
+                    'usage': usage,
                 }
 
                 if save_to_chat:
@@ -6234,7 +6282,8 @@ async def streaming_chat_response_handler(response, ctx):
                         {
                             'done': True,
                             'output': current_output,
-                            **({'usage': usage} if usage else {}),
+                            'timestamp': end_timestamp,
+                            'usage': usage,
                         },
                     )
 
@@ -6253,7 +6302,8 @@ async def streaming_chat_response_handler(response, ctx):
                 ctx['assistant_message'] = {
                     'content': ''.join(content_parts) or get_output_text(current_output),
                     'output': current_output,
-                    **({'usage': usage} if usage else {}),
+                    'timestamp': end_timestamp,
+                    'usage': usage,
                 }
                 await outlet_filter_handler(ctx)
                 await background_tasks_handler(ctx)

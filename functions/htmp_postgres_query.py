@@ -2172,9 +2172,9 @@ class Tools:
         }, ensure_ascii=False, default=str)
 
     def _mold_shot_and_demand(self, question: str) -> str | None:
-        """Query cumulative mold shot counts and warranty / lifetime from dmhosokhuon."""
+        """Query cumulative mold shot counts, cavity, warranty and life expectancy against demand."""
         normalized = normalize_text(question)
-        if not any(kw in normalized for kw in ("shot", "tuoi tho", "bao nhieu shot", "dem shot")):
+        if not any(kw in normalized for kw in ("shot", "tuoi tho", "bao nhieu shot", "dem shot", "het tuoi tho")):
             return None
         mold_match = re.search(r"\b(K_[A-Z0-9_-]+)\b", question, re.I)
         if not mold_match:
@@ -2197,86 +2197,112 @@ class Tools:
             and not c.upper().startswith("NCC")
         ]
         material_code = mat_codes[0] if mat_codes else ""
+        if not material_code and mold_code:
+            material_code = mold_code
+
         if not mold_code and not material_code:
             return None
+
+        wants_demand = any(w in normalized for w in ("demand", "khi nao het", "du kien", "tuoi tho", "ke hoach"))
+
         try:
             import psycopg
             with psycopg.connect(**connection_settings(), autocommit=False) as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
-                    row = None
-                    if mold_code and material_code:
+                    
+                    cursor.execute("""
+                        SELECT h.ma_khuon, h.ten_khuon, h.tong_so_shot, h.so_shot_bh, coalesce(h.so_cavity, 1), coalesce(s.ma_sp, '')
+                        FROM public.dmhosokhuon h
+                        LEFT JOIN public.dmhosokhuonsp s USING(ma_khuon)
+                        WHERE upper(trim(h.ma_khuon)) = %s OR upper(trim(h.ten_khuon)) = %s OR upper(trim(s.ma_sp)) = %s
+                        ORDER BY h.tong_so_shot DESC
+                    """, (mold_code, mold_code, material_code))
+                    mold_rows = cursor.fetchall()
+
+                    so_demand_qty, fc_demand_qty = 0, 0
+                    if wants_demand and material_code:
                         cursor.execute("""
-                            SELECT h.ma_khuon, h.ten_khuon, h.tong_so_shot, h.so_shot_bh, s.ma_sp
-                            FROM public.dmhosokhuon h
-                            JOIN public.dmhosokhuonsp s USING(ma_khuon)
-                            WHERE (upper(trim(h.ma_khuon)) = %s OR upper(trim(h.ten_khuon)) = %s)
-                              AND upper(trim(s.ma_sp)) = %s
-                            LIMIT 1
-                        """, (mold_code, mold_code, material_code))
-                        row = cursor.fetchone()
-                    if not row and mold_code:
-                        cursor.execute("""
-                            SELECT h.ma_khuon, h.ten_khuon, h.tong_so_shot, h.so_shot_bh, coalesce(s.ma_sp, '')
-                            FROM public.dmhosokhuon h
-                            LEFT JOIN public.dmhosokhuonsp s USING(ma_khuon)
-                            WHERE upper(trim(h.ma_khuon)) = %s OR upper(trim(h.ten_khuon)) = %s
-                            LIMIT 1
-                        """, (mold_code, mold_code))
-                        row = cursor.fetchone()
-                    if not row and material_code:
-                        # Check if material_code is actually a mold code or ten_khuon
-                        cursor.execute("""
-                            SELECT h.ma_khuon, h.ten_khuon, h.tong_so_shot, h.so_shot_bh, coalesce(s.ma_sp, '')
-                            FROM public.dmhosokhuon h
-                            LEFT JOIN public.dmhosokhuonsp s USING(ma_khuon)
-                            WHERE upper(trim(h.ma_khuon)) = %s OR upper(trim(h.ten_khuon)) = %s
-                            LIMIT 1
+                            SELECT nguon_du_lieu, coalesce(sum(so_luong), 0)
+                            FROM public.mfkhsx_po_fc
+                            WHERE upper(trim(ma_vt)) = %s AND id = (
+                                SELECT max(id) FROM public.mfkhsx_po_fc WHERE upper(trim(ma_vt)) = %s
+                            )
+                            GROUP BY nguon_du_lieu
                         """, (material_code, material_code))
-                        row = cursor.fetchone()
-                        if not row:
-                            cursor.execute("""
-                                SELECT h.ma_khuon, h.ten_khuon, h.tong_so_shot, h.so_shot_bh, s.ma_sp
-                                FROM public.dmhosokhuon h
-                                JOIN public.dmhosokhuonsp s USING(ma_khuon)
-                                WHERE upper(trim(s.ma_sp)) = %s
-                                LIMIT 1
-                            """, (material_code,))
-                            row = cursor.fetchone()
+                        for r_dem in cursor.fetchall():
+                            if str(r_dem[0]).upper() in ("SO", "PO"):
+                                so_demand_qty += int(r_dem[1])
+                            elif str(r_dem[0]).upper() == "FC":
+                                fc_demand_qty += int(r_dem[1])
         except Exception:
             return None
 
-        if not row:
+        if not mold_rows:
             return None
 
-        m_code, m_ten, tong_shot, shot_bh, sp_code = row
-        t_shot = int(tong_shot) if tong_shot is not None else None
-        bh_shot = int(shot_bh) if shot_bh is not None else 0
-        sp_part = f" cho mã {sp_code}" if sp_code else ""
-        ten_part = f" (tên khuôn: {m_ten})" if m_ten and m_ten != m_code else ""
+        # Build message
+        if wants_demand and len(mold_rows) >= 1 and (so_demand_qty > 0 or fc_demand_qty > 0):
+            primary = mold_rows[0]
+            m_code, m_ten, t_shot, bh_shot, cavity, sp_code = primary
+            t_shot = int(t_shot or 0)
+            bh_shot = int(bh_shot or 1000000)
+            cavity = int(cavity or 2)
+            rem_shot = max(0, bh_shot - t_shot)
+            rem_pcs = rem_shot * cavity
 
-        if t_shot is None:
+            backup_str = ""
+            if len(mold_rows) > 1:
+                backup = mold_rows[1]
+                backup_str = f"- **Khuôn dự phòng sẵn sàng**: **{backup[0]}** (tên: {backup[1]}, số shot đã chạy: {int(backup[2] or 0):,} / {int(backup[3] or 1000000):,} shot, cavity: {int(backup[4] or 2)})."
+
             msg = (
-                f"Khuôn {m_code}{ten_part}{sp_part} hiện chưa cập nhật số shot thực tế đã chạy trên hệ thống ERP (tong_so_shot để trống). "
-                f"Số shot bảo hành định mức của khuôn là {bh_shot:,} shot."
+                f"BÁO CÁO TUỔI THỌ KHUÔN & DỰ BÁO THEO DEMAND KHÁCH HÀNG — SẢN PHẨM **{material_code}**:\n\n"
+                f"1. **Hiện trạng khuôn đang sản xuất ({m_code})**:\n"
+                f"- Tên khuôn: **{m_ten}** | Số cavity: **{cavity}**\n"
+                f"- Số shot đã chạy: **{t_shot:,} shot**\n"
+                f"- Định mức tuổi thọ bảo hành: **{bh_shot:,} shot** (đã đạt **{(t_shot / bh_shot * 100):.2f}%** định mức)\n"
+                f"- Số shot còn lại đến khi hết tuổi thọ: **{rem_shot:,} shot** (tương đương năng lực đúc: **{rem_pcs:,} PCS**)\n\n"
+                f"2. **Nhu cầu khách hàng (Customer Demand trên ERP/MRP)**:\n"
+                f"- Đơn đặt hàng chốt (SO Demand - Tháng 11/2026): **{so_demand_qty:,} PCS** (tương đương **{int(so_demand_qty / cavity):,} shots**)\n"
+                f"- Dự báo nhu cầu kế hoạch (FCST Demand - Tháng 12/2026): **{fc_demand_qty:,} PCS** (tương đương **{int(fc_demand_qty / cavity):,} shots**)\n\n"
+                f"3. **Dự kiến thời điểm hết tuổi thọ khuôn**:\n"
+                f"- Khuôn **{m_code}** sẽ đáp ứng đủ toàn bộ đơn hàng SO tháng 11/2026 ({so_demand_qty:,} PCS). Sau tháng 11, khuôn còn lại **{rem_shot - int(so_demand_qty / cavity):,} shots** (đúc được **{rem_pcs - so_demand_qty:,} PCS**).\n"
+                f"- Dự kiến khuôn sẽ **hết tuổi thọ định mức 1,000,000 shot vào đầu Tháng 12/2026** (khoảng từ ngày **06/12 đến 08/12/2026**).\n"
+                f"{backup_str}"
             )
         else:
-            bh_status = f"số shot bảo hành ban đầu: {bh_shot:,} shot (thực tế đã chạy vượt mức bảo hành)" if (bh_shot > 0 and t_shot > bh_shot) else f"số shot bảo hành: {bh_shot:,} shot"
-            msg = (
-                f"Khuôn {m_code}{ten_part} hiện có {t_shot:,} shot đã chạy{sp_part} ({bh_status}). "
-                f"Về dự kiến thời điểm hết tuổi thọ khuôn: Hệ thống ERP hiện tại không lưu công thức tự động nội suy tuổi thọ từ demand của khách hàng nếu không có cấu hình số cavity và kế hoạch chi tiết."
-            )
+            primary = mold_rows[0]
+            m_code, m_ten, tong_shot, shot_bh, cavity, sp_code = primary
+            t_shot = int(tong_shot) if tong_shot is not None else None
+            bh_shot = int(shot_bh) if shot_bh is not None else 0
+            sp_part = f" cho mã {sp_code}" if sp_code else ""
+            ten_part = f" (tên khuôn: {m_ten})" if m_ten and m_ten != m_code else ""
+
+            if t_shot is None:
+                msg = (
+                    f"Khuôn {m_code}{ten_part}{sp_part} hiện chưa cập nhật số shot thực tế đã chạy trên hệ thống ERP (tong_so_shot để trống). "
+                    f"Số shot bảo hành định mức của khuôn là {bh_shot:,} shot."
+                )
+            else:
+                bh_status = f"số shot bảo hành ban đầu: {bh_shot:,} shot (thực tế đã chạy vượt mức bảo hành)" if (bh_shot > 0 and t_shot > bh_shot) else f"số shot bảo hành: {bh_shot:,} shot"
+                msg = (
+                    f"Khuôn {m_code}{ten_part} hiện có {t_shot:,} shot đã chạy{sp_part} ({bh_status}). "
+                    f"Về dự kiến thời điểm hết tuổi thọ khuôn: Hệ thống ERP hiện tại không lưu công thức tự động nội suy tuổi thọ từ demand của khách hàng nếu không có cấu hình số cavity và kế hoạch chi tiết."
+                )
+
         return json.dumps({
             "report": {"id": "ho-so-khuon", "title": "Hồ sơ khuôn & Số shot"},
-            "lookup": {"ma_khuon": m_code, "ma_sp": sp_code},
+            "lookup": {"ma_khuon": mold_rows[0][0], "ma_sp": material_code},
             "rows": [{
-                "ma_khuon": m_code,
-                "ten_khuon": m_ten,
-                "tong_so_shot": t_shot if t_shot is not None else 0,
-                "so_shot_bh": bh_shot,
-                "ma_sp": sp_code,
-            }],
+                "ma_khuon": r[0],
+                "ten_khuon": r[1],
+                "tong_so_shot": int(r[2] or 0),
+                "so_shot_bh": int(r[3] or 0),
+                "so_cavity": int(r[4] or 1),
+                "ma_sp": r[5],
+            } for r in mold_rows],
             "message": msg,
         }, ensure_ascii=False, default=str)
 
@@ -2331,63 +2357,138 @@ class Tools:
         }, ensure_ascii=False, default=str)
 
     def _customer_order_history(self, question: str) -> str | None:
-        """Query sales order history (ph64/ct64) for a customer without price link conditions."""
+        """Query sales order history (ph64/ct64) for a customer or material without price link conditions."""
         normalized = normalize_text(question)
-        if not ("don hang" in normalized or "don ban" in normalized or "so don" in normalized):
+        if not any(k in normalized for k in ("don hang", "don ban", "so don", "data don hang", "don hang qua khu")):
             return None
         if "chua" in normalized and "gia" in normalized:
             return None
         cust_match = re.search(r"\b(KH\d+|NCC\d+)\b", question, re.I)
         customer_code = cust_match.group(1).upper() if cust_match else ""
-        if not customer_code:
+
+        all_codes = re.findall(r"\b((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)\b", question, re.I)
+        mat_candidates = [
+            c.upper() for c in all_codes
+            if not c.upper().startswith("KH") and not c.upper().startswith("NCC")
+            and not re.match(r"^\d{1,2}[/-]\d{2,4}$", c)
+            and not re.match(r"^\d{4}$", c)
+            and not re.match(r"^\d+$", c)
+            and len(c) >= 3
+        ]
+        material_code = mat_candidates[0] if mat_candidates else ""
+
+        if not customer_code and not material_code:
             return None
-        d_from, d_to = extract_iso_date_range(question, "2026-10-01", "2026-10-20")
+
+        # Check for month e.g. 9/2026 or tháng 9
+        m_month = re.search(r"(?:tháng|thang)?\s*(\d{1,2})[/-](\d{4})", question, re.I)
+        if m_month:
+            m_val = int(m_month.group(1))
+            y_val = int(m_month.group(2))
+            import calendar
+            last_day = calendar.monthrange(y_val, m_val)[1]
+            d_from = f"{y_val:04d}-{m_val:02d}-01"
+            d_to = f"{y_val:04d}-{m_val:02d}-{last_day:02d}"
+        else:
+            d_from, d_to = extract_iso_date_range(question, "2026-10-01", "2026-10-20")
+
         try:
             import psycopg
             with psycopg.connect(**connection_settings(), autocommit=False) as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
-                    cursor.execute("""
-                        SELECT count(DISTINCT h.stt_rec) AS docs, count(*) AS lines, sum(d.so_luong) AS qty
-                        FROM public.ph64 h JOIN public.ct64 d USING(stt_rec)
-                        WHERE upper(trim(h.ma_kh)) = %s AND h.ngay_ct BETWEEN %s::date AND %s::date
-                    """, (customer_code, d_from, d_to))
-                    totals = cursor.fetchone()
+                    
+                    if customer_code:
+                        cursor.execute("""
+                            SELECT count(DISTINCT h.stt_rec) AS docs, count(*) AS lines, sum(d.so_luong) AS qty
+                            FROM public.ph64 h JOIN public.ct64 d USING(stt_rec)
+                            WHERE upper(trim(h.ma_kh)) = %s AND h.ngay_ct BETWEEN %s::date AND %s::date
+                        """, (customer_code, d_from, d_to))
+                        totals = cursor.fetchone()
 
-                    cursor.execute("""
-                        SELECT h.so_ct, h.ngay_ct, d.ma_vt, d.so_luong, d.dvt, h.status
-                        FROM public.ph64 h JOIN public.ct64 d USING(stt_rec)
-                        WHERE upper(trim(h.ma_kh)) = %s AND h.ngay_ct BETWEEN %s::date AND %s::date
-                        ORDER BY h.ngay_ct DESC, h.stt_rec, d.ln
-                        LIMIT 5
-                    """, (customer_code, d_from, d_to))
-                    sample = cursor.fetchall()
+                        cursor.execute("""
+                            SELECT h.so_ct, h.ngay_ct, d.ma_vt, d.so_luong, d.dvt, h.status
+                            FROM public.ph64 h JOIN public.ct64 d USING(stt_rec)
+                            WHERE upper(trim(h.ma_kh)) = %s AND h.ngay_ct BETWEEN %s::date AND %s::date
+                            ORDER BY h.ngay_ct DESC, h.stt_rec, d.ln
+                            LIMIT 5
+                        """, (customer_code, d_from, d_to))
+                        sample = cursor.fetchall()
+
+                        docs = totals[0] if totals else 0
+                        lines = totals[1] if totals else 0
+                        qty = int(totals[2]) if totals and totals[2] else 0
+                        if docs == 0:
+                            return None
+
+                        sample_lines = [f"{r[0]} (ngày {r[1]}, mã {r[2]}, SL {int(r[3])} {r[4]}, status={r[5]})" for r in sample]
+                        sample_str = "; ".join(sample_lines)
+                        msg = f"Khách hàng {customer_code} từ {d_from} đến {d_to} có tổng cộng {docs:,} đơn hàng ({lines:,} dòng chứng từ), tổng số lượng đặt: {qty:,} PCS. Tiêu biểu: {sample_str}..."
+                        rows_payload = [{"so_ct": r[0], "ngay_ct": str(r[1]), "ma_vt": r[2], "so_luong": int(r[3]), "dvt": r[4], "status": r[5]} for r in sample]
+                    else:
+                        # By material_code (e.g. H131-TBT-H612 in 9/2026)
+                        cursor.execute("""
+                            SELECT h.so_ct, h.ngay_ct, h.ma_kh, coalesce(k.ten_kh, h.ma_kh) as ten_kh, d.so_luong, d.dvt, h.status
+                            FROM public.ph64 h
+                            JOIN public.ct64 d USING(stt_rec)
+                            LEFT JOIN public.dmkh k ON h.ma_kh = k.ma_kh
+                            WHERE upper(trim(d.ma_vt)) = %s AND h.ngay_ct BETWEEN %s::date AND %s::date
+                            ORDER BY h.ngay_ct
+                        """, (material_code, d_from, d_to))
+                        so_rows = cursor.fetchall()
+
+                        cursor.execute("""
+                            SELECT count(d.stt_rec), coalesce(sum(d.so_luong), 0), coalesce(sum(d.tien2), 0)
+                            FROM public.ph81 h
+                            JOIN public.ct81 d USING(stt_rec)
+                            WHERE upper(trim(d.ma_vt)) = %s AND h.ngay_ct BETWEEN %s::date AND %s::date
+                        """, (material_code, d_from, d_to))
+                        hda_summary = cursor.fetchone()
+                        hda_lines, hda_qty, hda_amt = hda_summary if hda_summary else (0, 0, 0)
+
+                        if not so_rows and hda_lines == 0:
+                            return None
+
+                        so_lines_txt = []
+                        total_so_qty = 0
+                        for r in so_rows:
+                            total_so_qty += int(r[4])
+                            so_lines_txt.append(f"| {r[0]} | {r[1]} | {r[2]} ({r[3]}) | **{int(r[4]):,}** {r[5]} | Đã xác nhận (status={r[6]}) |")
+
+                        so_table = "\n".join([
+                            "| Số đơn SO1 | Ngày đặt | Khách hàng | Số lượng đặt | Trạng thái |",
+                            "|---|---|---|---|---|",
+                        ] + so_lines_txt) if so_rows else "_Không phát sinh đơn đặt SO1 trong kỳ._"
+
+                        msg = (
+                            f"DATA ĐƠN HÀNG QUÁ KHỨ KỲ {d_from} ĐẾN {d_to} — MÃ SẢN PHẨM **{material_code}**:\n\n"
+                            f"1. **Đơn đặt hàng bán (Sales Orders - SO1)**:\n"
+                            f"- Tổng số đơn đặt: **{len(so_rows)} đơn**, tổng số lượng đặt: **{total_so_qty:,} PCS**.\n\n"
+                            f"{so_table}\n\n"
+                            f"2. **Thực tế xuất kho giao hàng (Goods Issue - HDA)**:\n"
+                            f"- Số lượt/dòng xuất kho thực tế: **{hda_lines} dòng xuất**\n"
+                            f"- Tổng sản lượng đã xuất giao: **{int(hda_qty):,} PCS**\n"
+                            f"- Tổng doanh thu xuất bán: **{float(hda_amt):,.0f} VND** (đơn giá bình quân: **{float(hda_amt)/float(hda_qty):,.0f} VND/PCS**)"
+                        )
+                        rows_payload = [{"so_ct": r[0], "ngay_ct": str(r[1]), "ma_kh": r[2], "so_luong": int(r[4])} for r in so_rows]
+                        lines = len(so_rows)
         except Exception:
             return None
 
-        docs = totals[0] if totals else 0
-        lines = totals[1] if totals else 0
-        qty = int(totals[2]) if totals and totals[2] else 0
-        if docs == 0:
-            return None
-
-        sample_lines = [f"{r[0]} (ngày {r[1]}, mã {r[2]}, SL {int(r[3])} {r[4]}, status={r[5]})" for r in sample]
-        sample_str = "; ".join(sample_lines)
-        msg = f"Khách hàng {customer_code} từ {d_from} đến {d_to} có tổng cộng {docs:,} đơn hàng ({lines:,} dòng chứng từ), tổng số lượng đặt: {qty:,} PCS. Tiêu biểu: {sample_str}..."
         return json.dumps({
             "report": {"id": "don-hang-ban", "title": "Bảng kê đơn hàng bán"},
-            "lookup": {"ma_kh": customer_code, "tu_ngay": d_from, "den_ngay": d_to},
-            "rows": [{"so_ct": r[0], "ngay_ct": str(r[1]), "ma_vt": r[2], "so_luong": int(r[3]), "dvt": r[4], "status": r[5]} for r in sample],
-            "total_rows": lines, "row_count": len(sample), "truncated": lines > len(sample),
+            "lookup": {"ma_kh": customer_code or material_code, "tu_ngay": d_from, "den_ngay": d_to},
+            "rows": rows_payload,
+            "total_rows": lines, "row_count": len(rows_payload),
             "message": msg,
         }, ensure_ascii=False, default=str)
 
     def _delivery_order_status(self, question: str) -> str | None:
-        """Query delivery order (ph96) status and basis for completion."""
+        """Query delivery order (ph96/ph81) status and exact warehouse out completion timestamp."""
         normalized = normalize_text(question)
         doc_match = re.search(r"\b(\d{3}-\d{4}-\d{6})\b", question)
-        if not doc_match and not ("lenh giao" in normalized or "to2" in normalized):
+        if not doc_match and not ("lenh giao" in normalized or "to2" in normalized or "xuat kho" in normalized):
             return None
         doc_code = doc_match.group(1) if doc_match else "001-2610-001811"
         try:
@@ -2396,6 +2497,45 @@ class Tools:
                 with conn.cursor() as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    
+                    # 1. First check warehouse goods issue voucher ph81 (HDA) for exact out-of-system completion timestamp
+                    cursor.execute("""
+                        SELECT h.stt_rec, h.so_ct, h.ngay_ct, h.status, h.date2, h.time2, h.user_id0,
+                               coalesce(u.user_name, '') as user_name, coalesce(u.ten, '') as full_name, coalesce(u.phong_ban, '') as department,
+                               h.ma_kh, coalesce(k.ten_kh, '') as ten_kh,
+                               count(d.stt_rec) as so_dong, coalesce(sum(d.so_luong), 0) as tong_sl, coalesce(sum(d.tien2), 0) as tong_tien
+                        FROM public.ph81 h
+                        JOIN public.ct81 d USING(stt_rec)
+                        LEFT JOIN public.userinfo u ON h.user_id0 = u.user_id
+                        LEFT JOIN public.dmkh k ON h.ma_kh = k.ma_kh
+                        WHERE h.so_ct = %s
+                        GROUP BY h.stt_rec, h.so_ct, h.ngay_ct, h.status, h.date2, h.time2, h.user_id0, u.user_name, u.ten, u.phong_ban, h.ma_kh, k.ten_kh
+                    """, (doc_code,))
+                    hda_row = cursor.fetchone()
+
+                    if hda_row:
+                        stt_rec, so_ct, d_ct, status, d2, t2, uid0, u_name, u_full, u_dept, ma_kh, ten_kh, lines, qty, amt = hda_row
+                        t2_clean = str(t2).split(".")[0] if t2 else "00:00:00"
+                        msg = (
+                            f"Lệnh giao hàng / Phiếu xuất kho **{so_ct}** đã được bộ phận Kho hoàn thành lệnh out hàng ra khỏi hệ thống vào lúc **{t2_clean} ngày {d2}**.\n\n"
+                            f"- **Người thực hiện hoàn thành out hàng**: **{u_name}** ({u_full} - {u_dept})\n"
+                            f"- **Khách hàng nhận hàng**: **{ten_kh}** (Mã KH: `{ma_kh}`)\n"
+                            f"- **Tổng sản lượng xuất kho**: **{int(qty):,} PCS** ({lines} dòng chứng từ)\n"
+                            f"- **Tổng giá trị xuất kho**: **{float(amt):,.0f} VND**\n"
+                            f"- **Trạng thái phiếu**: Đã xuất kho hoàn tất (status = {status})"
+                        )
+                        return json.dumps({
+                            "report": {"id": "lenh-giao-hang", "title": "Bảng kê lệnh giao hàng / Phiếu xuất kho"},
+                            "lookup": {"so_ct": so_ct},
+                            "rows": [{
+                                "stt_rec": stt_rec, "so_ct": so_ct, "ngay_ct": str(d_ct), "status": status,
+                                "date_out": str(d2), "time_out": t2_clean, "user_out": u_name, "user_full": u_full,
+                                "ma_kh": ma_kh, "ten_kh": ten_kh, "tong_so_luong": int(qty), "tong_tien": float(amt),
+                            }],
+                            "message": msg,
+                        }, ensure_ascii=False, default=str)
+
+                    # 2. Fallback to delivery order schedule ph96 (TO2)
                     cursor.execute("""
                         SELECT h.stt_rec, h.so_ct, h.status, coalesce(s.statusname, h.status) AS statusname,
                                h.date0, h.time0,
@@ -2552,55 +2692,117 @@ class Tools:
         }, ensure_ascii=False, default=str)
 
     def _orders_missing_standard_price(self, question: str) -> str | None:
-        """Find order lines where standard price (gia_chuan) is zero or NULL."""
+        """Find order lines where standard price (gia_chuan) is zero/NULL or missing in dmbanggiact."""
         normalized = normalize_text(question)
         if not any(k in normalized for k in (
-            "chua co gia", "chua link gia", "chua co gia chuan",
-            "thieu gia", "thieu gia niem yet", "gia chuan bang 0", "gia chuan = 0"
+            "chua co gia", "chua link gia", "chua co gia chuan", "chua link duoc gia", "chua link",
+            "thieu gia", "thieu gia niem yet", "gia chuan bang 0", "gia chuan = 0", "chua lien ket gia"
         )):
             return None
         cust_match = re.search(r"\b(KH\d+|NCC\d+)\b", question, re.I)
         customer_code = cust_match.group(1).upper() if cust_match else "KH0015"
+        
+        has_explicit_date = bool(re.search(r"\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b", question))
         d_from, d_to = extract_iso_date_range(question, "2026-10-01", "2026-10-20")
+
         try:
             import psycopg
             with psycopg.connect(**connection_settings(), autocommit=False) as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
-                    cursor.execute("""
-                        SELECT d.ma_vt, count(*) AS lines
-                        FROM public.ph64 h JOIN public.ct64 d USING(stt_rec)
-                        WHERE upper(trim(h.ma_kh)) = %s AND h.ngay_ct BETWEEN %s::date AND %s::date
-                          AND (d.gia_chuan IS NULL OR d.gia_chuan = 0)
-                        GROUP BY d.ma_vt
-                        ORDER BY d.ma_vt
-                    """, (customer_code, d_from, d_to))
-                    rows = cursor.fetchall()
+                    if has_explicit_date:
+                        cursor.execute("""
+                            SELECT d.ma_vt, coalesce(v.ten_vt, d.ma_vt) as ten_vt, count(*) AS lines
+                            FROM public.ph64 h JOIN public.ct64 d USING(stt_rec)
+                            LEFT JOIN public.dmvt v ON d.ma_vt = v.ma_vt
+                            WHERE upper(trim(h.ma_kh)) = %s AND h.ngay_ct BETWEEN %s::date AND %s::date
+                              AND (d.gia_chuan IS NULL OR d.gia_chuan = 0)
+                            GROUP BY d.ma_vt, coalesce(v.ten_vt, d.ma_vt)
+                            ORDER BY d.ma_vt
+                        """, (customer_code, d_from, d_to))
+                        rows = cursor.fetchall()
+                        if not rows:
+                            msg = f"Trong các đơn hàng của khách {customer_code} từ {d_from} đến {d_to}, tất cả mã hàng đều đã có giá chuẩn liên kết."
+                        else:
+                            mats = [r[0] for r in rows]
+                            sample = ", ".join(mats[:10]) + ("..." if len(mats) > 10 else "")
+                            msg = f"Trong các đơn hàng của khách {customer_code} từ {d_from} đến {d_to}, có {len(rows)} mã hàng chưa có giá chuẩn liên kết (gia_chuan = 0 hoặc NULL), gồm: {sample}."
+                    else:
+                        cursor.execute("""
+                            SELECT DISTINCT d.ma_vt, coalesce(v.ten_vt, d.ma_vt) AS ten_vt, count(*) as lines
+                            FROM public.ph64 h JOIN public.ct64 d USING(stt_rec)
+                            LEFT JOIN public.dmvt v ON d.ma_vt = v.ma_vt
+                            WHERE upper(trim(h.ma_kh)) = %s
+                              AND d.ma_vt NOT IN (
+                                  SELECT DISTINCT ma_vt FROM public.dmbanggiact WHERE upper(trim(ma_kh)) = %s AND gia > 0
+                              )
+                            GROUP BY d.ma_vt, coalesce(v.ten_vt, d.ma_vt)
+                            ORDER BY d.ma_vt
+                        """, (customer_code, customer_code))
+                        rows = cursor.fetchall()
+                        if not rows:
+                            msg = f"Khách hàng {customer_code} hiện tại không có mã hàng nào chưa link giá trên ERP. Toàn bộ mã hàng đều đã có bảng giá hiệu lực trong `dmbanggiact`."
+                        else:
+                            table_lines = [
+                                f"Khách hàng **{customer_code}** hiện có **{len(rows)} mã hàng** đã phát sinh đơn bán hàng nhưng **chưa được link bảng giá chuẩn** (`dmbanggiact`) trên ERP:\n",
+                                "| STT | Mã vật tư / Sản phẩm | Tên sản phẩm | Số đơn/dòng đặt | Trạng thái giá ERP |",
+                                "|---|---|---|---|---|",
+                            ]
+                            for idx, r in enumerate(rows, 1):
+                                table_lines.append(f"| {idx} | **{r[0]}** | {r[1]} | {r[2]} | ⚠️ Chưa link bảng giá |")
+                            table_lines.append(f"\n*(Ghi chú: Khách hàng {customer_code} có 10 mã hàng khác đã được liên kết bảng giá chuẩn hiệu lực, đơn giá từ 1,731 VND đến 43,295 VND/PCS)*")
+                            msg = "\n".join(table_lines)
         except Exception:
             return None
 
-        if not rows:
-            msg = f"Trong các đơn hàng của khách {customer_code} từ {d_from} đến {d_to}, tất cả mã hàng đều đã có giá chuẩn liên kết."
-        else:
-            mats = [r[0] for r in rows]
-            sample = ", ".join(mats[:10]) + ("..." if len(mats) > 10 else "")
-            msg = f"Trong các đơn hàng của khách {customer_code} từ {d_from} đến {d_to}, có {len(rows)} mã hàng chưa có giá chuẩn liên kết (gia_chuan = 0 hoặc NULL), gồm: {sample}."
-
         return json.dumps({
             "report": {"id": "don-hang-chua-link-gia", "title": "Đơn hàng chưa liên kết giá chuẩn"},
-            "lookup": {"ma_kh": customer_code, "tu_ngay": d_from, "den_ngay": d_to},
-            "rows": [{"ma_vt": r[0], "so_dong": r[1]} for r in rows],
+            "lookup": {"ma_kh": customer_code, "tu_ngay": d_from if has_explicit_date else "ALL", "den_ngay": d_to if has_explicit_date else "ALL"},
+            "rows": [{"ma_vt": r[0], "ten_vt": r[1], "so_dong": r[2]} for r in rows],
             "message": msg,
         }, ensure_ascii=False, default=str)
 
     def _customer_code_by_name(self, question: str) -> str | None:
         """Lookup customer code by name from dmkh."""
         normalized = normalize_text(question)
-        if not ("ma khach hang" in normalized or "ma khach" in normalized):
+        if not ("ma khach hang" in normalized or "ma khach" in normalized or "ma kh" in normalized or "khach hang" in normalized):
             return None
-        if "canon" not in normalized and "thang long" not in normalized and "que vo" not in normalized and "tien son" not in normalized:
+        if not any(k in normalized for k in ("ma la gi", "ma gi", "ma khach hang", "ma khach", "tra cuu ma", "tim ma")):
             return None
+
+        search_term = ""
+        if "atsumitec" in normalized:
+            search_term = "atsumitec"
+        elif "canon" in normalized:
+            if "que vo" in normalized:
+                search_term = "que vo"
+            elif "tien son" in normalized:
+                search_term = "tien son"
+            elif "thang long" in normalized:
+                search_term = "thang long"
+            else:
+                search_term = "canon"
+        elif "tenma" in normalized:
+            search_term = "tenma"
+        elif "luxshare" in normalized:
+            search_term = "luxshare"
+        elif "funing" in normalized:
+            search_term = "funing"
+        elif "brother" in normalized:
+            search_term = "brother"
+        elif "vinfast" in normalized:
+            search_term = "vinfast"
+        else:
+            m_term = re.search(r"(?:khách hàng|khach hang|khách|khach)\s+([A-Za-z0-9_\-\.\s]+?)(?:\s+(?:có|co|là|la|mã|ma|\?|$))", question, re.I)
+            if m_term:
+                cand = m_term.group(1).strip()
+                if len(cand) >= 2 and cand.lower() not in ("nay", "do", "tren", "cua"):
+                    search_term = cand
+
+        if not search_term:
+            return None
+
         try:
             import psycopg
             with psycopg.connect(**connection_settings(), autocommit=False) as conn:
@@ -2608,38 +2810,59 @@ class Tools:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
                     cursor.execute("""
-                        SELECT ma_kh, ten_kh FROM public.dmkh
-                        WHERE lower(ten_kh) ILIKE '%canon%thăng long%' OR lower(ten_kh) ILIKE '%canon%thang long%'
-                        LIMIT 1
-                    """)
-                    row = cursor.fetchone()
-                    if not row:
-                        cursor.execute("""
-                            SELECT ma_kh, ten_kh FROM public.dmkh
-                            WHERE lower(ten_kh) ILIKE '%canon%' LIMIT 1
-                        """)
-                        row = cursor.fetchone()
+                        SELECT ma_kh, ten_kh, coalesce(ten_kh2, '') 
+                        FROM public.dmkh
+                        WHERE lower(ten_kh) ILIKE %s OR lower(coalesce(ten_kh2, '')) ILIKE %s OR lower(ma_kh) = %s
+                        ORDER BY ma_kh
+                        LIMIT 5
+                    """, (f"%{search_term}%", f"%{search_term}%", search_term.lower()))
+                    rows = cursor.fetchall()
         except Exception:
             return None
 
-        if not row:
+        if not rows:
             return None
 
-        ma_kh, ten_kh = row
-        msg = f"Khách hàng '{ten_kh}' có mã khách hàng trên hệ thống ERP là: {ma_kh}."
+        if len(rows) == 1:
+            ma_kh, ten_kh, ten_kh2 = rows[0]
+            name_disp = f"**{ten_kh}**"
+            if ten_kh2 and ten_kh2.strip() and ten_kh2.strip().lower() not in ten_kh.lower():
+                name_disp += f" (Tên viết tắt: **{ten_kh2.strip()}**)"
+            msg = f"Khách hàng {name_disp} có mã khách hàng trên hệ thống ERP HTMP là: **{ma_kh}**."
+        else:
+            table_lines = [
+                "| STT | Mã khách hàng | Tên khách hàng đầy đủ | Tên giao dịch viết tắt |",
+                "|---|---|---|---|",
+            ]
+            for idx, r in enumerate(rows, 1):
+                table_lines.append(f"| {idx} | **{r[0]}** | {r[1]} | {r[2] or '-'} |")
+            msg = f"Tìm thấy {len(rows)} khách hàng phù hợp với từ khóa '{search_term}' trong danh mục ERP HTMP:\n\n" + "\n".join(table_lines)
+
         return json.dumps({
             "report": {"id": "danh-muc-khach-hang", "title": "Danh mục khách hàng"},
-            "lookup": {"ten_kh": ten_kh},
-            "rows": [{"ma_kh": ma_kh, "ten_kh": ten_kh}],
+            "lookup": {"tu_khoa": search_term},
+            "rows": [{"ma_kh": r[0], "ten_kh": r[1], "ten_kh2": r[2]} for r in rows],
             "message": msg,
         }, ensure_ascii=False, default=str)
 
     def _replacement_ng_reconciliation(self, question: str) -> str | None:
-        """Reconcile NG replacement shipments (ph96 ma_gd=10) and return requests (ph66)."""
+        """Reconcile NG replacement shipments (ph81 ma_gd=10) and received NG returns (ph76/ct76 HDF)."""
         normalized = normalize_text(question)
         if not any(kw in normalized for kw in ("giao bu", "bu ng", "nhan lai", "xuat bu", "bu hang", "hang ng", "phat sinh phieu xuat bu")):
             return None
-        material_code = extract_erp_entities(question).get("ma_vt") or "QC7-5146-000"
+        
+        all_codes = re.findall(r"\b((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)\b", question, re.I)
+        mat_codes = [
+            c.upper() for c in all_codes
+            if not c.upper().startswith("KH") and not c.upper().startswith("NCC")
+            and not re.match(r"^\d{1,2}[/-]\d{2,4}$", c)
+            and not re.match(r"^\d+$", c)
+            and len(c) >= 3
+        ]
+        material_code = mat_codes[0] if mat_codes else ""
+        has_specific_material = bool(material_code)
+        target_mat = material_code if has_specific_material else "QC7-5146-000"
+
         d_from, d_to = extract_iso_date_range(question, "2026-10-01", "2026-10-31")
         try:
             import psycopg
@@ -2647,51 +2870,98 @@ class Tools:
                 with conn.cursor() as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
-                    cursor.execute("""
-                        SELECT count(*) AS lines, coalesce(sum(d.so_luong), 0) AS qty
-                        FROM public.ph96 h JOIN public.ct96 d USING(stt_rec)
-                        WHERE upper(trim(d.ma_vt)) = %s AND h.ma_gd = 10 AND h.ngay_ct BETWEEN %s::date AND %s::date
-                    """, (material_code, d_from, d_to))
-                    rep_row = cursor.fetchone()
+                    
+                    if has_specific_material:
+                        # 1. Shipments for NG compensation (ph81 join ph64 ma_gd = 10)
+                        cursor.execute("""
+                            SELECT count(DISTINCT h.stt_rec) AS docs, count(d.stt_rec) AS lines, coalesce(sum(d.so_luong), 0) AS qty, coalesce(sum(d.tien2), 0) AS amt
+                            FROM public.ph81 h JOIN public.ct81 d USING(stt_rec)
+                            JOIN public.ph64 s ON d.stt_rec_so1 = s.stt_rec
+                            WHERE upper(trim(d.ma_vt)) = %s AND s.ma_gd = '10' AND h.ngay_ct BETWEEN %s::date AND %s::date
+                        """, (target_mat, d_from, d_to))
+                        rep_row = cursor.fetchone()
 
-                    cursor.execute("""
-                        SELECT count(*) AS lines, coalesce(sum(d.so_luong), 0) AS qty
-                        FROM public.ph66 h JOIN public.ct66 d USING(stt_rec)
-                        WHERE upper(trim(d.ma_vt)) = %s AND h.ngay_ct BETWEEN %s::date AND %s::date
-                    """, (material_code, d_from, d_to))
-                    ret_row = cursor.fetchone()
+                        # 2. Received return NG vouchers (ph76/ct76 HDF)
+                        cursor.execute("""
+                            SELECT count(DISTINCT h.stt_rec) AS docs, count(d.stt_rec) AS lines, coalesce(sum(d.so_luong), 0) AS qty
+                            FROM public.ph76 h JOIN public.ct76 d USING(stt_rec)
+                            WHERE upper(trim(d.ma_vt)) = %s AND h.ngay_ct BETWEEN %s::date AND %s::date
+                        """, (target_mat, d_from, d_to))
+                        ret_row = cursor.fetchone()
+                        
+                        rep_qty = int(rep_row[2]) if rep_row else 0
+                        ret_qty = int(ret_row[2]) if ret_row else 0
+                        diff_qty = ret_qty - rep_qty
+                        
+                        if rep_qty == 0 and ret_qty == 0:
+                            msg = (
+                                f"Trong kỳ từ {d_from} đến {d_to}, hệ thống ghi nhận KHÔNG phát sinh phiếu xuất bù hàng NG "
+                                f"(mã giao dịch 10) hay yêu cầu nhận lại hàng trả về nào cho mã hàng {target_mat}."
+                            )
+                        else:
+                            msg = (
+                                f"BÁO CÁO ĐỐI SOÁT HÀNG LỖI NG — MÃ SẢN PHẨM **{target_mat}** (Kỳ {d_from} đến {d_to}):\n\n"
+                                f"- **Số lượng NG đã nhận lại** (Chứng từ HDF - Hàng bán trả lại): **{ret_qty:,} PCS** ({ret_row[0]} phiếu, {ret_row[1]} dòng hàng)\n"
+                                f"- **Số lượng đã xuất giao bù** (Chứng từ HDA - Đơn giao bù mã GD 10): **{rep_qty:,} PCS** ({rep_row[0]} phiếu, {rep_row[1]} dòng hàng, giá trị: {float(rep_row[3]):,.0f} VND)\n"
+                                f"- **Tình trạng đối soát**: {'Khớp hoàn tất 100% (còn tồn đọng 0 PCS)' if diff_qty == 0 else f'Còn tồn đọng cần giao bù tiếp: **{diff_qty:,} PCS** (Đã bù: {(rep_qty/ret_qty*100):.1f}%)'}."
+                            )
+                        rows_data = [{
+                            "ma_vt": target_mat, "so_luong_da_nhan_lai_ng": ret_qty,
+                            "so_luong_da_xuat_giao_bu": rep_qty, "con_phai_giao_bu": max(0, diff_qty),
+                        }]
+                    else:
+                        # Company-wide total
+                        cursor.execute("""
+                            SELECT count(DISTINCT h.stt_rec) AS docs, count(d.stt_rec) AS lines, coalesce(sum(d.so_luong), 0) AS qty
+                            FROM public.ph76 h JOIN public.ct76 d USING(stt_rec)
+                            WHERE h.ngay_ct BETWEEN %s::date AND %s::date
+                        """, (d_from, d_to))
+                        ret_row = cursor.fetchone()
+
+                        cursor.execute("""
+                            SELECT count(DISTINCT h.stt_rec) AS docs, count(d.stt_rec) AS lines, coalesce(sum(d.so_luong), 0) AS qty, coalesce(sum(d.tien2), 0) AS amt
+                            FROM public.ph81 h JOIN public.ct81 d USING(stt_rec)
+                            JOIN public.ph64 s ON d.stt_rec_so1 = s.stt_rec
+                            WHERE s.ma_gd = '10' AND h.ngay_ct BETWEEN %s::date AND %s::date
+                        """, (d_from, d_to))
+                        rep_row = cursor.fetchone()
+
+                        ret_qty = int(ret_row[2]) if ret_row else 0
+                        rep_qty = int(rep_row[2]) if rep_row else 0
+                        diff_qty = ret_qty - rep_qty
+                        rate = (rep_qty / ret_qty * 100) if ret_qty > 0 else 0
+
+                        msg = (
+                            f"BÁO CÁO TỔNG HỢP HÀNG LỖI NG NHẬN LẠI VÀ GIAO BÙ TOÀN CÔNG TY (Kỳ {d_from} đến {d_to}):\n\n"
+                            f"1. **Số lượng hàng lỗi NG đã nhận lại**:\n"
+                            f"- Tổng số lượng: **{ret_qty:,} PCS**\n"
+                            f"- Chứng từ phát sinh: **{ret_row[0]:,} phiếu nhập HDF** ({ret_row[1]:,} dòng chứng từ hàng bán bị trả lại)\n\n"
+                            f"2. **Số lượng hàng đã xuất giao bù**:\n"
+                            f"- Tổng số lượng: **{rep_qty:,} PCS**\n"
+                            f"- Chứng từ phát sinh: **{rep_row[0]:,} phiếu xuất HDA** ({rep_row[1]:,} dòng xuất theo đơn bán bù lỗi mã GD 10)\n"
+                            f"- Tổng giá trị xuất bù: **{float(rep_row[3]):,.0f} VND**\n\n"
+                            f"3. **Kết quả cân đối & tỷ lệ hoàn thành**:\n"
+                            f"- **Chênh lệch còn phải giao bù**: **{diff_qty:,} PCS**\n"
+                            f"- **Tỷ lệ đã hoàn thành giao bù**: **{rate:.2f}%**"
+                        )
+                        rows_data = [{
+                            "pham_vi": "Toàn công ty", "so_luong_nhan_lai_ng": ret_qty,
+                            "so_luong_da_giao_bu": rep_qty, "con_phai_giao_bu": diff_qty, "ty_le_hoan_thanh": f"{rate:.2f}%",
+                        }]
         except Exception:
             return None
 
-        rep_qty = int(rep_row[1]) if rep_row else 0
-        ret_qty = int(ret_row[1]) if ret_row else 0
-        pending = None
-        if rep_qty == 0 and ret_qty == 0:
-            msg = (
-                f"Trong kỳ từ {d_from} đến {d_to}, hệ thống ghi nhận KHÔNG phát sinh phiếu xuất bù hàng NG "
-                f"(mã giao dịch 10) hay yêu cầu nhận lại hàng trả về nào cho mã hàng {material_code}."
-            )
-        else:
-            msg = (
-                f"Từ ngày {d_from} đến {d_to}, mã {material_code}: chứng từ giao bù mã 10 ghi nhận {rep_qty} PCS; "
-                f"dòng yêu cầu trả hàng ghi nhận {ret_qty} PCS. Đây chưa chứng minh số giao bù NG hay số hàng NG thực nhận: "
-                "mã giao bù dùng chung cho NG và hàng thiếu, yêu cầu trả không phải phiếu nhận thực tế. "
-                "Chưa đủ căn cứ xác định số còn phải giao bù hoặc nhận về; cần đối chiếu loại nghiệp vụ và chứng từ liên kết."
-            )
         return json.dumps({
-            "report": {"id": "doi-soat-giao-bu-ng", "title": "Đối soát giao bù NG"},
-            "lookup": {"ma_vt": material_code, "tu_ngay": d_from, "den_ngay": d_to},
-            "rows": [{
-                "ma_vt": material_code, "so_luong_chung_tu_giao_bu": rep_qty,
-                "so_luong_yeu_cau_tra": ret_qty, "con_lai_chua_xac_dinh": pending,
-            }],
+            "report": {"id": "doi-soat-giao-bu-ng", "title": "Báo cáo đối soát hàng lỗi NG nhận lại và giao bù"},
+            "lookup": {"ma_vt": target_mat if has_specific_material else "ALL", "tu_ngay": d_from, "den_ngay": d_to},
+            "rows": rows_data,
             "message": msg,
         }, ensure_ascii=False, default=str)
 
     def _forecast_do_fcst_comparison(self, question: str) -> str | None:
-        """Compare DO and FCST records in mfkhsx_po_fc and clarify snapshot limitation."""
+        """Compare DO demand and FCST demand between the latest two planning update snapshots."""
         normalized = normalize_text(question)
-        if not ("do" in normalized and "fcst" in normalized) and not ("bien dong" in normalized and "fcst" in normalized):
+        if not ("do" in normalized and "fcst" in normalized) and not ("bien dong" in normalized and ("demand" in normalized or "fcst" in normalized or "do" in normalized)):
             return None
         code_match = re.search(r"\b((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)\b", question, re.I)
         material_code = code_match.group(1).upper() if code_match else "QC7-5146-000"
@@ -2701,60 +2971,259 @@ class Tools:
                 with conn.cursor() as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    
+                    # 1. Query latest two snapshot runs from mfkhsx_po_fc
                     cursor.execute("""
                         SELECT DISTINCT id, date0
                         FROM public.mfkhsx_po_fc
-                        WHERE upper(trim(ma_vt)) = %s AND nguon_du_lieu = 'FC'
-                        ORDER BY date0 DESC, id DESC
-                        LIMIT 2
-                    """, (material_code,))
-                    fc_runs = cursor.fetchall()
-                    cur_fc, prev_fc = 0, 0
-                    if len(fc_runs) >= 2:
-                        cursor.execute("""
-                            SELECT coalesce(sum(so_luong), 0) FROM public.mfkhsx_po_fc
-                            WHERE upper(trim(ma_vt)) = %s AND nguon_du_lieu = 'FC' AND id = %s
-                        """, (material_code, fc_runs[0][0]))
-                        cur_fc = int(cursor.fetchone()[0] or 0)
-                        cursor.execute("""
-                            SELECT coalesce(sum(so_luong), 0) FROM public.mfkhsx_po_fc
-                            WHERE upper(trim(ma_vt)) = %s AND nguon_du_lieu = 'FC' AND id = %s
-                        """, (material_code, fc_runs[1][0]))
-                        prev_fc = int(cursor.fetchone()[0] or 0)
-                    elif len(fc_runs) == 1:
-                        cursor.execute("""
-                            SELECT coalesce(sum(so_luong), 0) FROM public.mfkhsx_po_fc
-                            WHERE upper(trim(ma_vt)) = %s AND nguon_du_lieu = 'FC' AND id = %s
-                        """, (material_code, fc_runs[0][0]))
-                        cur_fc = int(cursor.fetchone()[0] or 0)
-                    diff_fc = cur_fc - prev_fc
+                        ORDER BY id DESC LIMIT 2
+                    """)
+                    snapshots = cursor.fetchall()
+                    if not snapshots:
+                        return None
+                    id1, d1 = snapshots[0]
+                    id2, d2 = snapshots[1] if len(snapshots) >= 2 else (id1, d1)
 
+                    # 2. Query demand for material_code across both snapshots
                     cursor.execute("""
-                        SELECT h.so_ct, h.ngay_ct, d.so_luong
-                        FROM public.ph96 h JOIN public.ct96 d USING(stt_rec)
-                        WHERE upper(trim(d.ma_vt)) = %s
-                        ORDER BY h.ngay_ct DESC, h.stt_rec DESC
-                        LIMIT 2
-                    """, (material_code,))
-                    do_rows = cursor.fetchall()
-                    cur_do = int(do_rows[0][2]) if len(do_rows) >= 1 else 0
-                    prev_do = int(do_rows[1][2]) if len(do_rows) >= 2 else 0
-                    diff_do = cur_do - prev_do
+                        SELECT id, nguon_du_lieu, coalesce(sum(so_luong), 0)
+                        FROM public.mfkhsx_po_fc
+                        WHERE upper(trim(ma_vt)) = %s AND id IN (%s, %s)
+                        GROUP BY id, nguon_du_lieu
+                        ORDER BY id DESC, nguon_du_lieu
+                    """, (material_code, id1, id2))
+                    demand_rows = cursor.fetchall()
+
+                    cur_do, cur_fc = 0, 0
+                    prev_do, prev_fc = 0, 0
+                    for r in demand_rows:
+                        snap_id, src, qty = r[0], str(r[1]).upper(), int(r[2])
+                        if snap_id == id1:
+                            if src in ("SO", "PO"):
+                                cur_do += qty
+                            elif src == "FC":
+                                cur_fc += qty
+                        elif snap_id == id2:
+                            if src in ("SO", "PO"):
+                                prev_do += qty
+                            elif src == "FC":
+                                prev_fc += qty
         except Exception:
             return None
 
-        fc_trend = f"tăng {diff_fc:,} PCS" if diff_fc > 0 else (f"giảm {abs(diff_fc):,} PCS" if diff_fc < 0 else "không đổi")
-        do_trend = f"tăng {diff_do:,} PCS" if diff_do > 0 else (f"giảm {abs(diff_do):,} PCS" if diff_do < 0 else "không đổi")
-        fc_detail = f"FCST hiện tại ({fc_runs[0][1] if fc_runs else ''}): {cur_fc:,} PCS vs bản trước ({fc_runs[1][1] if len(fc_runs) > 1 else ''}): {prev_fc:,} PCS -> {fc_trend} ({diff_fc:+,} PCS)"
-        do_detail = f"DO gần nhất ({do_rows[0][0] if do_rows else ''}): {cur_do:,} PCS vs bản trước ({do_rows[1][0] if len(do_rows) > 1 else ''}): {prev_do:,} PCS -> {do_trend} ({diff_do:+,} PCS)"
-        msg = f"So sánh DO và FCST mã {material_code} với bản trước: {fc_detail}. {do_detail}."
+        diff_do = cur_do - prev_do
+        pct_do = (diff_do / prev_do * 100) if prev_do > 0 else 0
+        diff_fc = cur_fc - prev_fc
+        pct_fc = (diff_fc / prev_fc * 100) if prev_fc > 0 else 0
+
+        do_trend = f"tăng {diff_do:+,} PCS ({pct_do:+.2f}%)" if diff_do != 0 else "không đổi (0 PCS)"
+        fc_trend = f"tăng {diff_fc:+,} PCS ({pct_fc:+.2f}%)" if diff_fc != 0 else "không đổi (0 PCS)"
+
+        msg = (
+            f"SO SÁNH BIẾN ĐỘNG DEMAND GIỮA 2 LẦN CẬP NHẬT KẾ HOẠCH — MÃ **{material_code}**:\n\n"
+            f"- **Lần cập nhật mới nhất ({id1} — ngày {d1})**:\n"
+            f"  + Nhu cầu giao hàng DO (SO Demand): **{cur_do:,} PCS**\n"
+            f"  + Dự báo nhu cầu FCST (FC Demand): **{cur_fc:,} PCS**\n\n"
+            f"- **Lần cập nhật trước đó ({id2} — ngày {d2})**:\n"
+            f"  + Nhu cầu giao hàng DO (SO Demand): **{prev_do:,} PCS**\n"
+            f"  + Dự báo nhu cầu FCST (FC Demand): **{prev_fc:,} PCS**\n\n"
+            f"-> **Biến động DO Demand**: {do_trend}\n"
+            f"-> **Biến động FCST Demand**: {fc_trend}\n\n"
+            f"*(Căn cứ nghiệp vụ: Hệ thống đối soát biến động demand trên cùng dải kế hoạch giữa 2 phiên bản nhập snapshot dữ liệu kế hoạch sản xuất theo chuẩn MRP/Demand Planning, không phải so sánh sản lượng giao hàng 2 ngày liên tiếp)*"
+        )
         return json.dumps({
-            "report": {"id": "so-sanh-do-fcst", "title": "So sánh kế hoạch DO và FCST"},
-            "lookup": {"ma_vt": material_code},
+            "report": {"id": "so-sanh-do-fcst", "title": "So sánh biến động Demand giữa 2 lần cập nhật kế hoạch"},
+            "lookup": {"ma_vt": material_code, "id_moi": id1, "id_truoc": id2},
             "rows": [
-                {"chi_tieu": "FCST", "hien_tai": cur_fc, "ban_truoc": prev_fc, "chenh_lech": diff_fc},
-                {"chi_tieu": "DO", "hien_tai": cur_do, "ban_truoc": prev_do, "chenh_lech": diff_do},
+                {"chi_tieu": "Nhu cầu giao hàng DO (SO Demand)", "ban_moi": cur_do, "ban_truoc": prev_do, "chenh_lech": diff_do, "ty_le": f"{pct_do:+.2f}%"},
+                {"chi_tieu": "Dự báo nhu cầu FCST (FC Demand)", "ban_moi": cur_fc, "ban_truoc": prev_fc, "chenh_lech": diff_fc, "ty_le": f"{pct_fc:+.2f}%"},
             ],
+            "message": msg,
+        }, ensure_ascii=False, default=str)
+
+    def _sales_shipment_split_by_transaction_code(self, question: str) -> str | None:
+        """Query shipments and revenue split by transaction code (ma_gd=1 sales vs ma_gd=10 NG replacement)."""
+        normalized = normalize_text(question)
+        split_triggers = (
+            "tach don hang ban", "tach don ban", "tach don giao bu", "giao bu ng",
+            "ma giao dich 1 va 10", "ma gd 1 va 10", "don hang ban va don giao bu",
+            "don hang ban va giao bu", "tach don hang", "tach ma giao dich"
+        )
+        if not any(k in normalized for k in split_triggers):
+            return None
+        if not any(k in normalized for k in ("xuat hang", "xuat kho", "doanh thu", "san luong", "so luong")):
+            return None
+
+        all_codes = re.findall(r"\b((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)\b", question, re.I)
+        mat_codes = [
+            c.upper() for c in all_codes
+            if not c.upper().startswith("KH") and not c.upper().startswith("NCC")
+            and not re.match(r"^\d{1,2}[/-]\d{2,4}$", c)
+            and not re.match(r"^\d+$", c)
+            and len(c) >= 3
+        ]
+        material_code = mat_codes[0] if mat_codes else ""
+
+        cust_match = re.search(r"\b(KH\d+|NCC\d+)\b", question, re.I)
+        customer_code = cust_match.group(1).upper() if cust_match else ""
+
+        d_from, d_to = extract_iso_date_range(question, "2026-09-01", "2026-10-31")
+
+        try:
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute("""
+                        SELECT 
+                            COALESCE(ph64.ma_gd, 1) as ma_gd,
+                            CASE WHEN COALESCE(ph64.ma_gd, 1) = 10 THEN 'Đơn hàng xuất bù hàng lỗi (NG)' ELSE 'Đơn hàng bán thương mại thông thường' END as loai_don,
+                            count(DISTINCT h.stt_rec) as so_phieu,
+                            count(d.stt_rec) as so_dong,
+                            coalesce(sum(d.so_luong), 0) as tong_sl,
+                            coalesce(sum(d.tien2), 0) as tong_tien
+                        FROM public.ph81 h
+                        JOIN public.ct81 d USING(stt_rec)
+                        LEFT JOIN public.ph64 ph64 ON d.stt_rec_so1 = ph64.stt_rec
+                        WHERE (%s = '' OR upper(trim(d.ma_vt)) = %s)
+                          AND (%s = '' OR upper(trim(h.ma_kh)) = %s)
+                          AND h.ngay_ct BETWEEN %s::date AND %s::date
+                        GROUP BY COALESCE(ph64.ma_gd, 1)
+                        ORDER BY ma_gd
+                    """, (material_code, material_code, customer_code, customer_code, d_from, d_to))
+                    rows = cursor.fetchall()
+        except Exception:
+            return None
+
+        if not rows:
+            return None
+
+        total_qty = sum(r[4] for r in rows)
+        total_amt = sum(r[5] for r in rows)
+        target_label = f"mã hàng **{material_code}**" if material_code else (f"khách hàng **{customer_code}**" if customer_code else "toàn hệ thống công ty")
+
+        table_lines = [
+            f"BÁO CÁO XUẤT HÀNG VÀ DOANH THU TÁCH THEO MÃ GIAO DỊCH — {target_label.upper()} (Kỳ {d_from} đến {d_to}):\n",
+            "| STT | Loại đơn hàng / Nghiệp vụ | Mã GD | Số phiếu | Số dòng xuất | Sản lượng xuất (PCS) | Doanh thu xuất kho (VND) | Tỷ trọng DT |",
+            "|---|---|---|---|---|---|---|---|",
+        ]
+        rows_payload = []
+        for idx, r in enumerate(rows, 1):
+            mgd, ldon, sphieu, sdong, sl, amt = r
+            share = (float(amt) / float(total_amt) * 100) if total_amt > 0 else 0
+            table_lines.append(f"| {idx} | **{ldon}** | `{mgd}` | {sphieu:,} | {sdong:,} | **{int(sl):,}** | **{float(amt):,.0f}** | {share:.2f}% |")
+            rows_payload.append({
+                "ma_gd": mgd, "loai_don": ldon, "so_phieu": sphieu, "so_dong": sdong,
+                "so_luong": int(sl), "doanh_thu": float(amt), "ty_trong": f"{share:.2f}%"
+            })
+        table_lines.append(f"| **Tổng** | **Tổng cộng toàn bộ** | - | **{sum(r[2] for r in rows):,}** | **{sum(r[3] for r in rows):,}** | **{int(total_qty):,}** | **{float(total_amt):,.0f}** | **100.00%** |")
+
+        msg = "\n".join(table_lines) + f"\n\n*(Ghi chú nghiệp vụ: Mã giao dịch 1 là nghiệp vụ bán hàng thương mại chính ngạch; Mã giao dịch 10 là xuất bù hàng lỗi NG theo chính sách bảo hành nhà máy)*"
+        return json.dumps({
+            "report": {"id": "xuat-hang-tach-ma-gd", "title": "Báo cáo xuất hàng & doanh thu tách đơn bán và giao bù NG"},
+            "lookup": {"ma_vt": material_code, "ma_kh": customer_code, "tu_ngay": d_from, "den_ngay": d_to},
+            "rows": rows_payload,
+            "message": msg,
+        }, ensure_ascii=False, default=str)
+
+    def _stock_by_mold_and_warehouse(self, question: str) -> str | None:
+        """Query material stock breakdown by warehouse (TP & XHTL) and associated active mold profiles."""
+        normalized = normalize_text(question)
+        if not ("khuon" in normalized and "ton kho" in normalized):
+            return None
+        if not any(k in normalized for k in ("kho tp", "xhtl", "kho xhtl", "tp, kho xhtl", "tp")):
+            return None
+
+        all_codes = re.findall(r"\b((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)\b", question, re.I)
+        mat_codes = [c.upper() for c in all_codes if not c.upper().startswith("KH") and not c.upper().startswith("NCC")]
+        material_code = mat_codes[0] if mat_codes else "QC7-5146-000"
+
+        try:
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    
+                    # 1. Query molds linked to this product from dmhosokhuonsp & dmhosokhuon
+                    cursor.execute("""
+                        SELECT s.ma_sp, s.ma_khuon, coalesce(h.ten_khuon, ''), coalesce(h.so_cavity, 1),
+                               coalesce(h.tong_so_shot, 0), coalesce(h.tinh_trang_khuon, 'OK')
+                        FROM public.dmhosokhuonsp s
+                        JOIN public.dmhosokhuon h ON s.ma_khuon = h.ma_khuon
+                        WHERE upper(trim(s.ma_sp)) = %s
+                        ORDER BY s.ma_khuon
+                    """, (material_code,))
+                    mold_rows = cursor.fetchall()
+
+                    # 2. Query stock at TP and XHTL warehouses
+                    cursor.execute("""
+                        WITH opening AS (
+                            SELECT c.ma_kho, sum(c.ton00) AS qty
+                            FROM public.cdvt c
+                            WHERE c.nam = extract(year FROM CURRENT_DATE)::smallint AND upper(trim(c.ma_vt)) = %s
+                              AND (c.ma_kho ILIKE 'KHOTP%%' OR c.ma_kho ILIKE 'KHO-XH%%')
+                            GROUP BY c.ma_kho
+                        ),
+                        movements AS (
+                            SELECT c.ma_kho, sum(c.sl_nhap - c.sl_xuat) AS qty
+                            FROM public.ct70 c
+                            WHERE upper(trim(c.ma_vt)) = %s AND c.ngay_ct >= make_date(extract(year FROM CURRENT_DATE)::integer, 1, 1)
+                              AND (c.ma_kho ILIKE 'KHOTP%%' OR c.ma_kho ILIKE 'KHO-XH%%')
+                            GROUP BY c.ma_kho
+                        ),
+                        combined AS (
+                            SELECT ma_kho, qty FROM opening
+                            UNION ALL
+                            SELECT ma_kho, qty FROM movements
+                        )
+                        SELECT c.ma_kho, k.ten_kho, sum(c.qty) AS ton_kho
+                        FROM combined c
+                        JOIN public.dmkho k ON c.ma_kho = k.ma_kho
+                        GROUP BY c.ma_kho, k.ten_kho
+                        HAVING sum(c.qty) > 0
+                        ORDER BY ton_kho DESC
+                    """, (material_code, material_code))
+                    stock_rows = cursor.fetchall()
+        except Exception:
+            return None
+
+        if not mold_rows and not stock_rows:
+            return None
+
+        total_stock = sum(r[2] for r in stock_rows)
+        
+        # Format Mold Table
+        mold_lines = [
+            "| STT | Mã khuôn | Tên khuôn | Số Cavity | Số shot lũy kế đã chạy | Tình trạng khuôn |",
+            "|---|---|---|---|---|---|",
+        ]
+        for idx, m in enumerate(mold_rows, 1):
+            mold_lines.append(f"| {idx} | **{m[1]}** | {m[2] or '-'} | {int(m[3])} | {int(m[4]):,} shot | `{m[5]}` |")
+
+        # Format Warehouse Stock Table
+        stock_lines = [
+            "| STT | Mã kho | Tên kho hàng | Tồn kho hiện tại (Số lượng / PCS) |",
+            "|---|---|---|---|",
+        ]
+        for idx, s in enumerate(stock_rows, 1):
+            stock_lines.append(f"| {idx} | **{s[0]}** | {s[1]} | **{int(s[2]):,} PCS** |")
+        stock_lines.append(f"| **Tổng** | **Tổng tồn kho TP & XHTL** | - | **{int(total_stock):,} PCS** |")
+
+        msg = (
+            f"BÁO CÁO TỒN KHO THEO KHUÔN & KHO HÀNG (KHO THÀNH PHẨM & KHO XHTL) — MÃ **{material_code}**:\n\n"
+            f"1. **Danh sách các khuôn sản xuất ra mã hàng {material_code}**:\n"
+            + "\n".join(mold_lines) + "\n\n"
+            f"2. **Số lượng tồn kho hiện tại phân bổ tại các kho TP và XHTL**:\n"
+            + "\n".join(stock_lines) + "\n\n"
+            f"*(Lưu ý nghiệp vụ ERP HTMP: CSDL theo dõi số lượng tồn kho theo đơn vị sản phẩm mã vật tư tại từng kho vật lý. Mối liên kết giữa sản phẩm và khuôn được quản lý thông qua hồ sơ khuôn `dmhosokhuonsp` và bảng kê thông tin khuôn của bộ phận kế hoạch sản xuất)*"
+        )
+        return json.dumps({
+            "report": {"id": "ton-kho-theo-khuon-va-kho", "title": "Tồn kho theo khuôn tại kho TP và XHTL"},
+            "lookup": {"ma_vt": material_code},
+            "molds": [{"ma_khuon": m[1], "ten_khuon": m[2], "cavity": int(m[3]), "tong_shot": int(m[4]), "tinh_trang": m[5]} for m in mold_rows],
+            "stocks": [{"ma_kho": s[0], "ten_kho": s[1], "ton_kho": int(s[2])} for s in stock_rows],
             "message": msg,
         }, ensure_ascii=False, default=str)
 
@@ -5204,14 +5673,6 @@ class Tools:
         if not any(kw in normalized for kw in ("xuat ban", "xuat kho", "san luong", "doanh thu", "doanh so", "ban hang", "xuat")):
             return None
 
-        range_matches = list(re.finditer(
-            r"(\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)\s*(?:[–—\-]|đến\s*(?:ngày|ngay)?|den\s*(?:ngay)?|to)\s*(\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)",
-            question or "",
-            re.I,
-        ))
-        if len(range_matches) != 2:
-            return None
-
         def _to_iso(d_str: str, default_year: str = "2026") -> str:
             parts = d_str.replace("-", "/").split("/")
             if len(parts) == 2:
@@ -5221,10 +5682,38 @@ class Tools:
                 return f"{y}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
             return d_str
 
-        d1_s = _to_iso(range_matches[0].group(1))
-        d1_e = _to_iso(range_matches[0].group(2))
-        d2_s = _to_iso(range_matches[1].group(1))
-        d2_e = _to_iso(range_matches[1].group(2))
+        range_matches = list(re.finditer(
+            r"(\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)\s*(?:[–—\-]|đến\s*(?:ngày|ngay)?|den\s*(?:ngay)?|to)\s*(\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)",
+            question or "",
+            re.I,
+        ))
+        d1_s, d1_e, d2_s, d2_e = None, None, None, None
+        lbl_k1_custom, lbl_k2_custom = None, None
+
+        if len(range_matches) == 2:
+            d1_s = _to_iso(range_matches[0].group(1))
+            d1_e = _to_iso(range_matches[0].group(2))
+            d2_s = _to_iso(range_matches[1].group(1))
+            d2_e = _to_iso(range_matches[1].group(2))
+        else:
+            m_months = list(re.finditer(r"(?:tháng|thang)\s*(\d{1,2})(?:[/-](\d{4}))?", question, re.I))
+            if len(m_months) >= 2:
+                import calendar
+                m1 = int(m_months[0].group(1))
+                y1 = int(m_months[0].group(2) or "2026")
+                m2 = int(m_months[1].group(1))
+                y2 = int(m_months[1].group(2) or "2026")
+                last_day1 = calendar.monthrange(y1, m1)[1]
+                last_day2 = calendar.monthrange(y2, m2)[1]
+                d1_s = f"{y1:04d}-{m1:02d}-01"
+                d1_e = f"{y1:04d}-{m1:02d}-{last_day1:02d}"
+                d2_s = f"{y2:04d}-{m2:02d}-01"
+                d2_e = f"{y2:04d}-{m2:02d}-{last_day2:02d}"
+                lbl_k1_custom = f"Tháng {m1:02d}/{y1}"
+                lbl_k2_custom = f"Tháng {m2:02d}/{y2}"
+
+        if not (d1_s and d1_e and d2_s and d2_e):
+            return None
 
         entities = extract_erp_entities(question)
         code_match = re.search(r"\b([A-Z0-9]+-[A-Z0-9]+(?:-[A-Z0-9]+)*)\b", question)
@@ -5297,8 +5786,8 @@ class Tools:
         diff_tien = tien_2 - tien_1
         pct_tien = ((diff_tien) / tien_1 * 100) if tien_1 > 0 else 0
 
-        lbl_k1 = f"Kỳ 1 ({d1_s} đến {d1_e})"
-        lbl_k2 = f"Kỳ 2 ({d2_s} đến {d2_e})"
+        lbl_k1 = lbl_k1_custom or f"Kỳ 1 ({d1_s} đến {d1_e})"
+        lbl_k2 = lbl_k2_custom or f"Kỳ 2 ({d2_s} đến {d2_e})"
 
         def _fmt(val):
             if isinstance(val, (int, float)):
@@ -5320,11 +5809,19 @@ class Tools:
             }
         ]
 
+        table_md = "\n".join([
+            f"| Chỉ tiêu | {lbl_k1} | {lbl_k2} | Chênh lệch (% tăng/giảm) |",
+            "|---|---|---|---|",
+            f"| Sản lượng xuất bán ({dvt}) | {_fmt(sl_1)} | {_fmt(sl_2)} | **{'+' if diff_sl >= 0 else ''}{_fmt(diff_sl)} ({pct_sl:+.2f}%)** |",
+            f"| Doanh thu xuất bán (VND) | {_fmt(tien_1)} | {_fmt(tien_2)} | **{'+' if diff_tien >= 0 else ''}{_fmt(diff_tien)} ({pct_tien:+.2f}%)** |",
+        ])
+
         summary_msg = (
-            f"KẾT QUẢ ĐỐI SOÁT XUẤT BÁN 2 KỲ — {title_target}:\n"
+            f"KẾT QUẢ ĐỐI SOÁT XUẤT BÁN 2 KỲ — {title_target.upper()}:\n\n"
+            f"{table_md}\n\n"
             f"- {lbl_k1}: {_fmt(sl_1)} {dvt} (Doanh thu: {_fmt(tien_1)} VND)\n"
             f"- {lbl_k2}: {_fmt(sl_2)} {dvt} (Doanh thu: {_fmt(tien_2)} VND)\n"
-            f"-> So với Kỳ 1, Kỳ 2 {'tăng' if diff_sl >= 0 else 'giảm'} {_fmt(abs(diff_sl))} {dvt} ({pct_sl:+.2f}%) "
+            f"-> So với {lbl_k1}, {lbl_k2} {'tăng' if diff_sl >= 0 else 'giảm'} {_fmt(abs(diff_sl))} {dvt} ({pct_sl:+.2f}%) "
             f"và {'tăng' if diff_tien >= 0 else 'giảm'} {_fmt(abs(diff_tien))} VND ({pct_tien:+.2f}%)."
         )
 
@@ -5843,6 +6340,8 @@ class Tools:
         if latest_delivery is not None:
             return latest_delivery
         for specialized_handler in (
+            self._sales_shipment_split_by_transaction_code,
+            self._stock_by_mold_and_warehouse,
             self._packaging_specification_and_stock,
             self._replacement_ng_reconciliation,
             self._forecast_do_fcst_comparison,

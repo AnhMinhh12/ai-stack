@@ -135,24 +135,301 @@
     return width >= 2 && rows.length >= 2 ? rows.map(row => [...row, ...Array(width - row.length).fill('')]) : [];
   }
 
+  function extractChartData(rows) {
+    if (!rows || rows.length < 3) return null;
+    const headers = rows[0];
+    const dataRows = rows.slice(1).filter(r => {
+      const first = (r[0] || '').toLowerCase();
+      return !first.includes('tổng') && !first.includes('total') && !first.includes('ghi chú') && !first.includes('(*)') && r.some(c => c && c.trim());
+    });
+    if (dataRows.length < 2) return null;
+
+    const colStats = headers.map((h, colIdx) => {
+      const hLower = h.toLowerCase();
+      const isCodeOrId = /stt|#|mã|so_|code|số\s*(ct|hóa|phiếu|đơn|lô|lo|thùng|seri|lot)/i.test(hLower);
+      let numCount = 0;
+      let validCount = 0;
+      dataRows.forEach(r => {
+        const raw = (r[colIdx] || '').trim();
+        if (!raw) return;
+        validCount++;
+        const cleaned = raw.replace(/[,\s]/g, '').replace(/VND|PCS|KG|USD|Chiếc|Đồng|phút|min/gi, '');
+        if (!isNaN(cleaned) && cleaned !== '') {
+          numCount++;
+        }
+      });
+      return { colIdx, header: h, isNumeric: !isCodeOrId && validCount > 0 && (numCount / validCount >= 0.7) };
+    });
+
+    const numCols = colStats.filter(c => c.isNumeric);
+    if (!numCols.length) return null;
+
+    let valCol = numCols.find(c => /số\s*lượng|tồn|doanh\s*thu|tiền|giá\s*trị|phút|chi\s*phí|shot/i.test(c.header)) || numCols[numCols.length - 1];
+
+    const codeCol = headers.map((h, idx) => ({ h, idx })).find(c => c.idx !== valCol.colIdx && /mã|code/i.test(c.h));
+    const nameCol = headers.map((h, idx) => ({ h, idx })).find(c => c.idx !== valCol.colIdx && !/mã|code/i.test(c.h) && /tên|khách|kho|nguyên\s*nhân|máy|lỗi|chi\s*tiết/i.test(c.h));
+
+    const labels = [];
+    const values = [];
+
+    dataRows.forEach(r => {
+      let label = '';
+      if (codeCol && nameCol && codeCol.idx !== nameCol.idx) {
+        const cVal = (r[codeCol.idx] || '').trim();
+        const nVal = (r[nameCol.idx] || '').trim();
+        label = cVal ? (nVal ? `${cVal} (${nVal.slice(0, 15)})` : cVal) : nVal;
+      } else if (nameCol) {
+        label = (r[nameCol.idx] || '').trim();
+      } else if (codeCol) {
+        label = (r[codeCol.idx] || '').trim();
+      } else {
+        const firstText = headers.findIndex((h, idx) => idx !== valCol.colIdx && !colStats[idx].isNumeric);
+        label = firstText >= 0 ? (r[firstText] || '').trim() : `Dòng ${labels.length + 1}`;
+      }
+      if (label.length > 30) label = label.slice(0, 28) + '...';
+
+      const rawVal = (r[valCol.colIdx] || '').trim().replace(/[,\s]/g, '').replace(/VND|PCS|KG|USD|Chiếc|Đồng|phút|min/gi, '');
+      const num = parseFloat(rawVal) || 0;
+      labels.push(label || `Dòng ${labels.length + 1}`);
+      values.push(num);
+    });
+
+    return { title: valCol.header, labels, values };
+  }
+
+  const chartColors = [
+    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+    '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'
+  ];
+
+  function ensureChartJs(callback) {
+    if (window.Chart) {
+      callback();
+      return;
+    }
+    const existing = document.querySelector('script[src*="chart.umd"]');
+    if (existing) {
+      existing.addEventListener('load', callback);
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = '/static/chart.umd.min.js';
+    script.onload = callback;
+    script.onerror = () => {
+      const cdn = document.createElement('script');
+      cdn.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js';
+      cdn.onload = callback;
+      document.head.appendChild(cdn);
+    };
+    document.head.appendChild(script);
+  }
+
+  function renderChartInContainer(container, chartData, initialType) {
+    let currentType = initialType || 'bar';
+    let chartInstance = null;
+
+    const isDark = () => document.documentElement.classList.contains('dark');
+    const getTextColor = () => isDark() ? '#cbd5e1' : '#334155';
+    const getGridColor = () => isDark() ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+
+    container.innerHTML = `
+      <div class="htmp-chart-box" style="margin: 10px 0 16px 0; padding: 14px; border-radius: 10px; border: 1px solid var(--chart-border, rgba(148, 163, 184, 0.2)); background: var(--chart-bg, rgba(255, 255, 255, 0.03)); backdrop-filter: blur(4px);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+          <div style="font-weight: 600; font-size: 13px; color: var(--chart-text, inherit);">📊 Biểu đồ trực quan: ${xml(chartData.title)}</div>
+          <div class="htmp-chart-tabs" style="display: flex; gap: 5px;">
+            <button type="button" class="htmp-chart-tab" data-type="bar" style="border: 1px solid #64748b; border-radius: 6px; padding: 3px 9px; font-size: 12px; cursor: pointer; transition: all 0.15s;">📊 Cột</button>
+            <button type="button" class="htmp-chart-tab" data-type="pie" style="border: 1px solid #64748b; border-radius: 6px; padding: 3px 9px; font-size: 12px; cursor: pointer; transition: all 0.15s;">🥧 Tròn</button>
+            <button type="button" class="htmp-chart-tab" data-type="line" style="border: 1px solid #64748b; border-radius: 6px; padding: 3px 9px; font-size: 12px; cursor: pointer; transition: all 0.15s;">📈 Đường</button>
+          </div>
+        </div>
+        <div style="position: relative; height: 320px; width: 100%;">
+          <canvas></canvas>
+        </div>
+      </div>
+    `;
+
+    const canvas = container.querySelector('canvas');
+    const buttons = container.querySelectorAll('.htmp-chart-tab');
+
+    function updateActiveButton() {
+      buttons.forEach(b => {
+        const active = b.dataset.type === currentType;
+        b.style.background = active ? '#2563eb' : (isDark() ? '#1e293b' : '#f8fafc');
+        b.style.color = active ? '#ffffff' : (isDark() ? '#e2e8f0' : '#1e293b');
+        b.style.borderColor = active ? '#2563eb' : (isDark() ? '#475569' : '#cbd5e1');
+        b.style.fontWeight = active ? '600' : 'normal';
+      });
+    }
+
+    function draw() {
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+      updateActiveButton();
+
+      const textColor = getTextColor();
+      const gridColor = getGridColor();
+      const colors = chartData.labels.map((_, i) => chartColors[i % chartColors.length]);
+
+      const config = {
+        type: currentType,
+        data: {
+          labels: chartData.labels,
+          datasets: [{
+            label: chartData.title,
+            data: chartData.values,
+            backgroundColor: currentType === 'pie' ? colors : (currentType === 'line' ? 'rgba(59, 130, 246, 0.2)' : colors),
+            borderColor: currentType === 'line' ? '#3b82f6' : (currentType === 'pie' ? (isDark() ? '#0f172a' : '#ffffff') : colors),
+            borderWidth: currentType === 'pie' ? 2 : (currentType === 'line' ? 2 : 1),
+            fill: currentType === 'line',
+            tension: 0.25
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: currentType === 'pie',
+              position: 'right',
+              labels: {
+                color: textColor,
+                boxWidth: 12,
+                font: { size: 11 }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const val = context.raw || 0;
+                  const formatted = new Intl.NumberFormat('vi-VN').format(val);
+                  if (currentType === 'pie') {
+                    const total = chartData.values.reduce((a, b) => a + b, 0);
+                    const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                    return ` ${context.label}: ${formatted} (${pct}%)`;
+                  }
+                  return ` ${context.dataset.label || ''}: ${formatted}`;
+                }
+              }
+            }
+          },
+          scales: currentType === 'pie' ? {} : {
+            x: {
+              ticks: {
+                color: textColor,
+                font: { size: 11 },
+                maxRotation: 45,
+                minRotation: 0
+              },
+              grid: { color: gridColor }
+            },
+            y: {
+              ticks: {
+                color: textColor,
+                font: { size: 11 },
+                callback: function(val) {
+                  return new Intl.NumberFormat('vi-VN', { notation: 'compact' }).format(val);
+                }
+              },
+              grid: { color: gridColor }
+            }
+          }
+        }
+      };
+
+      chartInstance = new window.Chart(canvas, config);
+    }
+
+    buttons.forEach(b => {
+      b.addEventListener('click', () => {
+        currentType = b.dataset.type;
+        draw();
+      });
+    });
+
+    draw();
+
+    return {
+      destroy: () => chartInstance && chartInstance.destroy(),
+      redraw: () => draw()
+    };
+  }
+
   function mountControls(target, readRows) {
     if (!target.parentElement || target.dataset.htmpExportReady || !readRows().length) return;
     target.dataset.htmpExportReady = '1';
+    const rows = readRows();
+    const chartData = extractChartData(rows);
+
     const controls = document.createElement('div');
     controls.className = 'htmp-table-export';
+
     for (const [label, format] of [['Tải Excel', 'xlsx'], ['Tải Word', 'docx'], ['In / PDF', 'pdf']]) {
       const button = document.createElement('button');
       button.type = 'button'; button.textContent = label;
       button.addEventListener('click', () => {
-        const rows = readRows();
-        if (!rows.length) return;
-        if (format === 'pdf') printPdf(rows);
-        else download(format === 'xlsx' ? xlsx(rows) : docx(rows), `bang-du-lieu.${format}`,
+        const curRows = readRows();
+        if (!curRows.length) return;
+        if (format === 'pdf') printPdf(curRows);
+        else download(format === 'xlsx' ? xlsx(curRows) : docx(curRows), `bang-du-lieu.${format}`,
           format === 'xlsx' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
       });
       controls.appendChild(button);
     }
+
+    let chartContainer = null;
+    let chartRenderer = null;
+
+    if (chartData) {
+      const chartBtn = document.createElement('button');
+      chartBtn.type = 'button';
+      chartBtn.className = 'htmp-chart-toggle-btn';
+      chartBtn.textContent = '📊 Biểu đồ';
+      chartBtn.style.fontWeight = '500';
+
+      chartContainer = document.createElement('div');
+      chartContainer.className = 'htmp-chart-wrapper';
+      chartContainer.style.display = 'none';
+      chartContainer.style.width = '100%';
+
+      chartBtn.addEventListener('click', () => {
+        const isHidden = chartContainer.style.display === 'none';
+        if (isHidden) {
+          chartContainer.style.display = 'block';
+          chartBtn.style.background = '#2563eb';
+          chartBtn.style.color = '#ffffff';
+          chartBtn.style.borderColor = '#2563eb';
+          ensureChartJs(() => {
+            if (!chartRenderer) {
+              chartRenderer = renderChartInContainer(chartContainer, chartData, chartData.labels.length <= 6 ? 'pie' : 'bar');
+            } else {
+              chartRenderer.redraw();
+            }
+          });
+        } else {
+          chartContainer.style.display = 'none';
+          chartBtn.style.background = '';
+          chartBtn.style.color = '';
+          chartBtn.style.borderColor = '';
+        }
+      });
+
+      controls.appendChild(chartBtn);
+
+      // Tự động mở biểu đồ cho các bảng báo cáo tổng hợp (dưới 15 dòng)
+      if (chartData.labels.length >= 2 && chartData.labels.length <= 15) {
+        setTimeout(() => {
+          if (chartContainer && chartContainer.style.display === 'none') {
+            chartBtn.click();
+          }
+        }, 150);
+      }
+    }
+
     target.parentElement.insertBefore(controls, target);
+    if (chartContainer) {
+      target.parentElement.insertBefore(chartContainer, target);
+    }
   }
 
   function attach() {
@@ -168,7 +445,16 @@
   if (typeof module !== 'undefined' && module.exports) module.exports = {parseTsv, xlsx, docx, readHtmlTable};
   if (typeof document === 'undefined') return;
   const style = document.createElement('style');
-  style.textContent = '.htmp-table-export{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.htmp-table-export button{border:1px solid #64748b;border-radius:6px;padding:5px 10px;background:#fff;color:#0f172a;cursor:pointer;font:inherit}.htmp-table-export button:hover{background:#f1f5f9}';
+  style.textContent = `
+    .htmp-table-export { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; align-items: center; }
+    .htmp-table-export button { border: 1px solid #cbd5e1; border-radius: 6px; padding: 5px 11px; background: #ffffff; color: #0f172a; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.15s; }
+    .htmp-table-export button:hover { background: #f1f5f9; }
+    .dark .htmp-table-export button { border-color: #475569; background: #1e293b; color: #f1f5f9; }
+    .dark .htmp-table-export button:hover { background: #334155; }
+    .htmp-chart-toggle-btn { border-color: #3b82f6 !important; color: #2563eb !important; }
+    .dark .htmp-chart-toggle-btn { color: #60a5fa !important; border-color: #3b82f6 !important; }
+    .htmp-chart-box { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); }
+  `;
   document.head.appendChild(style);
   let scheduled = false;
   const schedule = () => { if (scheduled) return; scheduled = true; requestAnimationFrame(() => { scheduled = false; attach(); }); };

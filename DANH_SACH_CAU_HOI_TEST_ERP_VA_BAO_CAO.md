@@ -171,17 +171,102 @@
 
 ---
 
+## PHẦN 4: BỘ CÂU HỎI THỰC CHIẾN TỪ BUỔI DEMO KHÁCH HÀNG (DEMO AUDIT SUITE 02/11/2026)
+*Gồm 11 kịch bản nghiệp vụ sâu do lãnh đạo và các bộ phận nghiệp vụ (Kế hoạch, Kho, Bán hàng, Khuôn mẫu, Quản lý chất lượng) trực tiếp đặt ra trong buổi demo.*
+
+46. **Tách biệt đơn bán hàng thương mại và đơn giao bù NG (Mã giao dịch 1 và 10):**
+    ```text
+    Tổng số lượng xuất hàng của mã hàng từ thời điểm này đến thời điểm này là bao nhiêu? Và doanh thu? tách đơn hàng bán và đơn giao bù NG (mã giao dịch 1 và 10)
+    ```
+    - **Căn cứ CSDL:** Bảng xuất kho `ph81` / `ct81` kế thừa mã giao dịch `ma_gd` từ đơn bán hàng `ph64`.
+    - **Ý nghĩa nghiệp vụ:** `ma_gd = 1` là xuất bán thương mại phát sinh doanh thu thực tế; `ma_gd = 10` là xuất giao bù phế phẩm / lỗi NG.
+    - **Kỳ vọng đối soát DB tháng 10/2026:** Toàn công ty xuất bán thương mại 38,981,585 PCS (184.78 tỷ VND); Xuất giao bù NG là 182,931 PCS (1.09 tỷ VND ghi nhận chi phí bù).
+
+47. **So sánh biến động Demand giữa 2 lần cập nhật Kế hoạch (Snapshot DO & FCST):**
+    ```text
+    DO và FCST: so sánh sự biến động demand giữa lần update trước và update sau của mã QC7-5146-000
+    ```
+    - **Căn cứ CSDL:** Bảng `mfkhsx_po_fc` so sánh 2 snapshot kế hoạch gần nhất (phiên bản `20261102001` ngày 02/11 vs `20261101001` ngày 01/11).
+    - **Ý nghĩa nghiệp vụ:** Đối soát sự thay đổi trong dự báo của khách hàng giữa 2 lần nhận file demand, không phải lấy sản lượng ngày hôm trước trừ ngày hôm sau.
+    - **Kỳ vọng đối soát DB:** DO demand giảm -1,260 PCS (-3.27%); FCST demand giữ nguyên 805,500 PCS (biến động 0 PCS).
+
+48. **Theo dõi Shots khuôn & Dự báo thời điểm hết tuổi thọ khuôn theo Demand:**
+    ```text
+    Khuôn H131-TBT-H612 đã chạy được bao nhiêu shots? Theo demand của khách hàng thì dự kiến khi nào hết tuổi thọ khuôn?
+    ```
+    - **Căn cứ CSDL:** `dmhosokhuonsp` liên kết `dmkhuon`, đối chiếu demand đơn hàng `ct64` (tháng 11) và forecast `mfkhsx_po_fc` (tháng 12).
+    - **Ý nghĩa nghiệp vụ:** Dự báo trước thời điểm khuôn hết tuổi thọ (1,000,000 shots) để phòng cơ điện / chế tạo làm khuôn mới hoặc bảo dưỡng đại tu.
+    - **Kỳ vọng đối soát DB:** Khuôn đang chạy `K_YDH20015` đã chạy 978,536 / 1,000,000 shots (cavity 2, còn 21,464 shots = 42,928 PCS). Demand SO tháng 11 là 32,256 PCS, FC tháng 12 là 52,992 PCS $\rightarrow$ Khuôn sẽ hết tuổi thọ vào **đầu tháng 12/2026 (~06-08/12/2026)**.
+
+49. **So sánh doanh thu của 1 mã sản phẩm qua 2 tháng liên tiếp:**
+    ```text
+    so sánh doanh thu mã sản phẩm HK2C2-393-01-00 tháng 9 và tháng 10
+    ```
+    - **Căn cứ CSDL:** `ph81` / `ct81` gom nhóm theo `ma_vt = 'HK2C2-393-01-00'`.
+    - **Kỳ vọng đối soát DB:** Tháng 9 đạt 50,848 PCS / 390,622,336 VND; Tháng 10 đạt 71,128 PCS / 546,419,296 VND $\rightarrow$ Sản lượng tăng +20,280 PCS (+39.88%), Doanh thu tăng +155,796,960 VND (+39.88%).
+
+50. **So sánh doanh thu mã hàng phân tách đơn bán và giao bù NG:**
+    ```text
+    So sánh doanh thu của mã hàng H131-TBT-H612? tách đơn hàng bán và giao bù NG
+    ```
+    - **Căn cứ CSDL:** `ph81` / `ct81` lọc `ma_vt = 'H131-TBT-H612'` tách theo `ma_gd`.
+    - **Kỳ vọng đối soát DB:** Toàn bộ sản lượng xuất trong tháng 10/2026 là 42,880 PCS (866,176,000 VND) đều là đơn bán hàng thương mại (`ma_gd = 1`), không phát sinh đơn giao bù NG (`ma_gd = 10` là 0 PCS).
+
+51. **Tồn kho thành phẩm theo từng khuôn cụ thể tại các Kho TP & Kho XHTL:**
+    ```text
+    Mã hàng QC7-5146-000 có tồn kho hiện tại bao gồm của những khuôn nào? Số lượng tồn kho cụ thể của từng khuôn? chỉ lấy ở các kho tp, kho xhtl
+    ```
+    - **Căn cứ CSDL:** BOM sản phẩm `dmhosokhuonsp` kết nối thẻ kho tồn hiện hành `cdvt`/`ct70` tại các kho `KHOTP00`, `KHOTP02`, `KHO-XHTL`.
+    - **Kỳ vọng đối soát DB:** Mã `QC7-5146-000` được sản xuất bởi 2 khuôn: `K_QC5-2919-000-V1` và `K_QC5-2919-000-V2`. Tồn kho hiện hành: Kho TP00 (4,320 PCS), Kho TP02 (60 PCS), Kho XHTL (0 PCS) $\rightarrow$ Tổng tồn kho: 4,380 PCS.
+
+52. **Tra cứu lịch sử đơn hàng quá khứ tháng 09/2026:**
+    ```text
+    Cung cấp data đơn hàng quá khứ 9/2026 của mã H131-TBT-H612
+    ```
+    - **Căn cứ CSDL:** Đơn đặt hàng `ph64`/`ct64` và xuất kho `ph81`/`ct81` trong tháng 09/2026.
+    - **Kỳ vọng đối soát DB:** Đơn SO1 số `001-2609-004763` ngày 15/09/2026 (số lượng 46,080 PCS); Thực tế xuất kho qua 45 phiếu HDA với tổng lượng xuất 55,296 PCS, doanh thu 1,117,421,568 VND.
+
+53. **Tra cứu thời điểm hoàn thành lệnh xuất giao hàng thực tế (Out hàng khỏi hệ thống):**
+    ```text
+    lệnh giao hàng 001-2611-000004 được hoàn thiện khi nào lấy theo thời gian kho hoàn thành lệnh out hàng ra khỏi hệ thống
+    ```
+    - **Căn cứ CSDL:** Bảng `ph81` lấy trường `date2` (ngày hoàn thành) và `time2` (giờ hoàn thành) của tài khoản kho, không lấy `date0`/`time0` (giờ lập phiếu).
+    - **Kỳ vọng đối soát DB:** Lệnh `001-2611-000004` (Khách hàng Canon Quế Võ `KH0034`, số lượng 2,580 PCS, trị giá 8,058,728 VND) được tài khoản **`KHO2` (Nhóm XH Thăng Long - BP-KHO)** hoàn thành out hàng lúc **14:38:58 ngày 01/11/2026**.
+
+54. **Rà soát danh sách mã hàng chưa link giá trên ERP của khách hàng:**
+    ```text
+    Khách hàng KH0062 có mã hàng nào chưa link được giá trên ERP không?
+    ```
+    - **Căn cứ CSDL:** Bảng đơn hàng `ct64` của khách hàng `KH0062` đối soát với bảng giá chuẩn `dmbanggiact`.
+    - **Kỳ vọng đối soát DB:** Phát hiện chính xác **14 mã hàng** chưa được link đơn giá chuẩn (đơn giá bằng 0 trên bảng giá).
+
+55. **Tra cứu mã khách hàng theo tên doanh nghiệp:**
+    ```text
+    khách hàng ATSUMITEC có mã khách hàng là gì
+    ```
+    - **Căn cứ CSDL:** Danh mục khách hàng `dmkh` tìm kiếm mờ không phân biệt hoa thường và dấu tiếng Việt (`unaccent`).
+    - **Kỳ vọng đối soát DB:** Trả về mã **`KH0062`** — Tên đầy đủ: **CÔNG TY TNHH ATSUMITEC VIỆT NAM**, MST: `0800366838`, Địa chỉ: KCN Nam Sách, Phường Ái Quốc, Thành phố Hải Dương.
+
+56. **Đối soát hàng phế phẩm NG: Nhận lại từ khách hàng (HDF) vs Giao bù (HDA `ma_gd = 10`):**
+    ```text
+    số lượng NG đã nhận lại và đã giao bù là bao nhiêu
+    ```
+    - **Căn cứ CSDL:** Phiếu nhập hàng bán bị trả lại `ph76`/`ct76` (HDF) và phiếu xuất kho giao bù `ph81`/`ct81` có `ma_gd = 10` (HDA).
+    - **Kỳ vọng đối soát DB tháng 10/2026:** Tổng nhận lại (HDF): **342,838 PCS** (85 phiếu); Tổng đã giao bù (HDA `ma_gd = 10`): **135,061 PCS** (103 phiếu, 707.8M VND); Chênh lệch còn phải giao bù: **207,777 PCS** (Tỷ lệ hoàn thành giao bù: 39.40%).
+
+---
+
 ## BẢNG TRA CỨU NHANH CÁC THÔNG SỐ TEST THỰC TẾ (CHEAT SHEET)
 
 Khi cần thay đổi tham số để test ngẫu nhiên, bạn có thể chọn các mã có sẵn dữ liệu thật trong cơ sở dữ liệu:
 
 | Loại thông số | Các mã thực tế có sẵn dữ liệu | Ghi chú nghiệp vụ |
 |---|---|---|
-| **Mã vật tư / TP (`ma_vt`)** | `QC7-5146-000`, `RC4-3049-000`, `VGL1A416`, `PS-576D`, `PA66-101F` | Linh kiện nhựa máy in, hạt nhựa nguyên sinh |
-| **Mã khách hàng (`ma_kh`)** | `KH0015`, `KH0047`, `KH0049`, `KH0001` | Canon Thăng Long, Anam Electronics, Tohoku Pioneer |
+| **Mã vật tư / TP (`ma_vt`)** | `QC7-5146-000`, `RC4-3049-000`, `HK2C2-393-01-00`, `H131-TBT-H612`, `VGL1A416`, `PS-576D`, `PA66-101F` | Linh kiện nhựa máy in, linh kiện ô tô, hạt nhựa nguyên sinh |
+| **Mã khách hàng (`ma_kh`)** | `KH0015`, `KH0062`, `KH0034`, `KH0047`, `KH0049`, `KH0001` | Canon Thăng Long, Atsumitec, Canon Quế Võ, Anam, Tohoku |
 | **Mã nhà cung cấp (`ma_ncc`)**| `NCC0220`, `NCC0012`, `NCC0085` | Công ty Hungtech, Nhà cung cấp hạt nhựa |
-| **Mã kho hàng (`ma_kho`)** | `KHOTP00`, `KHOTP02`, `KHO_TAIMAY`, `KHONVL`, `KHOPL` | Kho thành phẩm, Kho tại máy, Kho nguyên vật liệu |
-| **Số đơn hàng bán (`so_ct`)** | `001-2610-010164`, `001-2610-010165` | Chứng từ SO1 tháng 10/2026 |
-| **Số phiếu xuất kho (`so_ct`)**| `001-2610-002643`, `001-2610-001811` | Chứng từ xuất kho bán hàng HDA |
+| **Mã kho hàng (`ma_kho`)** | `KHOTP00`, `KHOTP02`, `KHO_TAIMAY`, `KHO-XHTL`, `KHONVL`, `KHOPL` | Kho thành phẩm, Kho tại máy, Kho xuất hàng Thăng Long, Kho nguyên vật liệu |
+| **Số đơn hàng bán (`so_ct`)** | `001-2610-010164`, `001-2610-010165`, `001-2609-004763` | Chứng từ đơn hàng bán SO1 |
+| **Số phiếu xuất kho (`so_ct`)**| `001-2611-000004`, `001-2610-002643`, `001-2610-001811` | Chứng từ xuất kho bán hàng HDA |
 | **Số đơn mua hàng (`so_po`)** | `001-2610-000702`, `001-2610-000698` | Chứng từ đơn hàng mua PO1 |
-| **Mã khuôn (`ma_khuon`)** | `K_VGY1A061`, `K_QC5-2919-000-V1` | Khuôn ép linh kiện cơ khí chính xác |
+| **Mã khuôn (`ma_khuon`)** | `K_YDH20015`, `K_VGY1A061`, `K_QC5-2919-000-V1`, `K_QC5-2919-000-V2` | Khuôn ép linh kiện cơ khí chính xác, khuôn ô tô Atsumitec |

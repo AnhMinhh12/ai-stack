@@ -535,9 +535,39 @@ def get_microsoft_entra_id_access_token():
 router = APIRouter()
 
 
+class ERPIncidentReportForm(BaseModel):
+    chat_id: Optional[str] = ''
+    message_id: Optional[str] = ''
+    question: Optional[str] = ''
+    answer: Optional[str] = ''
+    note: Optional[str] = ''
+
+
+@router.post('/erp-incidents/report')
+async def report_erp_incident(
+    form_data: ERPIncidentReportForm,
+    user=Depends(get_verified_user)
+):
+    from erp_ai.incident_log import record
+    user_id = user.id if user else ''
+    chat_id = form_data.chat_id or ''
+    stage = 'user_report'
+    code = 'user_flagged_wrong'
+    
+    chat_excerpt = json.dumps({
+        'question': form_data.question or '',
+        'answer': form_data.answer or '',
+        'note': form_data.note or '',
+        'message_id': form_data.message_id or ''
+    }, ensure_ascii=False)
+    
+    record(user_id=user_id, chat_id=chat_id, stage=stage, code=code, chat_excerpt=chat_excerpt)
+    return {'status': True, 'message': 'Đã ghi nhận báo cáo sự cố thành công.'}
+
+
 @router.get('/erp-incidents')
 async def erp_incidents(limit: int = 100, user=Depends(get_admin_user)):
-    """Operational ERP events; never expose chat content through this endpoint."""
+    """Operational ERP events and user-reported issues."""
     from erp_ai.incident_log import list_incidents
     from open_webui.models.users import Users
     events = list_incidents(limit)
