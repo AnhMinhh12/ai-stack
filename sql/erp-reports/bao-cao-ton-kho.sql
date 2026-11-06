@@ -11,7 +11,7 @@ WITH params AS (
 ), balances AS (
     SELECT c.ma_vt, c.ma_kho, sum(c.ton00) AS so_luong, sum(c.du00) AS tien
     FROM public.cdvt c JOIN public.dmkho k ON k.ma_kho = c.ma_kho CROSS JOIN scope s
-    WHERE s.authorized_user_id IS NOT NULL AND c.nam = extract(year FROM s.den_ngay)::smallint
+    WHERE s.authorized_user_id IS NOT NULL AND c.nam = extract(year FROM public.sys_getstartdate(s.den_ngay))::smallint
       AND (s.ma_kho = '' OR c.ma_kho = ANY(string_to_array(s.ma_kho, ',')))
       AND (s.ma_vt = '' OR c.ma_vt = ANY(string_to_array(s.ma_vt, ',')))
       AND (s.ma_dvcs = '' OR k.ma_dvcs = ANY(string_to_array(s.ma_dvcs, ',')))
@@ -19,7 +19,7 @@ WITH params AS (
     UNION ALL
     SELECT c.ma_vt, c.ma_kho, sum(c.sl_nhap - c.sl_xuat), sum(c.tien_nhap - c.tien_xuat)
     FROM public.ct70 c CROSS JOIN scope s
-    WHERE s.authorized_user_id IS NOT NULL AND c.ngay_ct BETWEEN make_date(extract(year FROM s.den_ngay)::integer, 1, 1) AND s.den_ngay
+    WHERE s.authorized_user_id IS NOT NULL AND c.ngay_ct BETWEEN public.sys_getstartdate(s.den_ngay) AND s.den_ngay
       AND (s.ma_kho = '' OR c.ma_kho = ANY(string_to_array(s.ma_kho, ','))) AND (s.ma_vt = '' OR c.ma_vt = ANY(string_to_array(s.ma_vt, ',')))
       AND (s.ma_dvcs = '' OR c.ma_dvcs2 = ANY(string_to_array(s.ma_dvcs, ',')))
       AND (s.unrestricted OR c.ma_dvcs2 = ANY(string_to_array(s.ds_branchs, ','))) GROUP BY c.ma_vt, c.ma_kho

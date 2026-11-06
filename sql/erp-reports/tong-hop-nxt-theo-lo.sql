@@ -11,7 +11,7 @@ WITH params AS (
     SELECT b.ma_vt, b.ma_lo, sum(b.ton00) AS so_luong
     FROM public.cdbsp b CROSS JOIN access_scope p
     WHERE p.authorized_user_id IS NOT NULL
-      AND b.nam = extract(year FROM p.tu_ngay)::smallint
+      AND b.nam = extract(year FROM public.sys_getstartdate(p.tu_ngay))::smallint
       AND (p.unrestricted OR EXISTS (
           SELECT 1 FROM public.dmkho w
           WHERE w.ma_kho = b.ma_kho AND w.ma_dvcs = ANY(string_to_array(p.ds_branchs, ','))
@@ -21,7 +21,7 @@ WITH params AS (
     SELECT m.ma_vt, m.ma_lo, sum(m.sl_nhap - m.sl_xuat) AS so_luong
     FROM public.ct70bsp m CROSS JOIN access_scope p
     WHERE p.authorized_user_id IS NOT NULL
-      AND m.ngay_ct BETWEEN make_date(extract(year FROM p.tu_ngay)::integer, 1, 1)
+      AND m.ngay_ct BETWEEN public.sys_getstartdate(p.tu_ngay)
                             AND p.tu_ngay - 1
       AND (p.unrestricted OR EXISTS (
           SELECT 1 FROM public.dmkho w

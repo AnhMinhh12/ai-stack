@@ -31,7 +31,8 @@ DELIVERY_CONCEPTS = (
 PURCHASE_CONCEPTS = (
     "mua", "nhap mua", "don mua", "dat hang", "da dat", "da mua",
     "bao nhieu lan", "lich su don hang", "lich su dat hang", "po1",
-    "ncc", "nha cung cap"
+    "ncc", "nha cung cap", "nhap", "nhap ve", "tong nhap", "nhap kho",
+    "so luong nhap", "tan nhua", "san luong nhap"
 )
 
 INVENTORY_CONCEPTS = (
@@ -41,7 +42,9 @@ INVENTORY_CONCEPTS = (
 
 BOM_CONCEPTS = (
     "bom", "dinh muc", "cau truc", "cau thanh", "nguyen lieu",
-    "hat nhua", "thanh phan", "ti le nhua", "nvl"
+    "hat nhua", "thanh phan", "ti le nhua", "nvl",
+    "san pham nao", "dung cho san pham", "dung trong san pham",
+    "su dung trong san pham", "dung cho sp", "dung o sp"
 )
 
 MOLD_CONCEPTS = (

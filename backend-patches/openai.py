@@ -701,29 +701,49 @@ def _is_openai_public_endpoint(url: str) -> bool:
 def _get_user_openai_api_key(url: str, user: UserModel | None) -> str | None:
     """Resolve a server-side OpenAI key for an authenticated WebUI user.
 
-    ``HTMP_OPENAI_USER_KEY_MAP`` is a JSON object keyed by lower-cased user
-    email address. It remains in the container environment, rather than in
-    WebUI's client-visible connection configuration or SQLite settings.
+    ``HTMP_OPENAI_USER_KEY_MAP`` is a JSON object keyed by user email address,
+    employee code (mã nhân viên, e.g. HP0001, HP4729), or user ID.
+    Lookup is case-insensitive and matches username, email, or user ID.
+    It remains in the container environment, rather than in WebUI's
+    client-visible connection configuration or SQLite settings.
     """
     if user is None or not _is_openai_public_endpoint(url):
         return None
 
-    email = getattr(user, 'email', None)
-    if not isinstance(email, str) or not email.strip():
-        return None
-
     try:
-        key_map = json.loads(os.getenv('HTMP_OPENAI_USER_KEY_MAP', '{}'))
+        raw_map = json.loads(os.getenv('HTMP_OPENAI_USER_KEY_MAP', '{}'))
     except json.JSONDecodeError:
         log.error('HTMP_OPENAI_USER_KEY_MAP is invalid JSON; using the configured connection key')
         return None
 
-    if not isinstance(key_map, dict):
+    if not isinstance(raw_map, dict):
         log.error('HTMP_OPENAI_USER_KEY_MAP must be a JSON object; using the configured connection key')
         return None
 
-    key = key_map.get(email.strip().lower())
-    return key.strip() if isinstance(key, str) and key.strip() else None
+    key_map = {
+        str(k).strip().lower(): str(v).strip()
+        for k, v in raw_map.items()
+        if isinstance(v, str) and v.strip()
+    }
+
+    candidates = []
+    username = getattr(user, 'username', None)
+    if isinstance(username, str) and username.strip():
+        candidates.append(username.strip().lower())
+
+    email = getattr(user, 'email', None)
+    if isinstance(email, str) and email.strip():
+        candidates.append(email.strip().lower())
+
+    user_id = getattr(user, 'id', None)
+    if isinstance(user_id, str) and user_id.strip():
+        candidates.append(user_id.strip().lower())
+
+    for candidate in candidates:
+        if candidate in key_map:
+            return key_map[candidate]
+
+    return None
 
 
 async def get_openai_connection_for_user(idx: int, user: UserModel | None) -> tuple[str, str, dict]:
@@ -1193,11 +1213,18 @@ async def get_filtered_models(models, user, db=None):
         db=db,
     )
 
+    user_has_openai_key = bool(_get_user_openai_api_key('https://api.openai.com', user))
+
     filtered_models = []
     for model in models.get('data', []):
         model_info = model_infos.get(model['id'])
         if model_info:
-            if user.id == model_info.user_id or model_info.id in accessible_model_ids:
+            is_gpt = model_info.id in {'gpt-5.6-luna'}
+            if (
+                user.id == model_info.user_id
+                or model_info.id in accessible_model_ids
+                or (is_gpt and user_has_openai_key)
+            ):
                 filtered_models.append(model)
     return filtered_models
 
@@ -1266,6 +1293,21 @@ async def get_all_models(request: Request, user: UserModel) -> dict[str, list]:
                             merged['loaded'] = loaded
 
                         models[model_id] = merged
+
+        public_openai_idx = next(
+            (i for i, u in enumerate(api_base_urls) if _is_openai_public_endpoint(u)),
+            None,
+        )
+        if public_openai_idx is not None and 'gpt-5.6-luna' not in models:
+            models['gpt-5.6-luna'] = {
+                'id': 'gpt-5.6-luna',
+                'name': 'gpt-5.6-luna',
+                'owned_by': 'openai',
+                'openai': {'id': 'gpt-5.6-luna'},
+                'connection_type': 'external',
+                'provider': '',
+                'urlIdx': public_openai_idx,
+            }
 
         return models
 
@@ -1960,7 +2002,12 @@ async def generate_chat_completion(
             if not bypass_system_prompt:
                 payload = await apply_system_prompt_to_body(system, payload, metadata, user)
 
-        await check_model_access(user, model_info, bypass_filter)
+        # Allow GPT access if user has mapped OpenAI key even if access_grant row is missing
+        is_gpt_model = model_info.id in {'gpt-5.6-luna'}
+        user_has_openai_key = bool(_get_user_openai_api_key('https://api.openai.com', user))
+        model_bypass = bypass_filter or (is_gpt_model and user_has_openai_key)
+
+        await check_model_access(user, model_info, model_bypass)
     else:
         await check_model_access(user, None, bypass_filter)
 
@@ -1970,6 +2017,23 @@ async def generate_chat_completion(
         await get_all_models(request, user=user)
         models = request.app.state.OPENAI_MODELS
     model = models.get(model_id)
+
+    if not model and model_id == 'gpt-5.6-luna':
+        _, api_base_urls, _, _ = await get_openai_runtime_config()
+        public_openai_idx = next(
+            (i for i, u in enumerate(api_base_urls) if _is_openai_public_endpoint(u)),
+            None,
+        )
+        if public_openai_idx is not None:
+            model = {
+                'id': 'gpt-5.6-luna',
+                'name': 'gpt-5.6-luna',
+                'owned_by': 'openai',
+                'openai': {'id': 'gpt-5.6-luna'},
+                'connection_type': 'external',
+                'provider': '',
+                'urlIdx': public_openai_idx,
+            }
 
     if model:
         idx = model['urlIdx']

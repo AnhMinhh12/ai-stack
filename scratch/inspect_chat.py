@@ -1,18 +1,23 @@
-import sqlite3, json
+# scratch/inspect_chat.py
+import sqlite3
+import json
 
-conn = sqlite3.connect('/app/backend/data/webui.db')
+conn = sqlite3.connect('/tmp/live-webui.db')
 cur = conn.cursor()
-cur.execute("SELECT id, user_id, title, chat FROM chat WHERE id = '60cef3c3-1278-4e3c-b63c-b8eabe6b188e';")
+cur.execute("SELECT title, chat FROM chat WHERE id = '95c67968-935b-422a-be22-fb3061fabfba';")
 row = cur.fetchone()
 if row:
-    data = json.loads(row[3])
-    print(f"Chat ID: {row[0]}, Title: {row[2]}")
-    for m in data.get('messages', []):
-        print(f"=== Role: {m.get('role')} ===")
-        content = m.get('content', '')
-        print('Content:', content[:400])
-        embeds = m.get('embeds', [])
-        print('Embeds count:', len(embeds))
-        if embeds:
-            print('Embed[0] length:', len(embeds[0]))
+    print("Title:", row[0])
+    chat_data = json.loads(row[1])
+    messages = chat_data.get('history', {}).get('messages', {})
+    for mid, m in messages.items():
+        role = m.get('role')
+        content = m.get('content')
+        print(f"\n--- [{role}] (id: {mid}) ---")
+        print(content[:300] if content else "(no content)")
+        if 'tool_calls' in m:
+            print("Tool calls:", m['tool_calls'])
+        if role == 'tool':
+            print("Tool result:", content[:200])
+
 conn.close()

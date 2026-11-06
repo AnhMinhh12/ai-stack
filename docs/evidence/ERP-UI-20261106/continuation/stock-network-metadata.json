@@ -1,0 +1,156 @@
+{
+  "captured_at_utc": "2026-11-06T07:04:48.673386+00:00",
+  "note": "Endpoints and object keys only; values, headers and tokens deliberately omitted. Response endpoint alone does not establish database function.",
+  "events": [
+    {
+      "method": "GET",
+      "path": "/ConfigAPI/api/Gridview/ConfigGridAPI/InitGridMenu/",
+      "status": 200,
+      "response_type": "dict",
+      "response_keys": [
+        "Success",
+        "Error",
+        "Result"
+      ],
+      "success": true,
+      "result_type": "dict",
+      "result_keys": [
+        "menu",
+        "grid",
+        "role",
+        "listinfo",
+        "formulaid",
+        "voucher",
+        "valuedf",
+        "advansearch"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/ConfigAPI/api/Gridview/ConfigGridAPI/GetReportParamsConfig/",
+      "status": 200,
+      "response_type": "dict",
+      "response_keys": [
+        "Success",
+        "Error",
+        "Result"
+      ],
+      "success": true,
+      "result_type": "list",
+      "result_count": 14
+    },
+    {
+      "method": "GET",
+      "path": "/ConfigAPI/api/Gridview/ConfigGridAPI/GetDataComboBox/",
+      "status": 200,
+      "response_type": "list",
+      "response_items": 3
+    },
+    {
+      "method": "HEAD",
+      "path": "/favicon.ico",
+      "status": 200
+    },
+    {
+      "method": "HEAD",
+      "path": "/favicon.ico",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/ConfigAPI/api/LookUp/LookUpConfigAPI/GetLookUpConfig/",
+      "status": 200,
+      "response_type": "dict",
+      "response_keys": [
+        "Success",
+        "Error",
+        "Result"
+      ],
+      "success": true,
+      "result_type": "dict",
+      "result_keys": [
+        "config_lookup",
+        "advansearch"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/ConfigAPI/api/LookUp/LookUpConfigAPI/GetData/",
+      "status": 200,
+      "request_keys": [
+        "function_yn",
+        "function_name",
+        "searchDynamic"
+      ],
+      "response_type": "dict",
+      "response_keys": [
+        "Items",
+        "TotalItems"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/ConfigAPI/api/LookUp/LookUpConfigAPI/InitGridMenu/",
+      "status": 200,
+      "response_type": "dict",
+      "response_keys": [
+        "Success",
+        "Error",
+        "Result"
+      ],
+      "success": true,
+      "result_type": "dict",
+      "result_keys": [
+        "menu",
+        "grid",
+        "role"
+      ]
+    },
+    {
+      "method": "HEAD",
+      "path": "/favicon.ico",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/INAPI/api/Reports/TonTheoKhoAPI/GetData",
+      "status": 200,
+      "request_keys": [
+        "searchDynamic"
+      ],
+      "response_type": "dict",
+      "response_keys": [
+        "Success",
+        "Error",
+        "Result"
+      ],
+      "success": true,
+      "result_type": "dict",
+      "result_keys": [
+        "Items",
+        "TotalItems",
+        "ConfigHeader"
+      ]
+    },
+    {
+      "method": "HEAD",
+      "path": "/favicon.ico",
+      "status": 200
+    },
+    {
+      "method": "HEAD",
+      "path": "/favicon.ico",
+      "status": 200
+    },
+    {
+      "method": "HEAD",
+      "path": "/favicon.ico",
+      "status": 200
+    },
+    {
+      "method": "HEAD",
+      "path": "/favicon.ico",
+      "status": 200
+    }
+  ]
+}

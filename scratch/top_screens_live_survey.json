@@ -1,0 +1,562 @@
+[
+  {
+    "name": "Bảng kê đơn hàng bán",
+    "hash": "#/SO/Report/SOBKDonHang",
+    "title": "Tính kế hoạch sản xuất",
+    "filterSection": "",
+    "inputsCount": 868,
+    "inputsSample": [
+      {
+        "name": "search.key",
+        "label": "",
+        "value": "",
+        "placeholder": "Nhập từ khóa tìm kiếm"
+      },
+      {
+        "name": "enabled",
+        "label": "",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "search_key",
+        "label": "",
+        "value": "",
+        "placeholder": "Tìm kiếm cột với khóa"
+      },
+      {
+        "name": "selectedAll",
+        "label": "Tất cả",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Lịch sử cập nhật",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã ĐVCS",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã kế hoạch SX",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã phương pháp",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Loại kỳ",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã kỳ",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Ngày bắt đầu",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Ngày kết thúc",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Revised",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Trạng thái",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "cb_TKHSX",
+        "label": "",
+        "value": "on",
+        "placeholder": ""
+      }
+    ],
+    "columns": [
+      "#",
+      "Mã ĐVCS",
+      "Mã kế hoạch SX",
+      "Mã phương pháp",
+      "Loại kỳ",
+      "Mã kỳ",
+      "Ngày bắt đầu",
+      "Ngày kết thúc",
+      "Revised",
+      "Trạng thái",
+      "×"
+    ]
+  },
+  {
+    "name": "Bảng kê đơn hàng mua",
+    "hash": "#/PO/Report/POBKDonHang",
+    "title": "Tính kế hoạch sản xuất",
+    "filterSection": "",
+    "inputsCount": 868,
+    "inputsSample": [
+      {
+        "name": "search.key",
+        "label": "",
+        "value": "",
+        "placeholder": "Nhập từ khóa tìm kiếm"
+      },
+      {
+        "name": "enabled",
+        "label": "",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "search_key",
+        "label": "",
+        "value": "",
+        "placeholder": "Tìm kiếm cột với khóa"
+      },
+      {
+        "name": "selectedAll",
+        "label": "Tất cả",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Lịch sử cập nhật",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã ĐVCS",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã kế hoạch SX",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã phương pháp",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Loại kỳ",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã kỳ",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Ngày bắt đầu",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Ngày kết thúc",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Revised",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Trạng thái",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "cb_TKHSX",
+        "label": "",
+        "value": "on",
+        "placeholder": ""
+      }
+    ],
+    "columns": [
+      "#",
+      "Mã ĐVCS",
+      "Mã kế hoạch SX",
+      "Mã phương pháp",
+      "Loại kỳ",
+      "Mã kỳ",
+      "Ngày bắt đầu",
+      "Ngày kết thúc",
+      "Revised",
+      "Trạng thái",
+      "×"
+    ]
+  },
+  {
+    "name": "Báo cáo tình trạng đơn hàng mua",
+    "hash": "#/PO/Report/POStatus",
+    "title": "Tính kế hoạch sản xuất",
+    "filterSection": "",
+    "inputsCount": 868,
+    "inputsSample": [
+      {
+        "name": "search.key",
+        "label": "",
+        "value": "",
+        "placeholder": "Nhập từ khóa tìm kiếm"
+      },
+      {
+        "name": "enabled",
+        "label": "",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "search_key",
+        "label": "",
+        "value": "",
+        "placeholder": "Tìm kiếm cột với khóa"
+      },
+      {
+        "name": "selectedAll",
+        "label": "Tất cả",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Lịch sử cập nhật",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã ĐVCS",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã kế hoạch SX",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã phương pháp",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Loại kỳ",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã kỳ",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Ngày bắt đầu",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Ngày kết thúc",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Revised",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Trạng thái",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "cb_TKHSX",
+        "label": "",
+        "value": "on",
+        "placeholder": ""
+      }
+    ],
+    "columns": [
+      "#",
+      "Mã ĐVCS",
+      "Mã kế hoạch SX",
+      "Mã phương pháp",
+      "Loại kỳ",
+      "Mã kỳ",
+      "Ngày bắt đầu",
+      "Ngày kết thúc",
+      "Revised",
+      "Trạng thái",
+      "×"
+    ]
+  },
+  {
+    "name": "Kế hoạch sản xuất",
+    "hash": "#/MF/Report/MfTKHSX",
+    "title": "Tính kế hoạch sản xuất",
+    "filterSection": "",
+    "inputsCount": 868,
+    "inputsSample": [
+      {
+        "name": "search.key",
+        "label": "",
+        "value": "",
+        "placeholder": "Nhập từ khóa tìm kiếm"
+      },
+      {
+        "name": "enabled",
+        "label": "",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "search_key",
+        "label": "",
+        "value": "",
+        "placeholder": "Tìm kiếm cột với khóa"
+      },
+      {
+        "name": "selectedAll",
+        "label": "Tất cả",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Lịch sử cập nhật",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã ĐVCS",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã kế hoạch SX",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã phương pháp",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Loại kỳ",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã kỳ",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Ngày bắt đầu",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Ngày kết thúc",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Revised",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Trạng thái",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "cb_TKHSX",
+        "label": "",
+        "value": "on",
+        "placeholder": ""
+      }
+    ],
+    "columns": [
+      "#",
+      "Mã ĐVCS",
+      "Mã kế hoạch SX",
+      "Mã phương pháp",
+      "Loại kỳ",
+      "Mã kỳ",
+      "Ngày bắt đầu",
+      "Ngày kết thúc",
+      "Revised",
+      "Trạng thái",
+      "×"
+    ]
+  },
+  {
+    "name": "Báo cáo tồn theo kho",
+    "hash": "#/IN/Report/InBCTonTheoKho",
+    "title": "Tính kế hoạch sản xuất",
+    "filterSection": "",
+    "inputsCount": 868,
+    "inputsSample": [
+      {
+        "name": "search.key",
+        "label": "",
+        "value": "",
+        "placeholder": "Nhập từ khóa tìm kiếm"
+      },
+      {
+        "name": "enabled",
+        "label": "",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "search_key",
+        "label": "",
+        "value": "",
+        "placeholder": "Tìm kiếm cột với khóa"
+      },
+      {
+        "name": "selectedAll",
+        "label": "Tất cả",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Lịch sử cập nhật",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã ĐVCS",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã kế hoạch SX",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã phương pháp",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Loại kỳ",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Mã kỳ",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Ngày bắt đầu",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Ngày kết thúc",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Revised",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "item.show",
+        "label": "Trạng thái",
+        "value": "on",
+        "placeholder": ""
+      },
+      {
+        "name": "cb_TKHSX",
+        "label": "",
+        "value": "on",
+        "placeholder": ""
+      }
+    ],
+    "columns": [
+      "#",
+      "Mã ĐVCS",
+      "Mã kế hoạch SX",
+      "Mã phương pháp",
+      "Loại kỳ",
+      "Mã kỳ",
+      "Ngày bắt đầu",
+      "Ngày kết thúc",
+      "Revised",
+      "Trạng thái",
+      "×"
+    ]
+  }
+]

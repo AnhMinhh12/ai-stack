@@ -211,6 +211,26 @@ async def get_all_models(request, refresh: bool = False, user: UserModel = None)
                     model['filter_ids'] = filter_ids
                 else:
                     models = [m for m in models if m is not model]
+            elif custom_model.is_active:
+                model = {
+                    'id': f'{custom_model.id}',
+                    'name': custom_model.name,
+                    'object': 'model',
+                    'created': custom_model.created_at,
+                    'owned_by': 'openai',
+                    'connection_type': 'external',
+                    'preset': True,
+                }
+                info = custom_model.model_dump()
+                schema = get_chat_variables_schema(custom_model.params.model_dump().get('system'))
+                if schema:
+                    info.setdefault('meta', {})['chat_variables_schema'] = schema
+                if 'params' in info:
+                    del info['params']
+                model['info'] = info
+                model['action_ids'] = []
+                model['filter_ids'] = []
+                models.append(model)
 
         elif custom_model.is_active:
             if custom_model.id in existing_ids:
@@ -493,8 +513,12 @@ async def check_model_access(user, model, model_info=None, db=None):
         if user.id != model_info.user_id or model_info.base_model_id:
             user_group_ids = {group.id for group in await Groups.get_groups_by_member_id(user.id, db=db)}
 
+        is_gpt_model = model_info.id in {'gpt-5.6-luna'}
+        user_has_openai_key = bool(openai._get_user_openai_api_key('https://api.openai.com', user))
+
         if not (
             user.id == model_info.user_id
+            or (is_gpt_model and user_has_openai_key)
             or await AccessGrants.has_access(
                 user_id=user.id,
                 resource_type='model',
@@ -554,10 +578,13 @@ async def get_filtered_models(models, user, db=None):
 
             model_info = model_infos.get(model['id'])
             if model_info:
+                is_gpt_model = model['id'] in {'gpt-5.6-luna'}
+                user_has_openai_key = bool(openai._get_user_openai_api_key('https://api.openai.com', user))
                 if (
                     (user.role == 'admin' and BYPASS_ADMIN_ACCESS_CONTROL)
                     or user.id == model_info.get('user_id')
                     or model['id'] in accessible_model_ids
+                    or (is_gpt_model and user_has_openai_key)
                 ):
                     filtered_models.append(model)
             elif user.role == 'admin':

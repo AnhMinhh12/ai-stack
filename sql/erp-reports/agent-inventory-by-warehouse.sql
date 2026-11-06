@@ -6,7 +6,7 @@ WITH scope AS (
 ), opening AS (
     SELECT c.ma_kho, sum(c.ton00) AS qty
     FROM public.cdvt c CROSS JOIN scope s
-    WHERE c.nam = extract(year FROM %s::date)::smallint
+    WHERE c.nam = extract(year FROM public.sys_getstartdate(%s::date))::smallint
       AND upper(trim(c.ma_vt)) = upper(trim(%s))
       AND (s.superuser OR c.ma_kho = ANY(s.warehouses))
     GROUP BY c.ma_kho
@@ -14,7 +14,7 @@ WITH scope AS (
     SELECT c.ma_kho, sum(c.sl_nhap - c.sl_xuat) AS qty
     FROM public.ct70 c CROSS JOIN scope s
     WHERE upper(trim(c.ma_vt)) = upper(trim(%s))
-      AND c.ngay_ct BETWEEN make_date(extract(year FROM %s::date)::integer, 1, 1) AND %s::date
+      AND c.ngay_ct BETWEEN public.sys_getstartdate(%s::date) AND %s::date
       AND (s.superuser OR c.ma_kho = ANY(s.warehouses))
     GROUP BY c.ma_kho
 ), balances AS (

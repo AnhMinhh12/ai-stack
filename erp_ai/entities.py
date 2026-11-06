@@ -13,10 +13,9 @@ MATERIAL = re.compile(
     re.I,
 )
 NUMERIC_MATERIAL = re.compile(
-    # Users commonly shorten "mã vật tư" to just "mã" in follow-up
-    # questions, e.g. "mã 3003541 thì sao?".
-    r"(?:mã|ma)(?:\s*(?:vật\s*tư|vat\s*tu|vt))?\s*[:#-]?\s*(\d{6,})\b"
-    r"|\b(\d{6,})\b(?=\s+(?:mã\s*)?(?:vật\s*tư|vt)\b)",
+    # Users commonly shorten "mã vật tư" to just "mã" or use "mã hàng", "mã sản phẩm".
+    r"(?:mã|ma)(?:\s*(?:vật\s*tư|vat\s*tu|vt|hàng|hang|sản\s*phẩm|san\s*pham|sp))?\s*[:#-]?\s*(\d{6,})\b"
+    r"|\b(\d{6,})\b(?=\s+(?:mã\s*)?(?:vật\s*tư|vt|hàng|hang|sản\s*phẩm|san\s*pham|sp)\b)",
     re.I,
 )
 STANDALONE_NUMERIC_MATERIAL = re.compile(r"^\s*(\d{6,})\s*(?:[?!.…]+)?\s*$")
@@ -39,6 +38,17 @@ CUSTOMER = re.compile(
 )
 
 
+KNOWN_WAREHOUSES = frozenset({
+    "KHOTP00", "KHOTP01", "KHOTP02", "KHOTP03", "KHOLK00", "KHOLK01", "KHOLKSX",
+    "KHONMD", "KHONVL00", "KHONVL01", "KHONVLSX", "KHOQA", "KHOQC", "KHOQC01", "KHOQC02",
+    "KHOTESTITG", "KHOTNHH", "KHOVT00", "KHOVT01", "KHOVT02", "KHOVT03", "KHO25",
+    "KHOBD01", "KHO-IN", "KHO-CXL", "KHO-LAP-RAP", "KHO-XHTL", "KHO-TAI-MAY",
+    "KHO-SORTING", "KHO-HANG-LE", "KHO-HOALAC", "KHO-HOT", "KHO-HTSS", "KHO-GCN",
+    "KHO-GBNG", "KHO-CHUYENTHUNG", "KHO-MAU-QC", "KHO-NG", "KHO-QVFLOT1", "KHO-QVFLOT2",
+    "KHO-XHLOT2", "KHO-XHLOT3", "KHO_TAIMAY", "MOLD01", "VATTU_THIETBI", "CHUYENNGOAI"
+})
+
+
 def extract_entities(text: str) -> dict[str, str]:
     """Return explicit identifiers; never infer values from similar records."""
     value = text or ""
@@ -46,34 +56,56 @@ def extract_entities(text: str) -> dict[str, str]:
     customer = CUSTOMER.search(value)
     customer_code = (customer.group(1) or customer.group(2)).upper() if customer else ""
 
+    warehouse_code = ""
     material = None
     for m in MATERIAL.finditer(value):
         candidate = m.group(0).upper()
         if customer_code and candidate == customer_code:
             continue
+        # Warehouse check: if code starts with KHO or is a known warehouse code, it is ma_kho
+        if candidate.startswith("KHO") or candidate in KNOWN_WAREHOUSES or re.search(r"\b(?:kho|o\s*kho|ở\s*kho|tai\s*kho|tại\s*kho|ở|tai|tại)\s*[:#-]?\s*$", value[:m.start()], re.I):
+            if candidate.startswith("KHO") or candidate in KNOWN_WAREHOUSES:
+                if not warehouse_code:
+                    warehouse_code = candidate
+                continue
         material = m
         break
+
+    if not warehouse_code:
+        for wh in KNOWN_WAREHOUSES:
+            if re.search(rf"\b{re.escape(wh)}\b", value, re.I):
+                warehouse_code = wh
+                break
 
     numeric_material = NUMERIC_MATERIAL.search(value)
     standalone_numeric_material = STANDALONE_NUMERIC_MATERIAL.match(value)
     labelled_hyphenated_material = LABELLED_HYPHENATED_MATERIAL.search(value)
     date = DATE.search(value)
     transaction = TRANSACTION.search(value)
+    matched_ma_vt = (
+        material.group(0).upper()
+        if material
+        else (
+            labelled_hyphenated_material.group(1).upper()
+            if labelled_hyphenated_material
+            else next((
+                group
+                for group in (numeric_material.groups() if numeric_material else ())
+                if group
+            ), standalone_numeric_material.group(1) if standalone_numeric_material else "")
+        )
+    )
+    if not matched_ma_vt:
+        clean_val = re.sub(r"\b\d{1,2}:\d{2}(?::\d{2})?(?:\s+\d{1,2}\s+thg\s+\d{1,2}(?:\s+\d{4})?)?\b", "", value, flags=re.I)
+        clean_val = re.sub(r"\b(?:\d{1,2}/\d{1,2}/\d{4}|\d{4}-\d{2}-\d{2})\b", "", clean_val)
+        num_search = re.search(r"\b(\d{6,})\b", clean_val)
+        if num_search:
+            matched_ma_vt = num_search.group(1)
+
     return {
-        "ma_vt": (
-            material.group(0).upper()
-            if material
-            else (
-                labelled_hyphenated_material.group(1).upper()
-                if labelled_hyphenated_material
-                else next((
-                    group
-                    for group in (numeric_material.groups() if numeric_material else ())
-                    if group
-                ), standalone_numeric_material.group(1) if standalone_numeric_material else "")
-            )
-        ),
+        "ma_vt": matched_ma_vt,
         "ma_kh": customer_code,
+        "ma_kho": warehouse_code,
         "so_ct": document.group(0) if document else "",
         "ngay_ct": date.group(0) if date else "",
         "ma_gd": transaction.group(1) if transaction else "",
@@ -84,5 +116,5 @@ def merge_filters(current: Mapping[str, str], previous: Mapping[str, str]) -> di
     """Current-turn explicit values override state; missing values inherit state."""
     return {
         key: current.get(key) or previous.get(key) or ""
-        for key in ("ma_vt", "ma_kh", "so_ct", "ngay_ct", "ma_gd")
+        for key in ("ma_vt", "ma_kh", "ma_kho", "so_ct", "ngay_ct", "ma_gd")
     }

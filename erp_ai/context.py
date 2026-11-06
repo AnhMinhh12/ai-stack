@@ -20,6 +20,25 @@ class ConversationStateStore:
             prior = dict(self._states.get(conversation_id, {})) if conversation_id else {}
             context_entities = extract_entities(context)
             question_entities = extract_entities(question)
+            
+            # Check if current question explicitly switches to a new topic or general entity
+            import unicodedata, re
+            norm_q = unicodedata.normalize("NFD", question or "").lower()
+            norm_q = "".join(c for c in norm_q if unicodedata.category(c) != "Mn")
+            norm_q = re.sub(r"[^a-z0-9]+", " ", norm_q.replace("đ", "d")).strip()
+            
+            new_topic_cues = (
+                "model", "nha cung cap", "ncc", "khuon", "mold",
+                "toan bo", "tat ca", "he thong", "danh sach", "danh muc",
+                "nhua abs", "goc nhua",
+                "file excel", "xuat excel", "bao nhieu ma"
+            )
+            has_new_topic = any(cue in norm_q for cue in new_topic_cues)
+            if has_new_topic and not question_entities.get("ma_vt"):
+                # Clear sticky material code so it doesn't contaminate unrelated queries
+                prior.pop("ma_vt", None)
+                context_entities.pop("ma_vt", None)
+
             # Tool-confirmed state is more reliable than model-generated
             # context, which can abbreviate codes (e.g. 35K-H2110-0001 to
             # H2110). The user's current explicit input still wins.

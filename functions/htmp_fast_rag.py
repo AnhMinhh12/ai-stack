@@ -98,9 +98,18 @@ class Filter:
             # hàng nào?” changes to a customer lookup and is independent.
             if current_intents and previous_intents and not (current_intents & previous_intents):
                 inherits_prior_request = False
-            if not has_explicit_code and (
-                is_short_followup or "cua no" in normalized_last or "ma nay" in normalized_last
-            ):
+            new_topic_cues = (
+                "model", "nha cung cap", "ncc", "khuon", "mold",
+                "toan bo", "tat ca", "he thong", "danh sach", "danh muc",
+                "co bao nhieu", "tong so", "nhua abs", "goc nhua",
+                "file excel", "xuat excel", "bao nhieu ma"
+            )
+            has_new_topic = any(cue in normalized_last for cue in new_topic_cues)
+            if has_new_topic:
+                inherits_prior_request = False
+
+            explicit_anaphora = any(cue in normalized_last for cue in ("cua no", "ma nay", "vat tu nay", "kho nay"))
+            if not has_explicit_code and not has_new_topic and (inherits_prior_request or explicit_anaphora):
                 for previous in reversed(messages[:last_user_index]):
                     if previous.get("role") != "user":
                         continue

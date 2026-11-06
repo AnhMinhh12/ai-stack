@@ -118,19 +118,38 @@ def get_openai_image_api_key(api_base_url: str, configured_key: str, user) -> st
     if (urlparse(api_base_url).hostname or '').lower() != 'api.openai.com':
         return configured_key
 
-    email = getattr(user, 'email', None)
     try:
-        key_map = json.loads(os.getenv('HTMP_OPENAI_USER_KEY_MAP', '{}'))
+        raw_map = json.loads(os.getenv('HTMP_OPENAI_USER_KEY_MAP', '{}'))
     except json.JSONDecodeError:
-        key_map = {}
+        raw_map = {}
 
-    key = key_map.get(email.strip().lower()) if isinstance(key_map, dict) and isinstance(email, str) else None
-    if not isinstance(key, str) or not key.strip():
-        raise HTTPException(
-            status_code=403,
-            detail='This user is not configured for the OpenAI image provider.',
-        )
-    return key.strip()
+    key_map = {
+        str(k).strip().lower(): str(v).strip()
+        for k, v in raw_map.items()
+        if isinstance(raw_map, dict) and isinstance(v, str) and v.strip()
+    }
+
+    candidates = []
+    username = getattr(user, 'username', None)
+    if isinstance(username, str) and username.strip():
+        candidates.append(username.strip().lower())
+
+    email = getattr(user, 'email', None)
+    if isinstance(email, str) and email.strip():
+        candidates.append(email.strip().lower())
+
+    user_id = getattr(user, 'id', None)
+    if isinstance(user_id, str) and user_id.strip():
+        candidates.append(user_id.strip().lower())
+
+    for candidate in candidates:
+        if candidate in key_map:
+            return key_map[candidate]
+
+    raise HTTPException(
+        status_code=403,
+        detail='This user is not configured for the OpenAI image provider.',
+    )
 
 
 def config_updates(data: dict, key_map: dict[str, str]) -> dict:

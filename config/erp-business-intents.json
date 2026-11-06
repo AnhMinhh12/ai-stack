@@ -25,7 +25,7 @@
     {
       "id": "purchase_order_history",
       "description": "Phân tích lịch sử đơn mua và giá mua thực tế của một mã vật tư; đồng thời trả báo giá NCC gần nhất nếu có, nhưng không coi báo giá là đơn mua.",
-      "match": {"all": ["ma_vt"], "any": ["da dat", "da mua", "bao nhieu lan", "lich su don hang", "lich su dat hang", "lan mua", "nhung lan nao", "gia", "don mua", "nha cung cap"]},
+      "match": {"all": ["ma_vt"], "any": ["da dat", "da mua", "bao nhieu lan", "lich su don hang", "lich su dat hang", "lan mua", "nhung lan nao", "gia mua", "don gia mua", "gia nhap", "don mua", "nha cung cap"]},
       "source": {
         "kind": "purchase_order_with_supplier_quote",
         "purchase_order": {"header": "public.ph94", "line": "public.ct94"},
@@ -153,7 +153,7 @@
     {
       "id": "sales_price_list_register",
       "description": "Tra Bảng giá bán / Chính sách giá bán: mã bảng giá, tên bảng giá, mã sản phẩm/vật tư, mã khách hàng, đơn giá bán, loại tiền (VND/USD), số lượng tối thiểu, ngày hiệu lực.",
-      "match": {"any": ["bang gia ban", "danh muc bang gia", "chinh sach gia", "gia ban san pham", "tra cuu gia ban", "don gia ban", "gia niem yet"]},
+      "match": {"any": ["bang gia ban", "danh muc bang gia", "chinh sach gia", "gia ban san pham", "tra cuu gia ban", "don gia ban", "gia niem yet", "gia ban", "gia cua ma", "gia cua ma hang", "gia ban cua ma", "gia ban cua ma hang", "ban bao nhieu", "gia dang bao nhieu", "gia xuat ban"]},
       "source": {"header": "public.dmbanggia", "line": "public.dmbanggiact", "kind": "sales_price_list_register"},
       "access": "authenticated_erp_user",
       "result": ["ma_bang_gia", "ten_bang_gia", "ma_vt", "ten_vt", "dvt", "ma_kh", "ten_kh", "don_gia_ban", "ma_nt", "sl_min", "ngay_bd", "ngay_kt"]

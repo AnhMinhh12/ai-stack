@@ -6,10 +6,10 @@ WITH params AS (
     FROM params p LEFT JOIN public.userinfo u ON u.user_id = p.authenticated_user_id
 ), balances AS (
     SELECT c.ma_kho, c.ma_vt, sum(c.ton00) AS so_luong, sum(c.du00) AS tien FROM public.cdvt c JOIN public.dmkho k ON k.ma_kho=c.ma_kho CROSS JOIN scope s
-    WHERE s.authorized_user_id IS NOT NULL AND c.nam=extract(year FROM s.den_ngay)::smallint AND (s.ma_kho='' OR c.ma_kho=ANY(string_to_array(s.ma_kho,',')))
+    WHERE s.authorized_user_id IS NOT NULL AND c.nam=extract(year FROM public.sys_getstartdate(s.den_ngay))::smallint AND (s.ma_kho='' OR c.ma_kho=ANY(string_to_array(s.ma_kho,',')))
       AND (s.ma_dvcs='' OR k.ma_dvcs=ANY(string_to_array(s.ma_dvcs,','))) AND (s.unrestricted OR k.ma_dvcs=ANY(string_to_array(s.ds_branchs,','))) GROUP BY c.ma_kho,c.ma_vt
     UNION ALL SELECT c.ma_kho,c.ma_vt,sum(c.sl_nhap-c.sl_xuat),sum(c.tien_nhap-c.tien_xuat) FROM public.ct70 c CROSS JOIN scope s
-    WHERE s.authorized_user_id IS NOT NULL AND c.ngay_ct BETWEEN make_date(extract(year FROM s.den_ngay)::integer,1,1) AND s.den_ngay
+    WHERE s.authorized_user_id IS NOT NULL AND c.ngay_ct BETWEEN public.sys_getstartdate(s.den_ngay) AND s.den_ngay
       AND (s.ma_kho='' OR c.ma_kho=ANY(string_to_array(s.ma_kho,','))) AND (s.ma_vt='' OR c.ma_vt=ANY(string_to_array(s.ma_vt,',')))
       AND (s.ma_dvcs='' OR c.ma_dvcs2=ANY(string_to_array(s.ma_dvcs,','))) AND (s.unrestricted OR c.ma_dvcs2=ANY(string_to_array(s.ds_branchs,','))) GROUP BY c.ma_kho,c.ma_vt
 ), base AS (SELECT ma_kho,ma_vt,sum(so_luong) so_luong,sum(tien) tien FROM balances GROUP BY ma_kho,ma_vt)

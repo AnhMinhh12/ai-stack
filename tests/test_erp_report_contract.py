@@ -68,6 +68,16 @@ class InventoryMovementJournalContractTests(unittest.TestCase):
     def test_material_code_starting_with_digits_is_recognized(self):
         self.assertEqual(ERP.extract_erp_entities("35K-H2110-0001 đã mua chưa")["ma_vt"], "35K-H2110-0001")
 
+    def test_warehouse_code_is_not_mistaken_for_material(self):
+        question = "check tồn kho TP00 mã 75577-BZ010 cho tôi 15:28 5 thg 11"
+        self.assertEqual(ERP.extract_erp_entities(question)["ma_vt"], "75577-BZ010")
+
+    def test_unverified_warehouse_report_does_not_return_legacy_balance(self):
+        question = "vào báo cáo tồn theo kho check mã 75577-BZ010 bao nhiêu"
+        res = ERP.Tools()._ask_erp_data(question)
+        self.assertIn("KHOTP00", res)
+        self.assertIn("240", res)
+
     def test_inventory_questions_route_to_balance_instead_of_material_master(self):
         from erp_ai import build_request
 

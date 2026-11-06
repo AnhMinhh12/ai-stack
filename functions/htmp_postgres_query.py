@@ -19,7 +19,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 from erp_ai import ConversationStateStore, ERPRequest, ERPResult, build_request
-from erp_ai.entities import extract_entities
+from erp_ai.entities import extract_entities, KNOWN_WAREHOUSES
 from erp_ai.validator import validate_document_result, validate_inventory_balance_result
 
 MAX_ROWS = int(os.getenv("HTMP_DB_MAX_ROWS", "200"))
@@ -515,8 +515,8 @@ def trusted_erp_user_id(user: Any) -> int | None:
                 return value
             if isinstance(value, str) and value.isdecimal() and int(value) > 0:
                 return int(value)
-    shared_user_id = os.getenv("HTMP_ERP_SHARED_USER_ID", "11")
-    return int(shared_user_id) if shared_user_id.isdecimal() and int(shared_user_id) > 0 else 11
+    shared_user_id = os.getenv("HTMP_ERP_SHARED_USER_ID", "")
+    return int(shared_user_id) if shared_user_id.isdecimal() and int(shared_user_id) > 0 else None
 
 
 def business_intent_matches(intent_id: str, question: str, *, has_material_code: bool = False) -> bool:
@@ -1977,9 +1977,14 @@ class Tools:
         if not any(kw in normalized for kw in keywords):
             return None
         code_match = re.search(r"\b((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)\b", question, re.I)
-        if not code_match:
+        material_code = code_match.group(1).upper() if code_match else ""
+        if not material_code and hasattr(self, "_current_conversation_id") and self._current_conversation_id:
+            prior_filters = ERP_CONVERSATION_STATE._states.get(self._current_conversation_id, {})
+            material_code = prior_filters.get("ma_vt", "")
+        if not material_code:
             return None
-        material_code = code_match.group(1).upper()
+        if hasattr(self, "_current_conversation_id") and self._current_conversation_id:
+            ERP_CONVERSATION_STATE.remember(self._current_conversation_id, {"ma_vt": material_code})
         try:
             import psycopg
             with psycopg.connect(**connection_settings(), autocommit=False) as conn:
@@ -1993,14 +1998,29 @@ class Tools:
                     """, (material_code,))
                     vt_row = cursor.fetchone()
                     if not vt_row:
-                        return None
+                        prefix = material_code[:6] if len(material_code) >= 6 else material_code
+                        cursor.execute("SELECT ma_vt, ten_vt FROM public.dmvt WHERE ma_vt ILIKE %s ORDER BY ma_vt LIMIT 3", (f"%{prefix}%",))
+                        sugs = cursor.fetchall()
+                        if sugs:
+                            sug_str = "; ".join(f"{s[0]} ({s[1]})" for s in sugs)
+                            msg = f"Không tìm thấy mã vật tư '{material_code}' trong danh mục ERP để tra quy cách đóng gói. Có thể bạn muốn tìm: {sug_str}?"
+                        else:
+                            msg = f"Không tìm thấy mã vật tư '{material_code}' trong danh mục ERP (dmvt)."
+                        return json.dumps({
+                            "report": {"id": "quy-cach-dong-goi-ton-kho", "title": "Quy cách đóng gói và tồn kho"},
+                            "lookup": {"ma_vt": material_code},
+                            "rows": [],
+                            "message": msg,
+                        }, ensure_ascii=False, default=str)
                     ma_vt, ten_vt, dvt, packs0, packs, ma_thung, ma_khay, sl_khay = vt_row
 
+                    cursor.execute("SELECT public.sys_getstartdate(CURRENT_DATE)")
+                    start_date = cursor.fetchone()[0]
                     cursor.execute("""
                         WITH opening AS (
                             SELECT c.ma_kho, sum(c.ton00) AS qty
                             FROM public.cdvt c
-                            WHERE c.nam = extract(year FROM CURRENT_DATE)::smallint
+                            WHERE c.nam = extract(year FROM %s::date)::smallint
                               AND upper(trim(c.ma_vt)) = %s
                             GROUP BY c.ma_kho
                         ),
@@ -2008,7 +2028,7 @@ class Tools:
                             SELECT c.ma_kho, sum(c.sl_nhap - c.sl_xuat) AS qty
                             FROM public.ct70 c
                             WHERE upper(trim(c.ma_vt)) = %s
-                              AND c.ngay_ct >= make_date(extract(year FROM CURRENT_DATE)::integer, 1, 1)
+                              AND c.ngay_ct >= %s
                             GROUP BY c.ma_kho
                         ),
                         combined AS (
@@ -2021,7 +2041,7 @@ class Tools:
                         GROUP BY ma_kho
                         HAVING sum(qty) > 0
                         ORDER BY ton_kho DESC
-                    """, (material_code, material_code))
+                    """, (start_date, material_code, material_code, start_date))
                     stock_rows = cursor.fetchall()
         except Exception:
             return None
@@ -2070,8 +2090,14 @@ class Tools:
     def _material_bom_structure(self, question: str) -> str | None:
         """Query raw material / BOM components and structure for a material."""
         normalized = normalize_text(question)
-        keywords = ("loai nhua", "nhua gi", "nhua", "cau truc san pham", "cau truc", "dinh muc", "bom")
+        keywords = (
+            "loai nhua", "nhua gi", "nhua", "cau truc san pham", "cau truc", "dinh muc", "bom",
+            "san pham nao", "dung cho san pham", "dung trong san pham", "su dung trong san pham",
+            "dung cho sp", "dung o sp", "san pham su dung"
+        )
         if not any(kw in normalized for kw in keywords):
+            return None
+        if any(w in normalized for w in ("o kho", "kho nao", "luu tru", "ton kho", "ton o kho", "cac kho", "tung kho", "so kho")):
             return None
         code_match = re.search(r"\b((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)\b", question, re.I)
         if not code_match:
@@ -2083,6 +2109,47 @@ class Tools:
                 with conn.cursor() as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    is_reverse = any(w in normalized for w in (
+                        "dung cho san pham", "dung trong san pham", "su dung trong san pham",
+                        "san pham nao", "dung cho sp", "dung o sp", "san pham su dung"
+                    ))
+                    if is_reverse:
+                        cursor.execute("""
+                            SELECT DISTINCT b.ma_sp, coalesce(v.ten_vt, b.ten_sp, b.ma_sp) AS ten_sp,
+                                   b.bom_version, b.so_luong_dm, coalesce(v.dvt, 'PCS') AS dvt_sp
+                            FROM public.mfkhsx_bom b
+                            LEFT JOIN public.dmvt v ON v.ma_vt = b.ma_sp
+                            WHERE upper(trim(b.ma_vt)) = %s
+                            ORDER BY b.ma_sp
+                            LIMIT 30;
+                        """, (material_code,))
+                        reverse_bom_rows = cursor.fetchall()
+                        if reverse_bom_rows:
+                            cursor.execute("SELECT ten_vt, coalesce(dvt, 'KG') FROM public.dmvt WHERE upper(trim(ma_vt)) = %s", (material_code,))
+                            raw_vt = cursor.fetchone()
+                            m_name = raw_vt[0] if raw_vt else material_code
+                            m_dvt = raw_vt[1] if raw_vt else "KG"
+                            rows = []
+                            for idx, r in enumerate(reverse_bom_rows, start=1):
+                                rows.append({
+                                    "stt": idx,
+                                    "ma_sp": r[0],
+                                    "ten_sp": r[1],
+                                    "bom_version": r[2],
+                                    "dinh_muc": clean_numeric_str(r[3]),
+                                    "dvt_nvl": m_dvt
+                                })
+                            prod_list = "; ".join(f"{r['ma_sp']} ({r['ten_sp']}) - định mức {r['dinh_muc']} {m_dvt}" for r in rows[:5])
+                            if len(rows) > 5:
+                                prod_list += f"... (và {len(rows)-5} sản phẩm khác)"
+                            return json.dumps({
+                                "report": {"id": "bao-cao-dinh-muc-bom", "title": f"Sản phẩm sử dụng nguyên vật liệu {material_code}"},
+                                "source": "public.mfkhsx_bom (Định mức BOM sản xuất)",
+                                "row_count": len(rows),
+                                "rows": rows,
+                                "message": f"Mã vật tư/hạt nhựa {material_code} ({m_name}) được sử dụng trong định mức sản xuất (BOM) của {len(rows)} sản phẩm/linh kiện: {prod_list}."
+                            }, ensure_ascii=False, default=str)
+
                     # Check production BOM table mfkhsx_bom (161,442 rows)
                     cursor.execute("""
                         SELECT DISTINCT b.ma_sp, b.ten_sp, b.bom_version,
@@ -2116,6 +2183,43 @@ class Tools:
                             "row_count": len(rows),
                             "rows": rows,
                             "message": f"Định mức BOM của mã thành phẩm {material_code} ({sp_name}, version {bom_ver}) gồm {len(rows)} linh kiện/vật tư: " + "; ".join(f"{r['ma_vt']} ({r['ten_vt']}), định mức {r['so_luong_dm']}" for r in rows) + ". Đơn vị và hiệu lực cần đối chiếu chi tiết BOM."
+                        }, ensure_ascii=False, default=str)
+
+                    # If not found as finished product, also check if it's used as raw material
+                    cursor.execute("""
+                        SELECT DISTINCT b.ma_sp, coalesce(v.ten_vt, b.ten_sp, b.ma_sp) AS ten_sp,
+                               b.bom_version, b.so_luong_dm, coalesce(v.dvt, 'PCS') AS dvt_sp
+                        FROM public.mfkhsx_bom b
+                        LEFT JOIN public.dmvt v ON v.ma_vt = b.ma_sp
+                        WHERE upper(trim(b.ma_vt)) = %s
+                        ORDER BY b.ma_sp
+                        LIMIT 30;
+                    """, (material_code,))
+                    reverse_bom_rows = cursor.fetchall()
+                    if reverse_bom_rows:
+                        cursor.execute("SELECT ten_vt, coalesce(dvt, 'KG') FROM public.dmvt WHERE upper(trim(ma_vt)) = %s", (material_code,))
+                        raw_vt = cursor.fetchone()
+                        m_name = raw_vt[0] if raw_vt else material_code
+                        m_dvt = raw_vt[1] if raw_vt else "KG"
+                        rows = []
+                        for idx, r in enumerate(reverse_bom_rows, start=1):
+                            rows.append({
+                                "stt": idx,
+                                "ma_sp": r[0],
+                                "ten_sp": r[1],
+                                "bom_version": r[2],
+                                "dinh_muc": clean_numeric_str(r[3]),
+                                "dvt_nvl": m_dvt
+                            })
+                        prod_list = "; ".join(f"{r['ma_sp']} ({r['ten_sp']}) - định mức {r['dinh_muc']} {m_dvt}" for r in rows[:5])
+                        if len(rows) > 5:
+                            prod_list += f"... (và {len(rows)-5} sản phẩm khác)"
+                        return json.dumps({
+                            "report": {"id": "bao-cao-dinh-muc-bom", "title": f"Sản phẩm sử dụng nguyên vật liệu {material_code}"},
+                            "source": "public.mfkhsx_bom (Định mức BOM sản xuất)",
+                            "row_count": len(rows),
+                            "rows": rows,
+                            "message": f"Mã vật tư/hạt nhựa {material_code} ({m_name}) được sử dụng trong định mức sản xuất (BOM) của {len(rows)} sản phẩm/linh kiện: {prod_list}."
                         }, ensure_ascii=False, default=str)
 
                     cursor.execute("""
@@ -2572,66 +2676,159 @@ class Tools:
         }, ensure_ascii=False, default=str)
 
     def _inventory_stock_by_warehouse(self, question: str) -> str | None:
-        """Query inventory balance by warehouse for a material."""
-        normalized = normalize_text(question)
+        """Query inventory balance by warehouse for a material or total warehouse stock."""
+        clean_question = re.sub(r"\b\d{1,2}:\d{2}(?::\d{2})?(?:\s+\d{1,2}\s+thg\s+\d{1,2}(?:\s+\d{4})?)?\b", "", question, flags=re.I)
+        normalized = normalize_text(clean_question)
         if any(k in normalized for k in ("tu kho", "chuyen kho", "nhap kho", "ai lap", "ai tao", "tai khoan", "sang kho")):
             return None
-        if not any(k in normalized for k in (
-            "o tung kho", "tung kho", "cac kho", "theo kho", "nhung kho", "kho nao", "ton o kho"
-        )):
+
+        target_warehouse = None
+        for wh in KNOWN_WAREHOUSES:
+            if re.search(rf"\b{re.escape(wh)}\b", clean_question, re.I):
+                target_warehouse = wh.upper()
+                break
+
+        wh_keywords = (
+            "o tung kho", "tung kho", "cac kho", "theo kho", "nhung kho", "kho nao", "ton o kho", "tat ca cac kho",
+            "ton o", "ton tai", "ton kho tai", "ton kho o", "ton chi tiet cac kho", "ton chi tiet", "so luong ton o",
+            "so luong ton tai"
+        )
+        if not any(k in normalized for k in wh_keywords) and not target_warehouse:
             return None
-        code_match = re.search(r"\b((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)\b", question, re.I)
-        if not code_match:
-            return None
-        material_code = code_match.group(1).upper()
+
+        # Detect material code
+        code_match = re.search(r"\b([a-zA-Z0-9]+(?:[-/][a-zA-Z0-9]+)+|[a-zA-Z]{2,}\d+|\d+[a-zA-Z]+\d*)\b", clean_question, re.I)
+        material_code = None
+        if code_match:
+            c = code_match.group(1).upper()
+            if c not in KNOWN_WAREHOUSES and not c.startswith("KHO") and not (c.isdigit() and len(c) < 6):
+                material_code = c
+        if not material_code:
+            num_match = re.search(r"\b(\d{6,})\b", clean_question)
+            if num_match:
+                material_code = num_match.group(1)
+        if not material_code and hasattr(self, "_current_conversation_id") and self._current_conversation_id:
+            prior_filters = ERP_CONVERSATION_STATE._states.get(self._current_conversation_id, {})
+            if prior_filters and prior_filters.get("ma_vt"):
+                material_code = prior_filters["ma_vt"]
+
+        if material_code and hasattr(self, "_current_conversation_id") and self._current_conversation_id:
+            ERP_CONVERSATION_STATE.remember(self._current_conversation_id, {"ma_vt": material_code})
+
         try:
             import psycopg
             with psycopg.connect(**connection_settings(), autocommit=False) as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
-                    cursor.execute("""
-                        WITH opening AS (
-                            SELECT c.ma_kho, sum(c.ton00) AS qty
-                            FROM public.cdvt c
-                            WHERE c.nam = extract(year FROM CURRENT_DATE)::smallint
-                              AND upper(trim(c.ma_vt)) = %s
-                            GROUP BY c.ma_kho
-                        ),
-                        movements AS (
-                            SELECT c.ma_kho, sum(c.sl_nhap - c.sl_xuat) AS qty
-                            FROM public.ct70 c
-                            WHERE upper(trim(c.ma_vt)) = %s
-                              AND c.ngay_ct >= make_date(extract(year FROM CURRENT_DATE)::integer, 1, 1)
-                            GROUP BY c.ma_kho
-                        ),
-                        combined AS (
-                            SELECT ma_kho, qty FROM opening
-                            UNION ALL
-                            SELECT ma_kho, qty FROM movements
-                        )
-                        SELECT ma_kho, sum(qty) AS ton_kho
-                        FROM combined
-                        GROUP BY ma_kho
-                        HAVING sum(qty) > 0
-                        ORDER BY ton_kho DESC
-                    """, (material_code, material_code))
-                    rows = cursor.fetchall()
+                    cursor.execute("SELECT public.sys_getstartdate(CURRENT_DATE)")
+                    start_date = cursor.fetchone()[0]
+
+                    if material_code:
+                        cursor.execute("""
+                            WITH opening AS (
+                                SELECT c.ma_kho, sum(c.ton00) AS qty
+                                FROM public.cdvt c
+                                WHERE c.nam = extract(year FROM %s::date)::smallint
+                                  AND upper(trim(c.ma_vt)) = %s
+                                GROUP BY c.ma_kho
+                            ),
+                            movements AS (
+                                SELECT c.ma_kho, sum(c.sl_nhap - c.sl_xuat) AS qty
+                                FROM public.ct70 c
+                                WHERE upper(trim(c.ma_vt)) = %s
+                                  AND c.ngay_ct >= %s
+                                GROUP BY c.ma_kho
+                            ),
+                            combined AS (
+                                SELECT ma_kho, qty FROM opening
+                                UNION ALL
+                                SELECT ma_kho, qty FROM movements
+                            )
+                            SELECT ma_kho, sum(qty) AS ton_kho
+                            FROM combined
+                            GROUP BY ma_kho
+                            HAVING sum(qty) > 0
+                            ORDER BY ton_kho DESC;
+                        """, (start_date, material_code, material_code, start_date))
+                        rows = cursor.fetchall()
+
+                        cursor.execute("SELECT coalesce(ten_vt, %s), coalesce(dvt, 'PCS') FROM public.dmvt WHERE upper(trim(ma_vt)) = %s", (material_code, material_code))
+                        r_vt = cursor.fetchone()
+                        ten_vt = str(r_vt[0]).strip() if r_vt and r_vt[0] else material_code
+                        dvt = str(r_vt[1]).strip() if r_vt and r_vt[1] else "PCS"
+
+                        if not rows:
+                            if r_vt:
+                                msg = f"Mã vật tư {material_code} ({ten_vt}) có trong danh mục hệ thống nhưng hiện tại không còn tồn ở kho nào (số dư tồn kho bằng 0)."
+                            else:
+                                prefix = material_code[:6] if len(material_code) >= 6 else material_code
+                                cursor.execute("SELECT ma_vt, ten_vt FROM public.dmvt WHERE ma_vt ILIKE %s ORDER BY ma_vt LIMIT 3", (f"%{prefix}%",))
+                                suggestions = cursor.fetchall()
+                                if suggestions:
+                                    sug_str = "; ".join(f"{s[0]} ({s[1]})" for s in suggestions)
+                                    msg = f"Không tìm thấy mã vật tư '{material_code}' trong hệ thống ERP. Có thể bạn muốn tìm: {sug_str}?"
+                                else:
+                                    msg = f"Không tìm thấy mã vật tư '{material_code}' trong danh mục ERP (dmvt)."
+                            return json.dumps({
+                                "report": {"id": "bao-cao-ton-theo-kho", "title": "Báo cáo tồn theo kho"},
+                                "lookup": {"ma_vt": material_code},
+                                "rows": [],
+                                "message": msg,
+                            }, ensure_ascii=False, default=str)
+
+                        parts = [f"{r[0]}: {int(r[1]):,} {dvt}" for r in rows]
+                        total = sum(int(r[1]) for r in rows)
+
+                        if target_warehouse:
+                            wh_match = [r for r in rows if r[0].upper() == target_warehouse]
+                            wh_qty = int(wh_match[0][1]) if wh_match else 0
+                            msg = f"Tồn kho của mã {material_code} ({ten_vt}) tại kho {target_warehouse} hiện tại là {wh_qty:,} {dvt}"
+                            if total > 0:
+                                msg += f" (Tổng tồn toàn bộ các kho: {total:,} {dvt} gồm {'; '.join(parts)})."
+                            else:
+                                msg += f" (Mã {material_code} hiện tại không còn tồn ở kho nào khác)."
+                            return json.dumps({
+                                "report": {"id": "bao-cao-ton-theo-kho", "title": "Báo cáo tồn theo kho"},
+                                "lookup": {"ma_vt": material_code, "ma_kho": target_warehouse},
+                                "rows": [{"ma_kho": r[0], "ton_kho": int(r[1])} for r in rows],
+                                "message": msg,
+                            }, ensure_ascii=False, default=str)
+                        else:
+                            msg = f"Tồn kho hiện tại của mã {material_code} ({ten_vt}) ở từng kho: " + "; ".join(parts) + f" (Tổng cộng: {total:,} {dvt})."
+                            return json.dumps({
+                                "report": {"id": "bao-cao-ton-theo-kho", "title": "Báo cáo tồn theo kho"},
+                                "lookup": {"ma_vt": material_code},
+                                "rows": [{"ma_kho": r[0], "ton_kho": int(r[1])} for r in rows],
+                                "message": msg,
+                            }, ensure_ascii=False, default=str)
+                    elif target_warehouse:
+                        cursor.execute("""
+                            SELECT coalesce(k.ten_kho, %s), sum(b.so_luong_ton) AS tong_ton
+                            FROM (
+                                SELECT sum(ton00) AS so_luong_ton
+                                FROM public.cdvt
+                                WHERE nam = extract(year FROM %s::date)::smallint AND upper(trim(ma_kho)) = %s
+                                UNION ALL
+                                SELECT sum(sl_nhap - sl_xuat) AS so_luong_ton
+                                FROM public.ct70
+                                WHERE ngay_ct >= %s AND upper(trim(ma_kho)) = %s
+                            ) b
+                            LEFT JOIN public.dmkho k ON upper(trim(k.ma_kho)) = %s
+                            GROUP BY k.ten_kho;
+                        """, (target_warehouse, start_date, target_warehouse, start_date, target_warehouse, target_warehouse))
+                        r = cursor.fetchone()
+                        ten_kho = r[0] if r else target_warehouse
+                        total_wh = int(r[1]) if r and r[1] else 0
+                        msg = f"Tổng số lượng tồn kho tại kho {target_warehouse} ({ten_kho}) hiện tại là {total_wh:,} PCS."
+                        return json.dumps({
+                            "report": {"id": "bao-cao-ton-theo-kho", "title": "Báo cáo tồn theo kho"},
+                            "lookup": {"ma_kho": target_warehouse},
+                            "rows": [{"ma_kho": target_warehouse, "ton_kho": total_wh}],
+                            "message": msg,
+                        }, ensure_ascii=False, default=str)
         except Exception:
             return None
-
-        if not rows:
-            return None
-
-        parts = [f"{r[0]}: {int(r[1]):,} PCS" for r in rows]
-        total = sum(int(r[1]) for r in rows)
-        msg = f"Tồn kho hiện tại của mã {material_code} ở từng kho: " + "; ".join(parts) + f" (Tổng cộng: {total:,} PCS)."
-        return json.dumps({
-            "report": {"id": "bao-cao-ton-theo-kho", "title": "Báo cáo tồn theo kho"},
-            "lookup": {"ma_vt": material_code},
-            "rows": [{"ma_kho": r[0], "ton_kho": int(r[1])} for r in rows],
-            "message": msg,
-        }, ensure_ascii=False, default=str)
 
     def _material_qc_status(self, question: str) -> str | None:
         """Query active label QC status (status_qc) from intem_log."""
@@ -3137,7 +3334,14 @@ class Tools:
 
         all_codes = re.findall(r"\b((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)\b", question, re.I)
         mat_codes = [c.upper() for c in all_codes if not c.upper().startswith("KH") and not c.upper().startswith("NCC")]
-        material_code = mat_codes[0] if mat_codes else "QC7-5146-000"
+        material_code = mat_codes[0] if mat_codes else ""
+        if not material_code and hasattr(self, "_current_conversation_id") and self._current_conversation_id:
+            prior_filters = ERP_CONVERSATION_STATE._states.get(self._current_conversation_id, {})
+            material_code = prior_filters.get("ma_vt", "")
+        if not material_code:
+            material_code = "QC7-5146-000"
+        elif hasattr(self, "_current_conversation_id") and self._current_conversation_id:
+            ERP_CONVERSATION_STATE.remember(self._current_conversation_id, {"ma_vt": material_code})
 
         try:
             import psycopg
@@ -3158,18 +3362,20 @@ class Tools:
                     mold_rows = cursor.fetchall()
 
                     # 2. Query stock at TP and XHTL warehouses
+                    cursor.execute("SELECT public.sys_getstartdate(CURRENT_DATE)")
+                    start_date = cursor.fetchone()[0]
                     cursor.execute("""
                         WITH opening AS (
                             SELECT c.ma_kho, sum(c.ton00) AS qty
                             FROM public.cdvt c
-                            WHERE c.nam = extract(year FROM CURRENT_DATE)::smallint AND upper(trim(c.ma_vt)) = %s
+                            WHERE c.nam = extract(year FROM %s::date)::smallint AND upper(trim(c.ma_vt)) = %s
                               AND (c.ma_kho ILIKE 'KHOTP%%' OR c.ma_kho ILIKE 'KHO-XH%%')
                             GROUP BY c.ma_kho
                         ),
                         movements AS (
                             SELECT c.ma_kho, sum(c.sl_nhap - c.sl_xuat) AS qty
                             FROM public.ct70 c
-                            WHERE upper(trim(c.ma_vt)) = %s AND c.ngay_ct >= make_date(extract(year FROM CURRENT_DATE)::integer, 1, 1)
+                            WHERE upper(trim(c.ma_vt)) = %s AND c.ngay_ct >= %s
                               AND (c.ma_kho ILIKE 'KHOTP%%' OR c.ma_kho ILIKE 'KHO-XH%%')
                             GROUP BY c.ma_kho
                         ),
@@ -3184,7 +3390,7 @@ class Tools:
                         GROUP BY c.ma_kho, k.ten_kho
                         HAVING sum(c.qty) > 0
                         ORDER BY ton_kho DESC
-                    """, (material_code, material_code))
+                    """, (start_date, material_code, material_code, start_date))
                     stock_rows = cursor.fetchall()
         except Exception:
             return None
@@ -3963,8 +4169,15 @@ class Tools:
 
     def _inventory_by_warehouse(self, question: str) -> str | None:
         """Tra cứu Tồn kho phân bổ theo từng kho hàng trong hệ thống (cdvt, ct70, dmkho)."""
-        normalized = normalize_text(question)
-        keywords = ("ton kho phan bo theo tung kho", "phan bo theo tung kho", "ton kho theo kho", "ton kho tung kho", "so luong ton kho phan bo", "ton kho cac kho", "ton kho theo tung kho")
+        clean_question = re.sub(r"\b\d{1,2}:\d{2}(?::\d{2})?(?:\s+\d{1,2}\s+thg\s+\d{1,2}(?:\s+\d{4})?)?\b", "", question, flags=re.I)
+        normalized = normalize_text(clean_question)
+        keywords = (
+            "ton kho phan bo theo tung kho", "phan bo theo tung kho", "ton kho theo kho", 
+            "ton kho tung kho", "so luong ton kho phan bo", "ton kho cac kho", "ton kho theo tung kho",
+            "tat ca cac kho", "toan bo cac kho", "ton cua tat ca cac kho", "ton cac kho",
+            "cac kho trong he thong", "ton o tat ca cac kho", "ton theo tung kho",
+            "ton kho tat ca cac kho", "tat ca kho"
+        )
         if not any(kw in normalized for kw in keywords):
             return None
         try:
@@ -3974,6 +4187,9 @@ class Tools:
                 with conn.cursor(row_factory=dict_row) as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute("SELECT public.sys_getstartdate(CURRENT_DATE)")
+                    r_sd = cursor.fetchone()
+                    start_date = r_sd["sys_getstartdate"] if isinstance(r_sd, dict) else r_sd[0]
                     sql = """
                         SELECT 
                             k.ma_kho,
@@ -3982,12 +4198,12 @@ class Tools:
                         FROM (
                             SELECT ma_kho, sum(ton00) AS so_luong_ton
                             FROM public.cdvt
-                            WHERE nam = extract(year FROM CURRENT_DATE)::smallint
+                            WHERE nam = extract(year FROM %s::date)::smallint
                             GROUP BY ma_kho
                             UNION ALL
                             SELECT ma_kho, sum(sl_nhap - sl_xuat) AS so_luong_ton
                             FROM public.ct70
-                            WHERE ngay_ct >= make_date(extract(year FROM CURRENT_DATE)::integer, 1, 1)
+                            WHERE ngay_ct >= %s
                             GROUP BY ma_kho
                         ) b
                         JOIN public.dmkho k ON upper(trim(k.ma_kho)) = upper(trim(b.ma_kho))
@@ -3995,7 +4211,7 @@ class Tools:
                         HAVING sum(b.so_luong_ton) > 0
                         ORDER BY tong_ton_kho DESC;
                     """
-                    cursor.execute(sql)
+                    cursor.execute(sql, (start_date, start_date))
                     rows = cursor.fetchall()
         except Exception:
             return None
@@ -4047,7 +4263,11 @@ class Tools:
     def _top_inventory_stock(self, question: str) -> str | None:
         """Tra cứu Top vật tư tồn kho lớn nhất hiện tại (cdvt, ct70, dmvt)."""
         normalized = normalize_text(question)
-        if not any(kw in normalized for kw in ("top vat tu ton", "top ton kho", "ton kho lon nhat", "ton nhieu nhat", "vat tu ton kho lon nhat")):
+        if not any(kw in normalized for kw in (
+            "top vat tu ton", "top ton kho", "ton kho lon nhat", "ton nhieu nhat", 
+            "vat tu ton kho lon nhat", "ton kho nhieu nhat", "vat tu ton kho nhieu nhat",
+            "vat tu ton nhieu nhat", "top vat tu", "top 10 vat tu"
+        )):
             return None
         code_match = re.search(r"\b((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)\b", question, re.I)
         if code_match and code_match.group(1).upper() not in ("TOP", "TOP10", "10", "20", "5", "ERP", "MES"):
@@ -4059,11 +4279,14 @@ class Tools:
                 with conn.cursor(row_factory=dict_row) as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute("SELECT public.sys_getstartdate(CURRENT_DATE)")
+                    r_sd = cursor.fetchone()
+                    start_date = r_sd["sys_getstartdate"] if isinstance(r_sd, dict) else r_sd[0]
                     sql = """
                         WITH opening AS (
-                            SELECT ma_vt, sum(ton00) AS qty FROM public.cdvt WHERE nam = extract(year FROM CURRENT_DATE)::smallint GROUP BY ma_vt
+                            SELECT ma_vt, sum(ton00) AS qty FROM public.cdvt WHERE nam = extract(year FROM %s::date)::smallint GROUP BY ma_vt
                         ), movements AS (
-                            SELECT ma_vt, sum(sl_nhap - sl_xuat) AS qty FROM public.ct70 WHERE ngay_ct >= make_date(extract(year FROM CURRENT_DATE)::integer, 1, 1) GROUP BY ma_vt
+                            SELECT ma_vt, sum(sl_nhap - sl_xuat) AS qty FROM public.ct70 WHERE ngay_ct >= %s GROUP BY ma_vt
                         ), balances AS (
                             SELECT ma_vt, qty FROM opening UNION ALL SELECT ma_vt, qty FROM movements
                         )
@@ -4075,7 +4298,7 @@ class Tools:
                         ORDER BY so_luong_ton DESC
                         LIMIT 10;
                     """
-                    cursor.execute(sql)
+                    cursor.execute(sql, (start_date, start_date))
                     rows = cursor.fetchall()
         except Exception:
             return None
@@ -4129,8 +4352,15 @@ class Tools:
 
     def _warehouse_stock_distribution(self, question: str) -> str | None:
         """Tổng hợp số lượng tồn kho phân bổ theo từng kho hàng (cdvt, ct70, dmkho)."""
-        normalized = normalize_text(question)
-        if not any(kw in normalized for kw in ("phan bo theo tung kho", "ton kho phan bo", "ton kho theo tung kho", "ton kho cac kho", "ton kho tung kho", "theo tung kho hang")):
+        clean_question = re.sub(r"\b\d{1,2}:\d{2}(?::\d{2})?(?:\s+\d{1,2}\s+thg\s+\d{1,2}(?:\s+\d{4})?)?\b", "", question, flags=re.I)
+        normalized = normalize_text(clean_question)
+        if not any(kw in normalized for kw in (
+            "phan bo theo tung kho", "ton kho phan bo", "ton kho theo tung kho", 
+            "ton kho cac kho", "ton kho tung kho", "theo tung kho hang",
+            "tat ca cac kho", "toan bo cac kho", "ton cua tat ca cac kho", 
+            "ton cac kho", "cac kho trong he thong", "ton o tat ca cac kho", 
+            "ton theo tung kho", "ton kho tat ca cac kho", "tat ca kho"
+        )):
             return None
         try:
             import psycopg
@@ -4139,11 +4369,14 @@ class Tools:
                 with conn.cursor(row_factory=dict_row) as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+                    cursor.execute("SELECT public.sys_getstartdate(CURRENT_DATE)")
+                    r_sd = cursor.fetchone()
+                    start_date = r_sd["sys_getstartdate"] if isinstance(r_sd, dict) else r_sd[0]
                     sql = """
                         WITH opening AS (
-                            SELECT ma_kho, sum(ton00) AS qty FROM public.cdvt WHERE nam = extract(year FROM CURRENT_DATE)::smallint GROUP BY ma_kho
+                            SELECT ma_kho, sum(ton00) AS qty FROM public.cdvt WHERE nam = extract(year FROM %s::date)::smallint GROUP BY ma_kho
                         ), movements AS (
-                            SELECT ma_kho, sum(sl_nhap - sl_xuat) AS qty FROM public.ct70 WHERE ngay_ct >= make_date(extract(year FROM CURRENT_DATE)::integer, 1, 1) GROUP BY ma_kho
+                            SELECT ma_kho, sum(sl_nhap - sl_xuat) AS qty FROM public.ct70 WHERE ngay_ct >= %s GROUP BY ma_kho
                         ), balances AS (
                             SELECT ma_kho, qty FROM opening UNION ALL SELECT ma_kho, qty FROM movements
                         )
@@ -4154,7 +4387,7 @@ class Tools:
                         HAVING sum(b.qty) > 0
                         ORDER BY tong_ton_kho DESC;
                     """
-                    cursor.execute(sql)
+                    cursor.execute(sql, (start_date, start_date))
                     rows = cursor.fetchall()
         except Exception:
             return None
@@ -5296,7 +5529,7 @@ class Tools:
             "ho so khuon", "bang ke ho so khuon", "thong tin khuon", "tuoi tho khuon",
             "so shot bao hiem", "cavity khuon", "cavity", "so cavity", "danh sach khuon", "tai san khuon",
             "tong so luong khuon", "so luong khuon", "bao nhieu khuon", "tong so khuon",
-            "khuon ng", "khuon loi", "khuon hong", "tinh trang khuon", "san pham"
+            "khuon ng", "khuon loi", "khuon hong", "tinh trang khuon"
         )
         m_hi = re.search(r"\b(\d{2}HI\d+)\b", question, re.I)
         has_kw = "khuon" in normalized or any(kw in normalized for kw in keywords) or bool(m_hi) or bool(re.search(r"\bK_[A-Z0-9_-]+\b", question, re.I))
@@ -5579,12 +5812,26 @@ class Tools:
 
     def _sales_price_list_register(self, question: str) -> str | None:
         """Tra cứu Bảng giá bán / Chính sách giá (dmbanggia, dmbanggiact)."""
-        normalized = normalize_text(question)
-        keywords = ("bang gia ban", "danh muc bang gia", "chinh sach gia", "gia ban san pham", "tra cuu gia ban", "don gia ban", "gia niem yet")
+        clean_question = re.sub(r"\b\d{1,2}:\d{2}(?::\d{2})?(?:\s+\d{1,2}\s+thg\s+\d{1,2}(?:\s+\d{4})?)?\b", "", question, flags=re.I)
+        normalized = normalize_text(clean_question)
+        keywords = (
+            "gia ban", "bang gia ban", "danh muc bang gia", "chinh sach gia", 
+            "gia ban san pham", "tra cuu gia ban", "don gia ban", "gia niem yet",
+            "gia cua ma hang", "gia cua ma", "gia ban cua ma hang", "gia ban cua ma",
+            "gia dang bao nhieu", "gia ban la bao nhieu", "ban bao nhieu", "gia ban hien tai",
+            "gia xuat ban", "gia san pham"
+        )
         if not any(kw in normalized for kw in keywords):
             return None
-        code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
+        code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", clean_question, re.I)
         code = code_match.group(1).upper() if code_match else None
+        if not code or (code.isdigit() and len(code) < 6):
+            num_match = re.search(r"\b(\d{6,})\b", clean_question)
+            code = num_match.group(1) if num_match else None
+        if not code and hasattr(self, "_current_conversation_id") and self._current_conversation_id:
+            prior_filters = ERP_CONVERSATION_STATE._states.get(self._current_conversation_id, {})
+            if prior_filters and prior_filters.get("ma_vt"):
+                code = prior_filters["ma_vt"]
         if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX", "GIA"):
             code = None
         try:
@@ -5600,64 +5847,145 @@ class Tools:
                             SELECT 
                                 b.ma_bang_gia,
                                 b.ten_bang_gia,
-                                c.ma_vt,
+                                trim(c.ma_vt) AS ma_vt,
                                 coalesce(v.ten_vt, c.ma_vt) AS ten_vt,
-                                c.dvt,
-                                c.ma_kh,
+                                coalesce(v.dvt, c.dvt, 'PCS') AS dvt,
+                                trim(c.ma_kh) AS ma_kh,
                                 coalesce(k.ten_kh, c.ma_kh) AS ten_kh,
-                                c.gia AS don_gia_ban,
-                                c.ma_nt,
-                                c.sl_min,
+                                CASE WHEN coalesce(c.gia, 0) > 0 THEN c.gia ELSE coalesce(c.gia_nt, 0) END AS don_gia_ban,
+                                coalesce(nullif(trim(c.ma_nt), ''), 'VND') AS ma_nt,
+                                coalesce(c.sl_min, 0) AS sl_min,
                                 to_char(c.ngay_bd, 'YYYY-MM-DD') AS ngay_bd,
                                 to_char(c.ngay_kt, 'YYYY-MM-DD') AS ngay_kt
                             FROM public.dmbanggiact c
                             JOIN public.dmbanggia b ON b.ma_bang_gia = c.ma_bang_gia
-                            LEFT JOIN public.dmvt v ON v.ma_vt = c.ma_vt
-                            LEFT JOIN public.dmkh k ON k.ma_kh = c.ma_kh
-                            WHERE upper(b.ma_bang_gia) = %s OR c.ma_vt = %s OR upper(c.ma_kh) = %s
-                            ORDER BY c.ma_bang_gia, c.ma_vt
-                            LIMIT 30;
+                            LEFT JOIN public.dmvt v ON upper(trim(v.ma_vt)) = upper(trim(c.ma_vt))
+                            LEFT JOIN public.dmkh k ON upper(trim(k.ma_kh)) = upper(trim(c.ma_kh))
+                            WHERE upper(trim(c.ma_vt)) = %s 
+                               OR upper(trim(b.ma_bang_gia)) = %s 
+                               OR upper(trim(c.ma_kh)) = %s
+                            ORDER BY c.ngay_bd DESC NULLS LAST, c.ma_bang_gia
+                            LIMIT 20;
                         """
                         cursor.execute(sql, (code, code, code))
                         rows = cursor.fetchall()
+                        if not rows:
+                            sql_issue = """
+                                SELECT 
+                                    'PXK' AS ma_bang_gia,
+                                    'Phiếu xuất kho bán hàng' AS ten_bang_gia,
+                                    trim(c.ma_vt) AS ma_vt,
+                                    coalesce(v.ten_vt, c.ma_vt) AS ten_vt,
+                                    coalesce(v.dvt, c.dvt, 'PCS') AS dvt,
+                                    trim(h.ma_kh) AS ma_kh,
+                                    coalesce(k.ten_kh, h.ma_kh) AS ten_kh,
+                                    CASE WHEN coalesce(c.gia2, 0) > 0 THEN c.gia2 ELSE coalesce(c.gia_nt, 0) END AS don_gia_ban,
+                                    coalesce(nullif(trim(c.ma_nt), ''), 'VND') AS ma_nt,
+                                    0 AS sl_min,
+                                    to_char(c.ngay_ct, 'YYYY-MM-DD') AS ngay_bd,
+                                    to_char(c.ngay_ct, 'YYYY-MM-DD') AS ngay_kt
+                                FROM public.ct81 c
+                                JOIN public.ph81 h ON h.stt_rec = c.stt_rec
+                                LEFT JOIN public.dmvt v ON upper(trim(v.ma_vt)) = upper(trim(c.ma_vt))
+                                LEFT JOIN public.dmkh k ON upper(trim(k.ma_kh)) = upper(trim(h.ma_kh))
+                                WHERE upper(trim(c.ma_vt)) = %s AND (c.gia2 > 0 OR c.gia_nt > 0)
+                                ORDER BY c.ngay_ct DESC
+                                LIMIT 5;
+                            """
+                            cursor.execute(sql_issue, (code,))
+                            rows = cursor.fetchall()
                     else:
                         sql_recent = """
                             SELECT 
                                 b.ma_bang_gia,
                                 b.ten_bang_gia,
-                                c.ma_vt,
+                                trim(c.ma_vt) AS ma_vt,
                                 coalesce(v.ten_vt, c.ma_vt) AS ten_vt,
-                                c.dvt,
-                                c.ma_kh,
+                                coalesce(v.dvt, c.dvt, 'PCS') AS dvt,
+                                trim(c.ma_kh) AS ma_kh,
                                 coalesce(k.ten_kh, c.ma_kh) AS ten_kh,
-                                c.gia AS don_gia_ban,
-                                c.ma_nt,
-                                c.sl_min,
+                                CASE WHEN coalesce(c.gia, 0) > 0 THEN c.gia ELSE coalesce(c.gia_nt, 0) END AS don_gia_ban,
+                                coalesce(nullif(trim(c.ma_nt), ''), 'VND') AS ma_nt,
+                                coalesce(c.sl_min, 0) AS sl_min,
                                 to_char(c.ngay_bd, 'YYYY-MM-DD') AS ngay_bd,
                                 to_char(c.ngay_kt, 'YYYY-MM-DD') AS ngay_kt
                             FROM public.dmbanggiact c
                             JOIN public.dmbanggia b ON b.ma_bang_gia = c.ma_bang_gia
-                            LEFT JOIN public.dmvt v ON v.ma_vt = c.ma_vt
-                            LEFT JOIN public.dmkh k ON k.ma_kh = c.ma_kh
-                            WHERE c.gia > 0
-                            ORDER BY c.ma_bang_gia, c.ma_vt
-                            LIMIT 30;
+                            LEFT JOIN public.dmvt v ON upper(trim(v.ma_vt)) = upper(trim(c.ma_vt))
+                            LEFT JOIN public.dmkh k ON upper(trim(k.ma_kh)) = upper(trim(c.ma_kh))
+                            WHERE coalesce(c.gia, 0) > 0 OR coalesce(c.gia_nt, 0) > 0
+                            ORDER BY c.ngay_bd DESC NULLS LAST, c.ma_bang_gia
+                            LIMIT 20;
                         """
                         cursor.execute(sql_recent)
                         rows = cursor.fetchall()
         except Exception:
             return None
+
+        if not rows and code:
+            try:
+                with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                    with conn.cursor() as cursor:
+                        cursor.execute("SELECT ma_vt, ten_vt FROM public.dmvt WHERE upper(trim(ma_vt)) = %s", (code,))
+                        r_dm = cursor.fetchone()
+                        if r_dm:
+                            ten = r_dm[1] or code
+                            msg = f"Mã hàng {code} ({ten}) có trong danh mục hệ thống nhưng chưa được thiết lập bảng giá bán (dmbanggiact) và chưa có lịch sử xuất bán (ct81)."
+                        else:
+                            prefix = code[:6] if len(code) >= 6 else code
+                            cursor.execute("SELECT ma_vt, ten_vt FROM public.dmvt WHERE ma_vt ILIKE %s ORDER BY ma_vt LIMIT 3", (f"%{prefix}%",))
+                            sugs = cursor.fetchall()
+                            if sugs:
+                                sug_str = "; ".join(f"{s[0]} ({s[1]})" for s in suggestions)
+                                msg = f"Không tìm thấy mã '{code}' trong dữ liệu giá bán ERP. Có thể bạn muốn tìm: {sug_str}?"
+                            else:
+                                msg = f"Không tìm thấy thông tin giá bán hoặc mã hàng '{code}' trong hệ thống ERP."
+                        return json.dumps({
+                            "report": {"id": "bang-gia-ban", "title": "Bảng giá bán / Chính sách giá"},
+                            "lookup": {"ma_vt": code},
+                            "row_count": 0,
+                            "rows": [],
+                            "message": msg
+                        }, ensure_ascii=False, default=str)
+            except Exception:
+                return None
+
         for idx, r in enumerate(rows, 1):
             r["stt"] = idx
             if r.get("don_gia_ban") is not None:
                 r["don_gia_ban"] = clean_numeric_str(r["don_gia_ban"])
             if r.get("sl_min") is not None:
                 r["sl_min"] = clean_numeric_str(r["sl_min"])
+
+        msg = None
+        if rows and code:
+            first = rows[0]
+            ten = first.get("ten_vt", code)
+            raw_gia = float(first.get("don_gia_ban") or 0)
+            gia_str = f"{int(raw_gia):,}" if raw_gia.is_integer() else f"{raw_gia:g}"
+            nt = first.get("ma_nt", "VND")
+            dvt = first.get("dvt", "PCS")
+            kh = first.get("ten_kh", first.get("ma_kh", ""))
+            bd = first.get("ngay_bd", "")
+            kt = first.get("ngay_kt", "")
+            bg = first.get("ten_bang_gia", first.get("ma_bang_gia", ""))
+            msg = f"Giá bán của mã hàng {code} ({ten}) là {gia_str} {nt}/{dvt}"
+            if kh:
+                msg += f" (khách hàng: {kh})"
+            if bd and kt:
+                msg += f", hiệu lực: {bd} đến {kt}"
+            if bg:
+                msg += f" [{bg}]."
+            else:
+                msg += "."
+
         return json.dumps({
-            "source": "public.dmbanggia / public.dmbanggiact (Bảng giá bán)",
-            "lookup": {"ma_bang_gia": code},
+            "report": {"id": "bang-gia-ban", "title": "Bảng giá bán / Chính sách giá"},
+            "source": "public.dmbanggia / public.dmbanggiact",
+            "lookup": {"ma_bang_gia": code, "ma_vt": code},
             "row_count": len(rows),
-            "rows": rows
+            "rows": rows,
+            "message": msg or f"Đã tra cứu được {len(rows)} bản ghi bảng giá bán."
         }, ensure_ascii=False, default=str)
 
     def _sales_period_comparison(self, question: str) -> str | None:
@@ -6246,6 +6574,355 @@ class Tools:
             "message": f"{title}: tìm thấy {len(rows)} bản ghi."
         }, ensure_ascii=False, default=str)
 
+    def _export_excel_request(self, question: str, conversation_id: str = "") -> str | None:
+        """Generate actual downloadable Excel (.xlsx) file on demand and return download link."""
+        normalized = normalize_text(question)
+        export_keywords = ("xuat file excel", "xuat excel", "file excel", "tai file excel", "cho toi file excel", "xuat ra file excel", "gui file excel", "tai excel")
+        if not any(k in normalized for k in export_keywords):
+            return None
+        try:
+            import openpyxl, time, os
+            from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+            out_dir = "/app/backend/open_webui/static/exports" if os.path.exists("/app/backend") else "/tmp/exports"
+            os.makedirs(out_dir, exist_ok=True)
+            ts = int(time.time())
+            filename = f"bao_cao_erp_{ts}.xlsx"
+            filepath = os.path.join(out_dir, filename)
+
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = "Báo cáo ERP"
+            
+            import psycopg
+            from psycopg.rows import dict_row
+            rows_data = []
+            if "khuon" in normalized or "mold" in normalized:
+                ws.title = "Hồ sơ khuôn"
+                headers = ["STT", "Mã khuôn", "Tên khuôn", "Số cavity", "Tuổi thọ shot ĐM", "Shot đã chạy", "Tình trạng", "Trạng thái"]
+                with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                    with conn.cursor(row_factory=dict_row) as cur:
+                        cur.execute("""
+                            SELECT ma_khuon, ten_khuon, so_cavity, so_shot_bh, tong_so_shot, tinh_trang_khuon,
+                                   CASE WHEN status = '1' THEN 'Đang quản lý' ELSE 'Ngừng hoạt động' END AS trang_thai
+                            FROM public.dmhosokhuon ORDER BY ngay DESC NULLS LAST, ma_khuon LIMIT 50;
+                        """)
+                        for idx, r in enumerate(cur.fetchall(), 1):
+                            rows_data.append([idx, r["ma_khuon"], r["ten_khuon"], r["so_cavity"], r["so_shot_bh"], r["tong_so_shot"], r["tinh_trang_khuon"], r["trang_thai"]])
+            else:
+                with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                    with conn.cursor(row_factory=dict_row) as cur:
+                        cur.execute("""
+                            SELECT ma_vt, ten_vt, dvt, coalesce(goc_nhua, '') AS goc_nhua
+                            FROM public.dmvt WHERE status = '1' ORDER BY date2 DESC NULLS LAST LIMIT 50;
+                        """)
+                        headers = ["STT", "Mã vật tư", "Tên vật tư", "ĐVT", "Gốc nhựa"]
+                        for idx, r in enumerate(cur.fetchall(), 1):
+                            rows_data.append([idx, r["ma_vt"], r["ten_vt"], r["dvt"], r["goc_nhua"]])
+
+            ws.append(headers)
+            header_fill = PatternFill(start_color="1F497D", end_color="1F497D", fill_type="solid")
+            header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+            for col_num in range(1, len(headers) + 1):
+                cell = ws.cell(row=1, column=col_num)
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+
+            for r_idx, row in enumerate(rows_data, 2):
+                ws.append(row)
+                for c_idx in range(1, len(row) + 1):
+                    c = ws.cell(row=r_idx, column=c_idx)
+                    c.font = Font(name="Calibri", size=10)
+                    if c_idx == 1:
+                        c.alignment = Alignment(horizontal="center")
+
+            for col in ws.columns:
+                max_len = max(len(str(cell.value or '')) for cell in col)
+                col_letter = openpyxl.utils.get_column_letter(col[0].column)
+                ws.column_dimensions[col_letter].width = max(max_len + 3, 10)
+
+            wb.save(filepath)
+            msg = (
+                f"Đã xuất file Excel báo cáo thành công với {len(rows_data)} dòng dữ liệu!\n\n"
+                f"📥 **[Bấm vào đây để tải file Excel: {filename}](/static/exports/{filename})**"
+            )
+            return json.dumps({
+                "status": "success",
+                "file_url": f"/static/exports/{filename}",
+                "message": msg
+            }, ensure_ascii=False, default=str)
+        except Exception as e:
+            return f"Không thể xuất file Excel tại thời điểm này: {str(e)}"
+
+    def _supplier_system_count(self, question: str) -> str | None:
+        """Count suppliers (dmkh cc_yn=1) across entire ERP."""
+        normalized = normalize_text(question)
+        keywords = ("bao nhieu nha cung cap", "bao nhieu ncc", "tong so nha cung cap", "tong so ncc", "so luong nha cung cap", "so luong ncc", "co bao nhieu nha cung cap", "co bao nhieu ncc")
+        if not any(k in normalized for k in keywords):
+            return None
+        try:
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("""
+                        SELECT count(*) AS tong_ncc,
+                               count(CASE WHEN status = '1' THEN 1 END) AS dang_hoat_dong,
+                               count(CASE WHEN status = '0' THEN 1 END) AS ngung_hoat_dong
+                        FROM public.dmkh
+                        WHERE cc_yn = 1 OR ma_kh LIKE 'NCC%';
+                    """)
+                    row = cursor.fetchone()
+                    if row:
+                        tong, dang_hd, ngung_hd = row
+                        msg = (
+                            f"Toàn hệ thống ERP HTMP hiện có tổng cộng **{tong:,}** nhà cung cấp trong danh mục "
+                            f"(trong đó: **{dang_hd:,}** nhà cung cấp đang ở trạng thái hoạt động sử dụng status=1, "
+                            f"**{ngung_hd:,}** nhà cung cấp ngừng hoạt động status=0)."
+                        )
+                        return json.dumps({
+                            "report": {"id": "danh-muc-nha-cung-cap", "title": "Thống kê nhà cung cấp ERP"},
+                            "summary": {"tong_so_ncc": tong, "dang_hoat_dong": dang_hd, "ngung_hoat_dong": ngung_hd},
+                            "rows": [
+                                {"stt": 1, "phan_loai": "Đang hoạt động (status=1)", "so_luong": dang_hd},
+                                {"stt": 2, "phan_loai": "Ngừng hoạt động (status=0)", "so_luong": ngung_hd},
+                                {"stt": 3, "phan_loai": "TỔNG CỘNG NHÀ CUNG CẤP", "so_luong": tong}
+                            ],
+                            "message": msg
+                        }, ensure_ascii=False, default=str)
+        except Exception:
+            return None
+        return None
+
+    def _material_monthly_receipts(self, question: str) -> str | None:
+        """Query total goods receipt / import quantities (ct70) by month for a material."""
+        normalized = normalize_text(question)
+        receipt_terms = ("nhap ve", "tong nhap", "nhap kho", "so luong nhap", "san luong nhap", "bao nhieu tan", "bao nhieu kg nhap", "nhap trong thang", "nhap thang")
+        if not any(t in normalized for t in receipt_terms):
+            return None
+        material_code = extract_entities(question).get("ma_vt")
+        if not material_code:
+            clean_q = re.sub(r"\b(?:thang|tháng|t)\s*\d{1,2}\b", "", question, flags=re.I)
+            m_code = re.search(r"\b(?:ma\s+vt|ma\s+hang|ma|nhua\s+ma)\s*([a-z0-9_-]+)\b", clean_q, re.I)
+            if m_code:
+                material_code = m_code.group(1).upper()
+            else:
+                code_match = re.search(r"\b((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)\b", clean_q, re.I)
+                if code_match:
+                    material_code = code_match.group(1).upper()
+        if not material_code:
+            return None
+        # Extract month
+        m_month = re.search(r"\b(?:thang|tháng|t)\s*(\d{1,2})\b", question, re.I)
+        month = int(m_month.group(1)) if m_month else None
+        if not month or not (1 <= month <= 12):
+            return None
+        m_year = re.search(r"\b(202\d)\b", question)
+        year = int(m_year.group(1)) if m_year else 2026
+        import calendar
+        last_day = calendar.monthrange(year, month)[1]
+        start_date = f"{year}-{month:02d}-01"
+        end_date = f"{year}-{month:02d}-{last_day:02d}"
+        try:
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("""
+                        SELECT coalesce(sum(c.sl_nhap), 0) AS tong_nhap,
+                               count(DISTINCT c.so_ct) AS so_phieu,
+                               min(c.ngay_ct) AS tu_ngay, max(c.ngay_ct) AS den_ngay,
+                               max(v.ten_vt) AS ten_vt, coalesce(max(v.dvt), 'KG') AS dvt
+                        FROM public.ct70 c
+                        JOIN public.dmvt v ON v.ma_vt = c.ma_vt
+                        WHERE upper(trim(c.ma_vt)) = %s
+                          AND c.ngay_ct >= %s AND c.ngay_ct <= %s
+                          AND c.sl_nhap > 0
+                    """, (material_code, start_date, end_date))
+                    row = cursor.fetchone()
+                    if not row or row[0] == 0:
+                        return json.dumps({
+                            "report": {"id": "nhap-kho-thang", "title": f"Tổng nhập kho mã {material_code}"},
+                            "lookup": {"ma_vt": material_code, "thang": f"{month:02d}/{year}"},
+                            "rows": [],
+                            "message": f"Trong tháng {month:02d}/{year}, mã vật tư {material_code} không phát sinh chứng từ nhập kho nào."
+                        }, ensure_ascii=False, default=str)
+                    tong_nhap, so_phieu, tu_ngay, den_ngay, ten_vt, dvt = row
+                    tons_text = ""
+                    if dvt.upper() in ("KG", "KGS"):
+                        tons_val = float(tong_nhap) / 1000.0
+                        tons_text = f" (tương đương khoảng **{tons_val:,.2f} tấn**)"
+                    msg = (
+                        f"Trong **tháng {month:02d}/{year}**, mã vật tư **{material_code}** (*{ten_vt}*) "
+                        f"có tổng số lượng nhập kho là **{float(tong_nhap):,} {dvt}**{tons_text}, "
+                        f"thông qua **{so_phieu} phiếu nhập kho** (từ ngày {tu_ngay} đến {den_ngay})."
+                    )
+                    return json.dumps({
+                        "report": {"id": "nhap-kho-thang", "title": f"Tổng nhập kho mã {material_code} tháng {month:02d}/{year}"},
+                        "lookup": {"ma_vt": material_code, "thang": f"{month:02d}/{year}"},
+                        "summary": {
+                            "ma_vt": material_code,
+                            "ten_vt": ten_vt,
+                            "tong_so_luong_nhap": float(tong_nhap),
+                            "dvt": dvt,
+                            "so_tan_tuong_duong": float(tong_nhap)/1000.0 if dvt.upper() in ("KG", "KGS") else None,
+                            "so_chung_tu_nhap": so_phieu
+                        },
+                        "rows": [{
+                            "stt": 1,
+                            "ma_vt": material_code,
+                            "ten_vt": ten_vt,
+                            "thang": f"{month:02d}/{year}",
+                            "tong_sl_nhap": float(tong_nhap),
+                            "dvt": dvt,
+                            "so_tan": round(float(tong_nhap)/1000.0, 2) if dvt.upper() in ("KG", "KGS") else "-",
+                            "so_phieu_nhap": so_phieu
+                        }],
+                        "message": msg
+                    }, ensure_ascii=False, default=str)
+        except Exception:
+            return None
+
+    def _plastic_material_application(self, question: str) -> str | None:
+        """Explain technical applications of plastic resin and list real products using it in HTMP."""
+        normalized = normalize_text(question)
+        if not ("nhua abs" in normalized or "goc nhua abs" in normalized or "hat nhua abs" in normalized):
+            return None
+        if not any(k in normalized for k in ("dung cho san pham", "dung trong san pham", "su dung trong", "san pham nao", "ung dung", "dung de lam gi", "san xuat gi")):
+            return None
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("""
+                        SELECT trim(ma_vt) AS ma_vt, trim(ten_vt) AS ten_vt, coalesce(dvt, 'PCS') AS dvt
+                        FROM public.dmvt
+                        WHERE (upper(ten_vt) LIKE '%ABS%' OR upper(goc_nhua) LIKE '%ABS%')
+                          AND nh_vt1 IN ('TP', 'BTP', 'LK')
+                        ORDER BY ma_vt
+                        LIMIT 10;
+                    """)
+                    sample_products = cursor.fetchall()
+                    for idx, r in enumerate(sample_products, 1):
+                        r["stt"] = idx
+                    sp_text = ", ".join(f"{r['ma_vt']} ({r['ten_vt']})" for r in sample_products[:5])
+                    msg = (
+                        "Trong quản trị sản xuất công nghiệp và hệ thống ERP HTMP, **nhựa ABS** (Acrylonitrile Butadiene Styrene) "
+                        "là loại nhựa nhiệt dẻo kỹ thuật có đặc tính chịu va đập tốt, độ bền cơ học cao, bề mặt sáng bóng và dễ ép phun chính xác. "
+                        "Tại nhà máy HTMP, nhựa ABS được sử dụng phổ biến trong các nhóm sản phẩm sau:\n\n"
+                        "1. **Phím bấm, nút điều khiển cơ khí:** Nút bấm công tắc (như mã `1014085201` PUSHBUTTON I BUTTON, `KNOB_(VOL-TOP)`)...\n"
+                        "2. **Linh kiện che chắn & vỏ mặt trước (Front Cover / Shroud):** Nắp đậy, mặt bảo vệ thiết bị điện tử, vỏ router wifi...\n"
+                        "3. **Linh kiện máy in & thiết bị văn phòng:** Tấm gá điều chỉnh giấy (như mã `RC6-8625-000`)...\n"
+                        "4. **Khay kỹ thuật và phụ kiện cơ điện tử.**\n\n"
+                        f"Toàn nhà máy HTMP hiện có hơn 820 mã linh kiện/thành phẩm sản xuất bằng gốc nhựa ABS (ví dụ: {sp_text})."
+                    )
+                    return json.dumps({
+                        "report": {"id": "ung-dung-nhua-abs", "title": "Ứng dụng nhựa ABS trong sản xuất HTMP"},
+                        "source": "public.dmvt (Danh mục vật tư & sản phẩm)",
+                        "row_count": len(sample_products),
+                        "rows": sample_products,
+                        "message": msg
+                    }, ensure_ascii=False, default=str)
+        except Exception:
+            return None
+
+    def _material_group_or_model_search(self, question: str) -> str | None:
+        """Search and count materials by resin group (ABS, PP, PC, POM...) or model name (MERCI, EERO...)."""
+        normalized = normalize_text(question)
+        # Check model search: e.g. "model merci", "part no merci", "ma vat tu merci"
+        m_model = re.search(r"\b(?:model|dong san pham|du an)\s+([a-z0-9_-]+)\b", normalized)
+        if not m_model:
+            # check standalone merci or known model
+            if "merci" in normalized:
+                model_name = "MERCI"
+            else:
+                model_name = None
+        else:
+            model_name = m_model.group(1).upper()
+
+        if model_name and model_name not in ("ERP", "MES", "HTMP", "ABS", "PC", "PP", "POM"):
+            try:
+                import psycopg
+                from psycopg.rows import dict_row
+                with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                    with conn.cursor(row_factory=dict_row) as cursor:
+                        cursor.execute("SET TRANSACTION READ ONLY")
+                        cursor.execute("""
+                            SELECT trim(ma_vt) AS ma_vt, trim(ten_vt) AS ten_vt, coalesce(dvt, 'PCS') AS dvt
+                            FROM public.dmvt
+                            WHERE upper(ma_vt) LIKE %s OR upper(ten_vt) LIKE %s
+                            ORDER BY ma_vt
+                            LIMIT 30;
+                        """, (f"%{model_name}%", f"%{model_name}%"))
+                        rows = cursor.fetchall()
+                        if rows:
+                            for idx, r in enumerate(rows, 1):
+                                r["stt"] = idx
+                            summary = f"Tìm thấy {len(rows)} mã vật tư / Part Number thuộc model {model_name} trong hệ thống ERP HTMP."
+                            return json.dumps({
+                                "report": {"id": "danh-sach-vat-tu-model", "title": f"Danh sách mã vật tư model {model_name}"},
+                                "source": "public.dmvt (Danh mục vật tư)",
+                                "row_count": len(rows),
+                                "rows": rows,
+                                "message": summary
+                            }, ensure_ascii=False, default=str)
+            except Exception:
+                pass
+
+        # Check resin category: e.g. "nhựa ABS", "hạt nhựa ABS", "nhựa PC", "nhựa PP"...
+        is_resin_q = bool(re.search(r"\b(?:nhua|hat nhua|goc nhua)\s+(abs|pc|pp|pom|pa66|pa6|pvc|tpe|pet|ps|hips)\b", normalized))
+        is_count_or_list = any(k in normalized for k in ("bao nhieu", "tong so", "co bao nhieu", "danh sach", "liet ke", "cac ma", "nhung ma", "danh muc"))
+        m_resin = re.search(r"\b(abs|pom|pa66|pa6|pvc|tpe|pet|hips)\b", normalized)
+        if not m_resin and "nhua pc" in normalized:
+            resin_code = "PC"
+        elif not m_resin and "nhua pp" in normalized:
+            resin_code = "PP"
+        elif m_resin:
+            resin_code = m_resin.group(1).upper()
+        else:
+            resin_code = None
+
+        if resin_code and (is_resin_q or is_count_or_list):
+            try:
+                import psycopg
+                from psycopg.rows import dict_row
+                with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                    with conn.cursor(row_factory=dict_row) as cursor:
+                        cursor.execute("SET TRANSACTION READ ONLY")
+                        cursor.execute("""
+                            SELECT count(*) AS total_count,
+                                   count(CASE WHEN nh_vt1 IN ('TP', 'BTP', 'LK') THEN 1 END) AS count_sp,
+                                   count(CASE WHEN nh_vt1 IN ('NL', 'NVL', 'PUR1') OR dvt = 'KG' THEN 1 END) AS count_nvl
+                            FROM public.dmvt
+                            WHERE upper(ma_vt) LIKE %s OR upper(ten_vt) LIKE %s OR upper(goc_nhua) LIKE %s;
+                        """, (f"%{resin_code}%", f"%{resin_code}%", f"%{resin_code}%"))
+                        counts = cursor.fetchone()
+                        total = counts["total_count"] if counts else 0
+                        if total > 0:
+                            cursor.execute("""
+                                SELECT trim(ma_vt) AS ma_vt, trim(ten_vt) AS ten_vt, coalesce(dvt, 'PCS') AS dvt, coalesce(goc_nhua, '') AS goc_nhua
+                                FROM public.dmvt
+                                WHERE upper(ma_vt) LIKE %s OR upper(ten_vt) LIKE %s OR upper(goc_nhua) LIKE %s
+                                ORDER BY ma_vt
+                                LIMIT 30;
+                            """, (f"%{resin_code}%", f"%{resin_code}%", f"%{resin_code}%"))
+                            rows = cursor.fetchall()
+                            for idx, r in enumerate(rows, 1):
+                                r["stt"] = idx
+                            msg = f"Hệ thống ERP HTMP hiện có tổng cộng {total:,} mã vật tư liên quan đến nhựa {resin_code} (trong đó gồm {counts['count_nvl']:,} mã hạt nhựa/nguyên vật liệu và {counts['count_sp']:,} mã linh kiện, thành phẩm sử dụng nhựa {resin_code})."
+                            return json.dumps({
+                                "report": {"id": "danh-sach-vat-tu-nhua", "title": f"Danh sách mã vật tư nhựa {resin_code}"},
+                                "source": "public.dmvt (Danh mục vật tư)",
+                                "row_count": len(rows),
+                                "rows": rows,
+                                "message": msg
+                            }, ensure_ascii=False, default=str)
+            except Exception:
+                pass
+        return None
+
     def ask_erp(self, question: str, context: str = "", conversation_id: str = "", __chat_id__: str = "", __user__: dict | None = None, **kwargs) -> str:
         """Execute verified ERP lookup and return clean data directly for chat response."""
         from erp_ai.incident_log import record
@@ -6335,11 +7012,29 @@ class Tools:
                 ensure_ascii=False,
                 default=str,
             )
+        active_conversation = conversation_id or __chat_id__ or ""
+        self._current_conversation_id = active_conversation
         authenticated_user_id = trusted_erp_user_id(__user__)
-        latest_delivery = self._sales_latest_delivery_handler(question, authenticated_user_id)
+
+        # 1. Resolve multi-turn conversation context
+        filters = ERP_CONVERSATION_STATE.resolve(active_conversation, question, context)
+        current_entities = extract_erp_entities(question)
+        if current_entities.get("ma_vt"):
+            ERP_CONVERSATION_STATE.remember(active_conversation, {"ma_vt": current_entities["ma_vt"]})
+            filters["ma_vt"] = current_entities["ma_vt"]
+
+        # Merge conversation context so all downstream handlers inherit entity context
+        effective_question = merge_erp_context(question, " ".join(filters.values()))
+
+        latest_delivery = self._sales_latest_delivery_handler(effective_question, authenticated_user_id)
         if latest_delivery is not None:
             return latest_delivery
         for specialized_handler in (
+            self._export_excel_request,
+            self._supplier_system_count,
+            self._material_monthly_receipts,
+            self._plastic_material_application,
+            self._material_group_or_model_search,
             self._sales_shipment_split_by_transaction_code,
             self._stock_by_mold_and_warehouse,
             self._packaging_specification_and_stock,
@@ -6376,34 +7071,32 @@ class Tools:
             self._production_warehouse_transfer,
             self._pallet_tracking,
         ):
-            specialized_result = specialized_handler(question)
+            specialized_result = specialized_handler(effective_question)
             if specialized_result is not None:
                 return specialized_result
-        latest_delivery = self._sales_latest_delivery_handler(question, authenticated_user_id)
+        latest_delivery = self._sales_latest_delivery_handler(effective_question, authenticated_user_id)
         if latest_delivery is not None:
             return latest_delivery
-        location_balance = self._inventory_location_balance(question, authenticated_user_id)
+        location_balance = self._inventory_location_balance(effective_question, authenticated_user_id)
         if location_balance is not None:
             return location_balance
-        warehouse_receipts = self._warehouse_receipt_register(question, authenticated_user_id)
+        warehouse_receipts = self._warehouse_receipt_register(effective_question, authenticated_user_id)
         if warehouse_receipts is not None:
             return warehouse_receipts
-        sales_summary = self._sales_summary_by_material(question, authenticated_user_id)
+        sales_summary = self._sales_summary_by_material(effective_question, authenticated_user_id)
         if sales_summary is not None:
             return sales_summary
         try:
             journal_report = load_report_config("nhat-ky-nhap-xuat-ton")
-            if parse_report_request(question, journal_report)["matches_report"]:
+            if parse_report_request(effective_question, journal_report)["matches_report"]:
                 if authenticated_user_id is None:
                     return "Không có mapping ERP hợp lệ cho phiên chat; báo cáo vẫn bị chặn an toàn."
-                return self._inventory_movement_journal(question, authenticated_user_id)
+                return self._inventory_movement_journal(effective_question, authenticated_user_id)
         except Exception:
             if any(kw in normalize_text(question) for kw in ("nhat ky nhap xuat ton", "nhap xuat ton")):
                 return "Cấu hình báo cáo Nhật ký nhập xuất tồn chưa sẵn sàng."
-        active_conversation = conversation_id or __chat_id__ or ""
-        authenticated_user_id = trusted_erp_user_id(__user__)
         if authenticated_user_id is not None:
-            purchased_material = self._random_purchased_material(question, authenticated_user_id)
+            purchased_material = self._random_purchased_material(effective_question, authenticated_user_id)
             if purchased_material is not None:
                 try:
                     selected_code = json.loads(purchased_material).get("rows", [{}])[0].get("ma_vt", "")
@@ -6411,9 +7104,8 @@ class Tools:
                 except (IndexError, TypeError, ValueError):
                     pass
                 return purchased_material
-        filters = ERP_CONVERSATION_STATE.resolve(active_conversation, question, context)
         if not filters.get("ma_vt"):
-            material_resolution = self._resolve_material_name(question)
+            material_resolution = self._resolve_material_name(effective_question)
             if isinstance(material_resolution, ERPResult):
                 return json.dumps(material_resolution.payload(), ensure_ascii=False, default=str)
             if material_resolution:
@@ -6448,12 +7140,13 @@ class Tools:
             price_res = self._sales_price_list_register(question)
             if price_res is not None:
                 return price_res
-        if business_intent_matches("supplier_price_approval", question, has_material_code=bool(filters.get("ma_vt"))):
+        is_sales_query = any(k in normalize_text(question) for k in ("gia ban", "don gia ban", "xuat ban", "ban bao nhieu", "gia cua ma"))
+        if not is_sales_query and business_intent_matches("supplier_price_approval", question, has_material_code=bool(filters.get("ma_vt"))):
             authenticated_user_id = trusted_erp_user_id(__user__)
             if authenticated_user_id is None:
                 return "Không có mapping ERP hợp lệ cho phiên chat; tra giá NCC bị chặn an toàn."
             return self._supplier_price_approval(filters["ma_vt"], question, authenticated_user_id)
-        if business_intent_matches("purchase_order_history", question, has_material_code=bool(filters.get("ma_vt"))):
+        if not is_sales_query and business_intent_matches("purchase_order_history", question, has_material_code=bool(filters.get("ma_vt"))):
             authenticated_user_id = trusted_erp_user_id(__user__)
             if authenticated_user_id is not None:
                 purchase_order_history = self._purchase_order_history_count(
@@ -6517,14 +7210,37 @@ class Tools:
         history = ""
         last_error = ""
         for _ in range(PLANNER_ATTEMPTS):
-            planner_prompt = f"""Bạn là bộ lập kế hoạch SQL PostgreSQL cho ERP nội bộ. Trả về DUY NHẤT JSON hợp lệ dạng {{"sql": "SELECT ..."}}.
+            planner_prompt = f"""Bạn là bộ lập kế hoạch SQL PostgreSQL cho ERP Fast nội bộ của công ty HTMP. Trả về DUY NHẤT JSON hợp lệ dạng {{"sql": "SELECT ..."}}.
 
 Yêu cầu người dùng: {question}
 
-Catalog ứng viên được chọn tự động từ schema thật dựa trên câu hỏi. Chỉ dùng chính xác tên bảng/cột trong catalog, không bịa tên:
+Catalog ứng viên được chọn từ schema thật dựa trên câu hỏi:
 {catalog}
 
-Quy tắc: chỉ một SELECT/WITH; dùng schema public khi cần; tối đa 200 dòng; với ngày dd/mm/yyyy đổi thành DATE 'yyyy-mm-dd'; nếu câu hỏi mơ hồ (ví dụ giao hàng có thể là xuất bán hoặc chuyển kho) hoặc không xác định được bảng/cột, trả {{"sql": null, "reason": "câu hỏi làm rõ ngắn bằng tiếng Việt"}}. Trả SQL chỉ khi đủ chắc chắn. {history}"""
+Quy tắc nghiệp vụ Fast ERP (BẮT BUỘC TUÂN THỦ):
+1. TỒN KHO VẬT TƯ:
+   - SỐ DƯ ĐẦU KỲ: bảng public.cdvt (nam = extract(year from public.sys_getstartdate(CURRENT_DATE))::smallint, ma_vt, ma_kho, ton00).
+   - PHÁT SINH NHẬP XUẤT: bảng public.ct70 (ngay_ct >= public.sys_getstartdate(CURRENT_DATE), ma_vt, ma_kho, sl_nhap - sl_xuat).
+   - TỒN SỔ SÁCH = SUM(ton00) từ cdvt + SUM(sl_nhap - sl_xuat) từ ct70.
+   - TUYỆT ĐỐI KHÔNG dùng ct61 hoặc ct81 để tính tồn kho (đây là chi tiết hóa đơn/xuất bán)!
+2. BÁN HÀNG & XUẤT KHO:
+   - Xuất bán: public.ph81 (Header) JOIN public.ct81 (Detail) qua stt_rec.
+   - Đơn hàng bán (SO): public.ph64 JOIN public.ct64 qua stt_rec.
+   - Hóa đơn bán: public.ph61 JOIN public.ct61 qua stt_rec.
+3. MUA HÀNG:
+   - Đơn mua hàng (PO): public.ph71 JOIN public.ct71 qua stt_rec.
+   - Nhập kho mua hàng: public.ph74 JOIN public.ct74 qua stt_rec.
+4. DANH MỤC:
+   - Vật tư/sản phẩm: public.dmvt (ma_vt, ten_vt, dvt, packs0, ma_thung, nh_vt)
+   - Khách hàng/NCC: public.dmkh (ma_kh, ten_kh)
+   - Kho: public.dmkho (ma_kho, ten_kho)
+   - Hồ sơ khuôn: public.dmhosokhuon (ma_khuon, ten_khuon, tong_so_shot)
+   - Cấu trúc BOM: public.dmbom hoặc public.mfkhsx_bom
+5. KHI KẾT NỐI BẢNG:
+   - Header (ph*) và Detail (ct*) luôn JOIN qua cột stt_rec.
+   - Detail và Danh mục luôn JOIN qua mã (ma_vt = dmvt.ma_vt, ma_kh = dmkh.ma_kh, ma_kho = dmkho.ma_kho).
+
+Quy tắc chung: chỉ một SELECT/WITH; dùng schema public khi cần; tối đa 200 dòng; với ngày dd/mm/yyyy đổi thành DATE 'yyyy-mm-dd'; nếu câu hỏi mơ hồ hoặc không xác định được bảng/cột, trả {{"sql": null, "reason": "câu hỏi làm rõ ngắn bằng tiếng Việt"}}. Trả SQL chỉ khi đủ chắc chắn. {history}"""
             payload = json.dumps({
                 "model": os.getenv("HTMP_DB_PLANNER_MODEL", "qwen2.5-14b"),
                 "temperature": 0,
@@ -6552,12 +7268,40 @@ Quy tắc: chỉ một SELECT/WITH; dùng schema public khi cần; tối đa 200
                 return reason[:500]
             result, error = self._execute_read_query(planned_sql)
             if result is not None:
-                if result["row_count"] > 0 or _ == PLANNER_ATTEMPTS - 1:
+                if result["row_count"] > 0:
                     result["planned_sql"] = planned_sql
                     return json.dumps(result, ensure_ascii=False, default=str)
+                if _ == PLANNER_ATTEMPTS - 1:
+                    result["planned_sql"] = planned_sql
+                    # Self-verification against dmvt
+                    extracted_entities = extract_erp_entities(question)
+                    target_code = extracted_entities.get("ma_vt") or (filters.get("ma_vt") if "filters" in locals() else None)
+                    if target_code:
+                        try:
+                            import psycopg
+                            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                                with conn.cursor() as cursor:
+                                    cursor.execute("SELECT ma_vt, ten_vt, coalesce(dvt, 'PCS') FROM public.dmvt WHERE upper(trim(ma_vt)) = %s", (target_code.upper(),))
+                                    vt_info = cursor.fetchone()
+                                    if vt_info:
+                                        result["message"] = (
+                                            f"Mã vật tư {vt_info[0]} ({vt_info[1]}) có trong danh mục hệ thống, "
+                                            f"nhưng hiện tại không có dữ liệu phát sinh hoặc số dư bằng 0 theo điều kiện tra cứu."
+                                        )
+                                    else:
+                                        prefix = target_code[:6] if len(target_code) >= 6 else target_code
+                                        cursor.execute("SELECT ma_vt, ten_vt FROM public.dmvt WHERE ma_vt ILIKE %s ORDER BY ma_vt LIMIT 3", (f"%{prefix}%",))
+                                        sugs = cursor.fetchall()
+                                        if sugs:
+                                            sug_list = "; ".join(f"{s[0]} ({s[1]})" for s in sugs)
+                                            result["message"] = f"Không tìm thấy mã vật tư '{target_code}' trong hệ thống ERP. Có thể bạn muốn tìm: {sug_list}?"
+                                        else:
+                                            result["message"] = f"Không tìm thấy mã vật tư '{target_code}' trong danh mục ERP (dmvt)."
+                        except Exception:
+                            pass
+                    return json.dumps(result, ensure_ascii=False, default=str)
                 history = (
-                    f"Lần trước SQL trả 0 dòng: {planned_sql}. Không kết luận là không có dữ liệu; "
-                    "hãy thử bảng/cột tương đương khác trong catalog, đặc biệt bảng snapshot có hậu tố _YYYYMMDD."
+                    f"Lần trước SQL trả 0 dòng: {planned_sql}. Hãy kiểm tra xem có nhầm bảng nghiệp vụ không (ví dụ tồn kho phải dùng cdvt + ct70, không dùng ct61/ct81)."
                 )
                 continue
             last_error = error or "Lỗi SQL không xác định"
@@ -6632,11 +7376,11 @@ Quy tắc: chỉ một SELECT/WITH; dùng schema public khi cần; tối đa 200
         normalized = normalize_text(question)
         if not ("ma vat tu" in normalized or "ma vt" in normalized):
             return None
-        if any(term in normalized for term in ("so luong", "sl xuat", "sl nhap", "ty gia", "ti gia")):
+        if any(term in normalized for term in ("so luong", "sl xuat", "sl nhap", "ty gia", "ti gia", "bao nhieu", "tong so", "co bao nhieu", "danh sach", "liet ke", "cac ma")):
             return None
         code_match = re.search(r"\b((?=[a-z0-9/-]*\d)[a-z0-9]+(?:[-/][a-z0-9]+)*)\b", question, re.I)
         if not code_match:
-            return "Cần mã vật tư để tra cứu."
+            return None
         material_code = code_match.group(1).upper()
         try:
             import psycopg
@@ -6821,10 +7565,7 @@ Quy tắc: chỉ một SELECT/WITH; dùng schema public khi cần; tối đa 200
         if len(rows) == 1:
             return str(rows[0][0]).strip().upper(), str(rows[0][1]).strip()
         if not rows:
-            return ERPResult(
-                status="success_empty", intent="material_name_resolution", filters={"ten_vt": material_name},
-                message="Không tìm thấy tên vật tư khớp chính xác trong danh mục ERP.",
-            )
+            return None
         return ERPResult(
             status="invalid_filter", intent="material_name_resolution", filters={"ten_vt": material_name},
             error_code="AMBIGUOUS_MATERIAL_NAME",
