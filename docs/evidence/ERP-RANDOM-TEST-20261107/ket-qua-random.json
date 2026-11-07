@@ -1,0 +1,75 @@
+[
+  {
+    "id": "RND-01",
+    "domain": "CÔNG NỢ KHÁCH HÀNG (AR - TK 131)",
+    "question": "Cho tôi sổ chi tiết công nợ của khách hàng KH0015 trong tháng 10/2026",
+    "tool_used": "query_erp_report",
+    "elapsed_seconds": 62.62,
+    "passed": true,
+    "matched_keywords": [
+      "10/2026",
+      "KH0015",
+      "Phát sinh Nợ",
+      "Phát sinh Có"
+    ],
+    "final_answer": "Dưới đây là sổ chi tiết công nợ của khách hàng KH0015 trong tháng 10/2026:\n\n- **Tổng phát sinh Nợ:** 0\n- **Tổng phát sinh Có:** 0\n\n| Ngày CT | Số chứng từ | Diễn giải | Phát sinh Nợ | Phát sinh Có |\n| --- | --- | --- | --- | --- |\n| 2026-10-03 | 001-2610-000008 | NG trả về ngày 02/10 | 0 | 0 |\n| 2026-10-03 | 001-2610-000008 | NG trả về ngày 02/10 | 0 | 0 |\n| 2026-10-03 | 001-2610-000008 | NG trả về ngày 02/10 | 0 | 0 |\n| 2026-10-03 | 001-2610-000008 | NG trả về ngày 02/10 | 0 | 0 |\n| 2026-10-03 | 001-2610-000008 | NG trả về ngày 02/10 | 0 | 0 |\n| 2026-10-03 | 001-2610-000008 | NG trả về ngày 02/10 | 0 | 0 |\n| 2026-10-03 | 001-2610-000008 | QC7-6850-000 - Miếng chặn bên ngoài máy in | 0 | 0 |\n| 2026-10-03 | 001-2610-000008 | QC6-9065-000 - Tấm trượt tách giấy phía dưới(phụ kiện của máy in) | 0 | 0 |\n| 2026-10-03 | 001-2610-000008 | QC7-9498-000 - Thanh dẫn hướng giấy ra máy in | 0 | 0 |\n| 2026-10-03 | 001-2610-000008 | QL3-4766-000 - Nắp đậy khay cấp giấy máy in(đã in) | 0 | 0 |\n| 2026-10-03 | 001-2610-000008 | QM4-5281-000 - Cụm khay cấp giấy phụ | 0 | 0 |\n| 2026-10-03 | 001-2610-000008 | QC7-7005-000 - Tấm đỡ ống dẫn mực máy in | 0 | 0 |\n| 2026-10-03 | 001-2610-000008 | QC7-9644-000 - Tấm đỡ ống dẫn mực máy in | 0 | 0 |\n| 2026-10-03 | "
+  },
+  {
+    "id": "RND-02",
+    "domain": "TỔNG HỢP NHẬP XUẤT TỒN (IN - inbcthnxt)",
+    "question": "Báo cáo tổng hợp nhập xuất tồn kho mã vật tư 003-M69-101-2 trong tháng 10/2026",
+    "tool_used": "query_erp_report",
+    "elapsed_seconds": 25.05,
+    "passed": true,
+    "matched_keywords": [
+      "003-M69-101-2",
+      "Plate Diaphragm",
+      "20,599",
+      "240,841",
+      "236,071",
+      "25,369"
+    ],
+    "final_answer": "Báo cáo nhập xuất tồn kho cho mã vật tư 003-M69-101-2 trong tháng 10/2026 như sau:\n\n- **Tồn đầu kỳ:** 20,599 PCS\n- **Số lượng nhập:** 240,841 PCS\n- **Số lượng xuất:** 236,071 PCS\n- **Tồn cuối kỳ:** 25,369 PCS\n- **Giá trị cuối kỳ:** 0 VND\n\nBảng chi tiết:\n\n| Mã vật tư | Tên vật tư | ĐVT | Tồn đầu kỳ | SL Nhập | SL Xuất | Tồn cuối kỳ | Giá trị đầu kỳ (VND) | Giá trị nhập (VND) | Giá trị xuất (VND) | Giá trị cuối kỳ (VND) |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| 003-M69-101-2 | Plate Diaphragm | PCS | 20,599 | 240,841 | 236,071 | 25,369 | 0 | 0 | 0 | 0 |"
+  },
+  {
+    "id": "RND-03",
+    "domain": "ĐƠN ĐẶT MUA HÀNG (PO - pobkdonhang)",
+    "question": "Bảng kê đơn mua hàng trong tháng 10/2026",
+    "tool_used": "query_erp_report",
+    "elapsed_seconds": 62.09,
+    "passed": true,
+    "matched_keywords": [
+      "đơn đặt mua",
+      "001-2610-",
+      "NCC",
+      "SL Đặt"
+    ],
+    "final_answer": "Dưới đây là bảng kê đơn đặt mua hàng (PO) trong tháng 10/2026:\n\n| Số PO | Ngày đặt | Mã NCC | Nhà cung cấp | Mã vật tư | Tên vật tư | ĐVT | SL Đặt | Đơn giá mua | Thành tiền | Trạng thái |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| 001-2610-000830 | 2026-10-31 | NCC0015 | CÔNG TY TNHH ETF | TPE11DS | TPE F200A-T Black K1111DS | KG | 100 | 146,500 | 14,650,000 | Hoàn thành |\n| 001-2610-000829 | 2026-10-31 | NCC0011 | CÔNG TY TNHH INTECH COLOR VIỆT NAM | PP-K010TH | PP GFPP-25 BLACK | KG | 400 | 6,000 | 2,400,000 | Thực hiện |\n| 001-2610-000829 | 2026-10-31 | NCC0011 | CÔNG TY TNHH INTECH COLOR VIỆT NAM | PS-576DTM | HIPS 576H GR21  PSMT VE0271-33 Nu-0215 Dim black 3% | KG | 4,000 | 6,000 | 24,000,000 | Thực hiện |\n| 001-2610-000828 | 2026-10-31 | NCC0029 | CÔNG TY TNHH SẢN XUẤT THƯƠNG MẠI NHỰA VIỆT ÚC | POMP801 | POM  RPT 801 - - Black | KG | 39 | 190,000 | 7,410,000 | Hoàn thành |\n| 001-2610-000827 | 2026-10-31 | NCC0728 | CÔNG TY TNHH KỸ THUẬT APT VIỆT NAM | CKCD0860 | Kim bôi mỡ PN-20G-B | PCS | 30 | 650 | 19,500 | GĐ duyệt |\n| 001-2610-000827 | 2026-10-31 | NCC0728 | CÔNG TY TNHH KỸ THUẬT APT VIỆT NAM | CKCD0303 | Máy tra keo mã 983A | PCS | 2 | 1,650,000 | 3,300,000 | GĐ duyệt |\n| 001-2610-000827 | 2026-10-31 | NCC0728 | CÔNG TY TNHH KỸ THUẬT APT VIỆT NAM | CKCD0859 | Ống chứa ke"
+  },
+  {
+    "id": "RND-04",
+    "domain": "LỊCH SỬ THAY ĐỔI GIÁ BÁN (SO - sobclsgia)",
+    "question": "Lịch sử thay đổi giá bán của mã sản phẩm 003-M69-101-2",
+    "tool_used": "query_erp_report",
+    "elapsed_seconds": 9.28,
+    "passed": true,
+    "matched_keywords": [
+      "003-M69-101-2"
+    ],
+    "final_answer": "Không có dữ liệu thay đổi giá bán nào cho mã sản phẩm 003-M69-101-2 trong khoảng thời gian từ 01/10/2026 đến 31/10/2026."
+  },
+  {
+    "id": "RND-05",
+    "domain": "TIẾN ĐỘ GIAO HÀNG BÁN (SO - sobctiendogh)",
+    "question": "Báo cáo tiến độ giao hàng cho khách hàng KH0015 trong tháng 10/2026",
+    "tool_used": "lookup_sales_orders",
+    "elapsed_seconds": 61.35,
+    "passed": true,
+    "matched_keywords": [
+      "tiến độ giao hàng",
+      "KH0015",
+      "Canon"
+    ],
+    "final_answer": "Dưới đây là báo cáo tiến độ giao hàng cho khách hàng **Công ty TNHH Canon Việt Nam - Chi nhánh Thăng Long** (Mã khách hàng: KH0015) trong tháng 10/2026:\n\n| Số chứng từ | Ngày chứng từ | Mã sản phẩm | Tên sản phẩm | Số lượng | Đơn giá (USD) | Thành tiền (USD) |\n|-------------|--------------|------------|-------------|----------|---------------|------------------|\n| 001-2611-001742 | 2026-11-07 | QL3-0132-000 | Nắp đậy bảng phím điều khiển máy in bằng nhựa | 280,000 | 4,012 | 1,123,359 |\n| 001-2611-001738 | 2026-11-07 | QX2-0033-000 | Tấm chặn | 960,000 | 623 | 598,012 |\n| 001-2611-001737 | 2026-11-07 | QM5-2602-000 | Cụm ổ cắm mực thải của máy in ( dòng điện <16A) | 3,600,000 | 803 | 2,892,293 |\n| 001-2611-001736 | 2026-11-07 | QM5-1558-000 | Cụm cảm biến nắp đậy máy in | 1,152,000 | 1,219 | 1,404,652 |\n| 001-2611-001735 | 2026-11-07 | QM5-1557-000 | Cụm điều khiển máy in | 1,176,000 | 2,794 | 3,285,549 |\n| 001-2611-001734 | 2026-11-07 | QM5-1553-000 | Cụm khay đỡ giấy của máy in | 1,180,000 | 9,811 | 11,576,526 |\n| 001-2611-001733 | 2026-11-07 | QM4-6018-000 | Cụm dẫn hướng giấy sau máy in | 1,170,000 | 20,475 | 23,955,974 |\n| 001-2611-001732 | 2026-11-07 | QM4-6017-000 | Cụm tách giấy của máy in | 1,180,000 | 4,865 | 5,740,194 |\n| 001-2611-001731 | 2026-11-07 | QL3-47"
+  }
+]

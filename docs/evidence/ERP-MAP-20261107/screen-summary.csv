@@ -1,0 +1,255 @@
+﻿state,label,module,type,ui_observed,ui_headings,grids,grid_fields,physical_column_candidates,missing_or_derived,same_name_functions,business_status
+ActivityStamp,Danh sách tem đang quét,IN,L,True,9,,0,0,0,0,unverified
+BCCanhBaoHSD,Báo cáo cảnh báo hạn sử dụng,IN,R,True,0,BCCanhBaoHSD,12,0,0,1,unverified
+BCTDECN,Báo cáo theo dõi tiến độ ECN,MF,R,True,0,BCTDECN,34,25,0,1,unverified
+BCTDNMD,Báo cáo theo dõi tiến độ NMD,MF,R,True,0,BCTDNMD,22,18,0,1,unverified
+BG0,Cập nhật báo giá NCC,PO,V,True,11,,0,0,0,0,unverified
+btnLogout,Đăng xuất,,,False,0,,0,0,0,0,unverified
+CartonInfo,Truy xuất Tách/Gộp thùng,IN,V1,True,2,,0,0,0,0,unverified
+ChangeLanguages,Đổi ngôn ngữ,,,False,0,,0,0,0,0,unverified
+ChiThiLoXuat,Chỉ thị lô xuất hàng,SO,V1,True,16,,0,0,0,0,unverified
+choose_dvcs,Chọn đơn vị cơ sở,,,False,0,,0,0,0,0,unverified
+chosen_app,CHỌN ỨNG DỤNG,,,False,0,,0,0,0,0,unverified
+CNTonKhoDauKy,Cập nhật tồn kho đầu kỳ,GL,L,True,8,,0,0,0,0,unverified
+Dashboards,Dashboards,SYS,,False,0,,0,0,0,0,unverified
+DefaultVoucher,Mặc định chứng từ,SYS,,False,0,,0,0,0,0,unverified
+DMBangGia,Danh mục bảng giá,SO,L,True,6,,0,0,0,0,unverified
+DMBomSale,BOM List Sale,SO,L,True,11,,0,0,0,0,unverified
+DMBoPhan,Danh mục bộ phận,SO,L,True,11,,0,0,0,0,unverified
+DMCP,Danh mục chi phí,PO,L,True,9,,0,0,0,0,unverified
+DmDay,Danh mục dãy,IN,L,True,7,,0,0,0,0,unverified
+DMDKThuongMai,Danh mục điều kiện thương mại,PO,L,True,10,,0,0,0,0,unverified
+DMDSNVBH,Khai báo kế hoạch doanh số theo nhân viên,SO,L,True,16,,0,0,0,0,unverified
+DMDVCSList,Danh mục đơn vị cơ sở,SYS,L,True,11,,0,0,0,0,unverified
+DmDVT,Danh mục đơn vị tính,IN,L,True,10,,0,0,0,0,unverified
+DmGiaCDSale,Danh mục giá công đoạn,SO,L,True,10,,0,0,0,0,unverified
+DMGiaMuaKH,Danh mục giá mua nhà cung cấp,PO,L,True,12,,0,0,0,0,unverified
+DmGiaNhMaySale,Danh mục giá nguồn lực,SO,L,True,11,,0,0,0,0,unverified
+DmGiaVCSale,Danh mục giá vận chuyển,SO,L,True,6,,0,0,0,0,unverified
+DmGiaVTSale,Danh mục giá vật tư,SO,L,True,10,,0,0,0,0,unverified
+DMHTTT,Danh mục hình thức thanh toán,SO,L,True,11,,0,0,0,0,unverified
+DMKhachHang,Danh mục khách hàng,SO,L,True,40,,0,0,0,0,unverified
+DmKho,Danh mục kho hàng,IN,L,True,17,,0,0,0,0,unverified
+DmKyKK,Danh mục kỳ kiểm kê,IN,L,True,7,,0,0,0,0,unverified
+DMLo,Danh mục lô,IN,L,True,11,,0,0,0,0,unverified
+DMLoaiCK,Danh mục loại chiết khấu,PO,L,True,9,,0,0,0,0,unverified
+DmLoaiNX,Danh mục loại nhập xuất,IN,L,True,6,,0,0,0,0,unverified
+DmLoaiVT,Danh mục loại vật tư,IN,L,True,9,,0,0,0,0,unverified
+DMMaCK,Danh mục mã chiết khấu,SO,L,True,9,,0,0,0,0,unverified
+DMNamTCList,Ngày bắt đầu năm tài chính và nhập liệu,SYS,L1,True,0,,0,0,0,0,unverified
+DMNCC,Danh mục nhà cung cấp,PO,L,True,42,,0,0,0,0,unverified
+DMNganHang,Danh mục ngân hàng,SO,L,True,12,,0,0,0,0,unverified
+DMNhanVien,Danh mục nhân viên,SO,L,True,10,,0,0,0,0,unverified
+DMNhomBP,Danh mục nhóm bộ phận,SO,L,True,11,,0,0,0,0,unverified
+DMNhomCP,Danh mục nhóm chi phí,PO,L,True,11,,0,0,0,0,unverified
+DMNhomKH,Danh mục nhóm khách hàng,SO,L,True,11,,0,0,0,0,unverified
+DMNhomNCC,Danh mục nhóm nhà cung cấp,PO,L,True,11,,0,0,0,0,unverified
+DMNhomVT,Danh mục nhóm hàng vật tư,IN,L,True,10,,0,0,0,0,unverified
+DmNhThuocTinhVT,Danh mục nhóm thuộc tính vật tư,IN,L,True,10,,0,0,0,0,unverified
+DMNVBH,"Danh mục nhân viên bán hàng, thu ngân, vận chuyển",SO,L,True,13,,0,0,0,0,unverified
+DMNVLClear,Danh mục số lượng NVL có ECN cần clear,MF,L,True,6,,0,0,0,0,unverified
+DMOptionsDVCSList,Tham số theo ĐVCS,SYS,L,True,13,,0,0,0,0,unverified
+DMOptionsList,Tham số chung,SYS,L,True,13,,0,0,0,0,unverified
+DmQdDVT,Danh mục quy đổi ĐVT,IN,L,True,6,,0,0,0,0,unverified
+DMQuocTich,Danh mục xuất xứ,PO,L,True,10,,0,0,0,0,unverified
+DMTaiLieuPPAP,Danh mục quản lý tài liệu PPAP,QC,L,True,8,,0,0,0,0,unverified
+DMThanhToan,Danh mục thanh toán,SO,L,True,11,,0,0,0,0,unverified
+DMThueGTGT,Danh mục thuế GTGT,SO,L,True,9,,0,0,0,0,unverified
+DMThueNK,Danh mục thuế nhập khẩu,PO,L,True,6,,0,0,0,0,unverified
+DmThuocTinhVT,Danh mục thuộc tính,IN,L,True,6,,0,0,0,0,unverified
+DMTLNhuaTron,Danh mục tỷ lệ nhựa tái sinh tính tồn đầu KHNVL,MF,L,True,6,,0,0,0,0,unverified
+DMTonTaiMay,Tính tồn tại máy,MF,L,True,10,,0,0,0,0,unverified
+DMVanChuyen,Danh mục phương tiện vận chuyển,SO,L,True,7,,0,0,0,0,unverified
+DmVatTu,"Danh mục sản phẩm, vật tư",IN,L,True,36,,0,0,0,0,unverified
+DmViTri,Danh mục vị trí kho hàng,IN,L,True,10,,0,0,0,0,unverified
+DmVTThuocTinh,Khai báo giá trị thuộc tính vật tư,IN,L,True,11,,0,0,0,0,unverified
+DNV,Phiếu yêu cầu nhập kho,IN,V,True,9,,0,0,0,0,unverified
+DongPallet,Đóng pallet,IN,V1,True,14,,0,0,0,0,unverified
+DuyetBGNCC,Duyệt báo giá NCC,SO,V1,True,17,,0,0,0,0,unverified
+DX2,Phiếu xuất kho giao hàng,SO,V,True,19,,0,0,0,0,unverified
+DXV,Phiếu yêu cầu xuất kho,IN,V,True,9,,0,0,0,0,unverified
+ECN,Thông tin ECN,MF,V,True,11,,0,0,0,0,unverified
+FA1,Ghi nhận thông tin giao mẫu FA và giao hàng event,MF,V,True,9,,0,0,0,0,unverified
+GL_CNSDD,Cập nhật số dư đầu,GL,,False,0,,0,0,0,0,unverified
+GLCSD,Chuyển số dư,GL,L,True,8,,0,0,0,0,unverified
+GopThung,Gộp thùng,IN,V1,True,66,,0,0,0,0,unverified
+HDA,Phiếu xuất kho bán hàng,SO,V,True,20,,0,0,0,0,unverified
+HDF,Phiếu nhận hàng bán bị trả lại,SO,V,True,18,,0,0,0,0,unverified
+HDG,Phiếu xuất hóa đơn GTGT,SO,V,True,16,,0,0,0,0,unverified
+hide_show,Ẩn/ Hiện cột,,,False,0,,0,0,0,0,unverified
+HistoryActionsList,Lịch sử truy cập,SYS,R,True,0,HistoryActionsList,14,0,0,0,unverified
+Hotkeys,Phím tắt,,,False,0,,0,0,0,0,unverified
+IN,Kho vận,SYS,,False,0,,0,0,0,0,unverified
+IN_DieuChuyen,Quy trình điều chuyển kho,IN,,False,0,,0,0,0,0,unverified
+IN_InTem,In tem QR code,IN,,False,0,,0,0,0,0,unverified
+IN_KiemKe,Quy trình kiểm kê,IN,,False,0,,0,0,0,0,unverified
+IN_Lists,Danh mục khai báo,IN,,False,0,,0,0,0,0,unverified
+IN_NhapXuat,Quy trình nhập xuất kho,IN,,False,0,,0,0,0,0,unverified
+IN_QLTTVT,Quản lý thuộc tính vật tư,IN,,False,0,,0,0,0,0,unverified
+IN_Reports,Báo cáo,IN,,False,0,,0,0,0,0,unverified
+IN_Reports_Lists,Bảng kê,IN,,False,0,,0,0,0,0,unverified
+IN_StockStatus,Trạng thái kho,IN,,False,0,,0,0,0,0,unverified
+INBCChenhLechKhoTem,Báo cáo so sánh tồn kho với trạng thái tem,IN,R,True,0,INBCChenhLechKhoTem,11,0,0,0,unverified
+INBCChenhLechKiemKe,Báo cáo chênh lệch kiểm kê,IN,R,True,0,INBCChenhLechKiemKe|INBCChenhLechKiemKe1,20,0,0,1,unverified
+INBCGoiYLayHang,Gợi ý lấy hàng theo lệnh giao(chưa chỉ thị),IN,R,True,0,INBCGoiYLayHang,15,0,0,1,unverified
+INBCHangDaChiThi,Gợi ý lấy hàng theo lệnh(đã chỉ thị),IN,R,True,0,INBCHangDaChiThi,15,0,0,1,unverified
+INBCKSTonKhoLo,Báo cáo kiểm soát tồn kho số lượng và tồn lô,IN,R,True,0,INBCKSTonKhoLo,10,0,0,1,unverified
+INBCNhatKyNXT,Nhật ký nhập xuất tồn,IN,R,True,0,INBCNhatKyNXT,40,31,9,0,unverified
+INBCNXTheoSerial,Báo cáo tổng hợp nhập xuất theo serial tem thùng,IN,R,True,0,INBCNXTheoSerial,12,0,0,0,unverified
+INBCSerialKiemKe,Báo cáo check serial kiểm kê,IN,R,True,0,INBCSerialKiemKe1,11,9,2,1,unverified
+InBCTHNXT,Tổng hợp nhập xuất tồn,IN,R,True,0,InBCTHNXT1|InBCTHNXT2|InBCTHNXT3|InBCTHNXT4,59,6,2,1,unverified
+INBCThuVienVT,Thư viện vật tư,IN,R,True,0,INBCThuVienVT001,16,0,0,1,unverified
+INBCTKTheoTTTem,Báo cáo tồn kho theo trạng thái tem,IN,R,True,0,INBCTKTheoTTTem2|INBCTKTheoTTTem3,18,6,0,1,unverified
+InBCTonKho,Báo cáo tồn kho,IN,R,True,0,InBCTonKho1|InBCTonKho2|InBCTonKho3,20,0,0,1,unverified
+INBCTonKhoTheoChiThi,Báo cáo tồn kho theo chỉ thị xuất trên lệnh,IN,R,True,0,INBCTonKhoTheoChiThi1|INBCTonKhoTheoChiThi2,28,0,0,1,unverified
+INBCTonKhoTheoSoKhuon,Báo cáo tồn kho theo số khuôn,IN,R,True,0,INBCTonKhoTheoSoKhuon,10,0,0,1,unverified
+INBCTonLoTheoKho,Báo cáo tồn lô theo vị trí,IN,R,True,0,INBCTonLoTheoKho|INBCTonLoTheoKho1,25,0,0,1,unverified
+INBCTonLoTheoKhoTem,Báo cáo tồn lô theo vị trí Tem,IN,R,True,0,INBCTonLoTheoKhoTem1,12,0,0,0,unverified
+INBCTonLoTheoViTriDemo,Báo cáo tồn lô theo vị trí tất các kho,IN,R,True,0,,0,0,0,1,unverified
+InBCTonTheoKho,Báo cáo tồn theo kho,IN,R,True,0,InBCTonTheoKho1|InBCTonTheoKho2,27,0,0,1,unverified
+InBCTonTheoKhoTem,Báo cáo tồn theo kho Tem,IN,R,True,0,InBCTonTheoKhoTem1,13,0,0,0,unverified
+InBCTonTheoLo,Tổng hợp nhập xuất tồn theo lô,IN,R,True,0,InBCTonTheoLo1,14,6,7,1,unverified
+INBCTonTheoThoiGian,Báo cáo tồn kho theo thời gian,IN,R,True,0,INBCTonTheoThoiGian,16,0,0,1,unverified
+InBCTonTheoVitri,Tổng hợp nhập xuất tồn theo vị trí,IN,R,True,0,InBCTonTheoVitri1,8,5,3,1,unverified
+INBCTrangThaiKho,Trạng thái kho,IN,R,True,0,,0,0,0,0,unverified
+INBCTuoiThoTheoLo,Báo cáo tuổi hàng theo lô,IN,R,True,0,INBCTuoiThoTheoLo,11,0,0,1,unverified
+INBCViTriKhoTrong,Báo cáo vị trí kho chưa có hàng,IN,R,True,0,INBCViTriKhoTrong,3,1,2,1,unverified
+INBKKiemKe,Bảng kê phiếu kiểm kê,IN,R,True,0,INBKKiemKe1,13,10,3,1,unverified
+InBKNhap,Bảng kê phiếu nhập kho,IN,R,True,0,InBKNhap1|InBKNhap2|InBKNhap3,99,67,29,0,unverified
+InBKNhapXuatDC,"Bảng kê phiếu nhập, xuất điều chuyển",IN,R,True,0,InBKNhapXuatDC1,26,20,6,0,unverified
+INBKNhapXuatTheoLo,Bảng kê nhập xuất theo lô,IN,R,True,0,INBKNhapXuatTheoLo,28,17,7,1,unverified
+INBKTTTemThung,Bảng kê thông tin tem thùng,IN,R,True,0,INBKTTTemThung,22,1,1,1,unverified
+InBKXuat,Bảng kê phiếu xuất kho,IN,R,True,0,InBKXuat1|InBKXuat2|InBKXuat3,107,84,17,0,unverified
+InSO1,Thẻ kho/Sổ chi tiết vật tư,IN,R,True,0,InSO1001|InSO1002|InSO1003,55,0,0,1,unverified
+InTemAriston,In tem Ariston,IN,V1,True,0,,0,0,0,0,unverified
+InTemEero,In tem EERO,IN,V1,True,0,,0,0,0,0,unverified
+InTemKhuon,In Tem Khuôn,IN,V1,True,4,InTemKhuon,6,1,1,1,unverified
+InTemLayMau,In tem lấy mẫu,IN,V1,True,9,,0,0,0,1,unverified
+InTemNVL,In tem NVL,IN,V1,True,24,,0,0,0,2,unverified
+InTemTK,"In tem hàng thử khuôn, hàng Even",IN,V1,True,20,,0,0,0,1,unverified
+InTemTP,In tem TP/BTP,IN,V1,True,46,,0,0,0,1,unverified
+InTemTui,In tem túi,IN,V1,True,35,,0,0,0,0,unverified
+InTHNhap,Tổng hợp hàng nhập kho,IN,R,True,0,InTHNhap1|InTHNhap2|InTHNhap3,15,0,0,1,unverified
+InTHXuat,Tổng hợp hàng xuất kho,IN,R,True,0,InTHXuat1|InTHXuat2|InTHXuat3,15,0,0,1,unverified
+INTonKhoTucThoi,Tính tồn kho tức thời,IN,L,True,0,,0,0,0,1,unverified
+IPL,Invoice & Packing list,SO,V,True,19,,0,0,0,0,unverified
+KhaiBao,Khai báo,SYS,,False,0,,0,0,0,0,unverified
+KHSXJob,Job khai báo giờ chạy KHSX,MF,L,True,10,,0,0,0,0,unverified
+KK0,Phiếu kiểm kê hàng hóa,IN,V,True,13,,0,0,0,0,unverified
+KK1,Chênh lệch kiểm kê hàng hóa,IN,V,True,10,,0,0,0,0,unverified
+ListCapaLineDaily,Khai báo năng lực theo tháng,MES,L,True,12,,0,0,0,0,unverified
+LockData,Khóa số liệu,SYS,S,False,0,,0,0,0,0,unverified
+MF,Sản xuất,MF,,False,0,,0,0,0,0,unverified
+MF_BC,Báo cáo sản xuất,MF,,False,0,,0,0,0,0,unverified
+MF_HDNL,Hoạch định năng lực sản xuất,MF,,False,0,,0,0,0,0,unverified
+MF_KH,Kế hoạch,MF,,False,0,,0,0,0,0,unverified
+MF_NC,Nhu cầu sản xuất,MF,,False,0,,0,0,0,0,unverified
+MF_QLSP,Quản lý sản phẩm,MF,,False,0,,0,0,0,0,unverified
+MfBangTinhNLSX,Bảng tính năng lực,MF,L,True,6,,0,0,0,0,unverified
+MfBcCauTrucSP,Báo cáo cấu trúc sản phẩm,MF,R,True,0,MfBcCauTrucSP1,25,0,0,1,unverified
+MfBcPullInPushOut,"Báo cáo cảnh bảo pull in, push out",MF,R,True,0,MfBcPullInPushOut,16,0,0,1,unverified
+MfBOM,Danh mục cấu trúc sản phẩm,MF,L,True,13,,0,0,0,0,unverified
+MfBomBop,Khai báo quy trình sản xuất sản phẩm,ERP,L,True,7,,0,0,0,0,unverified
+MfDemand,Tổng hợp nhu cầu,MF,L,True,15,,0,0,0,2,unverified
+MfDmFc,Dự báo tiêu thụ,MF,L,True,15,,0,0,0,0,unverified
+MfDmKHClearNVL,Khai báo tỷ lệ đặt NVL theo khách hàng,MES,L,True,9,,0,0,0,0,unverified
+MfDmNgayNghiLe,Khai báo ngày nghỉ lễ,MF,L,True,6,,0,0,0,0,unverified
+MfDmPPMRP,Phương pháp tính kế hoạch NVL,MF,L,True,6,,0,0,0,0,unverified
+MfDmvt,Danh mục sản phẩm,MF,L,True,13,,0,0,0,0,unverified
+MfKHNVL,Kế hoạch nguyên vật liệu,MF,L,True,16,,0,0,0,0,unverified
+MfListOperation,Danh mục công đoạn sản xuất,MF,L,True,10,,0,0,0,0,unverified
+MfListProcessGroup,Danh mục nhóm quy trình sản xuất,NM,L,True,11,,0,0,0,0,unverified
+MfListRouting,Danh mục quy trình sản xuất,MF,L,True,11,,0,0,0,0,unverified
+MfTKHNVL,Tính kế hoạch nguyên vật liệu,MF,L,True,13,,0,0,0,0,unverified
+MfTKHSX,Tính kế hoạch sản xuất,MF,L,True,0,,0,0,0,0,unverified
+NguoiSuDung,Người sử dụng,SYS,,False,0,,0,0,0,0,unverified
+NM,New model,SYS,,False,0,,0,0,0,0,unverified
+NM_BC,Báo cáo,SYS,,False,0,,0,0,0,0,unverified
+NM_CNDL,Cập nhật dữ liệu,SYS,,False,0,,0,0,0,0,unverified
+NM_DMKB,Danh mục khai báo,SYS,,False,0,,0,0,0,0,unverified
+options,Tùy chọn,,,False,0,,0,0,0,0,unverified
+PNA,Hóa đơn mua hàng,PO,V,True,17,,0,0,0,0,unverified
+PNC,Phiếu nhập tiền chi phí,PO,V,True,17,,0,0,0,0,unverified
+PND,Phiếu nhập kho,IN,V,True,12,,0,0,0,0,unverified
+PNF,Phiếu nhập điều chuyển kho,IN,V,True,10,,0,0,0,0,unverified
+PO,Mua hàng,SYS,,False,0,,0,0,0,0,unverified
+PO1,Đơn hàng mua,PO,V,True,19,,0,0,0,0,unverified
+PO_Lists,Danh mục khai báo,PO,,False,0,,0,0,0,0,unverified
+PO_Modifies,Quy trình mua hàng,PO,,False,0,,0,0,0,0,unverified
+PO_Policy,Chính sách mua hàng,PO,,False,0,,0,0,0,0,unverified
+PO_Reports,Báo cáo,PO,,False,0,,0,0,0,0,unverified
+PO_Reports_Lists,Bảng kê,PO,,False,0,,0,0,0,0,unverified
+PO_XuatTra,Quy trình đổi trả hàng,PO,,False,0,,0,0,0,0,unverified
+POBCCostdown,Báo cáo costdown nhà cung cấp,PO,R,True,0,POBCCostdown,88,0,0,1,unverified
+POBCDSMuaHangNCC,Doanh số mua hàng theo NCC,PO,R,True,0,POBCDSMuaHangNCC,66,5,25,0,unverified
+POBCLSGia,Báo cáo lịch sử thay đổi giá NCC,PO,R,True,0,POBCLSGia,28,0,0,1,unverified
+POBCNhap2Ct,Hàng nhập nhóm theo 2 chỉ tiêu,PO,R,True,0,POBCNhap2Ct1|POBCNhap2Ct2|POBCNhap2Ct3,80,0,0,1,unverified
+POBKDonHang,Bảng kê đơn hàng mua,PO,R,True,0,POBKDonHang1|POBKDonHang2|POBKDonHang3,97,36,37,1,unverified
+POBKHoaDon,Bảng kê hóa đơn mua hàng,PO,R,True,0,POBKHoaDon001|POBKHoaDon002,63,26,35,1,unverified
+POBKNhap,Bảng kê phiếu nhập hàng,PO,R,True,0,POBKNhap|POBKNhap1|POBKNhap2,146,34,80,1,unverified
+POBKXuatTra,Bảng kê phiếu xuất trả lại NCC,PO,R,True,0,POBKXuatTra1|POBKXuatTra2|POBKXuatTra3,101,50,29,1,unverified
+POBKYCDoiTra,Bảng kê phiếu yêu cầu đổi trả NCC,PO,R,True,0,POBKYCDoiTra1|POBKYCDoiTra2|POBKYCDoiTra3,79,29,38,1,unverified
+POBKYCMua,Bảng kê phiếu yêu cầu mua hàng,PO,R,True,0,POBKYCMua1,37,16,21,1,unverified
+POBKYCNhap,Bảng kê phiếu yêu cầu nhập hàng,PO,R,True,0,POBKYCNhap|POBKYCNhap1|POBKYCNhap2,125,44,81,1,unverified
+POStatus,Báo cáo tình trạng đơn hàng mua,PO,R,True,0,POStatus1|POStatus2|POStatus3,124,0,0,1,unverified
+POThNhap,Tổng hợp hàng nhập mua,PO,R,True,0,POThNhap1|POThNhap2|POThNhap3,57,0,0,1,unverified
+POTHXuatTra,Tổng hợp hàng xuất trả lại NCC,PO,R,True,0,POTHXuatTra1|POTHXuatTra2|POTHXuatTra3,57,0,0,1,unverified
+PR0,Phiếu yêu cầu mua hàng,PO,V,True,10,,0,0,0,0,unverified
+PR1,Phiếu nhập hàng,PO,V,True,15,,0,0,0,0,unverified
+PXA,Phiếu xuất kho,IN,V,True,11,,0,0,0,0,unverified
+PXB,Phiếu xuất điều chuyển kho,IN,V,True,11,,0,0,0,0,unverified
+PXC,Phiếu xuất trả lại NCC,PO,V,True,16,,0,0,0,0,unverified
+PXE,"Phiếu lắp ráp, xuất tách",IN,V,True,13,,0,0,0,0,unverified
+report_tab_options,Tùy chọn,,,False,0,,0,0,0,0,unverified
+RoleList,Danh sách quyền,SYS,L,True,12,,0,0,0,0,unverified
+RQ1,"Phiếu yêu cầu đổi, trả hàng bán",SO,V,True,14,,0,0,0,0,unverified
+RQ2,"Phiếu yêu cầu xuất đổi, trả lại NCC",PO,V,True,20,,0,0,0,0,unverified
+setting,Cài đặt,,,False,0,,0,0,0,0,unverified
+SignOutUser,Sign out User,SYS,,False,0,,0,0,0,0,unverified
+SO,Bán hàng,SO,,False,0,,0,0,0,0,unverified
+SO1,Đơn hàng (Hợp đồng),SO,V,True,20,,0,0,0,0,unverified
+SO_Lists,Danh mục khai báo,SO,,False,0,,0,0,0,0,unverified
+SO_NCSX,Nhu cầu sản xuất,SO,,False,0,,0,0,0,0,unverified
+SO_Plan,Kế hoạch,SO,,False,0,,0,0,0,0,unverified
+SO_Policy,Chính sách bán hàng,SO,,False,0,,0,0,0,0,unverified
+SO_Process,Quy trình bán hàng,SO,,False,0,,0,0,0,0,unverified
+SO_ProcessChange,Quy trình đổi trả hàng,SO,,False,0,,0,0,0,0,unverified
+SO_QLTG,Quản lý tính giá,SO,,False,0,,0,0,0,0,unverified
+SO_Reports,Bảng kê,SO,,False,0,,0,0,0,0,unverified
+SO_ReportsBC,Báo cáo,SO,,False,0,,0,0,0,0,unverified
+SO_ReportsBCDT,Báo cáo đặc thù,SO,,False,0,,0,0,0,0,unverified
+SOBC2ChiTieu,Báo cáo bán hàng theo 2 chỉ tiêu,SO,R,True,0,SOBC2ChiTieu1|SOBC2ChiTieu2,39,0,0,1,unverified
+SOBCBHCostDown,Báo cáo bán hàng CostDown,SO,R,True,0,,0,0,0,0,unverified
+SOBCDSTheoKH,Doanh số bán hàng theo khách hàng,SO,R,True,0,SOBCDSTheoKH,11,0,0,0,unverified
+SOBCDSTheoNhomVT,Báo cáo doanh số bán hàng theo nhóm hàng,SO,R,True,0,SOBCDSTheoNhomVT,11,0,0,0,unverified
+SOBCLSDonHang,Báo cáo lịch sử đơn hàng,SO,R,True,0,SOBCLSDonHang,13,8,5,1,unverified
+SOBCLSGia,Lịch sử thay đổi giá,SO,R,True,0,SOBCLSGia,17,0,0,1,unverified
+SOBCPTThoiGian,Báo cáo phân tích theo thời gian,SO,R,True,0,SOBCPTThoiGian,11,0,0,1,unverified
+SOBCQuyTrinhBH,Báo cáo quy trình bán hàng,SO,R,True,0,SOBCQuyTrinhBH,19,0,0,1,unverified
+SOBCTHKeHoachBH,Báo cáo tình hình thực hiện kế hoạch bán hàng,SO,R,True,0,SOBCTHKeHoachBH,8,0,8,1,unverified
+SOBCTienDoGH,Báo cáo tiến độ giao hàng,SO,R,True,0,SOBCTienDoGH,23,4,7,1,unverified
+SOBCTongHopBH,Tổng hợp bán hàng theo tuần/tháng,SO,R,True,0,SOBCTongHopBH001|SOBCTongHopBH002,20,0,0,1,unverified
+SOBKBaoGia,Bảng kê giấy báo giá,SO,R,True,0,SOBKBaoGia1,26,22,4,1,unverified
+SOBKCTHangTraLai,Bảng kê chi tiết hàng bán trả lại,SO,R,True,0,SOBKCTHangTraLai1|SOBKCTHangTraLai2,48,35,5,1,unverified
+SOBKDonHang,Bảng kê đơn hàng bán,SO,R,True,0,SOBKDonHang1|SOBKDonHang2|SOBKDonHang3,80,57,23,1,unverified
+SOBKHoaDonBH,Bảng kê phiếu xuất kho bán hàng,SO,R,True,0,SOBKHoaDonBH001|SOBKHoaDonBH002|SOBKHoaDonBH003|SOBKHoaDonBH004|SOBKHoaDonBH005,189,89,92,0,unverified
+SOBKInvoice,Bảng kê invoice,SO,R,True,0,SOBKInvoice1,19,4,3,1,unverified
+SOBKLenhGiaoHang,Bảng kê lệnh giao hàng,SO,R,True,0,SOBKLenhGiaoHang|SOBKLenhGiaoHang1,52,25,19,1,unverified
+SOBKVAT,Bảng kê hóa đơn VAT,SO,R,True,0,SOBKVAT1|SOBKVAT2|SOBKVAT3,64,43,21,0,unverified
+SOBKYCDoiTra,Bảng kê phiếu yêu cầu đổi trả hàng bán,SO,R,True,0,SOBKYCDoiTra1|SOBKYCDoiTra2|SOBKYCDoiTra3,106,54,14,1,unverified
+SOTH1,Tổng hợp bán hàng,SO,R,True,0,,0,0,0,0,unverified
+SOTongHopHangTraLai,Báo cáo tổng hợp hàng bán bị trả lại,SO,R,True,0,SOTongHopHangTraLai1|SOTongHopHangTraLai2|SOTongHopHangTraLai3,63,0,0,0,unverified
+SQ1,Phiếu báo giá,SO,V,True,13,,0,0,0,0,unverified
+SYS,Hệ thống,SYS,,False,0,,0,0,0,0,unverified
+sys_left_menu,Menu left,,,False,0,,0,0,0,0,unverified
+t_dieu_kien_loc,Điều kiện lọc,,,False,0,,0,0,0,0,unverified
+TachThung,Tách thùng,IN,V1,True,33,,0,0,0,0,unverified
+TGB,Tính giá bán,SO,V,True,8,,0,0,0,0,unverified
+ThietLap,Thiết lập,SYS,,False,0,,0,0,0,0,unverified
+TO1,Lệnh điều chuyển kho,IN,V,True,9,,0,0,0,0,unverified
+TO2,Lệnh giao hàng,SO,V,True,16,,0,0,0,0,unverified
+UpdatePallet,Cập nhật tem Pallet,IN,L,True,7,,0,0,0,0,unverified
+UpdateTemKK,Cập nhật tem theo kiểm kê,IN,V1,True,0,,0,0,0,0,unverified
+UpdateTemLog,Cập nhật thông tin tem thùng,IN,L,True,22,,0,0,0,0,unverified
+UserList,Danh sách người sử dụng,SYS,L,True,11,,0,0,0,0,unverified
+YCN,Phiếu yêu cầu nhập hàng,PO,V,True,13,,0,0,0,0,unverified

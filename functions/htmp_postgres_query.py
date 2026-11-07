@@ -756,6 +756,83 @@ def extract_iso_date_range(text: str, default_from: str = "2026-10-01", default_
 
 
 class Tools:
+    def query_erp_report(
+        self,
+        report_type: str = "",
+        query: str = "",
+        date_from: str = "",
+        date_to: str = "",
+        item_code: str = "",
+        partner_code: str = "",
+        warehouse_code: str = "",
+        account_code: str = "",
+        **kwargs
+    ) -> str:
+        """Truy vấn báo cáo nghiệp vụ ERP 3S & MES tổng hợp: Sổ chi tiết công nợ đối tác (TK 131 / 331), Tổng hợp Nhập-Xuất-Tồn kho (inbcthnxt), Báo cáo tồn kho tức thời (inbctonkho), Bảng kê đơn hàng bán (sobkdonhang), Bảng kê đơn đặt mua hàng (pobkdonhang), Báo cáo tiến độ giao hàng (sobctiendogh), Lịch sử thay đổi giá bán/mua (sobclsgia/pobclsgia), Cảnh báo hạn dùng lô (bccanhbaohsd), Thẻ kho chi tiết, Đánh giá chất lượng IQC, Hồ sơ khuôn ép nhựa & số shot, Định mức BOM, Thời gian dừng máy downtime."""
+        from erp_ai.generic_procedure_executor import GenericProcedureExecutor
+        res = GenericProcedureExecutor().query_report(
+            report_type=report_type,
+            query=query,
+            date_from=date_from,
+            date_to=date_to,
+            item_code=item_code,
+            partner_code=partner_code,
+            warehouse_code=warehouse_code,
+            account_code=account_code,
+            **kwargs
+        )
+        return res.get("formatted_text", "Không có dữ liệu báo cáo phù hợp.")
+
+    def lookup_sales_price(self, material_code: str = "", customer_code: str = "", **kwargs) -> str:
+        """Tra cứu giá bán của mã hàng, sản phẩm hoặc linh kiện từ Bảng giá bán ERP."""
+        from erp_ai.native_tools import ERPNativeTools
+        return ERPNativeTools().lookup_sales_price(material_code=material_code, customer_code=customer_code, **kwargs)
+
+    def lookup_inventory_stock(self, material_code: str = "", warehouse_code: str = "", date_as_of: str = "", **kwargs) -> str:
+        """Tra cứu số lượng tồn kho theo mã vật tư hoặc tổng tồn theo kho tính đến ngày chỉ định."""
+        from erp_ai.native_tools import ERPNativeTools
+        return ERPNativeTools().lookup_inventory_stock(material_code=material_code, warehouse_code=warehouse_code, date_as_of=date_as_of, **kwargs)
+
+    def lookup_stock_card(self, material_code: str = "", warehouse_code: str = "", date_from: str = "", date_to: str = "", **kwargs) -> str:
+        """Tra cứu Thẻ kho / Sổ chi tiết biến động nhập - xuất - tồn theo chứng từ của một mã vật tư tại một kho cụ thể hoặc toàn công ty trong khoảng thời gian xác định."""
+        from erp_ai.native_tools import ERPNativeTools
+        return ERPNativeTools().lookup_stock_card(material_code=material_code, warehouse_code=warehouse_code, date_from=date_from, date_to=date_to, **kwargs)
+
+    def lookup_sales_orders(self, material_code: str = "", customer_code: str = "", order_code: str = "", date_from: str = "", date_to: str = "", **kwargs) -> str:
+        """Tra cứu đơn đặt hàng bán (SO), tiến độ giao hàng hoặc lịch sử xuất hàng bán (HDA)."""
+        from erp_ai.native_tools import ERPNativeTools
+        return ERPNativeTools().lookup_sales_orders(material_code=material_code, customer_code=customer_code, order_code=order_code, date_from=date_from, date_to=date_to, **kwargs)
+
+    def lookup_purchase_orders(self, material_code: str = "", supplier_code: str = "", po_code: str = "", **kwargs) -> str:
+        """Tra cứu đơn đặt mua hàng từ nhà cung cấp (PO), giá mua vật tư và lịch sử mua hàng."""
+        from erp_ai.native_tools import ERPNativeTools
+        return ERPNativeTools().lookup_purchase_orders(material_code=material_code, supplier_code=supplier_code, po_code=po_code, **kwargs)
+
+    def lookup_mold_and_mes(self, mold_code: str = "", material_code: str = "", action: str = "", **kwargs) -> str:
+        """Tra cứu hồ sơ khuôn mẫu, tổng số shot dập, định mức bảo hành khuôn và trạng thái sản xuất MES."""
+        from erp_ai.native_tools import ERPNativeTools
+        return ERPNativeTools().lookup_mold_and_mes(mold_code=mold_code, material_code=material_code, action=action, **kwargs)
+
+    def lookup_general_catalog(self, category: str = "material", keyword: str = "", **kwargs) -> str:
+        """Tra cứu danh mục thông tin chung của nhà máy: mã tài khoản nhân viên (như 4509 là anh Nguyễn Văn Trường), tên khách hàng, quy cách đóng gói (thùng/khay trong dmvt)."""
+        from erp_ai.native_tools import ERPNativeTools
+        return ERPNativeTools().lookup_general_catalog(category=category, keyword=keyword, **kwargs)
+
+    def lookup_bom(self, product_code: str = "", material_code: str = "", **kwargs) -> str:
+        """Tra cứu cấu trúc định mức sản phẩm (BOM), loại hạt nhựa sử dụng, định mức tiêu hao và hiệu lực."""
+        from erp_ai.native_tools import ERPNativeTools
+        return ERPNativeTools().lookup_bom(product_code=product_code, material_code=material_code, **kwargs)
+
+    def lookup_mes_downtime(self, date_from: str = "", date_to: str = "", machine_code: str = "", **kwargs) -> str:
+        """Tra cứu tổng hợp thời gian dừng máy theo nguyên nhân (downtime / stop line) và số lần dừng trong khoảng thời gian."""
+        from erp_ai.native_tools import ERPNativeTools
+        return ERPNativeTools().lookup_mes_downtime(date_from=date_from, date_to=date_to, machine_code=machine_code, **kwargs)
+
+    def lookup_incoming_quality(self, date_from: str = "", date_to: str = "", supplier_code: str = "", **kwargs) -> str:
+        """Báo cáo đánh giá chất lượng nguyên vật liệu / linh kiện mua vào IQC theo nhà cung cấp trong khoảng thời gian."""
+        from erp_ai.native_tools import ERPNativeTools
+        return ERPNativeTools().lookup_incoming_quality(date_from=date_from, date_to=date_to, supplier_code=supplier_code, **kwargs)
+
     def get_erp_schema(self, search: str = "") -> str:
         """Tìm bảng và cột ERP trước khi trả lời câu hỏi tự nhiên.
 
@@ -3831,6 +3908,8 @@ class Tools:
         keywords = ("bang ke dung may", "dung may", "dung chuyen", "su co may", "nguyen nhan dung may", "thoi gian dung may", "lich su dung may", "downtime", "dung line", "stop line")
         if not any(kw in normalized for kw in keywords):
             return None
+        if re.search(r"\b(?:tháng|thang|năm|nam|ngày|ngay|từ|tu|đến|den)\b|\b\d{1,4}[/.-]\d{1,2}(?:[/.-]\d{2,4})?\b", question, re.I):
+            return json.dumps({"error": "unsupported_date_filter", "message": "Chưa thể xác minh bộ lọc thời gian cho báo cáo MES này. Không thể kết luận có hay không có dữ liệu trong khoảng yêu cầu; vui lòng đối chiếu báo cáo ERP/MES."}, ensure_ascii=False)
         code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
         code = code_match.group(1).upper() if code_match else None
         if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX"):
@@ -3957,6 +4036,8 @@ class Tools:
             return None
         if "giao bu" in normalized or "bu ng" in normalized or "nhan lai" in normalized:
             return None
+        if re.search(r"\b(?:tháng|thang|năm|nam|ngày|ngay|từ|tu|đến|den)\b|\b\d{1,4}[/.-]\d{1,2}(?:[/.-]\d{2,4})?\b", question, re.I):
+            return json.dumps({"error": "unsupported_date_filter", "message": "Chưa thể xác minh bộ lọc thời gian cho báo cáo MES này. Không thể kết luận có hay không có dữ liệu trong khoảng yêu cầu; vui lòng đối chiếu báo cáo ERP/MES."}, ensure_ascii=False)
         code_match = re.search(r"\b((?=[a-z0-9/.-]*\d)[a-z0-9]+(?:[-/.][a-z0-9]+)*)\b", question, re.I)
         code = code_match.group(1).upper() if code_match else None
         if code in ("ERP", "MES", "HTMP", "XLSX", "PDF", "DOCX", "NG"):
@@ -7025,6 +7106,14 @@ class Tools:
 
         # Merge conversation context so all downstream handlers inherit entity context
         effective_question = merge_erp_context(question, " ".join(filters.values()))
+
+        # Check if question matches a standard ERP 3S & MES report catalog contract
+        from erp_ai.procedure_catalog import find_report_in_catalog
+        if find_report_in_catalog(effective_question):
+            from erp_ai.generic_procedure_executor import GenericProcedureExecutor
+            report_res = GenericProcedureExecutor().query_report(query=effective_question)
+            if report_res.get("success") and report_res.get("formatted_text"):
+                return report_res["formatted_text"]
 
         latest_delivery = self._sales_latest_delivery_handler(effective_question, authenticated_user_id)
         if latest_delivery is not None:

@@ -1,0 +1,289 @@
+{
+  "screen": "SOBCTienDoGH",
+  "environment": "test ERP; data freshness not assumed",
+  "columns": [
+    {
+      "label_ui": "STT",
+      "field_ui": "stt",
+      "field_in_response_total_rows": true,
+      "grid_metadata": null,
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Ngày CT",
+      "field_ui": "ngay_ct",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "ct61",
+        "field_root": "ngay_ct",
+        "fieldcaption": "Ngày CT",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Số CT",
+      "field_ui": "so_ct",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "ct61",
+        "field_root": "so_ct",
+        "fieldcaption": "Số CT",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Trạng thái",
+      "field_ui": "status_name",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "ct61",
+        "field_root": "status_name",
+        "fieldcaption": "Số CT",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Số PO KH",
+      "field_ui": "so_po",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "ct61",
+        "field_root": "so_po",
+        "fieldcaption": "Số CT",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Ngày HĐ",
+      "field_ui": "ngay_ct_hda",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "ct61",
+        "field_root": "ngay_ct_hda",
+        "fieldcaption": "Ngày CT HDA",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Số HĐ",
+      "field_ui": "so_ct_hda",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "ct61",
+        "field_root": "so_ct_hda",
+        "fieldcaption": "Số CT HDA",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Số PO GH",
+      "field_ui": "so_po_gh",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "ct61",
+        "field_root": "so_po_gh",
+        "fieldcaption": "Số CT",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Mã vật tư",
+      "field_ui": "ma_vt",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "",
+        "field_root": "ma_vt",
+        "fieldcaption": "Mã vật tư",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Tên VT",
+      "field_ui": "ten_vt",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "",
+        "field_root": "ten_vt",
+        "fieldcaption": "Tên vt",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Số lượng revise",
+      "field_ui": "sl_rev",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "",
+        "field_root": "sl_rev",
+        "fieldcaption": "SL",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Số lượng đơn hàng",
+      "field_ui": "so_luong",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "",
+        "field_root": "so_luong",
+        "fieldcaption": "SL",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Số lượng lên lệnh",
+      "field_ui": "so_luong_to2",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "",
+        "field_root": "so_luong_to2",
+        "fieldcaption": "SL",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Số lượng chưa lệnh",
+      "field_ui": "so_luong_to2_cl",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "",
+        "field_root": "so_luong_to2_cl",
+        "fieldcaption": "SL",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Số lượng đã giao",
+      "field_ui": "so_luong_hda",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "",
+        "field_root": "so_luong_hda",
+        "fieldcaption": "SL đã giao",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "SL đóng",
+      "field_ui": "sl_close",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "",
+        "field_root": "sl_close",
+        "fieldcaption": "SL còn lại",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Số lượng còn lại",
+      "field_ui": "so_luong_cl",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "",
+        "field_root": "so_luong_cl",
+        "fieldcaption": "SL còn lại",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Giá bán",
+      "field_ui": "gia2",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "",
+        "field_root": "gia2",
+        "fieldcaption": "Giá",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Tiền bán",
+      "field_ui": "tien2",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "",
+        "field_root": "tien2",
+        "fieldcaption": "Tiền",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Ngày GH kế hoạch",
+      "field_ui": "ngay_gh",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "ct61",
+        "field_root": "ngay_gh",
+        "fieldcaption": "Ngày CT",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Ngày GH thực tế",
+      "field_ui": "ngay_gh_hda",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "ct61",
+        "field_root": "ngay_gh_hda",
+        "fieldcaption": "Ngày CT",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    },
+    {
+      "label_ui": "Tình trạng đơn hàng",
+      "field_ui": "status",
+      "field_in_response_total_rows": true,
+      "grid_metadata": {
+        "tablename": "",
+        "field_root": "status",
+        "fieldcaption": "Tên vt",
+        "visible": 1
+      },
+      "physical_lineage": "unverified",
+      "business_formula": "unverified"
+    }
+  ],
+  "scope": "UI headers and grid metadata compared to keys of five aggregate rows, no detail rows; source data and execution chain not verified",
+  "user_id": "78"
+}

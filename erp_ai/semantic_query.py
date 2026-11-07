@@ -86,6 +86,8 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
         select.append(f"{expression} AS {identifier(name)}")
     where, params = ([] if scoped_source else [f'{scope} = %s']), [erp_user_id]
     operators = {'eq': '=', 'gte': '>=', 'lte': '<='}
+    seen_filters = set()
+    date_bounds = {}
     for item in filters:
         if not isinstance(item, dict) or set(item) != {'field', 'op', 'value'}:
             raise PlanError('invalid_filter')
@@ -95,6 +97,10 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
         definition = filter_defs[field]
         if not isinstance(definition, dict) or op not in definition.get('ops', []):
             raise PlanError('filter_forbidden')
+        key = (field, op)
+        if key in seen_filters:
+            raise PlanError('duplicate_filter')
+        seen_filters.add(key)
         kind = definition.get('type')
         if kind == 'text':
             if not isinstance(value, str) or not value or len(value) > 128:
@@ -107,8 +113,16 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
                 raise PlanError('invalid_filter_value') from None
         else:
             raise PlanError('invalid_filter_type')
+        if kind == 'date':
+            date_bounds.setdefault(field, {})[op] = value
         where.append(f"{identifier(definition.get('column'))} {operators[op]} %s")
         params.append(value)
+    for bounds in date_bounds.values():
+        if 'gte' in bounds and 'lte' in bounds and bounds['gte'] > bounds['lte']:
+            raise PlanError('invalid_date_range')
+        if 'eq' in bounds and ((bounds.get('gte') and bounds['eq'] < bounds['gte']) or
+                               (bounds.get('lte') and bounds['eq'] > bounds['lte'])):
+            raise PlanError('invalid_date_range')
     if scoped_source:
         starts = [x['value'] for x in filters if x['field'] == 'day' and x['op'] == 'gte']
         ends = [x['value'] for x in filters if x['field'] == 'day' and x['op'] == 'lte']

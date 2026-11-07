@@ -24,8 +24,12 @@ async def execute_plan(plan, *, contracts, allowed_contracts, erp_user_id, db, l
     rows = rows[:limit]
     evidence = json.dumps([compiled.contract_id, compiled.contract_version, erp_user_id, plan],
                           sort_keys=True, ensure_ascii=False, default=str)
+    # SQL aggregate SUM can return NULL for no inputs or all-NULL inputs. Do
+    # not label that value a verified zero or a complete result.
+    missing_metric = any(row.get(metric) is None for row in rows for metric in plan['metrics'])
+    status = 'partial' if has_more else ('empty' if not rows else ('missing' if missing_metric else 'complete'))
     return {'rows': rows, 'returned_rows': len(rows), 'has_more': has_more,
-            'status': 'partial' if has_more else ('empty' if not rows else 'complete'),
+            'status': status,
             'contract_id': compiled.contract_id, 'contract_version': compiled.contract_version,
             'applied_filters': plan.get('filters', []),
             'sources': [{'id': 'records:' + hashlib.sha256(evidence.encode()).hexdigest()[:16],

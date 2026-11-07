@@ -331,5 +331,52 @@ Ngay sau các phản hồi thực tế từ người dùng Bùi Thị Mai trên 
 ### 4. Kết quả nghiệm thu thực tế:
 - Toàn bộ 3 câu hỏi trên đều đã được kiểm tra trực tiếp qua Open-WebUI container và trả về kết quả số liệu khớp 100% với Fast ERP thực tế.
 
+---
+
+## 26. Chuyển Đổi Triệt Để Sang Kiến Trúc Native Function Calling (Chấm Dứt Hoàn Toàn Cách Làm Chắp Vá Regex)
+
+### 1. Bản Chất Của Vấn Đề "Chắp Vá" Trước Đây
+- **Cơ chế cũ:** Hệ thống ép cứng tham số `tool_choice = {"type": "function", "function": {"name": "ask_erp"}}` và chỉ đăng ký duy nhất 1 tool `ask_erp(question: str)` trong `webui.db`.
+- **Hệ quả tiêu cực:** Toàn bộ câu hỏi của người dùng (bao gồm câu hỏi kèm dấu thời gian `15:49 6 thg 11`, lời chào, câu hỏi nối tiếp nhiều lượt) bị đổ nguyên văn vào tham số `question`. Phía Python phải duy trì hơn 7.800 dòng lệnh regex và chuỗi `if/else` để tự phân tích câu chữ. Cứ mỗi khi người dùng thay đổi cách diễn đạt hoặc thêm thông tin phụ, hệ thống lại sai và phải "chắp vá" thêm regex mới.
+
+### 2. Kiến Trúc Mới: Native Function Calling (Agentic Tool Calling)
+Qwen 2.5 14B được phục vụ qua vLLM với cờ `--enable-auto-tool-choice --tool-call-parser hermes`. Kiến trúc mới tách bạch hoàn toàn giữa **Trích xuất ý định (LLM đảm nhiệm)** và **Truy vấn dữ liệu (Tool Python đảm nhiệm)**:
+
+1. **6 Công cụ Nghiệp vụ Chuẩn Hóa (`erp_ai/native_tools.py`):**
+   - `lookup_sales_price(material_code, customer_code)`: Tra cứu giá bán theo Bảng giá hoặc lịch sử xuất kho.
+   - `lookup_inventory_stock(material_code, warehouse_code, date_as_of)`: Tra cứu số lượng tồn theo mã vật tư hoặc tổng tồn theo kho.
+   - `lookup_sales_orders(material_code, customer_code, order_code, date_from, date_to)`: Tra cứu đơn hàng bán SO / HDA.
+   - `lookup_purchase_orders(material_code, supplier_code, po_code)`: Tra cứu đơn mua hàng NCC (PO).
+   - `lookup_mold_and_mes(mold_code, material_code, action)`: Tra cứu hồ sơ khuôn mẫu, tổng số shot dập, định mức bảo hành và máy ép MES.
+   - `lookup_general_catalog(category, keyword)`: Tra cứu nhân viên (ví dụ mã 4509 là anh Nguyễn Văn Trường), thông tin khách hàng, quy cách đóng gói hộp/khay/thùng.
+   - `ask_erp(question, context)`: Công cụ dự phòng cho các báo cáo phức tạp hoặc chỉ tiêu tổng hợp.
+
+2. **Khai Báo JSON Schema (`webui.db` Specs):**
+   - Đăng ký đầy đủ 6 tool nghiệp vụ lên `tool.specs` của Open-WebUI với mô tả tham số rõ ràng.
+   - Filter `htmp_fast_rag` chuyển sang chế độ `tool_choice = "auto"` ở lượt đầu (cho phép LLM tự do chọn tool phù hợp nhất và trích xuất đúng tham số) và `tool_choice = "none"` ở lượt trả kết quả (ép LLM tổng hợp thành văn bản tiếng Việt hoàn chỉnh, không lặp lại tool).
+
+### 3. Kết Quả Kiểm Thử Thực Tế (Hoàn Toàn Không Dùng Regex)
+- **Sự cố 29:**
+  - *Câu hỏi:* `check cho chị giá bán của mã hàng 156279430 15:49 6 thg 11`
+  - *LLM tự động trích xuất:* `lookup_sales_price(material_code="156279430")`
+  - *Kết quả tổng hợp:* *"Giá bán của mã hàng 156279430 (Giá đỡ lực tác động đầu xe NR bên phải VF35) là 12,105 VND/PCS (khách hàng: CÔNG TY TNHH ANTOLIN VIỆT NAM), hiệu lực: 2026-01-27 đến 2026-12-31 [Bảng giá 2026]."*
+- **Sự cố 28:**
+  - *Câu hỏi:* `check cho chị giá bán của mã hàng T1015910DA này đang bao nhiêu 15:47 6 thg 11`
+  - *LLM tự động trích xuất:* `lookup_sales_price(material_code="T1015910DA")`
+  - *Kết quả tổng hợp:* *"Giá bán của mã hàng T1015910DA (CORE CAP) là 0.0128 USD/PCS (khách hàng: Valeo Siam Thermal Systems Co., Ltd), hiệu lực từ 01/01/2026 đến 30/12/2026 theo Bảng giá 2026."*
+- **Sự cố 27 (Hội thoại nhiều lượt):**
+  - *Câu hỏi Turn 2:* `cho chị hỏi tồn ở KHOTP00 có bao nhiêu 15:45 6 thg 11`
+  - *LLM tự động trích xuất:* `lookup_inventory_stock(material_code="", warehouse_code="KHOTP00")`
+  - *Kết quả tổng hợp:* *"Tổng số lượng tồn kho tại kho KHOTP00 (Kho TP00 ĐQC) tính đến 2026-11-06 là 4,214,731 PCS."*
+- **Tra cứu nhân sự 4509:**
+  - *Câu hỏi:* `mã 4509 trên hệ thống là ai thế em?`
+  - *LLM tự động trích xuất:* `lookup_general_catalog(category="employee", keyword="4509")`
+  - *Kết quả tổng hợp:* *"Mã 4509 trên hệ thống là anh Nguyễn Văn Trường."*
+- **Tra cứu khuôn và số shot MES:**
+  - *Câu hỏi:* `khuôn của mã QC7-5146-000 hiện tại đã dập được bao nhiêu shot rồi?`
+  - *LLM tự động trích xuất:* `lookup_mold_and_mes(material_code="QC7-5146-000", action="shots")`
+  - *Kết quả tổng hợp:* *"Khuôn của mã sản phẩm QC7-5146-000 đã dập được tổng cộng 1,717,964 shot. Định mức bảo hành của khuôn này là 1,000,000 shot."*
+
+
 
 

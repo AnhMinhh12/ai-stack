@@ -1,6 +1,6 @@
 {
   "sales_order_lines": {
-    "status": "approved",
+    "status": "pilot_unapproved",
     "scope": "sales_orders_scoped_v1",
     "version": "2026-10-30-v2",
     "view": {},
@@ -17,7 +17,7 @@
     }
   },
   "sales_delivery_hda": {
-    "status": "approved",
+    "status": "pilot_unapproved",
     "scope": "sales_delivery_hda_v1",
     "version": "2026-10-30-v2",
     "tables": ["public.ph81", "public.ct81"],
@@ -28,7 +28,7 @@
     }
   },
   "delivery_order_lines": {
-    "status": "approved",
+    "status": "pilot_unapproved",
     "scope": "delivery_orders_to2_v1",
     "version": "2026-10-30-v2",
     "tables": ["public.ph96", "public.ct96"],
@@ -38,7 +38,7 @@
     }
   },
   "purchase_order_lines": {
-    "status": "approved",
+    "status": "pilot_unapproved",
     "scope": "purchase_orders_po1_v1",
     "version": "2026-10-30-v2",
     "tables": ["public.ph94", "public.ct94"],
@@ -49,7 +49,7 @@
     }
   },
   "mfkhsx_bom": {
-    "status": "approved",
+    "status": "pilot_unapproved",
     "scope": "production_bom_v1",
     "version": "2026-10-30-v2",
     "table": "public.mfkhsx_bom",
@@ -60,7 +60,7 @@
     }
   },
   "iqc_inspection_lines": {
-    "status": "approved",
+    "status": "pilot_unapproved",
     "scope": "quality_iqc_v1",
     "version": "2026-10-30-v2",
     "tables": ["public.phiqc", "public.ctiqc"],
@@ -71,7 +71,7 @@
     }
   },
   "goods_issue_lines": {
-    "status": "approved",
+    "status": "pilot_unapproved",
     "scope": "warehouse_issue_pxk_v1",
     "version": "2026-10-30-v2",
     "tables": ["public.ph85", "public.ct85"],
@@ -82,7 +82,7 @@
     }
   },
   "production_transfer_lines": {
-    "status": "approved",
+    "status": "pilot_unapproved",
     "scope": "production_transfer_v1",
     "version": "2026-10-30-v2",
     "tables": ["public.ph76", "public.ct76", "public.ph77", "public.ct77"],
@@ -92,7 +92,7 @@
     }
   },
   "pallet_inventory": {
-    "status": "approved",
+    "status": "pilot_unapproved",
     "scope": "mes_pallet_tracking_v1",
     "version": "2026-10-30-v2",
     "tables": ["public.pallet", "public.palletct"],
@@ -103,7 +103,7 @@
     }
   },
   "mold_tooling_profiles": {
-    "status": "approved",
+    "status": "pilot_unapproved",
     "scope": "mold_tooling_v1",
     "version": "2026-10-30-v2",
     "table": "public.dmhosokhuon",

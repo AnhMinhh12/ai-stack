@@ -1,0 +1,110 @@
+[
+  {
+    "idx": 1,
+    "domain": "Bán hàng",
+    "question": "Cho tôi danh sách đơn hàng bán của khách hàng KH0047 trong tháng 10/2026",
+    "passed": true,
+    "tool": "lookup_sales_orders",
+    "args": "{\"customer_code\": \"KH0047\", \"date_from\": \"2026-10-01\", \"date_to\": \"2026-10-31\"}",
+    "answer": "Dưới đây là danh sách đơn hàng bán của khách hàng KH0047 trong tháng 10/2026:\n\n| Số CT | Ngày CT       | Mã VT          |Tên VT                                      | Số Lượng (PCS) |\n|-------|---------------|----------------|--------------------------------------------|----------------|\n| 001-2611-001480 | 2026-11-06 | VGL1A375      | STATUS LENS                               | 400,000         |\n| 001-2611-001480 | 2026-11-06 | VMH1A357      | Đầu nối của râu wifi bằng nhựa            | 24,100          |\n| 001-2611-001480 | 2026-11-06 | VMH1A358      | Giá đỡ bằng nhựa                          | 29,800          |\n| 001-2611-001480 | 2026-11-06 | VMH1A360      | Kẹp bằng nhựa                            | 21,400          |\n| 001-2611-001480 | 2026-11-06 | VKL2A225ZA    | Chân đế bằng nhựa                        | 2,500           |\n| 001-2611-001480 | 2026-11-06 | VGU1A523A43W  | Vỏ bằng nhựa của thiết bị âm thanh        | 3,912           |\n| 001-2611-001480 | 2026-11-06 | VGU1A523A43X  | Vỏ bằng nhựa của thiết bị âm thanh        | 3,880           |\n| 001-2611-001480 | 2026-11-06 | VGU1A523A43Z  | Vỏ bằng nhựa của thiết bị âm thanh        | 1,600           |\n| 001-2611-001480 | 2026-11-06 | VBT1A1319B165 | Linh kiện bán thành phẩm                  | 6,000           |\n| 001-2611-001480 | 2026-11-06 | VGW1A604IA    | Vỏ bằng nhựa của thiết bị âm thanh        | 500             |\n| 001-2611-001480 | 2026-11-06 | VGW1A604JA    | Vỏ bằng nhựa của thiết bị âm thanh        | 1,000           |\n| 001-2611-001480 | 2026-11-06 | VGW1A604LA    | Chi tiết lắp ráp bằng nhựa                | 1,000           |\n| 001-2611-001480 | 2026-11-06 | VGW1A605TA"
+  },
+  {
+    "idx": 2,
+    "domain": "Giá bán",
+    "question": "check cho chị giá bán của mã hàng 156279430",
+    "passed": true,
+    "tool": "lookup_sales_price",
+    "args": "{\"material_code\": \"156279430\"}",
+    "answer": "Giá bán của mã hàng 156279430 (Giá đỡ lực tác động đầu xe NR bên phải VF35) là 12105 VND/PCS (khách hàng: CÔNG TY TNHH ANTOLIN VIỆT NAM), hiệu lực từ 27/01/2026 đến 31/12/2026 [Bảng giá 2026]."
+  },
+  {
+    "idx": 3,
+    "domain": "Tiến độ giao",
+    "question": "Đơn hàng và tiến độ giao của mã QC7-5146-000 thế nào?",
+    "passed": true,
+    "tool": "lookup_sales_orders",
+    "args": "{\"material_code\": \"QC7-5146-000\"}",
+    "answer": "Đơn hàng và tiến độ giao hàng của mã QC7-5146-000 như sau:\n\n- Tổng đơn đặt hàng: 167,440 PCS\n- Đã giao: 154,640 PCS\n- Còn lại cần giao: 7,780 PCS\n  - Giao đúng kế hoạch: 149,100 PCS\n  - Giao chậm: 5,540 PCS\n  - Đơn chưa giao: 4,660 PCS\n\nDưới đây là danh sách 20 đơn hàng bán gần đây (tổng số lượng đơn: 102,340 PCS):\n\n| Số CT | Ngày CT       | Mã KH                     | Mã VT                          | Số Lượng  |\n|-------|--------------|--------------------------|-------------------------------|-----------|\n| 001-2611-001421 | 2026-11-06 | KH0015 | QC7-5146-000 | 730,000 |\n| 001-2611-001048 | 2026-11-05 | KH0015 | QC7-5146-000 | 6,060,000 |\n| 001-2611-000425 | 2026-11-04 | KH0015 | QC7-5146-000 | 1,970,000 |\n| 001-2610-012348 | 2026-10-31 | KH0015 | QC7-5146-000 | 2,610,000 |\n| 001-2610-012265 | 2026-10-31 | KH0015 | QC7-5146-000 | 13,320,000 |\n| 001-2610-011317 | 2026-10-30 | KH0015 | QC7-5146-000 | 7,080,000 |\n| 001-2610-011272 | 2026-10-30 | KH0015 | QC7-5146-000 | 10,000 |\n| 001-2610-010860 | 2026-10-29 | KH0015 | QC7-5146-000 | 5,490,000 |\n| 001-2610-010409 | 2026-10-28 | KH0015 | QC7-5146-000 | 5,720,000 |\n| 001-2610-010022 | 2026-10-27 | KH0015 | QC7-5146-000 | 4,660,000 |\n| 001-2610-009890 | 2026-10-2"
+  },
+  {
+    "idx": 4,
+    "domain": "Mua hàng",
+    "question": "Đơn mua hàng từ nhà cung cấp NCC0220 trong tháng 10/2026 gồm những đơn nào?",
+    "passed": true,
+    "tool": "lookup_purchase_orders",
+    "args": "{\"material_code\": \"\", \"supplier_code\": \"NCC0220\", \"po_code\": \"\"}",
+    "answer": "Dưới đây là danh sách các đơn hàng mua từ nhà cung cấp NCC0220 trong tháng 10/2026:\n\n| Số CT | Ngày CT       | Mã NCC                | Mã VT                                      | Tên VT                                                                                           | Số Lượng |\n|-------|--------------|----------------------|-------------------------------------------|------------------------------------------------------------------------------------------------|---------|\n| 001-2611-000155 | 2026-11-05 | NCC0220             | PROTEC19X200HUNGTECH                     | Protec190mmx200mx0.05mm AA020006                                                                | 3.000    |\n| 001-2611-000151 | 2026-11-05 | NCC0220             | 1016102600                                | Label Light 2M2220051-1016102600, kt φ5.7x0.1 mm                                                 | 5000.000 |\n| 001-2611-000151 | 2026-11-05 | NCC0220             | 1015039100                                | Protect film 2M2230016-1015039100, kt 140.85x82.35x0.05 mm                                         | 5000.000 |\n| 001-2611-000151 | 2026-11-05 | NCC0220             | 1015038900                                | Protect Film 2M2220034-1015038900, kt 140.8x84.8x0.05mm                                            | 30000.000|\n| 001-2611-000151 | 2026-11-05 | NCC0220             | CDKH0013                                  | bĂNG DÍNH NITTO No.5000NS KT 48MM*50Mhc                                                          | 3.000    |\n| 001-2610-000765 | 2026-10-29 | NCC0220             | 1015038900                                | Protect Film 2M2220034-1015038900, kt 140.8x84.8x0.05mm                                           | 5000.000 |\n| 001-2610-000702 | 2026-10-28 | NCC0220             | SIDE-LADRO                                | Film PE AA020058 kt 592.58x57.72x0.08mm                                                         | 10261.000|\n| 001-2610-000602 | 2026-10-26 | NCC0220             | 1015039100                                | Protect film 2M"
+  },
+  {
+    "idx": 5,
+    "domain": "Giá mua",
+    "question": "Lịch sử đơn giá mua của vật tư PS-576D gần đây ra sao?",
+    "passed": true,
+    "tool": "lookup_purchase_orders",
+    "args": "{\"material_code\": \"PS-576D\"}",
+    "answer": "Dưới đây là lịch sử đơn giá mua gần đây của vật tư PS-576D:\n\n| Số chứng từ | Ngày chứng từ | Nhà cung cấp | Đơn giá (VND) |\n|-------------|--------------|--------------|---------------|\n| 001-2611-000138 | 2026-11-05 | CÔNG TY TNHH DAINICHI COLOR VIỆT NAM | 44411 |\n| 001-2611-000103 | 2026-11-04 | CÔNG TY TNHH DAINICHI COLOR VIỆT NAM | 44411 |\n| 001-2611-000053 | 2026-11-03 | CÔNG TY TNHH DAINICHI COLOR VIỆT NAM | 44411 |\n| 001-2611-000024 | 2026-11-02 | CÔNG TY TNHH DAINICHI COLOR VIỆT NAM | 44411 |\n| 001-2611-000005 | 2026-11-02 | CÔNG TY TNHH DAINICHI COLOR VIỆT NAM | 44411 |\n| 001-2610-000723 | 2026-11-01 | CÔNG TY TNHH DAINICHI COLOR VIỆT NAM | 44411 |\n| 001-2610-000781 | 2026-10-30 | CÔNG TY TNHH DAINICHI COLOR VIỆT NAM | 44411 |\n| 001-2610-000741 | 2026-10-29 | CÔNG TY TNHH DAINICHI COLOR VIỆT NAM | 44411 |\n| 001-2610-000560 | 2026-10-23 | CÔNG TY TNHH DAINICHI COLOR VIỆT NAM | 41220 |\n| 001-2610-000496 | 2026-10-20 | CÔNG TY TNHH DAINICHI COLOR VIỆT NAM | 41220 |\n\nGiá mua thấp nhất: 41220 VND  \nGiá mua cao nhất: 44411 VND  \nGiá mua trung bình: 42496.4 VND"
+  },
+  {
+    "idx": 6,
+    "domain": "Tồn kho",
+    "question": "Tồn kho của mã 75577-BZ010 theo từng kho là bao nhiêu?",
+    "passed": true,
+    "tool": "lookup_inventory_stock",
+    "args": "{\"material_code\": \"75577-BZ010\"}",
+    "answer": "Tồn kho hiện tại của mã 75577-BZ010 (Tấm ốp bên ngoài phải) ở từng kho tính đến 2026-11-07:\n\n| Mã kho | Tồn kho (SET) |\n|-------|---------------|\n| KHOTP00 | 212           |\n\nTổng cộng: 212 SET."
+  },
+  {
+    "idx": 7,
+    "domain": "Thẻ kho",
+    "question": "Cho tôi thẻ kho của vật tư QC7-5146-000 tại KHOTP00 từ 01/10 đến 07/10/2026",
+    "passed": true,
+    "tool": "lookup_stock_card",
+    "args": "{\"material_code\": \"QC7-5146-000\", \"warehouse_code\": \"KHOTP00\", \"date_from\": \"2026-10-01\", \"date_to\": \"2026-10-07\"}",
+    "answer": "Thẻ kho của vật tư **QC7-5146-000** tại kho **KHOTP00** từ ngày 01/10/2026 đến 07/10/2026:\n\n- Tổng nhập: 17,640 PCS\n- Tổng xuất: 21,060 PCS\n\nDưới đây là chi tiết các chứng từ phát sinh trong khoảng thời gian này:\n\n| Ngày chứng từ | Số chứng từ | Loại chứng từ | Diễn giải | Mã kho | Số lượng nhập | Số lượng xuất |\n|---------------|-------------|----------------|-----------|--------|--------------|---------------|\n| 2026-10-01    | 001-2610-000248 | PNF            | Giao dịch kho | KHOTP00 | 2,400        | 0             |\n| 2026-10-01    | 001-2610-000248 | PXB            | Giao dịch kho | KHOTP00 | 0            | 2,400         |\n| 2026-10-01    | 001-2610-000297 | PXB            | Giao dịch kho | KHOTP00 | 0            | 1,320         |\n| 2026-10-01    | 001-2610-000308 | PXB            | Giao dịch kho | KHOTP00 | 0            | 540           |\n| 2026-10-01    | 001-2610-000357 | PNF            | Giao dịch kho | KHOTP00 | 2,340        | 0             |\n| 2026-10-01    | 001-2610-000357 | PXB            | Giao dịch kho | KHOTP00 | 0            | 2,340         |\n| 2026-10-01    | 001-2610-000369 | PXB            | Giao dịch kho | KHOTP00 | 0            | 480           |\n| 2026-10-01    | 001-2610-000479 | PXB            | Giao dịch kho | KHOTP00 | 0            | 780           |\n| 2026-10-01    | 001-2610-000482 | PNF            | Giao dịch kho | KHOTP00 | 2,340        | 0             |\n| 2026-10-01    | 001-2610-000482 | PXB            | Giao dịch kho | KHOTP00 | 0            | 2,340         |\n| 2026-10-01    | 001-2610-000494 | PXB            | Giao dịch kho | KHOTP00 | 0            | 540           |\n| 2026-10-01    | 001-2610-000505 | PXB            | Giao dịch kho | KH"
+  },
+  {
+    "idx": 8,
+    "domain": "Dừng máy MES",
+    "question": "Tổng hợp thời gian dừng máy theo nguyên nhân trong tháng 10/2026",
+    "passed": true,
+    "tool": "lookup_mes_downtime",
+    "args": "{\"date_from\": \"2026-10-01\", \"date_to\": \"2026-10-31\"}",
+    "answer": "Tổng hợp thời gian dừng máy theo nguyên nhân trong tháng 10/2026:\n\n- Tổng số lượt dừng: **13,862** lần\n- Tổng thời gian dừng: **501,131.8 phút** (~ 8,352.2 giờ)\n\nDưới đây là các nguyên nhân dừng máy hàng đầu:\n\n| Nguyên nhân | Số lần dừng | Tổng thời gian dừng (phút) |\n|------------|------------|---------------------------|\n| Dừng máy theo kế hoạch | 3,186 | 164,448.2 |\n| Vệ sinh khuôn định kỳ (5/5) | 2,312 | 46,195.3 |\n| Sản phẩm dính dầu => Dính dầu (5/5) | 857 | 43,477.8 |\n| Sản phẩm dính dầu ( kỹ thuật xử lý giúp max 15 phút ) | 1,161 | 36,303.5 |\n| Thử khuôn | 323 | 28,586.8 |\n\nNhững nguyên nhân khác cũng góp phần đáng kể vào tổng thời gian dừng máy."
+  },
+  {
+    "idx": 9,
+    "domain": "Sản xuất MES",
+    "question": "Thống kê thời gian dừng máy sự cố của máy DUC-0201 trong tháng 10/2026",
+    "passed": true,
+    "tool": "lookup_mes_downtime",
+    "args": "{\"date_from\": \"2026-10-01\", \"date_to\": \"2026-10-31\", \"machine_code\": \"DUC-0201\"}",
+    "answer": "Thống kê thời gian dừng máy sự cố của máy DUC-0201 trong tháng 10/2026:\n\n| Nguyên nhân | Số lần dừng | Tổng thời gian dừng (phút) |\n|------------|------------|---------------------------|\n| Sản phẩm biến dạng, rạn trắng, cà xước... | 6 | 970.9 |\n| Dừng máy theo kế hoạch | 67 | 903.5 |\n| Sản phẩm bavia do khuôn | 5 | 778.6 |\n| Robot không lấy được Sản Phẩm do kỹ thuật cài robot | 58 | 761.9 |\n| Lỗi giới hạn monitor mà chưa tìm ra nguyên nhân | 80 | 440.5 |\n| Test nhựa, thử tỉ lệ nhựa tái sinh... | 31 | 399.9 |\n| Gẫy, tụt thanh giằng | 1 | 218.0 |\n| Lỗi limit pin, slider, core dầu do khuôn | 12 | 185.4 |\n| Máy ép lỗi nhiệt | 1 | 145.1 |\n| Lỗi máy sấy, hút do NVL | 14 | 125.2 |\n| Kẹt slider | 4 | 107.4 |\n| Chờ kết thúc lệnh sản xuất trước | 9 | 104.7 |\n| Thử khuôn | 2 | 94.0 |\n| Robot không lấy được Runner do kỹ thuật cài robot | 13 | 87.6 |\n| Máy ép lỗi điều khiển | 2 | 83.4 |\n\nTổng cộng: 305 lần dừng, tổng thời gian dừng là 5,406.1 phút (~90.1 giờ)."
+  },
+  {
+    "idx": 10,
+    "domain": "BOM",
+    "question": "Theo BOM mã QC7-5146-000 sử dụng loại nhựa nào và định mức bao nhiêu?",
+    "passed": true,
+    "tool": "lookup_bom",
+    "args": "{\"product_code\": \"QC7-5146-000\"}",
+    "answer": "Mã sản phẩm QC7-5146-000 sử dụng loại nhựa PS-576D (HIPS 576H GR21 PSMT VE0271-33 Nu-0215 Dim black MBB3%) với định mức tiêu hao là 0.026 kg."
+  },
+  {
+    "idx": 11,
+    "domain": "Khuôn MES",
+    "question": "Khuôn của mã QC7-5146-000 đã dập bao nhiêu shot và giới hạn bảo hành là bao nhiêu?",
+    "passed": true,
+    "tool": "lookup_mold_and_mes",
+    "args": "{\"material_code\": \"QC7-5146-000\", \"action\": \"shots\"}",
+    "answer": "Khuôn của mã sản phẩm QC7-5146-000 đã dập tổng cộng 1721342 shot và giới hạn bảo hành là 1000000 shot."
+  },
+  {
+    "idx": 12,
+    "domain": "Chất lượng IQC",
+    "question": "Báo cáo đánh giá chất lượng hàng mua theo nhà cung cấp trong tháng 10/2026",
+    "passed": true,
+    "tool": "lookup_incoming_quality",
+    "args": "{\"date_from\": \"2026-10-01\", \"date_to\": \"2026-10-31\"}",
+    "answer": "Dưới đây là báo cáo đánh giá chất lượng hàng mua IQC từ ngày 01/10/2026 đến 31/10/2026:\n\n- Tổng số lô hàng kiểm tra: 310 lô\n- Số lô đạt: 268 lô\n- Số lô không đạt: 42 lô\n- Tỷ lệ đạt: 86.5%\n\nDưới đây là chi tiết đánh giá chất lượng hàng mua theo từng nhà cung cấp:\n\n| Mã NCC | Tên NCC | Tổng số lô | Số lô đạt | Số lô không đạt | Tổng số lượng nhập | Tỷ lệ đạt (%) |\n|--------|---------|-------------|-----------|-----------------|--------------------|---------------|\n| NCC0064 | CÔNG TY TNHH HASHIMOTO SEIMITSU VIỆT NAM | 51 | 51 | 0 | 994,500 | 100.0 |\n| NCC0189 | CÔNG TY TNHH INABATA VIỆT NAM | 37 | 32 | 5 | 31,673 | 86.5 |\n| NCC0177 | CÔNG TY TNHH NAGASE VIỆT NAM | 28 | 23 | 5 | 26,500 | 82.1 |\n| NCC0001 | PLA MATELS (HONG KONG) CO., LTD. | 24 | 16 | 8 | 14,100 | 66.7 |\n| NCC0222 | CÔNG TY TNHH T.RAD VIỆT NAM | 23 | 21 | 2 | 309,000 | 91.3 |\n| NCC0012 | CÔNG TY TNHH ITOCHU VIỆT NAM | 16 | 8 | 8 | 3,900 | 50.0 |\n| NCC0010 | CÔNG TY TNHH TOYOTA TSUSHO VIỆT NAM | 15 | 15 | 0 | 47,000 | 100.0 |\n| NCC0037 | CÔNG TY TNHH  Công Nghiệp ADCEL  VIỆT NAM | 13 | 13 | 0 | 178 | 100.0 |\n| NCC0470 | Công Ty TNHH TITAN POLYMER COMPOUNDS Việt Nam | 12 | 12 | 0 | 12,475 | 100.0 |\n| NCC0188 | CÔNG TY TNHH SIK VIỆT NAM | 12 | 6 | 6 | 8,825 | 50.0 |\n| HTMP | Công ty Cổ phần HTMP Việt Nam | 11 | 9 | 2 | 6,605 | 81.8 |\n| NCC0683 | YAMAHA MOTOR VIETNAM CO.,LTD | 10 | 10 | 0 | 3,775 | 100.0 |\n| NCC0039 | CÔNG TY TNHH EPINPOX VIỆT NAM | 9 | 9 | 0 | 80,500 | 100.0 |\n| NCC0004 |"
+  }
+]

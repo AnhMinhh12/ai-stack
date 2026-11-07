@@ -1,0 +1,39 @@
+[
+  {
+    "report": "Bảng kê đơn hàng bán",
+    "endpoint": "http://10.0.6.2:1004/SOAPI/api/Reports/SOBKDonHangAPI/GetData",
+    "filters": {
+      "dfrom": "2026-10-31",
+      "dto": "2026-10-31",
+      "cso_ct1": "001-2610-012362",
+      "cso_ct2": "001-2610-012362",
+      "cma_dvcs": "001",
+      "cgiaodich": "",
+      "cgroup_yn": "1",
+      "mau_bc": "001",
+      "limit": 50,
+      "offset": 0
+    },
+    "success": true,
+    "returned_rows": 0,
+    "detail_rows": 0,
+    "notes": "Tổng cộng chỉ là dòng tổng hợp; không suy ra giá trị không có dữ liệu nguồn."
+  },
+  {
+    "report": "Báo cáo tiến độ giao hàng",
+    "endpoint": "http://10.0.6.2:1004/SOAPI/api/Reports/SOBCTienDoGHAPI/GetData",
+    "filters": {
+      "dfrom": "2026-10-31",
+      "dto": "2026-10-31",
+      "cso_ct1": "001-2610-012362",
+      "cso_ct2": "001-2610-012362",
+      "cma_dvcs": "001",
+      "cgroup": "1",
+      "mau_bc": "001"
+    },
+    "success": true,
+    "returned_rows": 5,
+    "detail_rows": 0,
+    "notes": "Tổng cộng chỉ là dòng tổng hợp; không suy ra giá trị không có dữ liệu nguồn."
+  }
+]

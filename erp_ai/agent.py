@@ -256,6 +256,15 @@ async def run_agent(question, *, user, model, backend, limits=None, history=(), 
                         raise ValueError("invalid_arguments")
                     args = json.loads(raw)
                     backend.validate(name, args)
+                    if name == "query_semantic_plan":
+                        from .semantic_request import require_explicit_month
+                        semantic_plan = json.loads(args["plan_json"])
+                        contracts = backend.config.get("semantic_contracts", {})
+                        contract = contracts.get(semantic_plan.get("dataset"), {}) if isinstance(semantic_plan, dict) else {}
+                        filter_defs = contract.get("filters", {}) if isinstance(contract, dict) else {}
+                        date_fields = {field for field, definition in filter_defs.items()
+                                       if isinstance(definition, dict) and definition.get("type") == "date"}
+                        require_explicit_month(question, semantic_plan, date_fields)
                     fingerprint = encode([name, sorted(args.items())])
                     if fingerprint in seen:
                         return finish("no_progress", cited=sources)
@@ -289,6 +298,20 @@ async def run_agent(question, *, user, model, backend, limits=None, history=(), 
                          tool=name if name in backend.names else "invalid", error=result.get("error"),
                          source_ids=[s["id"] for s in result.get("sources", [])],
                          elapsed_ms=round((time.monotonic()-tool_started)*1000))))
+            # Never let a language model present a partial or NULL aggregate as
+            # a complete result. Preserve evidence, but state the actual limit.
+            if (len(calls) == 1 and len(verified) == 1 and counts["tool_errors"] == 0
+                    and verified[0]["tool"] == "query_semantic_plan"):
+                semantic_result = verified[0]["result"]
+                status = semantic_result.get("status")
+                messages_for_status = {
+                    "partial": "Kết quả chưa đầy đủ vì vượt giới hạn hiển thị; chưa thể kết luận cho toàn bộ danh sách.",
+                    "empty": "Không tìm thấy dòng phù hợp với điều kiện và quyền truy cập hiện tại.",
+                    "missing": "Chỉ tiêu có giá trị trống; chưa đủ căn cứ kết luận là số 0 hoặc không có dữ liệu.",
+                }
+                if status in messages_for_status:
+                    return finish(status, messages_for_status[status],
+                                  [s["id"] for s in semantic_result.get("sources", [])])
             # These numeric reports have deterministic display blocks; another
             # model pass could change a confirmed value or turn missing data into zero.
             if (len(calls) == 1 and len(verified) == 1 and counts["tool_errors"] == 0
