@@ -292,6 +292,12 @@ không được trở thành kho sao chép dữ liệu nhạy cảm không kiể
 
 ## 10. Backup và disaster recovery
 
+### Thiết lập tự động hóa (Cập nhật 2026-11-07)
+- **Lịch Cronjob**: `0 2 * * *` (chạy tự động vào lúc 02:00 sáng hàng ngày).
+- **Lệnh thực thi**: `/bin/bash /home/admin/ai-stack/scripts/backup.sh >> /home/admin/ai-stack/backups/backup.log 2>&1`.
+- **Chính sách lưu trữ (Retention Policy)**: Giữ lại bản backup trong **30 ngày** (`RETENTION_DAYS=30`), các bản cũ hơn tự động dọn dẹp.
+- **Thư mục lưu**: `/home/admin/ai-stack/backups/`.
+
 Backup/restore hiện đã có hardening baseline; clean-room restore drill vẫn là điều kiện bắt buộc. Bản vận hành phải:
 
 1. Resolve path/volume từ container/Compose/manifest, không hard-code `open-webui-data`; restore mặc định chạy `RESTORE_MODE=clean-room`.

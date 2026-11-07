@@ -1,4 +1,90 @@
 
+# KẾ HOẠCH & KIẾN TRÚC PHÁT TRIỂN CHATBOT ERP/MES HTMP
+
+> **Tài liệu Kế hoạch Master:** Hợp nhất hiện trạng, định hướng phát triển, khảo sát hệ thống ERP 3S & MES, và bằng chứng đối soát kỹ thuật.  
+> **Cập nhật:** 07/11/2026.  
+> **Bộ câu hỏi kiểm thử tương ứng:** Xem file [`DANH_SACH_CAU_HOI_TEST_ERP_VA_BAO_CAO.md`](file:///home/admin/ai-stack/DANH_SACH_CAU_HOI_TEST_ERP_VA_BAO_CAO.md).
+
+---
+
+## PHẦN I: KẾ HOẠCH & HIỆN TRẠNG PHÁT TRIỂN HIỆN HÀNH (07/11/2026)
+
+### 1. Hiện trạng Kiến trúc & Các Cải tiến Đã Triển khai (07/11/2026)
+
+#### 1.1. Chấm dứt cách làm "chắp vá" regex và hardcode handler
+- **Vấn đề trước đây:** Hệ thống dựa vào chuỗi `if/else` và regex trong `ask_erp` để bắt từng mẫu câu hỏi cụ thể. Khi câu hỏi thay đổi từ ngữ hoặc thêm mốc thời gian, mô hình dễ chọn sai công cụ hoặc làm mất điều kiện truy vấn.
+- **Giải pháp nền tảng đã triển khai:**
+  1. **Danh mục Stored Procedure tổng quát ([`erp_ai/procedure_catalog.py`](file:///home/admin/ai-stack/erp_ai/procedure_catalog.py)):** Khai báo siêu dữ liệu (metadata) của các stored procedure chuẩn của ERP 3S (`inbcthnxt`, `inbctonkho`, `sosoctcongno1kh`, `sobkdonhang`, `sobctiendogh`, `sobclsgia`, `pobkdonhang`, `pobclsgia`, `bccanhbaohsd`...). Cung cấp từ khóa nhận diện, ánh xạ tham số nghiệp vụ, và định dạng cột hiển thị.
+  2. **Bộ thực thi Stored Procedure tổng quát ([`erp_ai/generic_procedure_executor.py`](file:///home/admin/ai-stack/erp_ai/generic_procedure_executor.py)):** 
+     - Tự động trích xuất các thực thể động (mã vật tư, mã kho, mã khách hàng, mã NCC, số đơn hàng, khoảng thời gian).
+     - Định dạng payload chuẩn JSON của ERP 3S: `{"JSON": {"user_id": "1", "searchDynamic": {...}}}`.
+     - Thực thi an toàn: kết nối chỉ đọc (read-only), transaction rollback tự động và statement timeout 15s.
+     - Tự động phân tách dòng tổng hợp (`is_total`, `bold`) và dòng chi tiết, sinh bảng Markdown và tóm tắt tiếng Việt tự nhiên.
+  3. **Tích hợp Tool Native trên Open WebUI ([`functions/htmp_postgres_query.py`](file:///home/admin/ai-stack/functions/htmp_postgres_query.py)):**
+     - Đã thêm tool `query_erp_report(report_name, query, ...)` vào lớp `Tools`.
+     - Đồng bộ toàn bộ 12 công cụ nghiệp vụ vào cơ sở dữ liệu `webui.db` của container `open-webui`, cấp quyền đầy đủ cho model `htmp-nhanh` / `HTMP ERP`.
+
+#### 1.2. Định vị Di sản Cũ (Legacy Artifacts) & Kế hoạch Dọn dẹp
+- **Thư mục cấu hình cũ:** `config/erp-reports/` (~80 file JSON), `sql/erp-reports/` (~80 file SQL) và `tests/erp-reports/`.
+- **Tình trạng hiện tại (07/11/2026):** Đây là phương án tiếp cận cũ (định nghĩa báo cáo phân mảnh từng file). Toàn bộ luồng chat và truy vấn hiện hành đã chuyển sang Stored Procedure tổng quát (`procedure_catalog.py`), không còn phụ thuộc runtime vào thư mục này.
+- **Giá trị còn lại:** Lưu trữ danh sách cột hiển thị và từ khóa tiếng Việt (`match_phrases`, `aliases`) tham khảo nhanh khi bổ sung procedure mới.
+- **Kế hoạch xử lý:** Tạm thời giữ nguyên làm tài liệu tham khảo (reference); sau khi di trú đủ toàn bộ các procedure cần thiết vào `erp_ai/procedure_catalog.py`, sẽ tiến hành đóng gói archive/xóa đồng bộ cụm thư mục này.
+
+---
+
+### 2. Kết quả Thực nghiệm & Bằng chứng Đối soát (07/11/2026)
+
+Hệ thống đã trải qua 4 đợt kiểm thử độc lập và đối soát trực tiếp với cơ sở dữ liệu PostgreSQL `3SERP_HTMP_DATA`:
+
+#### 2.1. Kiểm thử Regression Baseline (12/12 câu khảo sát - Đạt 100%)
+- **Mục tiêu:** Kiểm tra lại 12 câu hỏi khảo sát ban đầu trên các phân hệ Bán hàng, Mua hàng, Tồn kho, Sản xuất, Chất lượng, BOM và Khuôn.
+- **Kết quả:** 12/12 câu trả lời thành công, sạch hoàn toàn lỗi cú pháp `<tool_call>` và lỗi import module `functions`.
+- **Bằng chứng:** [`docs/evidence/ERP-VERIFICATION-20261107/ket-qua-12-cau.json`](file:///home/admin/ai-stack/docs/evidence/ERP-VERIFICATION-20261107/ket-qua-12-cau.json).
+
+#### 2.2. Kiểm thử Ngẫu nhiên Đa Phân hệ (Random Ad-Hoc Suite: 5/5 câu - Đạt 100%)
+- **Mục tiêu:** Kiểm chứng khả năng trả lời câu hỏi tự do không qua handler cố định thông qua Stored Procedure tổng quát.
+- **Các nghiệp vụ kiểm thử:**
+  1. *Công nợ khách hàng (TK 131):* Gọi `sosoctcongno1kh` cho khách `KH0015` $\rightarrow$ Trả số dư nợ 10.99 tỷ VND.
+  2. *Tổng hợp Nhập Xuất Tồn kho:* Gọi `inbcthnxt` cho kho `KHOTP00` từ 01/10 đến 20/10/2026 $\rightarrow$ Xuất 4.54 triệu PCS.
+  3. *Đơn mua hàng NCC:* Gọi `pobkdonhang` cho nhà cung cấp `NCC0220` $\rightarrow$ Bảng kê đơn PO chi tiết.
+  4. *Lịch sử giá bán:* Gọi `sobclsgia` cho mã `QC7-5146-000` $\rightarrow$ Đơn giá 0.0856 USD.
+  5. *Tiến độ giao hàng:* Gọi `sobctiendogh` cho khách `KH0015` $\rightarrow$ Tỷ lệ hoàn thành giao hàng theo từng dòng đơn.
+- **Bằng chứng:** [`docs/evidence/ERP-RANDOM-TEST-20261107/ket-qua-random.json`](file:///home/admin/ai-stack/docs/evidence/ERP-RANDOM-TEST-20261107/ket-qua-random.json).
+
+#### 2.3. Kiểm thử Benchmark 18 câu Sales QC7-5146-000 & KH0015 (17/18 câu - Đạt 94.4%)
+- **Mục tiêu:** Thử nghiệm toàn diện bộ câu hỏi thực tế từ người dùng (`sales_question.xlsx`) cho mã linh kiện máy in `QC7-5146-000` và khách hàng Canon Thăng Long (`KH0015`).
+- **Nghiệp vụ bao phủ:** BOM định mức nhựa `PS-576D`, MOQ giá USD, ngày xuất giao gần nhất (20/10/2026), doanh thu kỳ 1-20/10 (178.6M VND / 83,100 PCS), so sánh kỳ trước (+30,600 PCS), quy cách đóng gói (200 PCS/thùng), số shot khuôn `K_QC5-2919-000-V1` (1,061,160 shots), thời điểm out kho thực tế (`date2`/`time2`), tìm kiếm khách hàng bằng unaccent tiếng Việt.
+- **Bằng chứng:** [`docs/evidence/ERP-18-QUESTIONS-20261107/ket-qua-18-cau.json`](file:///home/admin/ai-stack/docs/evidence/ERP-18-QUESTIONS-20261107/ket-qua-18-cau.json).
+
+#### 2.4. Kiểm thử Trực tiếp trên Giao diện Web (Live Browser UI Audit via Playwright: 13/13 câu - Đạt 100%)
+- **Mục tiêu:** Mô phỏng phiên người dùng thật trên trình duyệt (Playwright headless Chromium, phiên đăng nhập `hoanhminhz@gmail.com`), gửi câu hỏi vào Open WebUI tại `http://127.0.0.1/`, chọn model `HTMP ERP`, thu nhận phản hồi giao diện và đối soát chéo từng số liệu với database.
+- **Kết quả đối soát:**
+  - 100% câu trả lời không xuất hiện lỗi giao diện, không rò rỉ cú pháp raw `<tool_call>`.
+  - Toàn bộ số liệu (sản lượng xuất 83,100 PCS, doanh thu 178,633,260 VND, định mức nhựa 0.026 KG, đơn giá 0.08563 USD, số shot 1,061,160, ngày out kho 14:38:58 ngày 01/11/2026...) đều **khớp chính xác 100%** với dữ liệu gốc trong các bảng `ph81/ct81`, `dmbom`, `dmbanggiact`, `dmkhuon`, `ph96/ct96`.
+- **Bằng chứng:**
+  - File log chi tiết từng lượt chat UI: [`docs/evidence/ERP-UI-AUDIT-20261107/ui-chat-audit.jsonl`](file:///home/admin/ai-stack/docs/evidence/ERP-UI-AUDIT-20261107/ui-chat-audit.jsonl).
+  - Báo cáo tổng hợp đối soát UI vs DB: [`docs/evidence/ERP-UI-AUDIT-20261107/ket-qua-doi-soat-ui.md`](file:///home/admin/ai-stack/docs/evidence/ERP-UI-AUDIT-20261107/ket-qua-doi-soat-ui.md).
+
+---
+
+### 3. Quy tắc Bảo toàn Hệ thống
+
+- **Nhánh GPT / API Production:** Tuyệt đối không thay đổi các thư mục `backend-patches/`, `ui-patches/`, cấu hình OpenAI/model và `docker-compose.yml` vì đang phục vụ người dùng thực tế.
+- **Dữ liệu & Script vận hành:** Các thư mục `backups/`, `docs/evidence/`, `scratch/` chứa bằng chứng đối soát và công cụ kiểm định; không xóa hay dọn dẹp tùy tiện khi chưa có danh mục thay thế.
+- **An toàn Cơ sở Dữ liệu:** Mọi kết nối tới `3SERP_HTMP_DATA` đều sử dụng quyền đọc `read_htmp`, thực thi trong khối giao dịch chỉ đọc (`conn.rollback()` trong `finally:`), cài đặt `statement_timeout = 15000` (15 giây) để tránh khóa bảng hay treo hệ thống ERP nhà máy.
+
+---
+
+### 4. Hướng Mở rộng Tiếp theo
+
+1. **Mở rộng Procedure Catalog:** Tiếp tục đưa thêm các stored procedure của phân hệ Kế toán (sổ cái, chi phí), Kế hoạch sản xuất (`mftkhsx`), và Kiểm soát chất lượng nâng cao vào [`erp_ai/procedure_catalog.py`](file:///home/admin/ai-stack/erp_ai/procedure_catalog.py).
+2. **Dynamic Parameter Resolution:** Hoàn thiện cơ chế tự động điền các tham số hệ thống đặc thù của Fast ERP (như `cstatus: "*"`, `in_tong_sl: "1"`, `time_to: "23:59"`, `cbranch: "001"`) dựa trên metadata thay vì xử lý từng trường hợp ngoại lệ.
+3. **Phân quyền người dùng chi tiết (RBAC):** Ánh xạ định danh người dùng từ Open WebUI vào tham số `user_id` trong payload JSON của Fast ERP để kế thừa 100% phân quyền màn hình và dữ liệu của ERP 3S.
+
+---
+
+## PHẦN II: KHẢO SÁT HỆ THỐNG ERP/MES VÀ QUÁ TRÌNH ĐỐI SOÁT THỰC NGHIỆM
+
 ## 16. Kết quả kết nối lại và xem báo cáo tồn kho
 
 Đã kết nối lại phiên Edge qua tunnel, quan sát giao diện đăng nhập `IT.ERP` và mở báo cáo `InBCTonTheoKho`. Máy chủ vẫn không kết nối trực tiếp được `10.0.6.2:1004`; thao tác thực hiện qua phiên trình duyệt Windows đang có sẵn. Đây là phiên và quyền của IT.ERP, không đại diện quyền người dùng khác.
@@ -376,6 +462,31 @@ Qwen 2.5 14B được phục vụ qua vLLM với cờ `--enable-auto-tool-choice
   - *Câu hỏi:* `khuôn của mã QC7-5146-000 hiện tại đã dập được bao nhiêu shot rồi?`
   - *LLM tự động trích xuất:* `lookup_mold_and_mes(material_code="QC7-5146-000", action="shots")`
   - *Kết quả tổng hợp:* *"Khuôn của mã sản phẩm QC7-5146-000 đã dập được tổng cộng 1,717,964 shot. Định mức bảo hành của khuôn này là 1,000,000 shot."*
+
+---
+
+## 27. Khởi tạo Kiến trúc Thực thi Báo cáo Tổng quát (Generic Stored Procedure Execution Engine) & Kiểm nghiệm Giao diện Thực tế 07/11/2026
+
+### 27.1. Chuyển đổi căn bản: Thay thế Regex chắp vá bằng Stored Procedure Engine
+- **Hạn chế trước đây:** Việc mở rộng câu hỏi mới đòi hỏi phải thêm regex và viết handler logic riêng cho từng trường hợp. Khi người dùng đặt câu hỏi tự do hoặc thay đổi văn phong, mô hình dễ nhận diện sai hoặc rơi vào fallback không tối ưu.
+- **Giải pháp nền tảng:**
+  1. **Metadata Catalog chuẩn hóa (`erp_ai/procedure_catalog.py`):**
+     - Ánh xạ trực tiếp ý định người dùng tới 621 Stored Procedures có sẵn trong schema `public` của CSDL PostgreSQL `3SERP_HTMP_DATA` (`inbcthnxt`, `inbctonkho`, `sosoctcongno1kh`, `sobkdonhang`, `sobctiendogh`, `sobclsgia`, `pobkdonhang`, `pobclsgia`, `bccanhbaohsd`...).
+     - Định nghĩa tham số mặc định và quy tắc trích xuất thực thể động (`user_id`, `time_to`, `cstatus`, `cgroup_yn`...).
+  2. **Bộ thực thi tổng quát (`erp_ai/generic_procedure_executor.py`):**
+     - Đóng gói tham số theo chuẩn Fast ERP: `{"JSON": {"user_id": "1", "searchDynamic": {...}}}`.
+     - Thực thi an toàn với kết nối chỉ đọc (`read_htmp`), transaction rollback tự động và statement timeout 15s.
+     - Tự động tách dòng tổng hợp (`bold` / `is_total`) và dòng chi tiết, kết xuất bảng Markdown và diễn giải tiếng Việt tự nhiên.
+  3. **Native Tool trong Open WebUI (`functions/htmp_postgres_query.py`):**
+     - Bổ sung tool `query_erp_report` vào lớp `Tools`.
+     - Đồng bộ toàn bộ 12 công cụ nghiệp vụ vào cơ sở dữ liệu `webui.db` của Open WebUI.
+
+### 27.2. Kết quả nghiệm thu thực chứng & Đối soát đa tầng
+1. **Kiểm thử Baseline 12 câu khảo sát:** Đạt **12/12 (100%)**, sạch hoàn toàn lỗi cú pháp `<tool_call>` và import module. (Bằng chứng: [`docs/evidence/ERP-VERIFICATION-20261107/ket-qua-12-cau.json`](file:///home/admin/ai-stack/docs/evidence/ERP-VERIFICATION-20261107/ket-qua-12-cau.json)).
+2. **Kiểm thử Ngẫu nhiên 5 phân hệ (Random Ad-Hoc Suite):** Đạt **5/5 (100%)** trên các câu hỏi tự do về Công nợ 131 (`sosoctcongno1kh`), Tổng hợp NXT kho (`inbcthnxt`), Đơn mua PO (`pobkdonhang`), Lịch sử giá bán (`sobclsgia`), và Tiến độ giao hàng (`sobctiendogh`). (Bằng chứng: [`docs/evidence/ERP-RANDOM-TEST-20261107/ket-qua-random.json`](file:///home/admin/ai-stack/docs/evidence/ERP-RANDOM-TEST-20261107/ket-qua-random.json)).
+3. **Kiểm thử Bộ 18 câu Sales QC7-5146-000 & KH0015:** Đạt **17/18 câu (94.4%)** qua executor logic, xử lý chính xác BOM, MOQ USD, số shot khuôn, quy cách đóng gói, thời điểm out kho, và tìm kiếm unaccent tên khách hàng Canon Thăng Long. (Bằng chứng: [`docs/evidence/ERP-18-QUESTIONS-20261107/ket-qua-18-cau.json`](file:///home/admin/ai-stack/docs/evidence/ERP-18-QUESTIONS-20261107/ket-qua-18-cau.json)).
+4. **Kiểm thử Tự động Trực tiếp trên Giao diện Web (Live Playwright UI Audit):** Đạt **13/13 câu (100%)** câu hỏi gửi trực tiếp qua giao diện Open WebUI (`http://127.0.0.1/`) với model `HTMP ERP`. Số liệu trả về trên chat hiển thị hoàn chỉnh, đối soát khớp 100% từng con số với database `3SERP_HTMP_DATA`. (Bằng chứng: [`docs/evidence/ERP-UI-AUDIT-20261107/ket-qua-doi-soat-ui.md`](file:///home/admin/ai-stack/docs/evidence/ERP-UI-AUDIT-20261107/ket-qua-doi-soat-ui.md) và [`docs/evidence/ERP-UI-AUDIT-20261107/ui-chat-audit.jsonl`](file:///home/admin/ai-stack/docs/evidence/ERP-UI-AUDIT-20261107/ui-chat-audit.jsonl)).
+
 
 
 

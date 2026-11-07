@@ -1,0 +1,304 @@
+[
+  {
+    "id": 1,
+    "topic": "BOM & Loại nhựa",
+    "question": "Mã hàng QC7-5146-000 dùng loại nhựa gì? Cấu trúc sản phẩm của mã hàng này gồm những gì?",
+    "tool_used": "lookup_bom",
+    "elapsed_seconds": 21.67,
+    "passed": true,
+    "matched_keywords": [
+      "PS-576D",
+      "0.026"
+    ],
+    "expected_keywords": [
+      "PS-576D",
+      "0.026"
+    ],
+    "final_answer": "Mã hàng QC7-5146-000 sử dụng loại nhựa PS-576D (HIPS 576H GR21 PSMT VE0271-33 Nu-0215 Dim black MBB3%). Cấu trúc sản phẩm của mã hàng này bao gồm:\n\n| Mã sản phẩm | Tên sản phẩm | Mã BOM | Phiên bản BOM | Mã vật tư | Tên vật tư | Định mức | Đơn vị |\n|-------------|--------------|--------|---------------|-----------|------------|----------|--------|\n| QC7-5146-000 | Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000 | QC7-5146-000-1.0 | - | PS-576D | HIPS 576H GR21 PSMT VE0271-33 Nu-0215 Dim black MBB3% | 0.026000000000000002 | KG |\n\nĐịnh mức này có hiệu lực từ 01/01/2023 đến 02/11/2032."
+  },
+  {
+    "id": 2,
+    "topic": "Bảng giá & MOQ",
+    "question": "MOQ báo giá hiện tại của mã QC7-5146-000 là bao nhiêu? Giá áp dụng hiện tại theo từng mức MOQ là bao nhiêu?",
+    "tool_used": "lookup_sales_price",
+    "elapsed_seconds": 12.73,
+    "passed": true,
+    "matched_keywords": [
+      "0.07959",
+      "1",
+      "USD"
+    ],
+    "expected_keywords": [
+      "0.07959",
+      "1",
+      "USD"
+    ],
+    "final_answer": "MOQ báo giá hiện tại của mã QC7-5146-000 là 1 PCS. Giá bán áp dụng hiện tại theo từng mức MOQ như sau:\n\n| Ngày hiệu lực | Giá bán (USD/PCS) |\n|--------------|-------------------|\n| 2026-10-24   | 0.07959           |\n\nGiá này áp dụng cho khách hàng Công ty TNHH Canon Việt Nam - Chi nhánh Thăng Long từ ngày 2026-10-24 đến 2026-12-31 theo Bảng giá 2026."
+  },
+  {
+    "id": 3,
+    "topic": "Lot xuất gần nhất",
+    "question": "Tính đến ngày 20/10/2026, lot gần nhất được xuất giao của mã QC7-5146-000 là lot nào? Ngày xuất và số lượng bao nhiêu?",
+    "tool_used": "lookup_sales_orders",
+    "elapsed_seconds": 18.13,
+    "passed": true,
+    "matched_keywords": [
+      "20/10/2026",
+      "QC7-5146-000"
+    ],
+    "expected_keywords": [
+      "20/10/2026",
+      "QC7-5146-000"
+    ],
+    "final_answer": "Lot gần nhất được xuất giao của mã QC7-5146-000 tính đến ngày 20/10/2026 là đơn hàng số 001-2610-007671 với số lượng 6540 PCS. Ngày xuất là 20/10/2026."
+  },
+  {
+    "id": 4,
+    "topic": "Xuất bán & Doanh thu",
+    "question": "Từ ngày 01/10/2026 đến hết ngày 20/10/2026, tổng số lượng xuất bán và doanh thu của mã QC7-5146-000 là bao nhiêu?",
+    "tool_used": "lookup_sales_orders",
+    "elapsed_seconds": 16.41,
+    "passed": true,
+    "matched_keywords": [
+      "QC7-5146-000"
+    ],
+    "expected_keywords": [
+      "QC7-5146-000"
+    ],
+    "final_answer": "Từ ngày 01/10/2026 đến 20/10/2026, tổng số lượng xuất bán của mã QC7-5146-000 là 88110 PCS và doanh thu đạt 12925266 USD."
+  },
+  {
+    "id": 5,
+    "topic": "Khách hàng của sản phẩm",
+    "question": "Mã hàng QC7-5146-000 được khai báo thuộc khách hàng nào?",
+    "tool_used": "lookup_general_catalog",
+    "elapsed_seconds": 4.9,
+    "passed": true,
+    "matched_keywords": [
+      "KH0015"
+    ],
+    "expected_keywords": [
+      "KH0015",
+      "Canon"
+    ],
+    "final_answer": "Mã hàng QC7-5146-000 được khai báo thuộc khách hàng có mã là KH0015."
+  },
+  {
+    "id": 6,
+    "topic": "Lịch sử nhập/chuyển kho",
+    "question": "Từ ngày 01/10/2026 đến hết ngày 20/10/2026, mã QC7-5146-000 được nhập kho vào những ngày nào, từ kho nào sang kho nào, số lượng bao nhiêu và tài khoản nào tạo phiếu?",
+    "tool_used": "lookup_stock_card",
+    "elapsed_seconds": 52.49,
+    "passed": true,
+    "matched_keywords": [
+      "QC7-5146-000"
+    ],
+    "expected_keywords": [
+      "QC7-5146-000"
+    ],
+    "final_answer": "Dưới đây là thông tin về việc nhập kho mã QC7-5146-000 từ ngày 01/10/2026 đến 20/10/2026:\n\n| Ngày CT | Số CT | Mã CT | Từ Kho | Sang Kho | Số Lượng (PCS) |\n|---------|-------|-------|--------|----------|---------------|\n| 01/10/2026 | 001-2610-000248 | PNF | KHO-XHTL | KHOTP00 | 2400 |\n| 01/10/2026 | 001-2610-000297 | PNF | KHO-XHLOT2 | KHOTP00 | 1320 |\n| 01/10/2026 | 001-2610-000308 | PNF | KHO-XHLOT2 | KHOTP00 | 540 |\n| 01/10/2026 | 001-2610-000357 | PNF | KHOTP00 | KHOTP00 | 2340 |\n| 01/10/2026 | 001-2610-000369 | PNF | KHO-XHTL | KHOTP00 | 480 |\n| 01/10/2026 | 001-2610-000479 | PNF | KHO-XHLOT2 | KHOTP00 | 780 |\n| 01/10/2026 | 001-2610-000482 | PNF | KHOTP00 | KHOTP00 | 2340 |\n| 01/10/2026 | 001-2610-000494 | PNF | KHO-XHTL | KHOTP00 | 540 |\n| 01/10/2026 | 001-2610-000505 | PNF | KHO-XHLOT2 | KHOTP00 | 540 |\n| 01/10/2026 | 001-2610-000559 | PNF | KHOTP02 | KHO_TAIMAY | 960 |\n| 01/10/2026 | 001-2610-000579 | PNF | KHOTP00 | KHOTP02 | 960 |\n\nTài khoản tạo phiếu là không rõ ràng từ dữ liệu cung cấp. Để biết chính xác tài khoản tạo phiếu, vui lòng kiểm tra trực tiếp trong hệ thống ERP hoặc liên hệ với bộ phận kế toán."
+  },
+  {
+    "id": 7,
+    "topic": "So sánh DO vs FCST",
+    "question": "So sánh DO và FCST hiện tại với bản trước của mã QC7-5146-000: số lượng tăng hay giảm bao nhiêu?",
+    "tool_used": "query_erp_report",
+    "elapsed_seconds": 15.72,
+    "passed": true,
+    "matched_keywords": [
+      "DO",
+      "FCST"
+    ],
+    "expected_keywords": [
+      "DO",
+      "FCST"
+    ],
+    "final_answer": "Dữ liệu hiện tại về đơn đặt hàng bán (DO) và dự báo (FCST) của mã sản phẩm QC7-5146-000 từ ngày 01/10/2026 đến 31/10/2026 cho thấy tổng số lượng đặt hàng là 167,440 PCS. Để so sánh với bản trước, tôi cần thêm thông tin về khoảng thời gian cụ thể của bản trước. Bạn có thể cung cấp thêm thông tin về khoảng thời gian cần so sánh không?"
+  },
+  {
+    "id": 8,
+    "topic": "Quy cách đóng gói & Quy đổi tồn",
+    "question": "Quy cách đóng gói của mã QC7-5146-000 gồm những thông tin gì? Có thể quy đổi tồn kho hiện tại theo quy cách đóng gói không?",
+    "tool_used": "lookup_general_catalog",
+    "elapsed_seconds": 15.17,
+    "passed": true,
+    "matched_keywords": [
+      "60",
+      "BGTD0070",
+      "BGKP0012",
+      "10"
+    ],
+    "expected_keywords": [
+      "60",
+      "BGTD0070",
+      "BGKP0012",
+      "10"
+    ],
+    "final_answer": "Quy cách đóng gói của mã QC7-5146-000 (Tấm trang trí bên trái bằng nhựa (phụ kiện của máy in) mã QC7-5146-000) như sau:\n\n- Thùng BGTD0070 chứa 60 PCS/thùng.\n- Khay BGKP0012 chứa 10 PCS/khay.\n\nBạn có thể quy đổi tồn kho hiện tại theo quy cách đóng gói này để biết số lượng thùng hoặc khay tương ứng với tổng số lượng tồn kho. Tôi sẽ tra cứu số lượng tồn kho hiện tại của mã QC7-5146-000 để bạn có thể quy đổi.\n<tool_call>\n{\"name\": \"lookup_inventory_stock\", \"arguments\": {\"material_code\": \"QC7-5146-000\"}}\n</tool_call>"
+  },
+  {
+    "id": 9,
+    "topic": "Số shot & Dự báo tuổi thọ khuôn",
+    "question": "Khuôn K_QC5-2919-000-V1 đã chạy tổng cộng bao nhiêu shot cho mã QC7-5146-000? Với demand của khách KH0015, có đủ dữ liệu để dự kiến thời điểm khuôn hết tuổi thọ không?",
+    "tool_used": "lookup_sales_orders",
+    "elapsed_seconds": 39.59,
+    "passed": true,
+    "matched_keywords": [
+      "K_QC5-2919-000-V1",
+      "shot"
+    ],
+    "expected_keywords": [
+      "K_QC5-2919-000-V1",
+      "shot"
+    ],
+    "final_answer": "Khuôn K_QC5-2919-000-V1 đã chạy tổng cộng 1721342 shot cho mã sản phẩm QC7-5146-000. Định mức bảo hành của khuôn này là 1000000 shot.\n\nDựa trên dữ liệu đơn hàng bán cho khách hàng KH0015 từ 01/10/2026 đến 31/10/2026, tổng số lượng đặt hàng là 167440 PCS, trong đó đã giao 154640 PCS. Hiện tại còn 7780 PCS cần giao, bao gồm 4660 PCS đơn hàng chưa giao và 3120 PCS giao chậm.\n\nTừ thông tin trên, chúng ta có thể dự đoán rằng với tốc độ sản xuất hiện tại, khuôn sẽ đạt đến giới hạn bảo hành (1000000 shot) sớm hơn dự kiến do nhu cầu cao từ khách hàng. Tuy nhiên, cần lưu ý rằng số lượng shot thực tế phụ thuộc vào số lượng sản phẩm được sản xuất và số cavity của khuôn. Nếu mỗi lần chạy khuôn tạo ra 2 sản phẩm (theo số cavity), thì số shot thực tế sẽ ít hơn số lượng sản phẩm cần sản xuất. \n\nDo đó, để xác định chính xác thời điểm khuôn hết tuổi thọ, cần phải biết thêm thông tin về số lượng sản phẩm cần sản xuất trong tương lai và số cavity của khuôn."
+  },
+  {
+    "id": 10,
+    "topic": "So sánh doanh thu 2 kỳ",
+    "question": "So sánh doanh thu mã QC7-5146-000 của khách KH0015 trong hai khoảng 01/09/2026–20/09/2026 và 01/10/2026–20/10/2026. Nêu số lượng và doanh thu từng kỳ.",
+    "tool_used": "query_erp_report",
+    "elapsed_seconds": 49.15,
+    "passed": true,
+    "matched_keywords": [
+      "01/09/2026",
+      "01/10/2026",
+      "QC7-5146-000"
+    ],
+    "expected_keywords": [
+      "01/09/2026",
+      "01/10/2026",
+      "QC7-5146-000"
+    ],
+    "final_answer": "Dưới đây là so sánh số lượng và doanh thu của mã sản phẩm QC7-5146-000 cho khách hàng KH0015 trong hai khoảng thời gian:\n\n| Khoảng thời gian | Số lượng đặt hàng | Doanh thu (VND) |\n|------------------|-------------------|------------------|\n| 01/09/2026 - 20/09/2026 | 79,440 | 1,588,800,000 |\n| 01/10/2026 - 20/10/2026 | 88,110 | 1,762,200,000 |\n\nLưu ý rằng doanh thu được tính dựa trên số lượng đặt hàng và giả định giá bán mỗi đơn vị là 20,000 VND (giá bán chưa bao gồm thuế VAT)."
+  },
+  {
+    "id": 11,
+    "topic": "Tồn kho theo khuôn",
+    "question": "Mã QC7-5146-000 hiện có tồn kho thuộc những khuôn nào? Số lượng theo từng khuôn là bao nhiêu?",
+    "tool_used": "lookup_inventory_stock",
+    "elapsed_seconds": 23.06,
+    "passed": true,
+    "matched_keywords": [
+      "QC7-5146-000",
+      "khuôn"
+    ],
+    "expected_keywords": [
+      "QC7-5146-000",
+      "khuôn"
+    ],
+    "final_answer": "Mã QC7-5146-000 hiện đang sử dụng hai khuôn sau đây:\n\n| Mã Khuôn | Tên Khuôn | Số Shot Bảo Hành | Tổng Số Shot |\n|----------|-----------|------------------|--------------|\n| K_QC5-2919-000-V1 | 14HI202 | 1000000 | 1721342 |\n| K_QC5-2919-000-V2 | 17HI72 | 1000000 | 1169359 |\n\nTồn kho của mã QC7-5146-000 phân bố như sau:\n\n| Mã Kho | Tồn Kho |\n|-------|---------|\n| KHOTP00 | 16380 PCS |\n| KHO_TAIMAY | 1320 PCS |\n| KHO-HANG-LE | 40 PCS |\n\nTổng cộng: 17740 PCS."
+  },
+  {
+    "id": 12,
+    "topic": "Đơn hàng bán KH0015",
+    "question": "Liệt kê dữ liệu đơn hàng bán của khách KH0015 từ ngày 01/10/2026 đến hết ngày 20/10/2026, gồm số đơn, ngày đặt, mã hàng, số lượng và trạng thái.",
+    "tool_used": "lookup_sales_orders",
+    "elapsed_seconds": 61.44,
+    "passed": true,
+    "matched_keywords": [
+      "KH0015"
+    ],
+    "expected_keywords": [
+      "KH0015",
+      "001-2610-"
+    ],
+    "final_answer": "Dưới đây là danh sách đơn hàng bán của khách hàng KH0015 từ ngày 01/10/2026 đến 20/10/2026:\n\n| Số Đơn | Ngày Đặt | Mã Hàng | Số Lượng | Trạng Thái |\n|--------|----------|---------|----------|------------|\n| 001-2611-001742 | 2026-11-07 | QL3-0132-000 | 280,000 | Đã Xác Nhận |\n| 001-2611-001738 | 2026-11-07 | QX2-0033-000 | 960,000 | Đã Xác Nhận |\n| 001-2611-001737 | 2026-11-07 | QM5-2602-000 | 3,600,000 | Đã Xác Nhận |\n| 001-2611-001736 | 2026-11-07 | QM5-1558-000 | 1,152,000 | Đã Xác Nhận |\n| 001-2611-001735 | 2026-11-07 | QM5-1557-000 | 1,176,000 | Đã Xác Nhận |\n| 001-2611-001734 | 2026-11-07 | QM5-1553-000 | 1,180,000 | Đã Xác Nhận |\n| 001-2611-001733 | 2026-11-07 | QM4-6018-000 | 1,170,000 | Đã Xác Nhận |\n| 001-2611-001732 | 2026-11-07 | QM4-6017-000 | 1,180,000 | Đã Xác Nhận |\n| 001-2611-001731 | 2026-11-07 | QL3-4766-000 | 7,500,000 | Đã Xác Nhận |\n| 001-2611-001730 | 2026-11-07 | QL2-7786-000 | 1,080,000 | Đã Xác Nhận |\n| 001-2611-001729 | 2026-11-07 | QC9-5143-000 | 1,440,000 | Đã Xác Nhận |\n| 001-2611-001728 | 2026-11-07 | QC9-0506-000 | 160,000 | Đã Xác Nhận |\n| 001-2611-001"
+  },
+  {
+    "id": 13,
+    "topic": "Trạng thái lệnh giao hàng",
+    "question": "Lệnh giao hàng 001-2610-001811 được ghi nhận hoàn thành khi nào? Cho biết trạng thái lệnh và căn cứ thời gian được dùng.",
+    "tool_used": "lookup_sales_orders",
+    "elapsed_seconds": 10.43,
+    "passed": true,
+    "matched_keywords": [
+      "001-2610-001811"
+    ],
+    "expected_keywords": [
+      "001-2610-001811"
+    ],
+    "final_answer": "Lệnh giao hàng 001-2610-001811 được ghi nhận hoàn thành vào ngày 03/10/2026. Trạng thái lệnh này đã được cập nhật như một đơn hàng bán thành công với tổng số lượng 440 PCS và tổng thành tiền là 1108237 VND."
+  },
+  {
+    "id": 14,
+    "topic": "Tồn kho theo từng kho",
+    "question": "Tồn kho hiện tại của mã QC7-5146-000 là bao nhiêu ở từng kho?",
+    "tool_used": "lookup_inventory_stock",
+    "elapsed_seconds": 11.37,
+    "passed": true,
+    "matched_keywords": [
+      "KHOTP00"
+    ],
+    "expected_keywords": [
+      "KHOTP00",
+      "16,380",
+      "17,740"
+    ],
+    "final_answer": "Tồn kho hiện tại của mã QC7-5146-000 ở từng kho tính đến ngày 2026-11-07 như sau:\n\n| Mã kho      | Số lượng tồn (PCS) |\n|-------------|--------------------|\n| KHOTP00     | 16380              |\n| KHO_TAIMAY  | 1380               |\n| KHO-HANG-LE | 40                 |\n\nTổng cộng: 17800 PCS."
+  },
+  {
+    "id": 15,
+    "topic": "Trạng thái QC tem thành phẩm",
+    "question": "Mã QC7-5146-000 hiện có lot thành phẩm nào ở trạng thái QC cần chú ý? Cho biết trạng thái QC đúng như dữ liệu ERP.",
+    "tool_used": "lookup_inventory_stock",
+    "elapsed_seconds": 14.88,
+    "passed": false,
+    "matched_keywords": [],
+    "expected_keywords": [
+      "3 - OK",
+      "17,740"
+    ],
+    "final_answer": "Mã QC7-5146-000 hiện có tổng cộng 17800 PCS thành phẩm ở các trạng thái tồn kho sau:\n\n| Mã Kho      | Số Lượng (PCS) |\n|-------------|----------------|\n| KHOTP00     | 16380          |\n| KHO_TAIMAY  | 1380           |\n| KHO-HANG-LE | 40             |\n\nTất cả các lot này đều đang ở trạng thái tồn kho bình thường, chưa có thông tin cụ thể về trạng thái QC. Để có thông tin chính xác về trạng thái QC, vui lòng kiểm tra trực tiếp trong hệ thống quản lý chất lượng hoặc liên hệ bộ phận kiểm soát chất lượng."
+  },
+  {
+    "id": 16,
+    "topic": "Đơn hàng thiếu giá chuẩn",
+    "question": "Trong đơn hàng của khách KH0015 từ ngày 01/10/2026 đến hết ngày 20/10/2026, có mã hàng nào chưa có giá chuẩn được liên kết không?",
+    "tool_used": "lookup_sales_orders",
+    "elapsed_seconds": 10.97,
+    "passed": true,
+    "matched_keywords": [
+      "KH0015"
+    ],
+    "expected_keywords": [
+      "KH0015"
+    ],
+    "final_answer": "Dựa trên báo cáo đơn hàng bán từ ngày 01/10/2026 đến 20/10/2026 cho khách hàng KH0015, tất cả các mã hàng đều đã có giá chuẩn được liên kết. Không có mã hàng nào chưa có giá chuẩn."
+  },
+  {
+    "id": 17,
+    "topic": "Mã khách hàng Canon Thăng Long",
+    "question": "Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long có mã khách hàng nào trên ERP?",
+    "tool_used": "lookup_general_catalog",
+    "elapsed_seconds": 4.92,
+    "passed": true,
+    "matched_keywords": [
+      "KH0015"
+    ],
+    "expected_keywords": [
+      "KH0015",
+      "CANON TL"
+    ],
+    "final_answer": "Mã khách hàng của Công ty TNHH Canon Việt Nam - Chi nhánh Thăng Long trên hệ thống ERP là **KH0015**."
+  },
+  {
+    "id": 18,
+    "topic": "Đối soát giao bù NG",
+    "question": "Từ ngày 01/10/2026 đến hết ngày 20/10/2026, mã QC7-5146-000 có số lượng giao bù NG là bao nhiêu, số lượng hàng NG đã nhận lại là bao nhiêu, và còn bao nhiêu chưa giao bù hoặc chưa nhận về? Phân biệt rõ giao bù NG với giao bù hàng thiếu; nếu ERP không lưu đủ căn cứ để phân biệt thì nêu rõ.",
+    "tool_used": "lookup_inventory_stock",
+    "elapsed_seconds": 35.76,
+    "passed": true,
+    "matched_keywords": [
+      "bù",
+      "NG",
+      "QC7-5146-000"
+    ],
+    "expected_keywords": [
+      "bù",
+      "NG",
+      "QC7-5146-000"
+    ],
+    "final_answer": "Từ ngày 01/10/2026 đến 20/10/2026, mã QC7-5146-000 không có giao bù hàng NG hoặc hàng thiếu. Theo báo cáo tồn kho, tổng số lượng hàng tồn kho của mã QC7-5146-000 tính đến ngày 20/10/2026 là 15460 PCS, phân bố như sau:\n\n- Kho KHOTP00: 11940 PCS\n- Kho KHO_TAIMAY: 3420 PCS\n- Kho KHO-HANG-LE: 100 PCS\n\nDo không có dữ liệu giao bù hàng NG hoặc hàng thiếu trong khoảng thời gian này nên không thể phân biệt số lượng giao bù NG với giao bù hàng thiếu."
+  }
+]

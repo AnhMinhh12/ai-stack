@@ -12,7 +12,7 @@ AI_STACK_DIR="/home/admin/ai-stack"
 BACKUP_ROOT="${AI_STACK_DIR}/backups"
 TIMESTAMP="$(date +'%Y%m%d_%H%M%S')"
 BACKUP_DIR="${BACKUP_ROOT}/backup_${TIMESTAMP}"
-RETENTION_DAYS=7
+RETENTION_DAYS=30
 MIN_ARTIFACT_BYTES=256
 
 # Load environment variables
