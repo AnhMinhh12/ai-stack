@@ -768,7 +768,15 @@ class Tools:
         account_code: str = "",
         **kwargs
     ) -> str:
-        """Truy vấn báo cáo nghiệp vụ ERP 3S & MES tổng hợp: Sổ chi tiết công nợ đối tác (TK 131 / 331), Tổng hợp Nhập-Xuất-Tồn kho (inbcthnxt), Báo cáo tồn kho tức thời (inbctonkho), Bảng kê đơn hàng bán (sobkdonhang), Bảng kê đơn đặt mua hàng (pobkdonhang), Báo cáo tiến độ giao hàng (sobctiendogh), Lịch sử thay đổi giá bán/mua (sobclsgia/pobclsgia), Cảnh báo hạn dùng lô (bccanhbaohsd), Thẻ kho chi tiết, Đánh giá chất lượng IQC, Hồ sơ khuôn ép nhựa & số shot, Định mức BOM, Thời gian dừng máy downtime."""
+        """Truy vấn báo cáo nghiệp vụ Fast ERP 3S & MES toàn diện cho 8 phân hệ doanh nghiệp:
+        1. KHO (IN): Tổng hợp NXT (inbcthnxt), Tồn theo kho (inbctontheokho), Tồn theo vị trí máy/kệ (inbctontheovitri), Kiểm kê (inbkkiemke), Tuổi hàng/HSD theo lô (bccanhbaohsd, inbctuoithotheolo), Trạng thái kho & sức chứa vị trí (inbctrangthaikho).
+        2. BÁN HÀNG (SO): Đơn hàng bán (sobkdonhang), Tiến độ giao (sobctiendogh), Bảng giá bán (dmbanggiact), Lệnh giao hàng TO2 (sobklenhgiaohang), Hàng trả lại NG (sobkcthangtralai), Tổng hợp bán hàng & Doanh số (sobctonghopbh), Dự báo tiêu thụ (sobkdubaotieuthu).
+        3. MUA HÀNG (PO): Đơn đặt mua (pobkdonhang), Bảng giá mua NCC (dmgiamuact), Lịch sử giá mua (pobclsgia), Tình trạng đơn mua (postatus), Phiếu nhập mua (pobknhap), Xuất trả NCC (pobkxuattra), Yêu cầu mua PR (pobkycnhap, pobkycmua), Tổng hợp nhập mua (pothnhap).
+        4. KẾ TOÁN & CÔNG NỢ (GL): Sổ cái tài khoản / Sổ chi tiết phát sinh TK 111, 112, 131, 152, 154, 155, 331, 511, 621, 641, 642 (glso1), Bảng cân đối phát sinh Trial Balance (glbccdsp), Sổ quỹ thu chi tiền mặt & tiền gửi (glsoctthuchi), Báo cáo chi phí SXKD dở dang & quản lý (glbcchiphi), Sổ công nợ 131/331 (sosoctcongno1kh, posoctcongno1ncc).
+        5. SẢN XUẤT (MES): Bảng kê điều độ Lệnh SX / Work Order (mesbkwo), Hiệu suất thiết bị OEE (mesbcoee), Đóng thùng thành phẩm (mesbkdongthung), Gộp tách thùng (mesbkgoptachthung), Bổ sung/bỏ shot khuôn (mesbkbosungshot), Thay khuôn (mesbkthaykhuon), Thời gian dừng máy downtime (lookup_mes_downtime), Setup máy (mesbksetup), Lỗi linh kiện NG (mesbknglinhkien).
+        6. KẾ HOẠCH & ĐỊNH MỨC (MF): Lệnh sản xuất LSX (mfbklsx), Thống kê sản xuất (mfbkthongke), Tiêu hao NVL theo LSX (mfbctieuhaonvltheolsx), NXT công đoạn (mfbcthnxtcd), Định mức BOM (lookup_bom), Tiến độ ECN/NMD (bctdecn, bctdnmd).
+        7. CHẤT LƯỢNG (QC): Đánh giá chất lượng hàng mua IQC (lookup_incoming_quality, qcbkiqcipqc), Trạng thái QC tem thành phẩm (lookup_qc_lot_status), Phế phẩm NG (lookup_mes_ng), Tổng hợp lỗi NVL (qcbcthloinvl), Lỗi thành phẩm TP (qcbcthloitp).
+        8. KHUÔN MẪU & THIẾT BỊ (VS): Hồ sơ khuôn & số shot dập (lookup_mold_and_mes, dmhosokhuon), Lịch sử bảo trì sửa chữa khuôn (dmhosokhuonsc), Báo cáo cảnh báo bảo dưỡng khuôn định kỳ (mesbcttdskhuon)."""
         from erp_ai.generic_procedure_executor import GenericProcedureExecutor
         res = GenericProcedureExecutor().query_report(
             report_type=report_type,
@@ -784,12 +792,12 @@ class Tools:
         return res.get("formatted_text", "Không có dữ liệu báo cáo phù hợp.")
 
     def lookup_sales_price(self, material_code: str = "", customer_code: str = "", **kwargs) -> str:
-        """Tra cứu giá bán của mã hàng, sản phẩm hoặc linh kiện từ Bảng giá bán ERP."""
+        """Tra cứu đơn giá của mã hàng, sản phẩm hoặc nguyên vật liệu (hạt nhựa) từ Bảng giá bán ERP hoặc Danh mục giá mua nhà cung cấp (dmgiamuact)."""
         from erp_ai.native_tools import ERPNativeTools
         return ERPNativeTools().lookup_sales_price(material_code=material_code, customer_code=customer_code, **kwargs)
 
     def lookup_inventory_stock(self, material_code: str = "", warehouse_code: str = "", date_as_of: str = "", **kwargs) -> str:
-        """Tra cứu số lượng tồn kho theo mã vật tư hoặc tổng tồn theo kho tính đến ngày chỉ định."""
+        """Tra cứu số lượng tồn kho và vị trí tồn kho cụ thể (ma_vi_tri) theo mã vật tư hoặc tổng tồn theo kho tính đến ngày chỉ định."""
         from erp_ai.native_tools import ERPNativeTools
         return ERPNativeTools().lookup_inventory_stock(material_code=material_code, warehouse_code=warehouse_code, date_as_of=date_as_of, **kwargs)
 
@@ -832,6 +840,26 @@ class Tools:
         """Báo cáo đánh giá chất lượng nguyên vật liệu / linh kiện mua vào IQC theo nhà cung cấp trong khoảng thời gian."""
         from erp_ai.native_tools import ERPNativeTools
         return ERPNativeTools().lookup_incoming_quality(date_from=date_from, date_to=date_to, supplier_code=supplier_code, **kwargs)
+
+    def lookup_qc_lot_status(self, material_code: str = "", warehouse_code: str = "", **kwargs) -> str:
+        """Kiểm tra trạng thái QC, tình trạng kiểm định chất lượng tem thành phẩm (3-OK, 5-NG, 6-Chờ xử lý, khóa lot)."""
+        from erp_ai.native_tools import ERPNativeTools
+        return ERPNativeTools().lookup_qc_lot_status(material_code=material_code, warehouse_code=warehouse_code, **kwargs)
+
+    def lookup_mes_ng(self, machine_code: str = "", material_code: str = "", date_from: str = "", date_to: str = "", **kwargs) -> str:
+        """Báo cáo bảng kê phế phẩm và lỗi sản xuất NG MES theo máy, theo chuyền hoặc mã sản phẩm."""
+        from erp_ai.native_tools import ERPNativeTools
+        return ERPNativeTools().lookup_mes_ng(machine_code=machine_code, material_code=material_code, date_from=date_from, date_to=date_to, **kwargs)
+
+    def lookup_mes_packing(self, material_code: str = "", box_serial: str = "", production_order: str = "", **kwargs) -> str:
+        """Tra cứu bảng kê đóng thùng, serial thùng tem thành phẩm MES."""
+        from erp_ai.native_tools import ERPNativeTools
+        return ERPNativeTools().lookup_mes_packing(material_code=material_code, box_serial=box_serial, production_order=production_order, **kwargs)
+
+    def lookup_delivery_orders(self, order_code: str = "", customer_code: str = "", material_code: str = "", date_from: str = "", date_to: str = "", **kwargs) -> str:
+        """Tra cứu lệnh giao hàng TO2 (ph96/ct96), tiến độ out kho thực tế và thời gian hoàn thành lệnh."""
+        from erp_ai.native_tools import ERPNativeTools
+        return ERPNativeTools().lookup_delivery_orders(order_code=order_code, customer_code=customer_code, material_code=material_code, date_from=date_from, date_to=date_to, **kwargs)
 
     def get_erp_schema(self, search: str = "") -> str:
         """Tìm bảng và cột ERP trước khi trả lời câu hỏi tự nhiên.

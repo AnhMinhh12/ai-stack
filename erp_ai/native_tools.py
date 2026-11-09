@@ -177,11 +177,44 @@ class ERPNativeTools:
                         cursor.execute(sql_ct81, (code,))
                         rows = cursor.fetchall()
 
+                    # Fallback to purchase price list (dmgiamuact) for raw materials / supplier purchasing prices
+                    is_purchase_context = any(w in f"{str(kwargs)}".lower() for w in ("mua", "ncc", "nhà cung cấp", "nha cung cap", "nhập"))
+                    is_purchase_price = False
+
+                    if not rows or is_purchase_context:
+                        sql_purchase = """
+                            SELECT 
+                                'BANG_GIA_MUA' AS ma_bang_gia,
+                                'Danh mục giá mua nhà cung cấp' AS ten_bang_gia,
+                                trim(g.ma_vt) AS ma_vt,
+                                coalesce(v.ten_vt, g.ma_vt) AS ten_vt,
+                                coalesce(v.dvt, 'KG') AS dvt,
+                                trim(g.ma_kh) AS ma_kh,
+                                coalesce(k.ten_kh, g.ma_kh) AS ten_kh,
+                                coalesce(nullif(g.gia, 0), g.gia0) AS don_gia_ban,
+                                coalesce(nullif(trim(g.ma_nt), ''), 'VND') AS ma_nt,
+                                coalesce(g.sl_min, 0) AS sl_min,
+                                to_char(g.ngay_bd, 'YYYY-MM-DD') AS ngay_bd,
+                                to_char(g.ngay_kt, 'YYYY-MM-DD') AS ngay_kt
+                            FROM public.dmgiamuact g
+                            LEFT JOIN public.dmvt v ON upper(trim(v.ma_vt)) = upper(trim(g.ma_vt))
+                            LEFT JOIN public.dmkh k ON upper(trim(k.ma_kh)) = upper(trim(g.ma_kh))
+                            WHERE upper(trim(g.ma_vt)) = %s
+                              AND (%s = '' OR upper(trim(g.ma_kh)) = %s)
+                            ORDER BY g.ngay_bd DESC NULLS LAST
+                            LIMIT 10;
+                        """
+                        cursor.execute(sql_purchase, (code, cust, cust))
+                        purch_rows = cursor.fetchall()
+                        if purch_rows and (not rows or is_purchase_context):
+                            rows = purch_rows
+                            is_purchase_price = True
+
                     if not rows:
                         cursor.execute("SELECT ma_vt, ten_vt FROM public.dmvt WHERE upper(trim(ma_vt)) = %s", (code,))
                         r_dm = cursor.fetchone()
                         if r_dm:
-                            return f"Mã hàng {code} ({r_dm['ten_vt']}) có trong danh mục hệ thống nhưng chưa được thiết lập bảng giá bán (dmbanggiact) và chưa có lịch sử xuất bán (ct81)."
+                            return f"Mã hàng {code} ({r_dm['ten_vt']}) có trong danh mục hệ thống nhưng chưa được thiết lập bảng giá bán (dmbanggiact), bảng giá mua (dmgiamuact) và chưa có lịch sử xuất bán (ct81)."
                         prefix = code[:6] if len(code) >= 6 else code
                         cursor.execute("SELECT ma_vt, ten_vt FROM public.dmvt WHERE ma_vt ILIKE %s ORDER BY ma_vt LIMIT 3", (f"%{prefix}%",))
                         sugs = cursor.fetchall()
@@ -200,15 +233,23 @@ class ERPNativeTools:
                     kt = first.get("ngay_kt", "")
                     bg = first.get("ten_bang_gia", first.get("ma_bang_gia", ""))
 
-                    msg = f"Giá bán của mã hàng {code} ({ten}) là {gia_str} {nt}/{dvt}"
-                    if kh:
-                        msg += f" (khách hàng: {kh})"
-                    if bd and kt:
-                        msg += f", hiệu lực: {bd} đến {kt}"
-                    if bg:
-                        msg += f" [{bg}]."
+                    if is_purchase_price:
+                        msg = f"Giá mua của mã hàng {code} ({ten}) là {gia_str} {nt}/{dvt}"
+                        if kh:
+                            msg += f" (Nhà cung cấp: {kh})"
+                        if bd and kt:
+                            msg += f", hiệu lực: {bd} đến {kt}"
+                        msg += " theo Danh mục giá mua nhà cung cấp (dmgiamuact)."
                     else:
-                        msg += "."
+                        msg = f"Giá bán của mã hàng {code} ({ten}) là {gia_str} {nt}/{dvt}"
+                        if kh:
+                            msg += f" (khách hàng: {kh})"
+                        if bd and kt:
+                            msg += f", hiệu lực: {bd} đến {kt}"
+                        if bg:
+                            msg += f" [{bg}]."
+                        else:
+                            msg += "."
 
                     return json.dumps({
                         "report": {"id": "bang-gia-ban", "title": "Bảng giá bán / Chính sách giá"},
@@ -360,21 +401,57 @@ class ERPNativeTools:
                                 return f"Không tìm thấy mã vật tư '{code}' trong hệ thống ERP. Có thể bạn muốn tìm: {sug_str}?"
                             return f"Không tìm thấy mã vật tư '{code}' trong danh mục ERP."
 
-                        parts = [f"{r['ma_kho']}: {clean_num(r['ton_kho'])} {dvt}" for r in rows]
+                        # Query location breakdown if managed by location/lot
+                        locations_by_kho = {}
+                        try:
+                            cursor.execute("""
+                                SELECT 
+                                    trim(c.ma_kho) AS ma_kho,
+                                    trim(coalesce(c.ma_vi_tri, '')) AS ma_vi_tri,
+                                    sum(qty) AS ton_kho
+                                FROM (
+                                    SELECT ma_kho, ma_vi_tri, ton00 AS qty
+                                    FROM public.cdbsp
+                                    WHERE nam = extract(year FROM %s::date)::smallint AND upper(trim(ma_vt)) = %s
+                                    UNION ALL
+                                    SELECT ma_kho, ma_vi_tri, (sl_nhap - sl_xuat) AS qty
+                                    FROM public.ct70bsp
+                                    WHERE upper(trim(ma_vt)) = %s AND ngay_ct >= %s AND ngay_ct <= %s::date
+                                ) c
+                                GROUP BY trim(c.ma_kho), trim(coalesce(c.ma_vi_tri, ''))
+                                HAVING sum(qty) > 0
+                                ORDER BY trim(c.ma_kho), ton_kho DESC;
+                            """, (as_of, code, code, start_date, as_of))
+                            loc_rows = cursor.fetchall()
+                            for lr in loc_rows:
+                                if lr["ma_vi_tri"]:
+                                    locations_by_kho.setdefault(lr["ma_kho"].upper(), []).append(f"{lr['ma_vi_tri']}: {clean_num(lr['ton_kho'])} {dvt}")
+                        except Exception as e_loc:
+                            LOG.warning("Could not fetch location breakdown: %s", e_loc)
+
+                        parts = []
+                        for r in rows:
+                            k_code = r["ma_kho"].upper()
+                            k_locs = locations_by_kho.get(k_code, [])
+                            loc_s = f" [vị trí: {', '.join(k_locs)}]" if k_locs else ""
+                            parts.append(f"{r['ma_kho']}: {clean_num(r['ton_kho'])} {dvt}{loc_s}")
+
                         total = sum(Decimal(str(r["ton_kho"])) for r in rows)
 
                         if wh:
                             wh_match = [r for r in rows if r["ma_kho"].upper() == wh]
                             wh_qty = Decimal(str(wh_match[0]["ton_kho"])) if wh_match else Decimal(0)
-                            msg = f"Tồn kho của mã {code} ({ten_vt}) tại kho {wh} tính đến {as_of} là {clean_num(wh_qty)} {dvt}"
-                            if total > 0:
+                            wh_locs = locations_by_kho.get(wh, [])
+                            loc_detail = f" (tại vị trí: {', '.join(wh_locs)})" if wh_locs else ""
+                            msg = f"Tồn kho của mã {code} ({ten_vt}) tại kho {wh} tính đến {as_of} là {clean_num(wh_qty)} {dvt}{loc_detail}."
+                            if total > 0 and total != wh_qty:
                                 msg += f" (Tổng tồn toàn bộ các kho: {clean_num(total)} {dvt} gồm {'; '.join(parts)})."
-                            else:
+                            elif total == 0:
                                 msg += f" (Mã {code} hiện tại không còn tồn ở kho nào khác)."
                             return json.dumps({
                                 "report": {"id": "bao-cao-ton-theo-kho", "title": "Báo cáo tồn theo kho"},
                                 "lookup": {"ma_vt": code, "ma_kho": wh, "date_as_of": as_of},
-                                "rows": [{"ma_kho": r["ma_kho"], "ton_kho": float(r["ton_kho"])} for r in rows],
+                                "rows": [{"ma_kho": r["ma_kho"], "ton_kho": float(r["ton_kho"]), "vi_tri": ", ".join(locations_by_kho.get(r["ma_kho"].upper(), []))} for r in rows],
                                 "message": msg,
                             }, ensure_ascii=False, default=str)
                         else:
@@ -382,7 +459,7 @@ class ERPNativeTools:
                             return json.dumps({
                                 "report": {"id": "bao-cao-ton-theo-kho", "title": "Báo cáo tồn theo kho"},
                                 "lookup": {"ma_vt": code, "date_as_of": as_of},
-                                "rows": [{"ma_kho": r["ma_kho"], "ton_kho": float(r["ton_kho"])} for r in rows],
+                                "rows": [{"ma_kho": r["ma_kho"], "ton_kho": float(r["ton_kho"]), "vi_tri": ", ".join(locations_by_kho.get(r["ma_kho"].upper(), []))} for r in rows],
                                 "message": msg,
                             }, ensure_ascii=False, default=str)
 
@@ -1076,3 +1153,253 @@ class ERPNativeTools:
         except Exception as e:
             LOG.exception("lookup_incoming_quality failed")
             return f"Lỗi khi tra cứu chất lượng hàng mua: {str(e)}"
+
+    def lookup_qc_lot_status(self, material_code: str = "", warehouse_code: str = "", **kwargs) -> str:
+        """Kiểm tra trạng thái QC, tình trạng kiểm định chất lượng tem thành phẩm (3-OK, 5-NG, 6-Chờ xử lý, khóa lot)."""
+        code = (material_code or kwargs.get("code") or "").strip().upper()
+        kho = (warehouse_code or kwargs.get("warehouse") or "").strip().upper()
+        if not code:
+            return "Cần cung cấp mã vật tư hoặc mã thành phẩm để kiểm tra trạng thái QC."
+
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+
+                    sql = """
+                        SELECT 
+                            a.status_qc,
+                            coalesce(o.form_name, CASE 
+                                WHEN a.status_qc = 3 THEN '3 - OK' 
+                                WHEN a.status_qc = 5 THEN '5 - NG'
+                                WHEN a.status_qc = 6 THEN '6 - Chờ xử lý'
+                                ELSE 'Trạng thái ' || a.status_qc::text 
+                            END) AS form_name,
+                            sum((e->>'so_luong')::numeric) AS qty,
+                            count(*) AS count_tem
+                        FROM public.intem_log a
+                        CROSS JOIN LATERAL jsonb_array_elements(
+                            CASE WHEN jsonb_typeof(a.data_tem::jsonb)='array' THEN a.data_tem::jsonb ELSE '[]'::jsonb END
+                        ) e
+                        LEFT JOIN public.sys_listoptions o ON o.form = 'OQC' AND o.form_type = 'TYPE_ST' AND o.form_value = a.status_qc::text
+                        WHERE a.nxt = 1 AND a.status = '1'
+                          AND upper(trim(e->>'ma_vt')) = %s
+                          AND (%s = '' OR upper(trim(a.ma_kho)) = %s)
+                        GROUP BY a.status_qc, o.form_name
+                        ORDER BY a.status_qc;
+                    """
+                    cursor.execute(sql, (code, kho, kho))
+                    rows = cursor.fetchall()
+                    if not rows:
+                        return f"Không tìm thấy tem thành phẩm đang hoạt động của mã '{code}' trên hệ thống tem intem_log."
+
+                    total_qty = sum(float(r["qty"] or 0) for r in rows)
+                    total_tem = sum(int(r["count_tem"]) for r in rows)
+                    has_ng = any(r["status_qc"] in (5, 6) for r in rows)
+                    ng_rows = [r for r in rows if r["status_qc"] in (5, 6)]
+
+                    parts = [f"{r['form_name']}: {int(float(r['qty'])):,} PCS ({r['count_tem']} tem)" for r in rows]
+                    if has_ng:
+                        ng_desc = "; ".join(f"{r['form_name']}: {int(float(r['qty'])):,} PCS" for r in ng_rows)
+                        conclusion = f"CẢNH BÁO: Phát hiện {ng_desc} đang ở trạng thái khoanh vùng / NG / chờ xử lý."
+                    else:
+                        conclusion = "Toàn bộ tem thành phẩm đều ở trạng thái 3 - OK (đạt chất lượng), không có lot nào bị khóa hoặc khoanh vùng NG."
+
+                    msg = f"Trạng thái QC thành phẩm mã {code}: Tổng cộng {int(total_qty):,} PCS ({total_tem} tem). Phân bổ: " + "; ".join(parts) + f". {conclusion}"
+
+                    return json.dumps({
+                        "report": {"id": "trang-thai-qc-tem", "title": f"Trạng thái kiểm định QC tem thành phẩm ({code})"},
+                        "lookup": {"material_code": code, "warehouse_code": kho},
+                        "summary": {"total_qty": total_qty, "total_tem": total_tem, "has_ng": has_ng},
+                        "rows": rows,
+                        "message": msg
+                    }, ensure_ascii=False, default=str)
+        except Exception as e:
+            LOG.exception("lookup_qc_lot_status failed")
+            return f"Lỗi khi tra cứu trạng thái QC tem: {str(e)}"
+
+    def lookup_mes_ng(self, machine_code: str = "", material_code: str = "", date_from: str = "", date_to: str = "", **kwargs) -> str:
+        """Báo cáo bảng kê phế phẩm và lỗi sản xuất NG MES theo máy, theo chuyền hoặc mã sản phẩm."""
+        d_from, d_to = resolve_date_range(date_from, date_to, kwargs.get("hint") or kwargs.get("question") or "")
+        m_code = (machine_code or kwargs.get("machine") or "").strip().upper()
+        p_code = (material_code or kwargs.get("product") or "").strip().upper()
+
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+
+                    sql = """
+                        SELECT 
+                            to_char(c.create_date, 'YYYY-MM-DD') AS ngay_phat_sinh,
+                            trim(c.machine_code) AS ma_may,
+                            trim(c.product_code) AS ma_sp,
+                            coalesce(v.ten_vt, c.product_code) AS ten_sp,
+                            trim(c.step_code) AS cong_doan,
+                            sum(coalesce(c.ng_qty, 0)) AS sl_ng,
+                            count(*) AS so_lan_ng,
+                            coalesce(c.note, 'Không ghi chú') AS ghi_chu
+                        FROM public.mes_oi_ng_confirm c
+                        LEFT JOIN public.dmvt v ON upper(trim(v.ma_vt)) = upper(trim(c.product_code))
+                        WHERE c.create_date >= %s::date AND c.create_date <= %s::date
+                          AND (%s = '' OR upper(trim(c.machine_code)) = %s)
+                          AND (%s = '' OR upper(trim(c.product_code)) = %s)
+                        GROUP BY c.create_date, c.machine_code, c.product_code, v.ten_vt, c.step_code, c.note
+                        ORDER BY sl_ng DESC
+                        LIMIT 30;
+                    """
+                    cursor.execute(sql, (d_from, d_to, m_code, m_code, p_code, p_code))
+                    rows = cursor.fetchall()
+                    if not rows:
+                        target = f"máy '{m_code}'" if m_code else (f"mã '{p_code}'" if p_code else "toàn nhà máy")
+                        return f"Không ghi nhận phát sinh lỗi sản xuất NG của {target} từ {d_from} đến {d_to}."
+
+                    total_ng = sum(float(r["sl_ng"] or 0) for r in rows)
+                    total_events = sum(int(r["so_lan_ng"]) for r in rows)
+
+                    msg = f"Bảng kê phế phẩm NG từ {d_from} đến {d_to}: Ghi nhận tổng cộng {int(total_ng):,} sản phẩm lỗi NG qua {total_events} lượt xác nhận."
+
+                    return json.dumps({
+                        "report": {"id": "phe-pham-mes-ng", "title": f"Bảng kê phế phẩm NG sản xuất ({d_from} đến {d_to})"},
+                        "lookup": {"machine_code": m_code, "material_code": p_code, "date_from": d_from, "date_to": d_to},
+                        "summary": {"total_ng": total_ng, "total_events": total_events},
+                        "row_count": len(rows),
+                        "rows": rows,
+                        "message": msg
+                    }, ensure_ascii=False, default=str)
+        except Exception as e:
+            LOG.exception("lookup_mes_ng failed")
+            return f"Lỗi khi tra cứu phế phẩm NG MES: {str(e)}"
+
+    def lookup_mes_packing(self, material_code: str = "", box_serial: str = "", production_order: str = "", **kwargs) -> str:
+        """Tra cứu bảng kê đóng thùng, serial thùng tem thành phẩm MES."""
+        p_code = (material_code or kwargs.get("product") or "").strip().upper()
+        s_box = (box_serial or kwargs.get("serial") or "").strip().upper()
+        p_order = (production_order or kwargs.get("wo") or "").strip().upper()
+
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+
+                    sql = """
+                        SELECT 
+                            d.serial_tem_thung,
+                            d.product_code,
+                            coalesce(v.ten_vt, d.product_name) AS product_name,
+                            d.quantity,
+                            d.station_code,
+                            d.production_order,
+                            d.mes_scheduling_code
+                        FROM public.mes_oi_dong_thung d
+                        LEFT JOIN public.dmvt v ON upper(trim(v.ma_vt)) = upper(trim(d.product_code))
+                        WHERE (%s = '' OR upper(trim(d.product_code)) = %s)
+                          AND (%s = '' OR upper(trim(d.serial_tem_thung)) LIKE '%%' || %s || '%%')
+                          AND (%s = '' OR upper(trim(d.production_order)) = %s)
+                        ORDER BY d.id_thung DESC NULLS LAST
+                        LIMIT 30;
+                    """
+                    cursor.execute(sql, (p_code, p_code, s_box, s_box, p_order, p_order))
+                    rows = cursor.fetchall()
+                    if not rows:
+                        return f"Không tìm thấy thông tin đóng thùng phù hợp với tiêu chí tra cứu."
+
+                    total_qty = sum(float(r["quantity"] or 0) for r in rows)
+                    msg = f"Bảng kê đóng thùng MES: Ghi nhận {len(rows)} thùng thành phẩm (Tổng số lượng: {int(total_qty):,} PCS)."
+
+                    return json.dumps({
+                        "report": {"id": "dong-thung-mes", "title": "Bảng kê đóng thùng thành phẩm MES"},
+                        "lookup": {"material_code": p_code, "serial": s_box, "order": p_order},
+                        "summary": {"total_boxes": len(rows), "total_quantity": total_qty},
+                        "row_count": len(rows),
+                        "rows": rows,
+                        "message": msg
+                    }, ensure_ascii=False, default=str)
+        except Exception as e:
+            LOG.exception("lookup_mes_packing failed")
+            return f"Lỗi khi tra cứu đóng thùng MES: {str(e)}"
+
+    def lookup_delivery_orders(self, order_code: str = "", customer_code: str = "", material_code: str = "", date_from: str = "", date_to: str = "", **kwargs) -> str:
+        """Tra cứu lệnh giao hàng TO2 (ph96/ct96), tiến độ out kho thực tế và thời gian hoàn thành lệnh."""
+        o_code = (order_code or kwargs.get("code") or "").strip().upper()
+        c_code = (customer_code or kwargs.get("customer") or "").strip().upper()
+        m_code = (material_code or kwargs.get("material") or "").strip().upper()
+        d_from, d_to = resolve_date_range(date_from, date_to, kwargs.get("hint") or kwargs.get("question") or "")
+
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor(row_factory=dict_row) as cursor:
+                    cursor.execute("SET TRANSACTION READ ONLY")
+                    cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
+
+                    sql = """
+                        SELECT 
+                            trim(p.so_ct) AS so_ct,
+                            to_char(p.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
+                            trim(p.ma_kh) AS ma_kh,
+                            coalesce(k.ten_kh, p.ma_kh) AS ten_kh,
+                            trim(c.ma_vt) AS ma_vt,
+                            coalesce(v.ten_vt, c.ma_vt) AS ten_vt,
+                            c.so_luong,
+                            p.status,
+                            CASE 
+                                WHEN p.status = '1' THEN 'Chờ chỉ thị lô'
+                                WHEN p.status = '2' THEN 'Đã chỉ thị lô'
+                                WHEN p.status = '12' THEN 'Hoàn thành out hàng'
+                                ELSE 'Trạng thái ' || coalesce(p.status, '0')
+                            END AS ten_trang_thai,
+                            to_char(p.date2, 'YYYY-MM-DD') AS ngay_hoan_thanh,
+                            to_char(p.time2, 'HH24:MI:SS') AS gio_hoan_thanh,
+                            trim(u.user_name) AS nguoi_hoan_thanh
+                        FROM public.ph96 p
+                        JOIN public.ct96 c ON p.stt_rec = c.stt_rec
+                        LEFT JOIN public.dmkh k ON upper(trim(k.ma_kh)) = upper(trim(p.ma_kh))
+                        LEFT JOIN public.dmvt v ON upper(trim(v.ma_vt)) = upper(trim(c.ma_vt))
+                        LEFT JOIN public.userinfo u ON u.user_id = p.user_id2
+                        WHERE (%s = '' OR upper(trim(p.so_ct)) = %s)
+                          AND (%s = '' OR upper(trim(p.ma_kh)) = %s)
+                          AND (%s = '' OR upper(trim(c.ma_vt)) = %s)
+                          AND (
+                              %s != '' OR 
+                              (p.ngay_ct >= %s::date AND p.ngay_ct <= %s::date)
+                          )
+                        ORDER BY p.ngay_ct DESC, p.so_ct DESC
+                        LIMIT 30;
+                    """
+                    cursor.execute(sql, (o_code, o_code, c_code, c_code, m_code, m_code, o_code, d_from, d_to))
+                    rows = cursor.fetchall()
+                    if not rows:
+                        target = f"lệnh '{o_code}'" if o_code else (f"khách hàng '{c_code}'" if c_code else "hệ thống")
+                        return f"Không tìm thấy lệnh giao hàng (TO2) của {target} trong kỳ đối soát."
+
+                    total_qty = sum(float(r["so_luong"] or 0) for r in rows)
+                    first_row = rows[0]
+                    if o_code and first_row.get("ngay_hoan_thanh") and first_row.get("gio_hoan_thanh"):
+                        out_info = f"Lệnh {o_code} đã được hoàn thành out kho lúc {first_row['gio_hoan_thanh']} ngày {first_row['ngay_hoan_thanh']} (Bởi: {first_row.get('nguoi_hoan_thanh') or 'Thủ kho'})."
+                    elif o_code:
+                        out_info = f"Lệnh {o_code} hiện đang ở trạng thái: {first_row['ten_trang_thai']}."
+                    else:
+                        out_info = f"Ghi nhận {len(rows)} dòng lệnh giao hàng, tổng số lượng: {int(total_qty):,} PCS."
+
+                    return json.dumps({
+                        "report": {"id": "lenh-giao-hang-to2", "title": "Bảng kê lệnh giao hàng (TO2)"},
+                        "lookup": {"order_code": o_code, "customer_code": c_code, "material_code": m_code},
+                        "summary": {"total_rows": len(rows), "total_quantity": total_qty},
+                        "row_count": len(rows),
+                        "rows": rows,
+                        "message": out_info
+                    }, ensure_ascii=False, default=str)
+        except Exception as e:
+            LOG.exception("lookup_delivery_orders failed")
+            return f"Lỗi khi tra cứu lệnh giao hàng: {str(e)}"

@@ -48,7 +48,7 @@ APPROVED_MODELS = ("htmp-nhanh", "qwen2.5-14b", "htmp-erp-agent-staging")
 
 ROOT_DIR = Path(__file__).resolve().parents[1] if "__file__" in globals() else Path("/app/backend")
 CONTAINER_DB = Path("/app/backend/data/webui.db")
-HOST_LOCAL_DB = ROOT_DIR / "local_webui.db"
+HOST_LOCAL_DB = ROOT_DIR / "data" / "local_webui.db"
 DEFAULT_DB = CONTAINER_DB if CONTAINER_DB.is_file() else HOST_LOCAL_DB
 
 XLSX_CANDIDATES = [

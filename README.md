@@ -23,7 +23,10 @@ Qwen2.5-14B trên NVIDIA GB10, phục vụ bởi vLLM và truy cập qua Open We
 Ba tài liệu chuẩn của repository là:
 
 - `README.md` (file này): bối cảnh, kiến trúc, hiện trạng và quyết định mở rộng.
-- [`PLAN.md`](./PLAN.md): trạng thái gate, blocker, evidence và lộ trình triển khai.
+- [`docs/PROJECT_MAP.md`](./docs/PROJECT_MAP.md): **Bản đồ cấu trúc dự án** — tóm tắt chức năng và nội dung chi tiết của từng file/thư mục cho thành viên mới.
+- [`docs/TONG_QUAN_KHAO_SAT_ERP_MES_VA_HUONG_CHATBOT.md`](./docs/TONG_QUAN_KHAO_SAT_ERP_MES_VA_HUONG_CHATBOT.md): kế hoạch master và kiến trúc ERP/MES chatbot (cập nhật 07/11/2026).
+- [`docs/DANH_SACH_CAU_HOI_TEST_ERP_VA_BAO_CAO.md`](./docs/DANH_SACH_CAU_HOI_TEST_ERP_VA_BAO_CAO.md): bộ câu hỏi kiểm thử và tổng hợp báo cáo.
+- [`docs/PLAN.md`](./docs/PLAN.md): trạng thái gate, blocker, evidence và lộ trình triển khai.
 - [`RUNBOOK.md`](./RUNBOOK.md): triển khai, kiểm thử, vận hành và production gate.
 
 Tài liệu khác chỉ là artifact:

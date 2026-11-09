@@ -12,7 +12,7 @@ def _incident_db_path() -> Path:
         return Path(os.environ['HTMP_ERP_INCIDENT_DB'])
     if Path('/app/backend/data').exists():
         return Path('/app/backend/data/erp-incidents.db')
-    return Path('/home/admin/ai-stack/scratch/erp-incidents.db')
+    return Path('/home/admin/ai-stack/data/erp-incidents.db')
 
 def _ensure_schema(db):
     db.execute('CREATE TABLE IF NOT EXISTS incidents (id INTEGER PRIMARY KEY, created_at INTEGER NOT NULL, user_id TEXT NOT NULL, chat_id TEXT NOT NULL, stage TEXT NOT NULL, code TEXT NOT NULL, chat_excerpt TEXT)')
