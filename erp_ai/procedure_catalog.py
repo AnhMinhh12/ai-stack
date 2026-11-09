@@ -865,8 +865,8 @@ REPORT_CATALOG: Dict[str, Dict[str, Any]] = {
         "procedure_name": "mesbkbosungshot",
         "title": "Bảng kê bổ sung hoặc bỏ shot khuôn trong ca sản xuất",
         "aliases": [
-            "bo sung shot", "bo shot", "shot bo sung", "shot huy",
-            "dieu chinh shot", "tang giam shot", "shot bat thuong"
+            "bo sung hoac bo shot", "bo sung shot", "bo shot", "shot bo sung", "shot huy",
+            "dieu chinh shot", "tang giam shot", "shot bat thuong", "bo sung shot khuon", "bo shot khuon"
         ],
         "description": "Nhật ký các lần kỹ thuật viên hoặc máy bổ sung thêm shot hoặc loại bỏ shot hỏng trong ca làm việc.",
         "default_params": {
@@ -1030,13 +1030,20 @@ REPORT_CATALOG: Dict[str, Dict[str, Any]] = {
         "aliases": [
             "quy cach dong goi", "dong goi", "bao bi", "dong thung", "khay",
             "thung bao nhieu", "packs0", "tai khoan hp", "nhan vien", "hp4509", "4509",
-            "danh muc", "tim khach hang", "ma khach hang", "ma ncc"
+            "danh muc", "tim khach hang", "ma khach hang", "ma ncc",
+            "khach hang cua ma hang", "ma hang thuoc khach hang nao", "khach hang so huu",
+            "ma vat tu thuoc khach hang", "khai bao thuoc khach hang", "tra cuu ma hang",
+            "thong tin ma hang", "khach hang cua san pham"
         ],
-        "description": "Quy cách đóng gói vật tư (số lượng/thùng, khay) hoặc tra cứu mã nhân viên, khách hàng, nhà cung cấp.",
+        "description": "Quy cách đóng gói vật tư (số lượng/thùng, khay), tra cứu mã hàng thuộc khách hàng nào, hoặc mã nhân viên, khách hàng, nhà cung cấp.",
         "column_labels": {
             "ma_vt": "Mã vật tư",
             "ten_vt": "Tên vật tư",
             "dvt": "ĐVT",
+            "model": "Model",
+            "ma_kh": "Mã khách hàng",
+            "ten_kh": "Tên khách hàng",
+            "dia_chi": "Địa chỉ khách hàng",
             "so_luong_thung": "SL/Thùng",
             "so_luong_khay": "SL/Khay",
             "ma_thung": "Mã thùng",
@@ -1227,7 +1234,11 @@ REPORT_CATALOG: Dict[str, Dict[str, Any]] = {
         'summary_fields': ['so_luong'],
         'title': 'Bảng kê yêu cầu mua hàng'},
 
-    "pothnhap": {       'aliases': ['tong hop nhap mua', 'tong hop hang nhap ncc', 'th nhap mua', 'pothnhap'],
+    "pothnhap": {       'aliases': [
+                            'tong hop nhap mua', 'tong hop hang nhap mua', 'tong hop hang nhap', 
+                            'hang nhap mua', 'tong hop mua hang', 'tong hop hang nhap ncc', 
+                            'nhap mua tu nha cung cap', 'th nhap mua', 'pothnhap'
+                        ],
         'column_labels': {       'ma_kh': 'Mã NCC',
                                  'ma_vt': 'Mã VT',
                                  'so_luong': 'Tổng SL Nhập',
@@ -1615,6 +1626,7 @@ def find_report_in_catalog(query_or_intent: str) -> Optional[Dict[str, Any]]:
 
     q = (query_or_intent or "").strip().lower()
     q_norm = normalize_vietnamese(q)
+    q_words = set(q_norm.split())
 
     # 1. Exact catalog ID match
     if q in REPORT_CATALOG:
@@ -1626,15 +1638,25 @@ def find_report_in_catalog(query_or_intent: str) -> Optional[Dict[str, Any]]:
         score = 0
         for alias in report_meta.get("aliases", []):
             alias_norm = normalize_vietnamese(alias)
+            alias_words = set(alias_norm.split())
             if re.search(r"\b" + re.escape(alias_norm) + r"\b", q_norm):
-                # Longer alias matches get higher precedence
-                score = max(score, len(alias_norm.split()) * 10 + len(alias_norm))
+                # Exact full phrase match
+                score = max(score, len(alias_words) * 15 + len(alias_norm))
             elif alias_norm in q_norm:
-                score = max(score, len(alias_norm.split()) * 5)
+                score = max(score, len(alias_words) * 8)
+            elif len(alias_words) >= 2 and alias_words.issubset(q_words):
+                # All keywords of the alias appear in the query
+                score = max(score, len(alias_words) * 6)
         
+        # Title words subset match
+        t_norm = normalize_vietnamese(report_meta.get("title", ""))
+        t_words = set(t_norm.split()) - {"bao", "cao", "bang", "ke", "theo", "va", "cac", "trong", "tu", "cho"}
+        if len(t_words) >= 2 and t_words.issubset(q_words):
+            score = max(score, len(t_words) * 5)
+
         # Domain boost if domain matches
         if report_meta.get("domain", "").lower() in q_norm:
-            score += 5
+            score += 3
             
         if score > 0:
             scored_matches.append((score, report_meta))

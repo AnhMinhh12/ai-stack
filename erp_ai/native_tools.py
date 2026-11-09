@@ -82,7 +82,16 @@ def resolve_date_range(date_from: str = "", date_to: str = "", query_hint: str =
         if len(str(year2)) == 2: year2 += 2000
         return f"{year1:04d}-{int(m1):02d}-{int(d1):02d}", f"{year2:04d}-{int(m2):02d}-{int(d2):02d}"
 
-    # 3. Theo tháng: tháng 10/2026, 10/2026, tháng 10
+    # 3. Theo năm hoặc từ đầu năm: từ đầu năm 2026, năm 2026, cả năm 2026
+    m_year = re.search(r"\b(?:từ đầu năm|đầu năm|dau nam|cả năm|ca nam|trong năm|năm|nam)\s*(202\d)\b", clean_hint, re.I)
+    if m_year:
+        yr = int(m_year.group(1))
+        return f"{yr:04d}-01-01", date.today().isoformat()
+
+    if any(w in clean_hint.lower() for w in ("từ đầu năm", "dau nam", "đầu năm")):
+        return f"{date.today().year}-01-01", date.today().isoformat()
+
+    # 4. Theo tháng: tháng 10/2026, 10/2026, tháng 10
     m_month = re.search(r"\b(?:tháng|thang)\s*(\d{1,2})(?:[\s/_-]+(\d{4}))?\b", clean_hint, re.I)
     if not m_month:
         m_month = re.search(r"\b(\d{1,2})[/.-](\d{4})\b", clean_hint)
@@ -344,6 +353,13 @@ class ERPNativeTools:
         if is_card and code:
             return self.lookup_stock_card(material_code=code, warehouse_code=wh, date_from=d_from_arg, date_to=d_to_arg, **kwargs)
 
+        full_ctx = f"{hint} {action} {str(kwargs)}".lower()
+        if not code and any(w in full_ctx for w in ("top", "lớn nhất", "lon nhat", "nhiều nhất", "nhieu nhat", "vật tư tồn kho", "vat tu ton kho")):
+            from erp_ai.generic_procedure_executor import GenericProcedureExecutor
+            res = GenericProcedureExecutor().query_report(report_type="inbctonkho", query=full_ctx)
+            if res.get("success") and res.get("formatted_text"):
+                return res["formatted_text"]
+
         try:
             import psycopg
             from psycopg.rows import dict_row
@@ -401,33 +417,28 @@ class ERPNativeTools:
                                 return f"Không tìm thấy mã vật tư '{code}' trong hệ thống ERP. Có thể bạn muốn tìm: {sug_str}?"
                             return f"Không tìm thấy mã vật tư '{code}' trong danh mục ERP."
 
-                        # Query location breakdown if managed by location/lot
+                        # Query location breakdown via cdvt13 (Fast ERP lot/bin stock balance table)
                         locations_by_kho = {}
                         try:
                             cursor.execute("""
                                 SELECT 
                                     trim(c.ma_kho) AS ma_kho,
                                     trim(coalesce(c.ma_vi_tri, '')) AS ma_vi_tri,
-                                    sum(qty) AS ton_kho
-                                FROM (
-                                    SELECT ma_kho, ma_vi_tri, ton00 AS qty
-                                    FROM public.cdbsp
-                                    WHERE nam = extract(year FROM %s::date)::smallint AND upper(trim(ma_vt)) = %s
-                                    UNION ALL
-                                    SELECT ma_kho, ma_vi_tri, (sl_nhap - sl_xuat) AS qty
-                                    FROM public.ct70bsp
-                                    WHERE upper(trim(ma_vt)) = %s AND ngay_ct >= %s AND ngay_ct <= %s::date
-                                ) c
-                                GROUP BY trim(c.ma_kho), trim(coalesce(c.ma_vi_tri, ''))
-                                HAVING sum(qty) > 0
+                                    trim(coalesce(c.ma_lo, '')) AS ma_lo,
+                                    sum(c.ton13) AS ton_kho
+                                FROM public.cdvt13 c
+                                WHERE upper(trim(c.ma_vt)) = %s
+                                  AND c.ton13 > 0
+                                GROUP BY trim(c.ma_kho), trim(coalesce(c.ma_vi_tri, '')), trim(coalesce(c.ma_lo, ''))
                                 ORDER BY trim(c.ma_kho), ton_kho DESC;
-                            """, (as_of, code, code, start_date, as_of))
+                            """, (code,))
                             loc_rows = cursor.fetchall()
                             for lr in loc_rows:
                                 if lr["ma_vi_tri"]:
-                                    locations_by_kho.setdefault(lr["ma_kho"].upper(), []).append(f"{lr['ma_vi_tri']}: {clean_num(lr['ton_kho'])} {dvt}")
+                                    lo_str = f" (lô {lr['ma_lo']})" if lr.get("ma_lo") else ""
+                                    locations_by_kho.setdefault(lr["ma_kho"].upper(), []).append(f"{lr['ma_vi_tri']}{lo_str}: {clean_num(lr['ton_kho'])} {dvt}")
                         except Exception as e_loc:
-                            LOG.warning("Could not fetch location breakdown: %s", e_loc)
+                            LOG.warning("Could not fetch location breakdown from cdvt13: %s", e_loc)
 
                         parts = []
                         for r in rows:
@@ -437,6 +448,10 @@ class ERPNativeTools:
                             parts.append(f"{r['ma_kho']}: {clean_num(r['ton_kho'])} {dvt}{loc_s}")
 
                         total = sum(Decimal(str(r["ton_kho"])) for r in rows)
+
+                        temporal_note = ""
+                        if as_of < "2026-11-09" and locations_by_kho:
+                            temporal_note = f" (Lưu ý: Số lượng tồn kho tính đến {as_of}; chi tiết vị trí kệ/máy và số lô ghi nhận theo hiện trạng vật lý)."
 
                         if wh:
                             wh_match = [r for r in rows if r["ma_kho"].upper() == wh]
@@ -448,6 +463,7 @@ class ERPNativeTools:
                                 msg += f" (Tổng tồn toàn bộ các kho: {clean_num(total)} {dvt} gồm {'; '.join(parts)})."
                             elif total == 0:
                                 msg += f" (Mã {code} hiện tại không còn tồn ở kho nào khác)."
+                            msg += temporal_note
                             return json.dumps({
                                 "report": {"id": "bao-cao-ton-theo-kho", "title": "Báo cáo tồn theo kho"},
                                 "lookup": {"ma_vt": code, "ma_kho": wh, "date_as_of": as_of},
@@ -455,7 +471,7 @@ class ERPNativeTools:
                                 "message": msg,
                             }, ensure_ascii=False, default=str)
                         else:
-                            msg = f"Tồn kho hiện tại của mã {code} ({ten_vt}) ở từng kho tính đến {as_of}: " + "; ".join(parts) + f" (Tổng cộng: {clean_num(total)} {dvt})."
+                            msg = f"Tồn kho của mã {code} ({ten_vt}) ở từng kho tính đến {as_of}: " + "; ".join(parts) + f" (Tổng cộng: {clean_num(total)} {dvt})." + temporal_note
                             return json.dumps({
                                 "report": {"id": "bao-cao-ton-theo-kho", "title": "Báo cáo tồn theo kho"},
                                 "lookup": {"ma_vt": code, "date_as_of": as_of},
@@ -525,107 +541,41 @@ class ERPNativeTools:
             LOG.exception("lookup_inventory_stock failed")
             return f"Lỗi khi tra cứu tồn kho: {str(e)}"
 
+    @staticmethod
+    def _explicit_range(date_from: str, date_to: str) -> tuple[str, str] | None:
+        try:
+            start = date.fromisoformat(date_from)
+            end = date.fromisoformat(date_to)
+            return (start.isoformat(), end.isoformat()) if start <= end else None
+        except (TypeError, ValueError):
+            return None
+
     def lookup_sales_orders(self, material_code: str = "", customer_code: str = "", order_code: str = "", date_from: str = "", date_to: str = "", **kwargs) -> str:
-        """Tra cứu đơn đặt hàng bán (SO), tiến độ giao hàng, phiếu xuất bán (HDA) hoặc so sánh doanh thu/sản lượng."""
-        code = (material_code or "").strip().upper()
-        cust = (customer_code or "").strip().upper()
-        order = (order_code or "").strip().upper()
-        d_from, d_to = resolve_date_range(date_from, date_to, str(kwargs))
+        """Tra cứu dòng đơn bán hàng (SO), lịch sử xuất bán và đơn giá bán theo mã hàng hoặc khách hàng."""
+        code = (material_code or kwargs.get("code") or kwargs.get("material") or "").strip().upper()
+        cust = (customer_code or kwargs.get("customer") or kwargs.get("kh") or "").strip().upper()
+        order = (order_code or kwargs.get("order") or kwargs.get("so") or "").strip().upper()
 
-        hint_text = f"{str(kwargs)} {kwargs.get('hint', '')} {kwargs.get('question', '')}".lower()
-        is_delivery = any(w in hint_text for w in ("tiến độ", "tien do", "tiendo", "giao hàng", "giao hang")) or (kwargs.get("action") == "delivery_progress")
+        if not any((code, cust, order)):
+            return "Vui lòng cung cấp mã khách hàng, mã vật tư hoặc số đơn bán (SO)."
 
-        if is_delivery and (code or cust or order):
-            try:
-                import psycopg
-                from psycopg.rows import dict_row
-                with psycopg.connect(**connection_settings(), autocommit=False) as conn:
-                    with conn.cursor(row_factory=dict_row) as cursor:
-                        cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
-                        p = {
-                            "JSON": {
-                                "user_id": "1",
-                                "searchDynamic": {
-                                    "dfrom": d_from,
-                                    "dto": d_to,
-                                    "cso_ct1": order,
-                                    "cso_ct2": "",
-                                    "cma_kh": cust,
-                                    "cma_kho": "",
-                                    "cma_vt": code,
-                                    "cma_dvcs": "001",
-                                    "cstatus": "",
-                                    "cgroup": "1",
-                                    "mau_bc": "001",
-                                    "gridid": "SOBCTienDoGH",
-                                    "culture": "vi-VN"
-                                }
-                            }
-                        }
-                        cursor.execute("SELECT * FROM public.sobctiendogh(%s);", (json.dumps(p),))
-                        sp_rows = cursor.fetchall()
-                        conn.rollback()
-
-                        if sp_rows:
-                            sum_row = next((r for r in sp_rows if r.get("sysorder") == 0), {})
-                            chua_giao_row = next((r for r in sp_rows if r.get("sysorder") == 1 and "CHƯA GIAO" in str(r.get("ten_vt", "")).upper()), {})
-                            ke_hoach_row = next((r for r in sp_rows if r.get("sysorder") == 1 and "THEO KẾ HOẠCH" in str(r.get("ten_vt", "")).upper()), {})
-                            giao_cham_row = next((r for r in sp_rows if r.get("sysorder") == 1 and "CHẬM KẾ HOẠCH" in str(r.get("ten_vt", "")).upper()), {})
-                            details = [r for r in sp_rows if r.get("sysorder") == 5]
-
-                            t_dat = clean_num(sum_row.get("so_luong")) if sum_row else "0"
-                            t_da_giao = clean_num(sum_row.get("so_luong_hda")) if sum_row else "0"
-                            t_cl = clean_num(sum_row.get("so_luong_cl")) if sum_row else "0"
-                            chua_giao = clean_num(chua_giao_row.get("so_luong")) if chua_giao_row else "0"
-                            dung_han = clean_num(ke_hoach_row.get("so_luong_hda")) if ke_hoach_row else "0"
-                            cham_han = clean_num(giao_cham_row.get("so_luong_hda")) if giao_cham_row else "0"
-
-                            target_name = code or cust or order
-                            msg = f"Tiến độ giao hàng của {target_name} ({d_from} đến {d_to}): Tổng đặt {t_dat} PCS, Đã giao {t_da_giao} PCS, Còn lại {t_cl} PCS (Giao đúng kế hoạch: {dung_han} PCS, Giao chậm: {cham_han} PCS, Đơn chưa giao: {chua_giao} PCS)."
-                            
-                            formatted_details = [
-                                {
-                                    "so_ct_dh": r.get("so_ct") or r.get("stt_rec", ""),
-                                    "so_ct_xuat": r.get("so_ct_hda") or "",
-                                    "ngay_ct_hda": str(r.get("ngay_ct_hda")) if r.get("ngay_ct_hda") else "",
-                                    "ma_kh": r.get("ma_kh") or "",
-                                    "ten_kh": r.get("ten_kh") or "",
-                                    "so_po": r.get("so_po") or "",
-                                    "so_luong_dat": float(r.get("so_luong") or 0),
-                                    "so_luong_da_giao": float(r.get("so_luong_hda") or 0),
-                                    "so_luong_con_lai": float(r.get("so_luong_cl") or 0),
-                                    "ngay_gh_ke_hoach": str(r.get("ngay_gh")) if r.get("ngay_gh") else "",
-                                    "ngay_gh_thuc_te": str(r.get("ngay_gh_hda")) if r.get("ngay_gh_hda") else "",
-                                    "trang_thai": r.get("status") or r.get("status_name") or "Hoàn thành"
-                                }
-                                for r in details[:15]
-                            ]
-                            return json.dumps({
-                                "report": {"id": "tien-do-giao-hang", "title": f"Báo cáo tiến độ giao hàng ({d_from} đến {d_to})"},
-                                "lookup": {"ma_vt": code, "ma_kh": cust, "so_ct": order, "date_from": d_from, "date_to": d_to},
-                                "summary": {
-                                    "tong_dat": t_dat,
-                                    "tong_da_giao": t_da_giao,
-                                    "tong_con_lai": t_cl,
-                                    "giao_dung_han": dung_han,
-                                    "giao_cham_han": cham_han,
-                                    "chua_giao": chua_giao
-                                },
-                                "row_count": len(details),
-                                "rows": formatted_details,
-                                "message": msg
-                            }, ensure_ascii=False, default=str)
-            except Exception as e:
-                LOG.warning("sobctiendogh fallback to standard ct64: %s", e)
+        hint = str(kwargs.get("hint") or kwargs.get("question") or "")
+        d_from = str(date_from or "").strip()
+        d_to = str(date_to or "").strip()
+        has_explicit_date = bool(d_from and d_to)
+        if not has_explicit_date and any(w in hint.lower() for w in ("từ đầu năm", "dau nam", "2026", "tháng", "tu ngay")):
+            d_from, d_to = resolve_date_range(d_from, d_to, hint)
+            has_explicit_date = True
 
         try:
             import psycopg
             from psycopg.rows import dict_row
+            from decimal import Decimal
             with psycopg.connect(**connection_settings(), autocommit=False) as conn:
                 with conn.cursor(row_factory=dict_row) as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
-                    
+
                     sql = """
                         SELECT 
                             trim(h.so_ct) AS so_ct,
@@ -634,140 +584,89 @@ class ERPNativeTools:
                             coalesce(k.ten_kh, h.ma_kh) AS ten_kh,
                             trim(c.ma_vt) AS ma_vt,
                             coalesce(v.ten_vt, c.ma_vt) AS ten_vt,
+                            coalesce(v.dvt, 'PCS') AS dvt,
                             c.so_luong,
-                            c.gia2 AS don_gia,
-                            c.tien2 AS thanh_tien,
-                            coalesce(h.ma_nt, 'VND') AS ma_nt
-                        FROM public.ct64 c
+                            coalesce(nullif(c.gia2, 0), c.gia_nt2, c.gia) AS don_gia,
+                            coalesce(nullif(trim(h.ma_nt), ''), 'VND') AS ma_nt,
+                            c.tien2 AS thanh_tien
+                        FROM public.ct64 c 
                         JOIN public.ph64 h ON h.stt_rec = c.stt_rec
-                        LEFT JOIN public.dmvt v ON upper(trim(v.ma_vt)) = upper(trim(c.ma_vt))
                         LEFT JOIN public.dmkh k ON upper(trim(k.ma_kh)) = upper(trim(h.ma_kh))
-                        WHERE (%s = '' OR upper(trim(c.ma_vt)) = %s)
-                          AND (%s = '' OR upper(trim(h.ma_kh)) = %s)
-                          AND (%s = '' OR upper(trim(h.so_ct)) = %s)
-                        ORDER BY h.ngay_ct DESC
-                        LIMIT 20;
+                        LEFT JOIN public.dmvt v ON upper(trim(v.ma_vt)) = upper(trim(c.ma_vt))
+                        WHERE 1=1
                     """
-                    cursor.execute(sql, (code, code, cust, cust, order, order))
-                    rows = cursor.fetchall()
-                    if not rows:
-                        # Fallback to delivery/sales shipment (ct81)
-                        sql_ct81 = """
-                            SELECT 
-                                trim(h.so_ct) AS so_ct,
-                                to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
-                                trim(h.ma_kh) AS ma_kh,
-                                coalesce(k.ten_kh, h.ma_kh) AS ten_kh,
-                                trim(c.ma_vt) AS ma_vt,
-                                coalesce(v.ten_vt, c.ma_vt) AS ten_vt,
-                                c.so_luong,
-                                c.gia2 AS don_gia,
-                                c.tien2 AS thanh_tien,
-                                coalesce(h.ma_nt, 'VND') AS ma_nt
-                            FROM public.ct81 c
-                            JOIN public.ph81 h ON h.stt_rec = c.stt_rec
-                            LEFT JOIN public.dmvt v ON upper(trim(v.ma_vt)) = upper(trim(c.ma_vt))
-                            LEFT JOIN public.dmkh k ON upper(trim(k.ma_kh)) = upper(trim(h.ma_kh))
-                            WHERE (%s = '' OR upper(trim(c.ma_vt)) = %s)
-                              AND (%s = '' OR upper(trim(h.ma_kh)) = %s)
-                              AND (%s = '' OR upper(trim(h.so_ct)) = %s)
-                            ORDER BY h.ngay_ct DESC
-                            LIMIT 20;
-                        """
-                        cursor.execute(sql_ct81, (code, code, cust, cust, order, order))
-                        rows = cursor.fetchall()
-
-                    if not rows:
-                        return f"Không tìm thấy đơn hàng bán hoặc phiếu xuất nào phù hợp với điều kiện: mã vật tư '{code}', khách hàng '{cust}', số chứng từ '{order}'."
-
-                    delivery_summary = None
+                    params = []
                     if code:
-                        try:
-                            with psycopg.connect(**connection_settings(), autocommit=False) as conn_sp:
-                                with conn_sp.cursor(row_factory=dict_row) as cur_sp:
-                                    cur_sp.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
-                                    p = {
-                                        "JSON": {
-                                            "user_id": "1",
-                                            "searchDynamic": {
-                                                "dfrom": d_from,
-                                                "dto": d_to,
-                                                "cso_ct1": order,
-                                                "cso_ct2": "",
-                                                "cma_kh": cust,
-                                                "cma_kho": "",
-                                                "cma_vt": code,
-                                                "cma_dvcs": "001",
-                                                "cstatus": "",
-                                                "cgroup": "1",
-                                                "mau_bc": "001",
-                                                "gridid": "SOBCTienDoGH",
-                                                "culture": "vi-VN"
-                                            }
-                                        }
-                                    }
-                                    cur_sp.execute("SELECT * FROM public.sobctiendogh(%s);", (json.dumps(p),))
-                                    sp_rows = cur_sp.fetchall()
-                                    conn_sp.rollback()
-                                    if sp_rows:
-                                        sum_row = next((r for r in sp_rows if r.get("sysorder") == 0), {})
-                                        chua_giao_row = next((r for r in sp_rows if r.get("sysorder") == 1 and "CHƯA GIAO" in str(r.get("ten_vt", "")).upper()), {})
-                                        ke_hoach_row = next((r for r in sp_rows if r.get("sysorder") == 1 and "THEO KẾ HOẠCH" in str(r.get("ten_vt", "")).upper()), {})
-                                        giao_cham_row = next((r for r in sp_rows if r.get("sysorder") == 1 and "CHẬM KẾ HOẠCH" in str(r.get("ten_vt", "")).upper()), {})
-                                        delivery_summary = {
-                                            "tong_dat": clean_num(sum_row.get("so_luong")),
-                                            "tong_da_giao": clean_num(sum_row.get("so_luong_hda")),
-                                            "tong_con_lai": clean_num(sum_row.get("so_luong_cl")),
-                                            "giao_dung_han": clean_num(ke_hoach_row.get("so_luong_hda")),
-                                            "giao_cham_han": clean_num(giao_cham_row.get("so_luong_hda")),
-                                            "chua_giao": clean_num(chua_giao_row.get("so_luong"))
-                                        }
-                        except Exception as e:
-                            LOG.warning("Could not fetch sobctiendogh summary: %s", e)
+                        sql += " AND upper(trim(c.ma_vt)) = %s "
+                        params.append(code)
+                    if cust:
+                        sql += " AND upper(trim(h.ma_kh)) = %s "
+                        params.append(cust)
+                    if order:
+                        sql += " AND upper(trim(h.so_ct)) = %s "
+                        params.append(order)
+                    if has_explicit_date and d_from and d_to:
+                        sql += " AND h.ngay_ct >= %s::date AND h.ngay_ct <= %s::date "
+                        params.extend([d_from, d_to])
+                    sql += " ORDER BY h.ngay_ct DESC, h.stt_rec DESC LIMIT 20; "
+                    cursor.execute(sql, tuple(params))
+                    rows = cursor.fetchall()
+
+                    if not rows:
+                        range_str = f" từ {d_from} đến {d_to}" if has_explicit_date else ""
+                        target = f"mã hàng '{code}'" if code else f"khách hàng '{cust}'"
+                        return f"Không tìm thấy đơn bán phù hợp của {target}{range_str} trong hệ thống ERP."
 
                     total_qty = sum(Decimal(str(r["so_luong"])) for r in rows)
-                    total_amount = sum(Decimal(str(r.get("thanh_tien") or 0)) for r in rows)
-                    if delivery_summary:
-                        msg = (
-                            f"Tiến độ giao hàng mã {code} ({d_from} đến {d_to}): "
-                            f"Tổng đặt {delivery_summary['tong_dat']} PCS, Đã giao {delivery_summary['tong_da_giao']} PCS, Còn lại cần giao {delivery_summary['tong_con_lai']} PCS "
-                            f"(Giao đúng kế hoạch: {delivery_summary['giao_dung_han']} PCS, Giao chậm: {delivery_summary['giao_cham_han']} PCS, Đơn chưa giao: {delivery_summary['chua_giao']} PCS). "
-                            f"Kèm danh sách {len(rows)} đơn hàng bán gần đây (Tổng số lượng đơn: {clean_num(total_qty)} PCS):"
-                        )
-                    else:
-                        msg = f"Tìm thấy {len(rows)} bản ghi đơn hàng/xuất bán (Tổng số lượng: {clean_num(total_qty)} PCS, Tổng thành tiền: {clean_num(total_amount)} VND)."
+                    first_r = rows[0]
+                    dvt = first_r.get("dvt", "PCS")
+                    nt = first_r.get("ma_nt", "VND")
+                    msg = (
+                        f"Đơn hàng bán của {first_r['ma_vt']} ({first_r['ten_vt']}): Ghi nhận {len(rows)} đơn bán "
+                        f"(Tổng số lượng đặt: {clean_num(total_qty)} {dvt}). "
+                        f"Đơn gần nhất là số {first_r['so_ct']} ngày {first_r['ngay_ct']} (Khách hàng: {first_r['ten_kh']}): "
+                        f"Đặt {clean_num(first_r['so_luong'])} {dvt} với đơn giá {clean_num(first_r['don_gia'])} {nt}."
+                    )
 
-                    res_dict = {
-                        "report": {"id": "don-hang-ban", "title": "Báo cáo đơn hàng và xuất bán"},
+                    return json.dumps({
+                        "report": {"id": "don-hang-ban", "title": f"Đơn bán ({code or cust})"},
+                        "lookup": {"material_code": code, "customer_code": cust, "order_code": order, "date_from": d_from, "date_to": d_to},
                         "row_count": len(rows),
                         "rows": rows,
                         "message": msg
-                    }
-                    if delivery_summary:
-                        res_dict["delivery_progress"] = delivery_summary
-
-                    return json.dumps(res_dict, ensure_ascii=False, default=str)
+                    }, ensure_ascii=False, default=str)
         except Exception as e:
             LOG.exception("lookup_sales_orders failed")
-            return f"Lỗi khi tra cứu đơn hàng bán: {str(e)}"
+            return f"Lỗi khi tra cứu đơn bán: {str(e)}"
 
-    def lookup_purchase_orders(self, material_code: str = "", supplier_code: str = "", po_code: str = "", **kwargs) -> str:
-        """Tra cứu lịch sử đơn mua hàng từ nhà cung cấp (PO), giá mua vật tư và báo giá nhà cung cấp."""
-        code = (material_code or "").strip().upper()
-        ncc = (supplier_code or "").strip().upper()
-        po = (po_code or "").strip().upper()
-        if not code and not ncc and not po:
-            return "Cần cung cấp mã vật tư, mã nhà cung cấp hoặc số đơn mua hàng để tra cứu lịch sử mua hàng."
+    def lookup_purchase_orders(self, material_code: str = "", supplier_code: str = "", po_code: str = "", date_from: str = "", date_to: str = "", **kwargs) -> str:
+        """Tra cứu lịch sử đơn đặt mua hàng (PO), đơn giá mua và danh mục giá mua nhà cung cấp."""
+        code = (material_code or kwargs.get("code") or kwargs.get("material") or "").strip().upper()
+        ncc = (supplier_code or kwargs.get("supplier") or kwargs.get("ncc") or "").strip().upper()
+        po = (po_code or kwargs.get("po") or kwargs.get("order") or "").strip().upper()
+
+        if not any((code, ncc, po)):
+            return "Vui lòng cung cấp mã vật tư/hạt nhựa, nhà cung cấp hoặc số đơn mua (PO) để tra cứu."
+
+        hint = str(kwargs.get("hint") or kwargs.get("question") or "")
+        d_from = str(date_from or "").strip()
+        d_to = str(date_to or "").strip()
+        has_explicit_date = bool(d_from and d_to)
+        if not has_explicit_date and any(w in hint.lower() for w in ("từ đầu năm", "dau nam", "2026", "tháng", "tu ngay")):
+            d_from, d_to = resolve_date_range(d_from, d_to, hint)
+            has_explicit_date = True
 
         try:
             import psycopg
             from psycopg.rows import dict_row
+            from decimal import Decimal
             with psycopg.connect(**connection_settings(), autocommit=False) as conn:
                 with conn.cursor(row_factory=dict_row) as cursor:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
-                    
-                    sql = """
+
+                    # 1. Fetch PO records from ct94 / ph94
+                    sql_po = """
                         SELECT 
                             trim(h.so_ct) AS so_ct,
                             to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
@@ -775,54 +674,131 @@ class ERPNativeTools:
                             coalesce(k.ten_kh, h.ma_kh) AS ten_ncc,
                             trim(c.ma_vt) AS ma_vt,
                             coalesce(v.ten_vt, c.ma_vt) AS ten_vt,
+                            coalesce(v.dvt, 'KG') AS dvt,
                             c.so_luong,
-                            c.gia0 AS don_gia,
-                            c.tien0 AS thanh_tien,
-                            coalesce(h.ma_nt, 'VND') AS ma_nt
-                        FROM public.ct94 c
+                            coalesce(nullif(c.gia_nt0, 0), c.gia0) AS don_gia,
+                            c.gia0 AS don_gia_vnd,
+                            coalesce(nullif(trim(h.ma_nt), ''), 'VND') AS ma_nt,
+                            c.tien0 AS thanh_tien_vnd
+                        FROM public.ct94 c 
                         JOIN public.ph94 h ON h.stt_rec = c.stt_rec
-                        LEFT JOIN public.dmvt v ON upper(trim(v.ma_vt)) = upper(trim(c.ma_vt))
                         LEFT JOIN public.dmkh k ON upper(trim(k.ma_kh)) = upper(trim(h.ma_kh))
-                        WHERE (%s = '' OR upper(trim(c.ma_vt)) = %s)
-                          AND (%s = '' OR upper(trim(h.ma_kh)) = %s)
-                          AND (%s = '' OR upper(trim(h.so_ct)) = %s)
-                        ORDER BY h.ngay_ct DESC
-                        LIMIT 20;
+                        LEFT JOIN public.dmvt v ON upper(trim(v.ma_vt)) = upper(trim(c.ma_vt))
+                        WHERE 1=1
                     """
-                    cursor.execute(sql, (code, code, ncc, ncc, po, po))
+                    params = []
+                    if code:
+                        sql_po += " AND upper(trim(c.ma_vt)) = %s "
+                        params.append(code)
+                    if ncc:
+                        sql_po += " AND upper(trim(h.ma_kh)) = %s "
+                        params.append(ncc)
+                    if po:
+                        sql_po += " AND upper(trim(h.so_ct)) = %s "
+                        params.append(po)
+                    if has_explicit_date and d_from and d_to:
+                        sql_po += " AND h.ngay_ct >= %s::date AND h.ngay_ct <= %s::date "
+                        params.extend([d_from, d_to])
+                    sql_po += " ORDER BY h.ngay_ct DESC, h.stt_rec DESC LIMIT 20; "
+                    cursor.execute(sql_po, tuple(params))
                     rows = cursor.fetchall()
-                    if not rows:
-                        target = f"mã vật tư '{code}'" if code else (f"nhà cung cấp '{ncc}'" if ncc else f"số PO '{po}'")
-                        return f"Không tìm thấy đơn đặt mua hàng nào phù hợp với {target} trên hệ thống ERP."
 
-                    prices = [float(r["don_gia"]) for r in rows if r.get("don_gia")]
-                    first = rows[0]
-                    msg = (
-                        f"Lịch sử đơn mua mã {code} ({first.get('ten_vt', code)}): Đã đặt mua {len(rows)} lần. "
-                        f"Lần đặt gần nhất ngày {first.get('ngay_ct')} từ NCC {first.get('ten_ncc')} với đơn giá {clean_num(first.get('don_gia'))} {first.get('ma_nt')}. "
-                    )
-                    if prices:
-                        msg += f"Giá mua thấp nhất: {clean_num(min(prices))}, cao nhất: {clean_num(max(prices))}, trung bình: {clean_num(sum(prices)/len(prices))}."
+                    # 2. Fetch official supplier price list from dmgiamuact if code or ncc is provided
+                    price_rows = []
+                    if code or ncc:
+                        sql_price = """
+                            SELECT 
+                                trim(g.ma_vt) AS ma_vt,
+                                coalesce(v.ten_vt, g.ma_vt) AS ten_vt,
+                                coalesce(v.dvt, 'KG') AS dvt,
+                                trim(g.ma_kh) AS ma_ncc,
+                                coalesce(k.ten_kh, g.ma_kh) AS ten_ncc,
+                                coalesce(nullif(g.gia, 0), g.gia0) AS don_gia,
+                                coalesce(nullif(trim(g.ma_nt), ''), 'VND') AS ma_nt,
+                                coalesce(g.sl_min, 0) AS sl_min,
+                                to_char(g.ngay_bd, 'YYYY-MM-DD') AS ngay_bd,
+                                to_char(g.ngay_kt, 'YYYY-MM-DD') AS ngay_kt
+                            FROM public.dmgiamuact g
+                            LEFT JOIN public.dmvt v ON upper(trim(v.ma_vt)) = upper(trim(g.ma_vt))
+                            LEFT JOIN public.dmkh k ON upper(trim(k.ma_kh)) = upper(trim(g.ma_kh))
+                            WHERE (%s = '' OR upper(trim(g.ma_vt)) = %s)
+                              AND (%s = '' OR upper(trim(g.ma_kh)) = %s)
+                            ORDER BY g.ngay_bd DESC NULLS LAST
+                            LIMIT 5;
+                        """
+                        cursor.execute(sql_price, (code, code, ncc, ncc))
+                        price_rows = cursor.fetchall()
+
+                    if not rows and not price_rows:
+                        range_str = f" từ {d_from} đến {d_to}" if has_explicit_date else ""
+                        target = f"mã vật tư '{code}'" if code else f"nhà cung cấp '{ncc}'"
+                        return f"Không tìm thấy đơn mua (ct94) hoặc bảng giá mua (dmgiamuact) của {target}{range_str} trong hệ thống ERP."
+
+                    # Build professional summary message
+                    msg_parts = []
+                    mat_title = code
+                    if rows:
+                        mat_title = f"{rows[0]['ma_vt']} ({rows[0]['ten_vt']})"
+                    elif price_rows:
+                        mat_title = f"{price_rows[0]['ma_vt']} ({price_rows[0]['ten_vt']})"
+
+                    msg_parts.append(f"Thông tin giá mua và đơn mua hàng của {mat_title}:")
+
+                    if price_rows:
+                        latest_p = price_rows[0]
+                        msg_parts.append(f"- **Bảng giá mua nhà cung cấp hiện hành (dmgiamuact):** Đơn giá **{clean_num(latest_p['don_gia'])} {latest_p['ma_nt']}/{latest_p['dvt']}** (NCC: {latest_p['ten_ncc']} - {latest_p['ma_ncc']}, hiệu lực từ {latest_p['ngay_bd']} đến {latest_p['ngay_kt']}).")
+
+                    if rows:
+                        total_qty = sum(Decimal(str(r["so_luong"])) for r in rows)
+                        latest_po = rows[0]
+                        dvt = latest_po.get("dvt", "KG")
+                        msg_parts.append(f"- **Lịch sử đơn mua gần đây (ct94):** Ghi nhận {len(rows)} đơn mua (Tổng SL đặt: {clean_num(total_qty)} {dvt}). Đơn gần nhất là số **{latest_po['so_ct']}** ngày **{latest_po['ngay_ct']}** (NCC: {latest_po['ten_ncc']}): Đặt mua {clean_num(latest_po['so_luong'])} {dvt} với đơn giá **{clean_num(latest_po['don_gia'])} {latest_po['ma_nt']}/{dvt}**.")
+                    else:
+                        msg_parts.append("- Chưa phát sinh đơn đặt mua PO nào trong khoảng thời gian này.")
+
+                    full_msg = "\n".join(msg_parts)
 
                     return json.dumps({
-                        "report": {"id": "don-mua-hang", "title": "Lịch sử đơn mua hàng NCC"},
-                        "lookup": {"ma_vt": code, "ma_ncc": ncc},
+                        "report": {"id": "don-mua-hang", "title": f"Lịch sử đơn mua & Giá mua ({code or ncc})"},
+                        "lookup": {"material_code": code, "supplier_code": ncc, "po_code": po, "date_from": d_from, "date_to": d_to},
+                        "price_list": price_rows,
                         "row_count": len(rows),
                         "rows": rows,
-                        "message": msg
+                        "message": full_msg
                     }, ensure_ascii=False, default=str)
         except Exception as e:
             LOG.exception("lookup_purchase_orders failed")
-            return f"Lỗi khi tra cứu đơn mua hàng: {str(e)}"
+            return f"Lỗi khi tra cứu đơn mua: {str(e)}"
 
     def lookup_mold_and_mes(self, mold_code: str = "", material_code: str = "", action: str = "mold_profile", **kwargs) -> str:
         """Tra cứu hồ sơ khuôn mẫu (dmhosokhuon), số shot ép thực tế và định mức bảo hành shot (mes_oi_bo_shot), trạng thái tem kiểm định OQC, hoặc thời gian dừng máy."""
         m_code = (mold_code or "").strip().upper()
         vt_code = (material_code or "").strip().upper()
+        if vt_code and m_code == vt_code:
+            m_code = ""
         act = (action or "").strip().lower()
 
         if act in ("downtime", "dung_may", "stop_line") or "dung may" in act or "downtime" in act or kwargs.get("downtime"):
             return self.lookup_mes_downtime(machine_code=m_code or kwargs.get("machine_code", ""), **kwargs)
+
+        full_ctx = f"{act} {str(kwargs.get('hint') or '')} {str(kwargs.get('question') or '')} {str(kwargs)}".lower()
+        if any(w in full_ctx for w in ("thay khuôn", "thay khuon", "lắp khuôn", "lap khuon", "hạ khuôn", "ha khuon")):
+            from erp_ai.generic_procedure_executor import GenericProcedureExecutor
+            res = GenericProcedureExecutor().query_report(report_type="mesbkthaykhuon", query=full_ctx)
+            if res.get("success") and res.get("formatted_text"):
+                return res["formatted_text"]
+
+        if any(w in full_ctx for w in ("bổ sung shot", "bo sung shot", "bỏ shot", "bo shot", "điều chỉnh shot", "dieu chinh shot")):
+            from erp_ai.generic_procedure_executor import GenericProcedureExecutor
+            res = GenericProcedureExecutor().query_report(report_type="mesbkbosungshot", query=full_ctx)
+            if res.get("success") and res.get("formatted_text"):
+                return res["formatted_text"]
+
+        if any(w in full_ctx for w in ("bảo dưỡng", "bao duong", "tình trạng dập", "ngưỡng shot")):
+            from erp_ai.generic_procedure_executor import GenericProcedureExecutor
+            res = GenericProcedureExecutor().query_report(report_type="mesbcttdskhuon", query=full_ctx)
+            if res.get("success") and res.get("formatted_text"):
+                return res["formatted_text"]
 
         try:
             import psycopg
@@ -876,6 +852,15 @@ class ERPNativeTools:
                     pat_vt = f"%{vt_code}%" if vt_code else ""
                     cursor.execute(sql, (pat_m, pat_m, pat_m, pat_vt, pat_vt))
                     rows = cursor.fetchall()
+                    if not rows and m_code and not vt_code:
+                        # The model may put an exact product code in mold_code.
+                        # Only switch interpretation when the product exists.
+                        cursor.execute("SELECT 1 FROM public.dmvt WHERE upper(trim(ma_vt)) = %s", (m_code,))
+                        if cursor.fetchone():
+                            vt_code, m_code = m_code, ""
+                            pat_vt = f"%{vt_code}%"
+                            cursor.execute(sql, ("", "", "", pat_vt, pat_vt))
+                            rows = cursor.fetchall()
                     if not rows and vt_code:
                         cursor.execute("SELECT mold FROM public.dmvt WHERE upper(trim(ma_vt)) = %s", (vt_code,))
                         r_mold = cursor.fetchone()
@@ -887,10 +872,10 @@ class ERPNativeTools:
                     if not rows:
                         return f"Không tìm thấy hồ sơ khuôn nào khớp với mã khuôn '{m_code}' hoặc sản phẩm '{vt_code}'."
 
-                    first = rows[0]
-                    shot_tt = clean_num(first.get("tong_so_shot"))
-                    shot_bh = clean_num(first.get("so_shot_bh"))
-                    msg = f"Khuôn {first['ma_khuon']} ({first['ten_khuon']}): Đã chạy {shot_tt} shot. Định mức bảo hành: {shot_bh} shot. Số cavity: {first.get('so_cavity')}."
+                    msg = "Hồ sơ khuôn liên quan: " + "; ".join(
+                        f"{r['ma_khuon']}: tổng shot trong hồ sơ {clean_num(r.get('tong_so_shot'))}, bảo hành {clean_num(r.get('so_shot_bh'))} shot"
+                        for r in rows
+                    ) + ". Cần xác nhận số shot vận hành thực tế; tối đa 10 hồ sơ hiển thị."
                     return json.dumps({
                         "report": {"id": "ho-so-khuon", "title": "Hồ sơ khuôn mẫu & Sản xuất"},
                         "rows": rows,
@@ -900,14 +885,151 @@ class ERPNativeTools:
             LOG.exception("lookup_mold_and_mes failed")
             return f"Lỗi khi tra cứu khuôn/MES: {str(e)}"
 
+    def _get_material_360(self, cursor, code: str) -> dict | None:
+        """Truy vấn hồ sơ thực thể 360 độ (Universal Material Entity 360) bao gồm Master Data, Khách hàng, Đóng gói, Tồn kho & Vị trí ô/kệ, và Giá."""
+        cursor.execute("""
+            SELECT 
+                trim(v.ma_vt) AS ma_vt,
+                coalesce(v.ten_vt, v.ma_vt) AS ten_vt,
+                coalesce(v.dvt, 'PCS') AS dvt,
+                coalesce(v.model, '') AS model,
+                trim(coalesce(v.ma_kh, '')) AS ma_kh,
+                coalesce(k.ten_kh, '') AS ten_kh,
+                coalesce(k.dia_chi, '') AS dia_chi,
+                coalesce(v.packs0, 0) AS so_luong_thung,
+                trim(coalesce(v.ma_thung, '')) AS ma_thung,
+                trim(coalesce(v.ma_khay, '')) AS ma_khay,
+                coalesce(v.so_luong_vt_khay, 0) AS so_luong_khay,
+                trim(coalesce(v.tk_vt, '')) AS tk_vt,
+                trim(coalesce(v.nh_vt1, '')) AS nh_vt1
+            FROM public.dmvt v
+            LEFT JOIN public.dmkh k ON trim(v.ma_kh) = trim(k.ma_kh)
+            WHERE upper(trim(v.ma_vt)) = %s;
+        """, (code.strip().upper(),))
+        m = cursor.fetchone()
+        if not m:
+            return None
+
+        # 1. Tồn kho & Vị trí chi tiết theo kho (cdvt13)
+        cursor.execute("""
+            SELECT trim(ma_kho) AS ma_kho, trim(coalesce(ma_vi_tri, '')) AS ma_vi_tri, trim(coalesce(ma_lo, '')) AS ma_lo, sum(ton13) AS ton
+            FROM public.cdvt13
+            WHERE upper(trim(ma_vt)) = %s AND ton13 > 0
+            GROUP BY trim(ma_kho), trim(coalesce(ma_vi_tri, '')), trim(coalesce(ma_lo, ''))
+            ORDER BY trim(ma_kho), ton DESC;
+        """, (code.strip().upper(),))
+        inv_rows = cursor.fetchall()
+        
+        # 2. Đơn giá gần nhất (Giá bán dmbanggiact hoặc Giá mua dmgiamuact)
+        cursor.execute("""
+            SELECT 'SALE' AS loai_gia, gia, trim(ma_nt) AS ma_nt, ngay_bd, ngay_kt 
+            FROM public.dmbanggiact 
+            WHERE upper(trim(ma_vt)) = %s 
+            ORDER BY ngay_kt DESC LIMIT 1;
+        """, (code.strip().upper(),))
+        p = cursor.fetchone()
+        if not p:
+            cursor.execute("""
+                SELECT 'BUY' AS loai_gia, gia, trim(ma_nt) AS ma_nt, ngay_bd, ngay_kt 
+                FROM public.dmgiamuact 
+                WHERE upper(trim(ma_vt)) = %s 
+                ORDER BY ngay_kt DESC LIMIT 1;
+            """, (code.strip().upper(),))
+            p = cursor.fetchone()
+
+        # Format tổng hợp tồn kho theo kho và vị trí
+        if inv_rows:
+            inv_by_kho = {}
+            for r in inv_rows:
+                lo_s = f" (lô {r['ma_lo']})" if r['ma_lo'] else ""
+                inv_by_kho.setdefault(r["ma_kho"], []).append(f"{r['ma_vi_tri']}{lo_s}: {clean_num(r['ton'])} {m['dvt']}")
+            inv_str = "; ".join(f"{k} [vị trí: {', '.join(v[:3])}{'...' if len(v)>3 else ''}]" for k, v in inv_by_kho.items())
+        else:
+            inv_str = "Hiện không còn tồn kho (tồn = 0)"
+
+        p_str = f"{clean_num(p['gia'])} {p['ma_nt']} ({'Giá bán' if p['loai_gia']=='SALE' else 'Giá mua NCC'}, HL: {p['ngay_bd']} -> {p['ngay_kt']})" if p else "Chưa gán giá trên hệ thống"
+
+        profile = {
+            "ma_vt": m["ma_vt"],
+            "ten_vt": m["ten_vt"],
+            "dvt": m["dvt"],
+            "model": m["model"] or "N/A",
+            "khach_hang": f"{m['ma_kh']} - {m['ten_kh']}" if m["ma_kh"] else "Chưa gán",
+            "dia_chi_kh": m["dia_chi"] or "N/A",
+            "dong_goi": f"Thùng {m['ma_thung'] or 'N/A'}: {clean_num(m['so_luong_thung'])} {m['dvt']}; Khay {m['ma_khay'] or 'N/A'}: {clean_num(m['so_luong_khay'])} {m['dvt']}",
+            "tai_khoan_kho": m["tk_vt"] or "N/A",
+            "nhom_vt": m["nh_vt1"] or "N/A",
+            "don_gia": p_str,
+            "ton_kho_vi_tri": inv_str,
+            "inventory_breakdown": inv_rows
+        }
+
+        overview_msg = (
+            f"Thông tin tổng thể mã hàng {m['ma_vt']} ({m['ten_vt']}):\n"
+            f"- Khách hàng sở hữu: {profile['khach_hang']}\n"
+            f"- Model: {profile['model']} | ĐVT: {profile['dvt']} | Nhóm: {profile['nhom_vt']} | TK kho: {profile['tai_khoan_kho']}\n"
+            f"- Quy cách đóng gói: {profile['dong_goi']}\n"
+            f"- Đơn giá: {profile['don_gia']}\n"
+            f"- Tồn kho & Vị trí thực tế: {profile['ton_kho_vi_tri']}."
+        )
+        profile["message"] = overview_msg
+        return profile
+
+    def _get_partner_360(self, cursor, cust_code: str) -> dict | None:
+        """Truy vấn hồ sơ đối tác 360 độ (Khách hàng / Nhà cung cấp)."""
+        cursor.execute("""
+            SELECT trim(ma_kh) AS ma_kh, ten_kh, coalesce(dia_chi, '') AS dia_chi, dien_thoai, fax,
+                   coalesce(ma_so_thue, '') AS mst, coalesce(e_mail, '') AS email,
+                   kh_yn, cc_yn, nv_yn
+            FROM public.dmkh
+            WHERE upper(trim(ma_kh)) = %s;
+        """, (cust_code.strip().upper(),))
+        c = cursor.fetchone()
+        if not c:
+            return None
+
+        cursor.execute("SELECT trim(ma_vt) AS ma_vt, ten_vt, model FROM public.dmvt WHERE trim(ma_kh) = %s LIMIT 5;", (c["ma_kh"],))
+        mats = cursor.fetchall()
+        mat_str = ", ".join(m["ma_vt"] for m in mats) if mats else "Chưa khai báo mã hàng trực thuộc"
+
+        role = []
+        if c.get("kh_yn"): role.append("Khách hàng")
+        if c.get("cc_yn"): role.append("Nhà cung cấp")
+        if c.get("nv_yn"): role.append("Nhân viên")
+        role_str = "/".join(role) or "Đối tác"
+
+        overview_msg = (
+            f"Thông tin đối tác {c['ma_kh']} - {c['ten_kh']} ({role_str}):\n"
+            f"- Địa chỉ: {c.get('dia_chi') or 'N/A'}\n"
+            f"- Mã số thuế: {c.get('mst') or 'N/A'} | Điện thoại: {c.get('dien_thoai') or 'N/A'} | Email: {c.get('email') or 'N/A'}\n"
+            f"- Các mã hàng trực thuộc tiêu biểu: {mat_str}."
+        )
+        return {
+            "ma_kh": c["ma_kh"],
+            "ten_kh": c["ten_kh"],
+            "vai_tro": role_str,
+            "dia_chi": c.get("dia_chi") or "N/A",
+            "mst": c.get("mst") or "N/A",
+            "dien_thoai": c.get("dien_thoai") or "N/A",
+            "email": c.get("email") or "N/A",
+            "ma_hang_tieu_bieu": [m["ma_vt"] for m in mats],
+            "message": overview_msg
+        }
+
     def lookup_general_catalog(self, category: str = "material", keyword: str = "", **kwargs) -> str:
-        """Tra cứu danh mục thông tin chung của nhà máy: tên khách hàng, mã tài khoản nhân viên (như 4509 là anh Nguyễn Văn Trường), quy cách đóng gói (thùng/khay trong dmvt)."""
+        """Tra cứu danh mục thông tin chung của nhà máy: mã hàng thuộc khách hàng nào (ma_kh, ten_kh), thông tin sản phẩm/vật tư, tên khách hàng, mã tài khoản nhân viên (như 4509 là anh Nguyễn Văn Trường), quy cách đóng gói (thùng/khay trong dmvt)."""
         cat = (category or "").strip().lower()
-        kw = (keyword or "").strip()
+        kw = (keyword or kwargs.get("code") or kwargs.get("material_code") or kwargs.get("ma_vt") or kwargs.get("kw") or kwargs.get("item") or "").strip()
+
+        # Handle case where user/model puts material code in category positionally
+        if not kw and cat and cat not in ("material", "customer", "employee", "packaging", "khach_hang", "nhan_vien", "quy_cach", "dong_goi"):
+            kw = cat
+            cat = "material"
+
         if not kw:
             return "Cần cung cấp từ khóa hoặc mã định danh để tra cứu danh mục."
 
-        if kw in ("4509", "hp4509") or cat == "employee":
+        if kw in ("4509", "hp4509") or cat in ("employee", "nhan_vien"):
             return "Mã 4509 (tài khoản hp4509) là mã định danh nhân viên của anh Nguyễn Văn Trường tại HTMP. Trên hệ thống ERP, 4509 là tài khoản người dùng/nhân viên thao tác, không phải mã vật tư hay mã khuôn."
 
         try:
@@ -918,47 +1040,87 @@ class ERPNativeTools:
                     cursor.execute("SET TRANSACTION READ ONLY")
                     cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(TIMEOUT_MS),))
 
+                    # 1. Tra cứu quy cách đóng gói nếu yêu cầu riêng
                     if cat in ("packaging", "quy_cach", "dong_goi") or "quy cach" in kw.lower():
                         clean_kw = re.sub(r"(?i)quy\s*cach(?:\s*dong\s*goi)?", "", kw).strip() or kw
-                        sql = """
-                            SELECT 
-                                trim(ma_vt) AS ma_vt,
-                                coalesce(ten_vt, ma_vt) AS ten_vt,
-                                dvt,
-                                packs0 AS so_luong_thung,
-                                trim(ma_thung) AS ma_thung,
-                                trim(ma_khay) AS ma_khay,
-                                so_luong_vt_khay AS so_luong_khay
-                            FROM public.dmvt
-                            WHERE upper(trim(ma_vt)) = %s OR upper(trim(ma_vt)) ILIKE %s
-                            LIMIT 5;
-                        """
-                        cursor.execute(sql, (clean_kw.upper(), f"%{clean_kw.upper()}%"))
-                        rows = cursor.fetchall()
-                        if rows:
-                            r = rows[0]
-                            msg = f"Quy cách đóng gói của mã {r['ma_vt']} ({r['ten_vt']}): Thùng {r.get('ma_thung') or 'N/A'} chứa {clean_num(r['so_luong_thung'])} {r.get('dvt', 'PCS')}/thùng; Khay {r.get('ma_khay') or 'N/A'} chứa {clean_num(r['so_luong_khay'])} {r.get('dvt', 'PCS')}/khay."
-                            return json.dumps({"report": {"id": "quy-cach-dong-goi", "title": "Quy cách đóng gói"}, "rows": rows, "message": msg}, ensure_ascii=False, default=str)
+                        prof = self._get_material_360(cursor, clean_kw)
+                        if prof:
+                            msg = f"Quy cách đóng gói của mã {prof['ma_vt']} ({prof['ten_vt']}): {prof['dong_goi']}."
+                            return json.dumps({"report": {"id": "quy-cach-dong-goi", "title": "Quy cách đóng gói"}, "rows": [prof], "message": msg}, ensure_ascii=False, default=str)
 
+                    # 2. Khớp chính xác mã vật tư -> Trả về Universal Material Entity 360
+                    prof = self._get_material_360(cursor, kw)
+                    if prof:
+                        return json.dumps({
+                            "report": {"id": "ho-so-thuc-the-vat-tu-360", "title": "Hồ sơ thực thể vật tư 360"},
+                            "rows": [prof],
+                            "message": prof["message"]
+                        }, ensure_ascii=False, default=str)
+
+                    # 3. Khớp chính xác mã đối tác (Khách hàng / NCC, ví dụ: KH0015, NCC0002)
+                    p_prof = self._get_partner_360(cursor, kw)
+                    if p_prof:
+                        return json.dumps({
+                            "report": {"id": "ho-so-doi-tac-360", "title": "Hồ sơ đối tác 360"},
+                            "rows": [p_prof],
+                            "message": p_prof["message"]
+                        }, ensure_ascii=False, default=str)
+
+                    # 4. Tìm kiếm theo danh mục khách hàng nếu category là customer/khach_hang
                     if cat in ("customer", "khach_hang", "kh"):
-                        cursor.execute("SELECT ma_kh, ten_kh, dia_chi FROM public.dmkh WHERE upper(ma_kh) = %s OR ten_kh ILIKE %s LIMIT 5", (kw.upper(), f"%{kw}%"))
-                        rows = cursor.fetchall()
-                        if rows:
-                            return json.dumps({"rows": rows, "message": f"Tìm thấy {len(rows)} khách hàng phù hợp: " + "; ".join(f"{r['ma_kh']}: {r['ten_kh']}" for r in rows)}, ensure_ascii=False, default=str)
+                        cursor.execute("""
+                            SELECT trim(ma_kh) AS ma_kh 
+                            FROM public.dmkh 
+                            WHERE ten_kh ILIKE %s OR upper(trim(ma_kh)) ILIKE %s
+                            LIMIT 1;
+                        """, (f"%{kw}%", f"%{kw.upper()}%"))
+                        row_kh = cursor.fetchone()
+                        if row_kh:
+                            p_prof = self._get_partner_360(cursor, row_kh["ma_kh"])
+                            if p_prof:
+                                return json.dumps({
+                                    "report": {"id": "ho-so-doi-tac-360", "title": "Hồ sơ đối tác 360"},
+                                    "rows": [p_prof],
+                                    "message": p_prof["message"]
+                                }, ensure_ascii=False, default=str)
 
-                    # Default material catalog search
+                    # 5. Tìm kiếm gần đúng theo mã hoặc tên vật tư -> Trả về Material 360
                     cursor.execute("""
-                        SELECT trim(ma_vt) AS ma_vt, coalesce(ten_vt, ma_vt) AS ten_vt, dvt, model, trim(ma_kh) AS ma_kh
+                        SELECT trim(ma_vt) AS ma_vt
                         FROM public.dmvt
-                        WHERE upper(trim(ma_vt)) = %s OR ten_vt ILIKE %s
-                        LIMIT 5;
-                    """, (kw.upper(), f"%{kw}%"))
-                    rows = cursor.fetchall()
-                    if rows:
-                        first = rows[0]
-                        return json.dumps({"rows": rows, "message": f"Thông tin vật tư {first['ma_vt']} ({first['ten_vt']}) - ĐVT: {first.get('dvt', 'PCS')}, Model: {first.get('model') or 'N/A'}."}, ensure_ascii=False, default=str)
+                        WHERE upper(trim(ma_vt)) ILIKE %s OR ten_vt ILIKE %s
+                        LIMIT 1;
+                    """, (f"%{kw.upper()}%", f"%{kw}%"))
+                    row_vt = cursor.fetchone()
+                    if row_vt:
+                        prof = self._get_material_360(cursor, row_vt["ma_vt"])
+                        if prof:
+                            return json.dumps({
+                                "report": {"id": "ho-so-thuc-the-vat-tu-360", "title": "Hồ sơ thực thể vật tư 360"},
+                                "rows": [prof],
+                                "message": prof["message"]
+                            }, ensure_ascii=False, default=str)
 
-                    return f"Không tìm thấy thông tin phù hợp cho từ khóa '{kw}' trong danh mục ERP."
+                    # 6. Fallback tìm đối tác theo tên nếu chưa khớp vật tư
+                    cursor.execute("""
+                        SELECT trim(ma_kh) AS ma_kh 
+                        FROM public.dmkh 
+                        WHERE ten_kh ILIKE %s 
+                        LIMIT 1;
+                    """, (f"%{kw}%",))
+                    row_kh2 = cursor.fetchone()
+                    if row_kh2:
+                        p_prof = self._get_partner_360(cursor, row_kh2["ma_kh"])
+                        if p_prof:
+                            return json.dumps({
+                                "report": {"id": "ho-so-doi-tac-360", "title": "Hồ sơ đối tác 360"},
+                                "rows": [p_prof],
+                                "message": p_prof["message"]
+                            }, ensure_ascii=False, default=str)
+
+                    return f"Không tìm thấy thông tin phù hợp cho từ khóa '{kw}' trong danh mục ERP (vật tư/khách hàng)."
+
+                    return f"Không tìm thấy thông tin phù hợp cho từ khóa '{kw}' trong danh mục ERP (vật tư/khách hàng)."
         except Exception as e:
             LOG.exception("lookup_general_catalog failed")
             return f"Lỗi khi tra cứu danh mục: {str(e)}"
@@ -1044,7 +1206,10 @@ class ERPNativeTools:
 
     def lookup_mes_downtime(self, date_from: str = "", date_to: str = "", machine_code: str = "", **kwargs) -> str:
         """Tra cứu tổng hợp thời gian dừng máy theo nguyên nhân (downtime / stop line) và số lần dừng trong khoảng thời gian."""
-        d_from, d_to = resolve_date_range(date_from, date_to, kwargs.get("hint") or kwargs.get("question") or "")
+        period = self._explicit_range(date_from, date_to)
+        if not period:
+            return "Cần cung cấp đầy đủ ngày bắt đầu và ngày kết thúc để tra cứu dừng máy."
+        d_from, d_to = period
         m_code = (machine_code or "").strip().upper()
 
         try:
@@ -1071,8 +1236,7 @@ class ERPNativeTools:
                         WHERE s.create_date >= %s::date AND s.create_date <= %s::date
                           AND (%s = '' OR upper(trim(s.machine_code)) = %s)
                         GROUP BY coalesce(n.ten_loi, s.error_code)
-                        ORDER BY tong_phut_dung DESC NULLS LAST
-                        LIMIT 15;
+                        ORDER BY tong_phut_dung DESC NULLS LAST;
                     """
                     cursor.execute(sql, (d_from, d_to, m_code, m_code))
                     rows = cursor.fetchall()
@@ -1085,7 +1249,7 @@ class ERPNativeTools:
                     total_hours = round(total_mins / 60, 1)
 
                     top_desc = "; ".join(f"{r['nguyen_nhan']}: {clean_num(r['tong_phut_dung'])} phút ({r['so_lan_dung']} lần)" for r in rows[:5])
-                    msg = f"Tổng hợp dừng máy từ {d_from} đến {d_to}: Ghi nhận {total_stops} lượt dừng chuyền (Tổng thời gian: {total_mins:,.1f} phút ~ {total_hours} giờ). Các nguyên nhân hàng đầu: {top_desc}."
+                    msg = f"Theo dữ liệu dừng chuyền từ {d_from} đến {d_to}: {total_stops} lượt, {total_mins:,.1f} phút (~ {total_hours} giờ) trên {len(rows)} nhóm. Các nguyên nhân hàng đầu: {top_desc}. Số liệu cần đối chiếu quy tắc thời gian và báo cáo MES chính thức."
 
                     return json.dumps({
                         "report": {"id": "dung-may-mes", "title": f"Báo cáo dừng máy theo nguyên nhân ({d_from} đến {d_to})"},
@@ -1282,6 +1446,13 @@ class ERPNativeTools:
         p_code = (material_code or kwargs.get("product") or "").strip().upper()
         s_box = (box_serial or kwargs.get("serial") or "").strip().upper()
         p_order = (production_order or kwargs.get("wo") or "").strip().upper()
+
+        full_ctx = f"{p_code} {s_box} {p_order} {str(kwargs.get('hint') or '')} {str(kwargs.get('question') or '')} {str(kwargs)}".lower()
+        if any(w in full_ctx for w in ("gộp", "tách", "gop", "tach")):
+            from erp_ai.generic_procedure_executor import GenericProcedureExecutor
+            res = GenericProcedureExecutor().query_report(report_type="mesbkgoptachthung", query=full_ctx)
+            if res.get("success") and res.get("formatted_text"):
+                return res["formatted_text"]
 
         try:
             import psycopg

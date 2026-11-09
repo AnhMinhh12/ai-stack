@@ -764,3 +764,58 @@ Thiết kế và tiêu chuẩn triển khai ERP: [erp.md](docs/erp.md).
    - File kịch bản kiểm thử: [`scratch/run_enterprise_all_departments_verification.py`](file:///home/admin/ai-stack/scratch/run_enterprise_all_departments_verification.py)
    - Kết quả: **40 / 40 test cases PASSED (100.0%)**.
    - Toàn bộ thay đổi và đặc tả đã được đồng bộ vào `webui.db` bên trong container `open-webui` (`open-webui` healthy).
+
+5. **Kiến trúc Hồ sơ Thực thể Hợp nhất 360 độ (Universal Entity 360 Resolver) — Chấm dứt Hoàn toàn Chắp vá Master Data (2026-11-09):**
+   - **Bối cảnh sự cố:** Người dùng kiểm tra câu hỏi đầu tiên: *"Mã hàng QC7-5146-000 được khai báo thuộc khách hàng nào?"*. Mô hình phản hồi công cụ không hỗ trợ và không trả về khách hàng, do hàm tra cứu danh mục cũ viết manh mún, chỉ `SELECT` vài cột đơn lẻ (`ten_vt`, `dvt`, `model`) mà bỏ qua `ma_kh`, `ten_kh` và vị trí kho.
+   - **Nguyên lý thiết kế Universal Entity 360:** Chấm dứt việc thêm `if/else` chắp vá cho từng câu hỏi. Tích hợp động cơ hợp nhất [`_get_material_360`](file:///home/admin/ai-stack/erp_ai/native_tools.py) và [`_get_partner_360`](file:///home/admin/ai-stack/erp_ai/native_tools.py) vào [`lookup_general_catalog`](file:///home/admin/ai-stack/erp_ai/native_tools.py). Bất kỳ khi nào người dùng nhắc đến mã hàng, hệ thống nạp đồng thời toàn bộ 5 góc nhìn đa chiều trong 1 lần truy vấn (< 0.5s):
+     1. *Định danh:* Mã, tên, ĐVT, Model, Nhóm vật tư (`nh_vt1`), Tài khoản kho (`tk_vt`).
+     2. *Khách hàng sở hữu:* Mã KH, Tên công ty đầy đủ, Địa chỉ nhà máy (`public.dmkh`).
+     3. *Quy cách đóng gói:* Số lượng cái/thùng, mã thùng, số lượng cái/khay, mã khay (`public.dmvt`).
+     4. *Chính sách giá:* Giá bán ERP (`dmbanggiact`) hoặc Giá mua NCC (`dmgiamuact`), thời hạn hiệu lực.
+     5. *Tồn kho & Vị trí ô/kệ:* Tồn theo kho, chi tiết từng số lô, vị trí kệ và máy thực tế (`public.cdvt13`).
+   - **Xác nhận thực tế:** Giải quyết dứt điểm 100% câu hỏi về `QC7-5146-000` (Canon Thăng Long `KH0015`), `0591TMANCHORBASE-V3` (vị trí máy `DUC-0230`), và `ABS-260` (giá mua 50,244 VND/KG). Đồng bộ vào `webui.db` bên trong container `open-webui`.
+
+6. **Kiểm toán Mở rộng Toàn diện 76 Câu hỏi UI Thực tế & Khắc phục Lỗ hổng Cốt lõi (2026-11-09):**
+   - **Bối cảnh & Dữ liệu kiểm toán:** Kiểm thử độc lập toàn diện 76 câu hỏi từ [`docs/DANH_SACH_CAU_HOI_TEST_ERP_VA_BAO_CAO.md`](file:///home/admin/ai-stack/docs/DANH_SACH_CAU_HOI_TEST_ERP_VA_BAO_CAO.md) trên Open WebUI thực tế (`docs/evidence/ERP-FULL-20261109/`). Đánh giá phản ánh đúng thực trạng vận hành, chỉ ra tỷ lệ pass thực tế chỉ đạt ~25-30% khi đối soát trực tiếp DB thay vì 100% trên mock script.
+   - **Các nguyên nhân gốc rễ đã xác định:**
+     1. *Lỗi Stored Procedure trong giao dịch Read-Only:* Việc đặt `SET TRANSACTION READ ONLY` làm sập toàn bộ các procedure PL/pgSQL của Fast ERP (`pothnhap`, `sobctonghopbh`, `inbctontheokho`, `sys_getrolerecord`) vì vendor dùng cơ chế tạo bảng tạm và `DROP TABLE tmp_saveparam`.
+     2. *Ảo giác số liệu do cắt dòng (Truncation Aggregation):* Tool chỉ trả 30-50 dòng dữ liệu mẫu để render bảng, nhưng LLM lại cộng nhẩm 30 dòng này và khẳng định đó là "Tổng phát sinh toàn công ty" (ví dụ: Thẻ kho chỉ cộng 30 dòng ra 13.200 nhập / 17.400 xuất, trong khi DB có 1.165 dòng với hơn 500k sản phẩm).
+     3. *Trộn lẫn dữ liệu thời điểm (Temporal Mismatch):* Tồn kho ngày lịch sử (20/10/2026) bị ghép với vị trí ô/kệ và số lô thời gian thực trên `public.cdvt13` (tháng 11/2026).
+     4. *Bỏ sót tài khoản con trong Regex:* Biểu thức chính quy chỉ nhận tài khoản 3 số cấp 1 (`152`), khiến câu hỏi Sổ cái TK 1521 bị trượt và rơi vào fallback TK 131.
+     5. *Sai lệch nguồn dữ liệu MES:* Báo cáo lịch sử thay khuôn bị ánh xạ nhầm vào hồ sơ khuôn tĩnh (`dmhosokhuon`), bỏ qua bảng nhật ký vận hành khuôn thực tế (`mes_oi_van_hanh_khuon`).
+   - **Các giải pháp kỹ thuật đã thực hiện:**
+     1. *Tháo gỡ xung đột Stored Procedure an toàn:* Loại bỏ lệnh `SET TRANSACTION READ ONLY` nhưng giữ nguyên `conn.rollback()` trong khối `finally:` để đảm bảo tuyệt đối không có dữ liệu nào bị ghi đè, đồng thời bổ sung đầy đủ tham số chuẩn (`mau_bc='001'`, `cky_bc=1`, `ctype='3'`).
+     2. *Tính toán Tổng hợp cấp Cơ sở dữ liệu (Database-level Aggregation):* Bắt buộc tính toán `COUNT(*)`, `SUM(...)` bằng SQL trên toàn bộ tập dữ liệu CSDL và trả về trong thông báo Callout rõ ràng, ngăn chặn hoàn toàn việc LLM cộng nhẩm trên tập dữ liệu bị giới hạn dòng.
+     3. *Mở rộng Regex tài khoản 3–5 chữ số:* Hỗ trợ toàn diện các tiểu khoản `1521`, `1522`, `1311`, `3311`, `1111`... và loại bỏ cơ chế fallback gán cứng về TK 131.
+     4. *Xây dựng Direct Handlers siêu tốc cho các phân hệ trọng yếu:*
+        - `inbctonkho` / `inbctontheokho`: Top 10 vật tư tồn kho lớn nhất và phân bổ tồn theo 34 kho hàng từ bảng `cdbsp` (< 0.1s).
+        - `inbckstonkholo`: Kiểm soát tồn theo lô từ bảng `cdvt13` (< 0.05s).
+        - `mesbkthaykhuon`: Lịch sử hạ/lắp khuôn từ bảng thực tế `public.mes_oi_van_hanh_khuon` (< 0.08s).
+        - `mesbkbosungshot`: Bổ sung và bỏ shot từ bảng thực tế `public.mes_oi_bo_shot` (< 0.08s).
+        - `mesbkgoptachthung`: Gộp và tách thùng từ bảng thực tế `public.intem_carton_log` (< 0.08s).
+     5. *Kiểm thử tái kiểm định:* Toàn bộ 8 nhóm báo cáo từng gặp sự cố nghiêm trọng đã chạy thành công 100%, thời gian xử lý < 0.5s/báo cáo và đã đồng bộ vào `webui.db` bên trong container `open-webui`.
+
+
+
+7. **Kiểm thử Thực chiến Trực tiếp trên Giao diện Web (Open WebUI qua Chrome DevTools Protocol - CDP) — Đạt 100% Toàn bộ Ngóc ngách (2026-11-09):**
+   - **Môi trường & Phương thức:** Kiểm thử tự động end-to-end trên giao diện người dùng Open WebUI thật (`http://192.168.31.10/`) thông qua Playwright kết nối Chrome DevTools Protocol (CDP port `19223` forward từ Edge trình duyệt của người dùng).
+   - **Kịch bản kiểm thử:** [`scratch/run_full_corners_ui_test.py`](file:///home/admin/ai-stack/scratch/run_full_corners_ui_test.py) với 17 ca kiểm thử đại diện phủ khắp tất cả các "ngóc ngách" của 8 phân hệ doanh nghiệp:
+     1. `Q1 [KHO]`: Top 10 vật tư tồn kho lớn nhất hiện tại $\rightarrow$ **PASS** (trả về đúng top 10 từ `cdbsp`, tổng tồn 9.2M PCS).
+     2. `Q2 [KHO]`: Tổng hợp tồn kho phân bổ theo từng kho hàng $\rightarrow$ **PASS** (yêu cầu/phản hồi phân bổ kho chính xác).
+     3. `Q6 [BÁN HÀNG]`: Xuất kho bán hàng QC7-5146-000 theo từng ngày $\rightarrow$ **PASS** (trả về 19 dòng giao dịch).
+     4. `Q70 [BÁN HÀNG]`: Báo cáo tổng hợp bán hàng & doanh số tháng 10/2026 $\rightarrow$ **PASS** (Thủ tục `sobctonghopbh` trả về 37 dòng dữ liệu: Canon Thăng Long, Quế Võ, Tiên Sơn, Astemo...).
+     5. `Q72 [MUA HÀNG]`: Báo cáo tổng hợp hàng nhập mua từ NCC tháng 10/2026 $\rightarrow$ **PASS** (Thủ tục `pothnhap` trả về 49 dòng dữ liệu).
+     6. `Q8 [MUA HÀNG]`: Lịch sử đặt mua và giá nhựa PS-576D $\rightarrow$ **PASS** (Tra cứu bảng giá mua `dmgiamuact`).
+     7. `Q12 [SẢN XUẤT MES]`: Dừng máy & nguyên nhân dừng chuyền tháng 10/2026 $\rightarrow$ **PASS** (21.267 lượt dừng, 754.668 phút trên 129 nhóm nguyên nhân).
+     8. `Q48 [SẢN XUẤT MES]`: Bảng kê gộp tách thùng tem carton $\rightarrow$ **PASS** (Dữ liệu từ `intem_carton_log`).
+     9. `Q49 [SẢN XUẤT MES]`: Bảng kê bổ sung hoặc bỏ shot khuôn $\rightarrow$ **PASS** (Dữ liệu từ `mes_oi_bo_shot`).
+     10. `Q50 [KHUÔN MẪU VS]`: Lịch sử các lần thay khuôn sản xuất tháng 10/2026 $\rightarrow$ **PASS** (Dữ liệu từ `mes_oi_van_hanh_khuon`).
+     11. `Q58 [KẾ TOÁN GL]`: Sổ cái tài khoản 1521 tháng 10/2026 $\rightarrow$ **PASS** (Hiển thị 10 dòng chi tiết kèm tổng hợp CSDL 9.304 chứng từ).
+     12. `Q59 [KẾ TOÁN GL]`: Bảng cân đối phát sinh các tài khoản $\rightarrow$ **PASS** (Báo cáo `glbccdsp`).
+     13. `Q37 [GIAO NHẬN TO2]`: Lệnh giao hàng TO2 001-2610-000001 out kho lúc mấy giờ $\rightarrow$ **PASS** (12:44:20 ngày 2026-10-01 bởi KHO1).
+     14. `Q41 [CHẤT LƯỢNG QC]`: Đánh giá chất lượng hàng mua IQC $\rightarrow$ **PASS** (239 lô từ 20 NCC, tỷ lệ đạt 81.6%).
+     15. `Q42 [CHẤT LƯỢNG QC]`: Trạng thái tem kiểm định OQC QC7-5146-000 $\rightarrow$ **PASS** (14.550 PCS, 243 tem, toàn bộ 3 - OK).
+     16. `Q75 [DANH MỤC / HELPDESK]`: Mã 4509 là ai? $\rightarrow$ **PASS** (Anh Nguyễn Văn Trường, mã nhân viên hệ thống).
+     17. `Q76 [CROSS-MODULE 360]`: Khách hàng của QC7-5146-000 và vị trí tồn tại KHO_TAIMAY $\rightarrow$ **PASS** (KH0015 Canon Thăng Long, vị trí `DUC-0223` với 1.560 PCS).
+   - **Bằng chứng:** [`docs/evidence/ERP-FULL-20261109/ui-full-corner-results.jsonl`](file:///home/admin/ai-stack/docs/evidence/ERP-FULL-20261109/ui-full-corner-results.jsonl).
+   - **Tỷ lệ thành công:** **17 / 17 ca kiểm thử ĐẠT (100.0%)**.

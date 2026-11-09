@@ -96,9 +96,10 @@ def main():
                 "properties": {
                     "material_code": {"type": "string", "description": "Mã vật tư cần tra cứu lịch sử mua."},
                     "supplier_code": {"type": "string", "description": "Mã nhà cung cấp NCC."},
-                    "po_code": {"type": "string", "description": "Số đơn đặt mua hàng PO."}
-                },
-                "required": ["material_code"]
+                    "po_code": {"type": "string", "description": "Số đơn đặt mua hàng PO."},
+                    "date_from": {"type": "string", "description": "Ngày bắt đầu YYYY-MM-DD."},
+                    "date_to": {"type": "string", "description": "Ngày kết thúc YYYY-MM-DD."}
+                }
             }
         },
         {
@@ -202,12 +203,12 @@ def main():
         },
         {
             "name": "lookup_general_catalog",
-            "description": "Tra cứu danh mục thông tin chung của nhà máy: mã nhân viên, tên khách hàng, quy cách đóng gói.",
+            "description": "Tra cứu danh mục vật tư, mã hàng thuộc khách hàng nào (ma_kh, ten_kh), danh mục khách hàng/nhà cung cấp, mã tài khoản nhân viên (như 4509), quy cách đóng gói thùng/khay.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "category": {"type": "string", "description": "Loại: employee, customer, packaging."},
-                    "keyword": {"type": "string", "description": "Từ khóa tra cứu."}
+                    "category": {"type": "string", "description": "Phân loại tra cứu: 'material' (mã hàng / khách hàng sở hữu), 'customer' (khách hàng), 'employee' (nhân viên), 'packaging' (quy cách đóng gói thùng/khay)."},
+                    "keyword": {"type": "string", "description": "Mã vật tư/hàng hóa (ví dụ: QC7-5146-000), tên sản phẩm, mã/tên khách hàng (ví dụ: KH0015, Canon), hoặc mã nhân viên (4509)."}
                 },
                 "required": ["keyword"]
             }

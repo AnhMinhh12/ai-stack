@@ -69,7 +69,7 @@ class GenericProcedureExecutor:
                     conn.rollback()
 
     def _execute_direct_sql(self, sql: str, params: tuple = ()) -> List[Dict[str, Any]]:
-        """Safely execute a direct read-only SQL query inside a transaction with 15s timeout."""
+        """Safely execute a direct SQL query inside an uncommitted transaction with 15s timeout."""
         import psycopg
         from psycopg.rows import dict_row
 
@@ -104,10 +104,12 @@ class GenericProcedureExecutor:
         if m_ncc:
             entities["partner_code"] = m_ncc.group(1).upper()
 
-        # 2. Account code (111, 112, 131, 152, 154, 155, 156, 331, 511, 621, 622, 627, 632, 641, 642)
-        m_acc = re.search(r"\b(?:tk|tai khoan)?\s*(111|112|131|152|154|155|156|331|511|621|622|627|632|641|642)\b", text, re.I)
+        # 2. Account code (111, 112, 131, 152, 1521, 154, 155, 156, 331, 511, 621, 622, 627, 632, 641, 642)
+        m_acc = re.search(r"\b(?:tk|tai khoan)?\s*([1-9]\d{2,4})\b", text, re.I)
         if m_acc:
-            entities["account_code"] = m_acc.group(1)
+            acc_cand = m_acc.group(1)
+            if any(acc_cand.startswith(p) for p in ("111", "112", "131", "152", "154", "155", "156", "331", "511", "621", "622", "627", "632", "641", "642")):
+                entities["account_code"] = acc_cand
 
         # 3. Warehouse code (KHO_TP, KHO_NVL, KHO_THI_TRUONG, etc.)
         m_kho = re.search(r"\b(KHO[A-Z0-9_-]+)\b", text, re.I)
@@ -180,7 +182,14 @@ class GenericProcedureExecutor:
         c_machine = kwargs.get("machine_code") or extracted.get("machine_code", "")
         c_mold = kwargs.get("mold_code") or extracted.get("mold_code", "")
         c_order = kwargs.get("order_code") or extracted["order_code"]
-        c_acc = account_code or extracted["account_code"] or ("331" if "331" in combined_text or "ncc" in combined_text.lower() else "131")
+        c_acc = account_code or extracted["account_code"]
+        if not c_acc:
+            if "331" in combined_text or "ncc" in combined_text.lower() or "nha cung cap" in combined_text.lower():
+                c_acc = "331"
+            elif "131" in combined_text or "khach hang" in combined_text.lower():
+                c_acc = "131"
+            else:
+                c_acc = ""
 
         # ---------------------------------------------------------
         # Branch A: Specialized Native & Direct Database Handlers
@@ -279,25 +288,41 @@ class GenericProcedureExecutor:
         # ---------------------------------------------------------
         if report_id == "glso1":
             acc_pattern = f"{c_acc}%" if c_acc else "%"
+            tot_sql = """
+                SELECT count(*) as total_count, COALESCE(SUM(c.ps_no), 0) as tot_no, COALESCE(SUM(c.ps_co), 0) as tot_co
+                FROM public.ct00 c
+                WHERE c.tk LIKE %s AND c.ngay_ct BETWEEN %s AND %s;
+            """
+            tot_rows = self._execute_direct_sql(tot_sql, (acc_pattern, d_from, d_to))
+            total_count = int(tot_rows[0].get("total_count") or 0) if tot_rows else 0
+            db_tot_no = Decimal(str(tot_rows[0].get("tot_no") or 0)) if tot_rows else Decimal(0)
+            db_tot_co = Decimal(str(tot_rows[0].get("tot_co") or 0)) if tot_rows else Decimal(0)
+
             sql = """
                 SELECT c.ngay_ct, c.so_ct, COALESCE(c.dien_giai, '') as dien_giai, 
                        c.tk, c.tk_du, c.ps_no, c.ps_co, COALESCE(c.ma_kh, '') as ma_kh
                 FROM public.ct00 c
                 WHERE c.tk LIKE %s AND c.ngay_ct BETWEEN %s AND %s
                 ORDER BY c.ngay_ct DESC, c.so_ct DESC
-                LIMIT 50;
+                LIMIT 10;
             """
             rows = self._execute_direct_sql(sql, (acc_pattern, d_from, d_to))
-            tot_no = sum(Decimal(str(r.get("ps_no") or 0)) for r in rows)
-            tot_co = sum(Decimal(str(r.get("ps_co") or 0)) for r in rows)
             if rows:
-                rows.append({"systotal": 1, "ps_no": tot_no, "ps_co": tot_co})
+                rows.append({"systotal": 1, "ps_no": db_tot_no, "ps_co": db_tot_co})
             formatted_text = self._format_procedure_result(
                 title=f"{title} (TK {c_acc})" if c_acc else title,
                 d_from=d_from, d_to=d_to, raw_rows=rows,
                 col_labels=report_meta.get("column_labels", {}),
                 summary_fields=report_meta.get("summary_fields", [])
             )
+            notice = (
+                f"\n\n> [!NOTE]\n"
+                f"> **Tổng hợp toàn bộ kỳ từ CSDL ({total_count:,} chứng từ phát sinh):**\n"
+                f"> - **Tổng phát sinh Nợ:** {db_tot_no:,.2f} VND\n"
+                f"> - **Tổng phát sinh Có:** {db_tot_co:,.2f} VND\n"
+                f"> *(Bảng dữ liệu trên đang hiển thị {len(rows)-1 if rows else 0} / {total_count:,} dòng chi tiết gần nhất)*"
+            )
+            formatted_text += notice
             return {"success": True, "report_id": report_id, "title": title, "row_count": len(rows), "formatted_text": formatted_text}
 
         if report_id == "glbccdsp":
@@ -331,7 +356,7 @@ class GenericProcedureExecutor:
                 WHERE (c.tk LIKE '111%' OR c.tk LIKE '112%')
                   AND c.ngay_ct BETWEEN %s AND %s
                 ORDER BY c.ngay_ct DESC, c.so_ct DESC
-                LIMIT 50;
+                LIMIT 10;
             """
             rows = self._execute_direct_sql(sql, (d_from, d_to))
             tot_thu = sum(Decimal(str(r.get("thu") or 0)) for r in rows)
@@ -581,6 +606,148 @@ class GenericProcedureExecutor:
             )
             return {"success": True, "report_id": report_id, "title": title, "row_count": len(rows), "formatted_text": formatted_text}
 
+        if report_id in ("inbctonkho", "inbctontheokho"):
+            if any(w in combined_text.lower() for w in ("top", "lon nhat", "nhieu nhat")):
+                sql = """
+                    SELECT trim(b.ma_vt) as ma_vt, COALESCE(trim(v.ten_vt), '') as ten_vt, 
+                           COALESCE(trim(v.dvt), 'PCS') as dvt, SUM(b.ton00) as so_luong
+                    FROM public.cdbsp b
+                    LEFT JOIN public.dmvt v ON trim(b.ma_vt) = trim(v.ma_vt)
+                    GROUP BY trim(b.ma_vt), trim(v.ten_vt), trim(v.dvt)
+                    HAVING SUM(b.ton00) > 0
+                    ORDER BY so_luong DESC
+                    LIMIT 10;
+                """
+                rows = self._execute_direct_sql(sql)
+                tot_sl = sum(Decimal(str(r.get("so_luong") or 0)) for r in rows)
+                if rows:
+                    rows.append({"systotal": 1, "so_luong": tot_sl})
+                formatted_text = self._format_procedure_result(
+                    title="Báo cáo Top 10 Vật tư có Số lượng Tồn kho Lớn nhất Hiện tại",
+                    d_from="", d_to="", raw_rows=rows,
+                    col_labels={"ma_vt": "Mã vật tư", "ten_vt": "Tên vật tư", "dvt": "ĐVT", "so_luong": "Tồn kho"},
+                    summary_fields=["so_luong"]
+                )
+                return {"success": True, "report_id": report_id, "title": "Top 10 Tồn kho", "row_count": len(rows), "formatted_text": formatted_text}
+
+            if not c_item and (not c_warehouse or any(w in combined_text.lower() for w in ("theo tung kho", "phan bo", "tat ca kho", "cac kho"))):
+                sql = """
+                    SELECT trim(b.ma_kho) as ma_kho, COALESCE(trim(k.ten_kho), '') as ten_kho, 
+                           SUM(b.ton00) as so_luong
+                    FROM public.cdbsp b
+                    LEFT JOIN public.dmkho k ON trim(b.ma_kho) = trim(k.ma_kho)
+                    GROUP BY trim(b.ma_kho), trim(k.ten_kho)
+                    HAVING SUM(b.ton00) > 0
+                    ORDER BY so_luong DESC;
+                """
+                rows = self._execute_direct_sql(sql)
+                tot_sl = sum(Decimal(str(r.get("so_luong") or 0)) for r in rows)
+                if rows:
+                    rows.append({"systotal": 1, "so_luong": tot_sl})
+                formatted_text = self._format_procedure_result(
+                    title="Báo cáo Tổng hợp Số lượng Tồn kho Phân bổ theo Từng Kho Hàng",
+                    d_from="", d_to="", raw_rows=rows,
+                    col_labels={"ma_kho": "Mã kho", "ten_kho": "Tên kho hàng", "so_luong": "Tổng tồn kho"},
+                    summary_fields=["so_luong"]
+                )
+                return {"success": True, "report_id": report_id, "title": "Tồn kho theo Kho", "row_count": len(rows), "formatted_text": formatted_text}
+
+        if report_id == "inbckstonkholo":
+            sql = """
+                SELECT c.ma_kho, COALESCE(k.ten_kho, '') as ten_kho, c.ma_vt, COALESCE(v.ten_vt, '') as ten_vt, 
+                       c.ma_lo, c.ma_vi_tri, c.ton13 as so_luong
+                FROM public.cdvt13 c
+                LEFT JOIN public.dmvt v ON trim(c.ma_vt) = trim(v.ma_vt)
+                LEFT JOIN public.dmkho k ON trim(c.ma_kho) = trim(k.ma_kho)
+                WHERE c.ton13 > 0
+                  AND (%s = '' OR c.ma_vt ILIKE %s)
+                  AND (%s = '' OR c.ma_kho ILIKE %s)
+                ORDER BY c.ton13 DESC
+                LIMIT 50;
+            """
+            item_pat = f"%{c_item}%" if c_item else ""
+            wh_pat = f"%{c_warehouse}%" if c_warehouse else ""
+            rows = self._execute_direct_sql(sql, (c_item, item_pat, c_warehouse, wh_pat))
+            tot_sl = sum(Decimal(str(r.get("so_luong") or 0)) for r in rows)
+            if rows:
+                rows.append({"systotal": 1, "so_luong": tot_sl})
+            formatted_text = self._format_procedure_result(
+                title=f"{title} ({c_item})" if c_item else title,
+                d_from=d_from, d_to=d_to, raw_rows=rows,
+                col_labels=report_meta.get("column_labels", {}),
+                summary_fields=report_meta.get("summary_fields", [])
+            )
+            return {"success": True, "report_id": report_id, "title": title, "row_count": len(rows), "formatted_text": formatted_text}
+
+        if report_id == "mesbkthaykhuon":
+            sql = """
+                SELECT v.create_date as ngay_thay, v.create_time as gio_thay, 
+                       v.machine_code as ma_may, 
+                       COALESCE(v.ma_khuon_xuong, '') as khuon_ha, 
+                       COALESCE(v.ma_khuon_len, '') as khuon_len, 
+                       COALESCE(v.employee_code, '') as ma_nv
+                FROM public.mes_oi_van_hanh_khuon v
+                WHERE v.create_date BETWEEN %s AND %s
+                  AND (%s = '' OR v.machine_code ILIKE %s)
+                  AND (%s = '' OR v.ma_khuon_xuong ILIKE %s OR v.ma_khuon_len ILIKE %s)
+                ORDER BY v.create_date DESC, v.create_time DESC
+                LIMIT 50;
+            """
+            m_pat = f"%{c_machine}%" if c_machine else ""
+            mold_pat = f"%{c_mold}%" if c_mold else ""
+            rows = self._execute_direct_sql(sql, (d_from, d_to, c_machine, m_pat, c_mold, mold_pat, mold_pat))
+            formatted_text = self._format_procedure_result(
+                title=title, d_from=d_from, d_to=d_to, raw_rows=rows,
+                col_labels={"ngay_thay": "Ngày thay", "gio_thay": "Giờ thay", "ma_may": "Mã máy", "khuon_ha": "Khuôn hạ", "khuon_len": "Khuôn lắp", "ma_nv": "Nhân viên"},
+                summary_fields=[]
+            )
+            return {"success": True, "report_id": report_id, "title": title, "row_count": len(rows), "formatted_text": formatted_text}
+
+        if report_id == "mesbkbosungshot":
+            sql = """
+                SELECT b.date0 as ngay, b.time0 as gio, b.machine_code as ma_may, 
+                       b.product_code as ma_sp, b.quantity as so_shot_bo, 
+                       b.quantity_product as sl_sp_bo, COALESCE(b.production_order, '') as so_lsx
+                FROM public.mes_oi_bo_shot b
+                WHERE b.date0 BETWEEN %s AND %s
+                  AND (%s = '' OR b.machine_code ILIKE %s)
+                  AND (%s = '' OR b.product_code ILIKE %s)
+                ORDER BY b.date0 DESC, b.time0 DESC
+                LIMIT 50;
+            """
+            m_pat = f"%{c_machine}%" if c_machine else ""
+            item_pat = f"%{c_item}%" if c_item else ""
+            rows = self._execute_direct_sql(sql, (d_from, d_to, c_machine, m_pat, c_item, item_pat))
+            tot_shot = sum(Decimal(str(r.get("so_shot_bo") or 0)) for r in rows)
+            tot_sp = sum(Decimal(str(r.get("sl_sp_bo") or 0)) for r in rows)
+            if rows:
+                rows.append({"systotal": 1, "so_shot_bo": tot_shot, "sl_sp_bo": tot_sp})
+            formatted_text = self._format_procedure_result(
+                title=title, d_from=d_from, d_to=d_to, raw_rows=rows,
+                col_labels={"ngay": "Ngày", "gio": "Giờ", "ma_may": "Mã máy", "ma_sp": "Mã SP", "so_shot_bo": "Shot điều chỉnh", "sl_sp_bo": "SL SP điều chỉnh", "so_lsx": "Lệnh SX"},
+                summary_fields=["so_shot_bo", "sl_sp_bo"]
+            )
+            return {"success": True, "report_id": report_id, "title": title, "row_count": len(rows), "formatted_text": formatted_text}
+
+        if report_id == "mesbkgoptachthung":
+            sql = """
+                SELECT l.date0 as ngay, l.time0 as gio, 
+                       l.id_carton as ma_thung_cu, l.id_carton_new as ma_thung_moi
+                FROM public.intem_carton_log l
+                WHERE l.date0 BETWEEN %s AND %s
+                  AND (%s = '' OR l.id_carton ILIKE %s OR l.id_carton_new ILIKE %s)
+                ORDER BY l.date0 DESC, l.time0 DESC
+                LIMIT 50;
+            """
+            c_pat = f"%{c_order}%" if c_order else ""
+            rows = self._execute_direct_sql(sql, (d_from, d_to, c_order, c_pat, c_pat))
+            formatted_text = self._format_procedure_result(
+                title=title, d_from=d_from, d_to=d_to, raw_rows=rows,
+                col_labels={"ngay": "Ngày thao tác", "gio": "Giờ", "ma_thung_cu": "Thùng ban đầu", "ma_thung_moi": "Thùng sau gộp/tách"},
+                summary_fields=[]
+            )
+            return {"success": True, "report_id": report_id, "title": title, "row_count": len(rows), "formatted_text": formatted_text}
+
         # ---------------------------------------------------------
         # Branch B: Standard Stored Procedure Execution
         # ---------------------------------------------------------
@@ -609,6 +776,9 @@ class GenericProcedureExecutor:
         search_dynamic.setdefault("time_to", "23:59")
         search_dynamic.setdefault("cgroup_yn", "1")
         search_dynamic.setdefault("mau_bc", "001")
+        search_dynamic.setdefault("cky_bc", 1)
+        search_dynamic.setdefault("ctype", "3")
+        search_dynamic.setdefault("gridid", "SOBCTongHopBH001" if proc_name == "sobctonghopbh" else "ReportGrid")
 
         if proc_name in ("sosoctcongno1kh", "posoctcongno1ncc"):
             search_dynamic["ccust"] = c_partner

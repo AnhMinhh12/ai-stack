@@ -811,10 +811,10 @@ class Tools:
         from erp_ai.native_tools import ERPNativeTools
         return ERPNativeTools().lookup_sales_orders(material_code=material_code, customer_code=customer_code, order_code=order_code, date_from=date_from, date_to=date_to, **kwargs)
 
-    def lookup_purchase_orders(self, material_code: str = "", supplier_code: str = "", po_code: str = "", **kwargs) -> str:
+    def lookup_purchase_orders(self, material_code: str = "", supplier_code: str = "", po_code: str = "", date_from: str = "", date_to: str = "", **kwargs) -> str:
         """Tra cứu đơn đặt mua hàng từ nhà cung cấp (PO), giá mua vật tư và lịch sử mua hàng."""
         from erp_ai.native_tools import ERPNativeTools
-        return ERPNativeTools().lookup_purchase_orders(material_code=material_code, supplier_code=supplier_code, po_code=po_code, **kwargs)
+        return ERPNativeTools().lookup_purchase_orders(material_code=material_code, supplier_code=supplier_code, po_code=po_code, date_from=date_from, date_to=date_to, **kwargs)
 
     def lookup_mold_and_mes(self, mold_code: str = "", material_code: str = "", action: str = "", **kwargs) -> str:
         """Tra cứu hồ sơ khuôn mẫu, tổng số shot dập, định mức bảo hành khuôn và trạng thái sản xuất MES."""
@@ -822,7 +822,7 @@ class Tools:
         return ERPNativeTools().lookup_mold_and_mes(mold_code=mold_code, material_code=material_code, action=action, **kwargs)
 
     def lookup_general_catalog(self, category: str = "material", keyword: str = "", **kwargs) -> str:
-        """Tra cứu danh mục thông tin chung của nhà máy: mã tài khoản nhân viên (như 4509 là anh Nguyễn Văn Trường), tên khách hàng, quy cách đóng gói (thùng/khay trong dmvt)."""
+        """Tra cứu danh mục thông tin chung của nhà máy: mã hàng thuộc khách hàng nào (ma_kh, ten_kh), thông tin sản phẩm/vật tư, tên khách hàng/nhà cung cấp, mã tài khoản nhân viên (như 4509 là anh Nguyễn Văn Trường), quy cách đóng gói (thùng/khay trong dmvt)."""
         from erp_ai.native_tools import ERPNativeTools
         return ERPNativeTools().lookup_general_catalog(category=category, keyword=keyword, **kwargs)
 

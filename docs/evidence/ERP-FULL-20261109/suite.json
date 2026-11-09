@@ -1,0 +1,382 @@
+[
+  {
+    "id": 1,
+    "domain": "1. Báo cáo Tồn kho & Vật tư (Inventory Reports)",
+    "question": "Cho tôi xem báo cáo top 10 vật tư có số lượng tồn kho lớn nhất hiện tại"
+  },
+  {
+    "id": 2,
+    "domain": "1. Báo cáo Tồn kho & Vật tư (Inventory Reports)",
+    "question": "Tổng hợp số lượng tồn kho phân bổ theo từng kho hàng trong hệ thống"
+  },
+  {
+    "id": 3,
+    "domain": "1. Báo cáo Tồn kho & Vật tư (Inventory Reports)",
+    "question": "Báo cáo tổng hợp số lượng nhập kho và xuất kho theo từng ngày từ ngày 01/10/2026 đến ngày 20/10/2026"
+  },
+  {
+    "id": 4,
+    "domain": "2. Báo cáo Bán hàng & Đơn hàng (Sales & Delivery Reports)",
+    "question": "Cho tôi báo cáo top khách hàng có số lượng đặt hàng lớn nhất trong các đơn hàng bán gần đây"
+  },
+  {
+    "id": 5,
+    "domain": "2. Báo cáo Bán hàng & Đơn hàng (Sales & Delivery Reports)",
+    "question": "Tổng hợp sản lượng xuất kho bán hàng cho các khách hàng từ ngày 01/10/2026 đến hết ngày 20/10/2026"
+  },
+  {
+    "id": 6,
+    "domain": "2. Báo cáo Bán hàng & Đơn hàng (Sales & Delivery Reports)",
+    "question": "Tổng hợp số lượng xuất kho bán hàng của mã hàng QC7-5146-000 theo từng ngày xuất từ ngày 01/10/2026 đến ngày 20/10/2026"
+  },
+  {
+    "id": 7,
+    "domain": "3. Báo cáo Mua hàng & Nhà cung cấp (Procurement & Supplier Reports)",
+    "question": "Tổng hợp số lượng đơn hàng mua và tổng số lượng vật tư đặt mua theo từng nhà cung cấp gần đây"
+  },
+  {
+    "id": 8,
+    "domain": "3. Báo cáo Mua hàng & Nhà cung cấp (Procurement & Supplier Reports)",
+    "question": "Tổng hợp lịch sử các lần đặt mua, đơn giá mua thấp nhất, cao nhất và giá bình quân của mã nhựa PS-576D"
+  },
+  {
+    "id": 9,
+    "domain": "4. Báo cáo Quản lý Sản xuất & Chất lượng MES (Production & Quality Reports)",
+    "question": "Báo cáo tổng hợp số lượng sản phẩm lỗi NG theo từng máy sản xuất trong các ca làm việc gần đây"
+  },
+  {
+    "id": 10,
+    "domain": "4. Báo cáo Quản lý Sản xuất & Chất lượng MES (Production & Quality Reports)",
+    "question": "Tổng hợp số lượng lỗi sản phẩm theo từng mã lỗi và nguyên nhân lỗi trong bảng kê xác nhận NG"
+  },
+  {
+    "id": 11,
+    "domain": "4. Báo cáo Quản lý Sản xuất & Chất lượng MES (Production & Quality Reports)",
+    "question": "Báo cáo tổng số phút dừng máy theo từng nguyên nhân dừng chuyền trong bảng kê stop line gần đây"
+  },
+  {
+    "id": 12,
+    "domain": "4. Báo cáo Quản lý Sản xuất & Chất lượng MES (Production & Quality Reports)",
+    "question": "Tổng hợp số lượng kế hoạch sản xuất theo từng Work Order trong bảng điều độ sản xuất gần đây"
+  },
+  {
+    "id": 13,
+    "domain": "PHẦN 3: BỘ CÂU HỎI ĐỐI SOÁT PHỨC TẠP & SO SÁNH KỲ (ADVANCED PERIOD COMPARISON)",
+    "question": "So sánh số lượng xuất bán của mã hàng QC7-5146-000 từ ngày 01/10/2026 đến ngày 10/10/2026 so với từ ngày 11/10/2026 đến ngày 20/10/2026"
+  },
+  {
+    "id": 14,
+    "domain": "PHẦN 3: BỘ CÂU HỎI ĐỐI SOÁT PHỨC TẠP & SO SÁNH KỲ (ADVANCED PERIOD COMPARISON)",
+    "question": "Đối chiếu doanh thu và số lượng xuất bán của khách hàng KH0015 từ ngày 01/10/2026 đến ngày 10/10/2026 và từ ngày 11/10/2026 đến ngày 20/10/2026"
+  },
+  {
+    "id": 15,
+    "domain": "PHẦN 3: BỘ CÂU HỎI ĐỐI SOÁT PHỨC TẠP & SO SÁNH KỲ (ADVANCED PERIOD COMPARISON)",
+    "question": "Kiểm tra tổng số lượng đặt hàng trong đơn SO và tổng số lượng đã xuất kho giao hàng của mã QC7-5146-000 trong tháng 10/2026"
+  },
+  {
+    "id": 16,
+    "domain": "PHẦN 4: BỘ CÂU HỎI THỰC CHIẾN TỪ BUỔI DEMO KHÁCH HÀNG (DEMO AUDIT SUITE 02/11/2026)",
+    "question": "Tổng số lượng xuất hàng của mã hàng từ thời điểm này đến thời điểm này là bao nhiêu? Và doanh thu? tách đơn hàng bán và đơn giao bù NG (mã giao dịch 1 và 10)"
+  },
+  {
+    "id": 17,
+    "domain": "PHẦN 4: BỘ CÂU HỎI THỰC CHIẾN TỪ BUỔI DEMO KHÁCH HÀNG (DEMO AUDIT SUITE 02/11/2026)",
+    "question": "DO và FCST: so sánh sự biến động demand giữa lần update trước và update sau của mã QC7-5146-000"
+  },
+  {
+    "id": 18,
+    "domain": "PHẦN 4: BỘ CÂU HỎI THỰC CHIẾN TỪ BUỔI DEMO KHÁCH HÀNG (DEMO AUDIT SUITE 02/11/2026)",
+    "question": "Khuôn H131-TBT-H612 đã chạy được bao nhiêu shots? Theo demand của khách hàng thì dự kiến khi nào hết tuổi thọ khuôn?"
+  },
+  {
+    "id": 19,
+    "domain": "PHẦN 4: BỘ CÂU HỎI THỰC CHIẾN TỪ BUỔI DEMO KHÁCH HÀNG (DEMO AUDIT SUITE 02/11/2026)",
+    "question": "so sánh doanh thu mã sản phẩm HK2C2-393-01-00 tháng 9 và tháng 10"
+  },
+  {
+    "id": 20,
+    "domain": "PHẦN 4: BỘ CÂU HỎI THỰC CHIẾN TỪ BUỔI DEMO KHÁCH HÀNG (DEMO AUDIT SUITE 02/11/2026)",
+    "question": "So sánh doanh thu của mã hàng H131-TBT-H612? tách đơn hàng bán và giao bù NG"
+  },
+  {
+    "id": 21,
+    "domain": "PHẦN 4: BỘ CÂU HỎI THỰC CHIẾN TỪ BUỔI DEMO KHÁCH HÀNG (DEMO AUDIT SUITE 02/11/2026)",
+    "question": "Mã hàng QC7-5146-000 có tồn kho hiện tại bao gồm của những khuôn nào? Số lượng tồn kho cụ thể của từng khuôn? chỉ lấy ở các kho tp, kho xhtl"
+  },
+  {
+    "id": 22,
+    "domain": "PHẦN 4: BỘ CÂU HỎI THỰC CHIẾN TỪ BUỔI DEMO KHÁCH HÀNG (DEMO AUDIT SUITE 02/11/2026)",
+    "question": "Cung cấp data đơn hàng quá khứ 9/2026 của mã H131-TBT-H612"
+  },
+  {
+    "id": 23,
+    "domain": "PHẦN 4: BỘ CÂU HỎI THỰC CHIẾN TỪ BUỔI DEMO KHÁCH HÀNG (DEMO AUDIT SUITE 02/11/2026)",
+    "question": "lệnh giao hàng 001-2611-000004 được hoàn thiện khi nào lấy theo thời gian kho hoàn thành lệnh out hàng ra khỏi hệ thống"
+  },
+  {
+    "id": 24,
+    "domain": "PHẦN 4: BỘ CÂU HỎI THỰC CHIẾN TỪ BUỔI DEMO KHÁCH HÀNG (DEMO AUDIT SUITE 02/11/2026)",
+    "question": "Khách hàng KH0062 có mã hàng nào chưa link được giá trên ERP không?"
+  },
+  {
+    "id": 25,
+    "domain": "PHẦN 4: BỘ CÂU HỎI THỰC CHIẾN TỪ BUỔI DEMO KHÁCH HÀNG (DEMO AUDIT SUITE 02/11/2026)",
+    "question": "khách hàng ATSUMITEC có mã khách hàng là gì"
+  },
+  {
+    "id": 26,
+    "domain": "PHẦN 4: BỘ CÂU HỎI THỰC CHIẾN TỪ BUỔI DEMO KHÁCH HÀNG (DEMO AUDIT SUITE 02/11/2026)",
+    "question": "số lượng NG đã nhận lại và đã giao bù là bao nhiêu"
+  },
+  {
+    "id": 27,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Mã hàng QC7-5146-000 dùng nhựa gì? Tra cứu theo định mức BOM đang có hiệu lực tính đến ngày 20/10/2026."
+  },
+  {
+    "id": 28,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "MOQ báo giá của mã hàng QC7-5146-000 là bao nhiêu? Giá áp dụng hiện tại tính đến ngày 20/10/2026 là bao nhiêu?"
+  },
+  {
+    "id": 29,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Lot giao gần nhất của mã hàng QC7-5146-000 tính đến ngày 20/10/2026 là khi nào? Số lượng bao nhiêu?"
+  },
+  {
+    "id": 30,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Tổng số lượng xuất hàng của mã hàng QC7-5146-000 từ ngày 01/10/2026 đến hết ngày 20/10/2026 là bao nhiêu? Và doanh thu tương ứng?"
+  },
+  {
+    "id": 31,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Mã hàng QC7-5146-000 này là của khách hàng nào?"
+  },
+  {
+    "id": 32,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Mã hàng QC7-5146-000 được nhập kho khi nào từ ngày 01/10/2026 đến hết ngày 20/10/2026? Từ kho nào sang? Số lượng nhập là bao nhiêu? Người nhập là ai?"
+  },
+  {
+    "id": 33,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "So sánh biến động DO, FCST hiện tại và quá khứ (tăng, giảm) của mã hàng QC7-5146-000 tính đến ngày 20/10/2026?"
+  },
+  {
+    "id": 34,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Quy cách đóng gói chi tiết của mã hàng QC7-5146-000? Và quy đổi tồn kho hiện tại theo quy cách đóng gói tính đến ngày 20/10/2026 là bao nhiêu?"
+  },
+  {
+    "id": 35,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Khuôn K_QC5-2919-000-V1 đã chạy được bao nhiêu shots? Theo demand của khách hàng thì dự kiến khi nào hết tuổi thọ khuôn?"
+  },
+  {
+    "id": 36,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "So sánh sản lượng và doanh thu xuất bán của mã hàng QC7-5146-000 cho khách hàng KH0015 giữa kỳ 01/09/2026 - 20/09/2026 và kỳ 01/10/2026 - 20/10/2026?"
+  },
+  {
+    "id": 37,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Mã hàng QC7-5146-000 có tồn kho tem thành phẩm hiện tại bao gồm của những khuôn (die) nào? Số lượng tồn kho cụ thể của từng khuôn tính đến 20/10/2026?"
+  },
+  {
+    "id": 38,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Cung cấp dữ liệu đơn hàng bán quá khứ của khách hàng KH0015 từ ngày 01/10/2026 đến hết ngày 20/10/2026?"
+  },
+  {
+    "id": 39,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Lệnh giao hàng số 001-2610-001811 được hoàn thiện khi nào? Tình trạng hiện tại ra sao?"
+  },
+  {
+    "id": 40,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Tồn kho sổ sách hiện tại của mã hàng QC7-5146-000 là bao nhiêu tính đến ngày 20/10/2026?"
+  },
+  {
+    "id": 41,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Tồn kho thành phẩm của mã hàng QC7-5146-000 có lot nào đang ở trạng thái khóa hoặc khoanh vùng NG không tính đến ngày 20/10/2026?"
+  },
+  {
+    "id": 42,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Khách hàng KH0015 có mã hàng nào trong các đơn hàng từ 01/10/2026 đến 20/10/2026 chưa link được giá trên ERP không?"
+  },
+  {
+    "id": 43,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Khách hàng Công ty TNHH Canon Việt Nam- Chi nhánh Thăng Long có mã khách hàng là gì trên hệ thống ERP?"
+  },
+  {
+    "id": 44,
+    "domain": "Chi tiết 18 câu hỏi kiểm thử trên Web",
+    "question": "Số lượng giao bù NG mã hàng QC7-5146-000 từ ngày 01/10/2026 đến hết ngày 20/10/2026 là bao nhiêu? Số lượng NG đã nhận lại? Số lượng chưa giao bù và chưa nhận về là bao nhiêu?"
+  },
+  {
+    "id": 45,
+    "domain": "1. Phân hệ Sản xuất & MES Nâng cao (MF & MES Suite)",
+    "question": "Bảng kê điều độ sản xuất và Work Order từ ngày 01/10/2026 đến ngày 31/10/2026"
+  },
+  {
+    "id": 46,
+    "domain": "1. Phân hệ Sản xuất & MES Nâng cao (MF & MES Suite)",
+    "question": "Báo cáo xác nhận phế phẩm NG sản xuất từ ngày 01/11/2026 đến ngày 09/11/2026"
+  },
+  {
+    "id": 47,
+    "domain": "1. Phân hệ Sản xuất & MES Nâng cao (MF & MES Suite)",
+    "question": "Bảng kê đóng thùng thành phẩm của mã sản phẩm QC7-5146-000"
+  },
+  {
+    "id": 48,
+    "domain": "1. Phân hệ Sản xuất & MES Nâng cao (MF & MES Suite)",
+    "question": "Bảng kê gộp tách thùng tem carton trong tháng 10 năm 2026"
+  },
+  {
+    "id": 49,
+    "domain": "1. Phân hệ Sản xuất & MES Nâng cao (MF & MES Suite)",
+    "question": "Bảng kê bổ sung hoặc bỏ shot khuôn trong tháng 10 năm 2026"
+  },
+  {
+    "id": 50,
+    "domain": "1. Phân hệ Sản xuất & MES Nâng cao (MF & MES Suite)",
+    "question": "Lịch sử các lần thay khuôn sản xuất trong tháng 10 năm 2026"
+  },
+  {
+    "id": 51,
+    "domain": "2. Phân hệ Bán hàng, Giao nhận & Công nợ Nhà cung cấp",
+    "question": "Chi tiết lệnh giao hàng số 001-2611-000004 xuất ngày nào và giờ out kho thực tế?"
+  },
+  {
+    "id": 52,
+    "domain": "2. Phân hệ Bán hàng, Giao nhận & Công nợ Nhà cung cấp",
+    "question": "Sổ chi tiết công nợ nhà cung cấp NCC0015 từ ngày 01/10/2026 đến ngày 31/10/2026"
+  },
+  {
+    "id": 53,
+    "domain": "3. Phân hệ Quản lý Lô, Hạn sử dụng & Kiểm định Chất lượng",
+    "question": "Kiểm tra trạng thái QC các tem thành phẩm của mã QC7-5146-000 có lot nào bị khóa hoặc NG không?"
+  },
+  {
+    "id": 54,
+    "domain": "3. Phân hệ Quản lý Lô, Hạn sử dụng & Kiểm định Chất lượng",
+    "question": "Báo cáo cảnh báo hạn sử dụng lô của mã vật tư QC7-5146-000"
+  },
+  {
+    "id": 55,
+    "domain": "3. Phân hệ Quản lý Lô, Hạn sử dụng & Kiểm định Chất lượng",
+    "question": "Báo cáo tuổi hàng tồn kho theo lô của mã vật tư QC7-5146-000 trong tháng 10/2026"
+  },
+  {
+    "id": 56,
+    "domain": "1. Nhóm Câu hỏi Xử lý Sự cố Người dùng Thực tế (Bùi Thị Mai Dashboard)",
+    "question": "Chị hỏi tồn kho ở Kho tại máy nó đang ở vị trí tồn là vị trí nào của mã vật tư 0591TMANCHORBASE-V3?"
+  },
+  {
+    "id": 57,
+    "domain": "1. Nhóm Câu hỏi Xử lý Sự cố Người dùng Thực tế (Bùi Thị Mai Dashboard)",
+    "question": "Kiểm tra giá mua của mã nhựa ABS-260 trong danh mục giá mua nhà cung cấp"
+  },
+  {
+    "id": 58,
+    "domain": "2. Phân hệ Kế toán Tổng hợp & Tài chính (GL)",
+    "question": "Xem sổ cái tài khoản 1521 nguyên vật liệu chính từ ngày 01/10/2026 đến ngày 31/10/2026"
+  },
+  {
+    "id": 59,
+    "domain": "2. Phân hệ Kế toán Tổng hợp & Tài chính (GL)",
+    "question": "Xem sổ cái phát sinh tài khoản 131 trong tháng 10 năm 2026"
+  },
+  {
+    "id": 60,
+    "domain": "2. Phân hệ Kế toán Tổng hợp & Tài chính (GL)",
+    "question": "Bảng cân đối phát sinh các tài khoản kế toán tháng 10 năm 2026"
+  },
+  {
+    "id": 61,
+    "domain": "2. Phân hệ Kế toán Tổng hợp & Tài chính (GL)",
+    "question": "Báo cáo tập hợp chi phí sản xuất kinh doanh dở dang và chi phí quản lý tháng 10 năm 2026"
+  },
+  {
+    "id": 62,
+    "domain": "3. Phân hệ Kế hoạch & Điều độ Sản xuất (MF)",
+    "question": "Bảng kê các lệnh sản xuất trong tháng 10 năm 2026"
+  },
+  {
+    "id": 63,
+    "domain": "3. Phân hệ Kế hoạch & Điều độ Sản xuất (MF)",
+    "question": "Thống kê sản xuất và sản lượng hoàn thành từ ngày 01/10/2026 đến ngày 31/10/2026"
+  },
+  {
+    "id": 64,
+    "domain": "3. Phân hệ Kế hoạch & Điều độ Sản xuất (MF)",
+    "question": "Báo cáo tiêu hao nguyên vật liệu theo lệnh sản xuất trong tháng 10/2026"
+  },
+  {
+    "id": 65,
+    "domain": "3. Phân hệ Kế hoạch & Điều độ Sản xuất (MF)",
+    "question": "Báo cáo tổng hợp NXT công đoạn sản xuất trong tháng 10/2026"
+  },
+  {
+    "id": 66,
+    "domain": "4. Phân hệ Hồ sơ Khuôn mẫu & Quản lý Thiết bị (VS)",
+    "question": "Tra cứu hồ sơ kỹ thuật và thông số khuôn mẫu trong hệ thống"
+  },
+  {
+    "id": 67,
+    "domain": "4. Phân hệ Hồ sơ Khuôn mẫu & Quản lý Thiết bị (VS)",
+    "question": "Lịch sử sửa chữa và bảo dưỡng khuôn mẫu của nhà máy"
+  },
+  {
+    "id": 68,
+    "domain": "4. Phân hệ Hồ sơ Khuôn mẫu & Quản lý Thiết bị (VS)",
+    "question": "Báo cáo các khuôn mẫu sắp chạm ngưỡng số shot bảo dưỡng định kỳ"
+  },
+  {
+    "id": 69,
+    "domain": "5. Phân hệ Bán hàng & Dự báo Nhu cầu (SO)",
+    "question": "Bảng giá bán của mã sản phẩm 156279430"
+  },
+  {
+    "id": 70,
+    "domain": "5. Phân hệ Bán hàng & Dự báo Nhu cầu (SO)",
+    "question": "Báo cáo tổng hợp bán hàng và doanh số trong tháng 10 năm 2026"
+  },
+  {
+    "id": 71,
+    "domain": "5. Phân hệ Bán hàng & Dự báo Nhu cầu (SO)",
+    "question": "Bảng kê dự báo tiêu thụ Forecast từ khách hàng trong năm 2026"
+  },
+  {
+    "id": 72,
+    "domain": "6. Phân hệ Mua hàng, Chất lượng & Quản lý Kho (PO / QC / IN)",
+    "question": "Báo cáo tổng hợp hàng nhập mua từ các nhà cung cấp trong tháng 10 năm 2026"
+  },
+  {
+    "id": 73,
+    "domain": "6. Phân hệ Mua hàng, Chất lượng & Quản lý Kho (PO / QC / IN)",
+    "question": "Bảng kê chi tiết các phiếu kiểm tra chất lượng hàng mua IQC trong tháng 10/2026"
+  },
+  {
+    "id": 74,
+    "domain": "6. Phân hệ Mua hàng, Chất lượng & Quản lý Kho (PO / QC / IN)",
+    "question": "Báo cáo kiểm soát tồn kho theo lô trong tháng 10/2026"
+  },
+  {
+    "id": 75,
+    "domain": "6. Phân hệ Mua hàng, Chất lượng & Quản lý Kho (PO / QC / IN)",
+    "question": "Báo cáo trạng thái kho và sức chứa vị trí tại Kho Thành phẩm KHOTP00"
+  },
+  {
+    "id": 76,
+    "domain": "6. Phân hệ Mua hàng, Chất lượng & Quản lý Kho (PO / QC / IN)",
+    "question": "Mã hàng QC7-5146-000 được khai báo thuộc khách hàng nào? Chị hỏi tồn kho ở KHO tại máy nó đang ở vị trí tồn là vị trí nào?"
+  }
+]

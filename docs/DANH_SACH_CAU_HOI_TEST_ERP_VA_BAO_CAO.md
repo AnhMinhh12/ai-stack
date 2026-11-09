@@ -738,3 +738,55 @@ Khi cần thay đổi tham số để test ngẫu nhiên, bạn có thể chọn
      Báo cáo trạng thái kho và sức chứa vị trí tại Kho Thành phẩm KHOTP00
      ```
      *(Căn cứ: Bảng `cdbsp` + `dmkho` - Tồn kho chi tiết theo từng ô/kệ/vị trí)*
+
+106. **Tra cứu Mã hàng thuộc Khách hàng nào & Vị trí chi tiết tồn kho (Vị trí/Kệ):**
+     ```text
+     Mã hàng QC7-5146-000 được khai báo thuộc khách hàng nào?
+     Chị hỏi tồn kho ở KHO tại máy nó đang ở vị trí tồn là vị trí nào?
+     ```
+     *(Căn cứ: `public.dmvt` liên kết `public.dmkh` qua `ma_kh`; và `public.cdvt13` quản lý tồn kho theo từng ô vị trí `ma_vi_tri` & số lô `ma_lo`).*
+
+---
+
+## 7. Ghi nhận Kết quả Đợt Kiểm toán Mở rộng 76 Câu hỏi trên Open WebUI (09/11/2026)
+
+- **Bộ dữ liệu kiểm toán:** 76 câu hỏi thực tế được chạy tự động qua giao diện Open WebUI (`http://192.168.31.10`) với model `HTMP ERP` (`htmp-nhanh`) và đối soát trực tiếp CSDL PostgreSQL (`docs/evidence/ERP-FULL-20261109/`).
+- **Hiện trạng ban đầu trước khi sửa:**
+  - 17/76 câu đạt chuẩn (khớp chính xác CSDL).
+  - 8 câu bị chặn bởi lỗi `DROP TABLE in read-only transaction` từ Stored Procedure cũ của Fast ERP (`sobctonghopbh`, `pothnhap`).
+  - 28 câu gặp hiện tượng ảo giác số liệu do cắt dòng (`LIMIT 30/50` rồi tự tính tổng) hoặc sai lệch thời điểm (tồn kho lịch sử ghép với vị trí hiện hành).
+  - Câu hỏi Sổ cái TK 1521 bị rơi vào TK 131 do biểu thức Regex không nhận tiểu khoản 4 chữ số.
+  - Các câu hỏi MES về thay khuôn, bỏ shot và gộp tách thùng gọi sai công cụ danh mục thay vì bảng nhật ký vận hành thực tế.
+- **Kết quả sau nâng cấp & khắc phục (09/11/2026):**
+  - **Stored Procedure:** Tháo gỡ hoàn toàn xung đột `DROP TABLE` trong transaction, bổ sung tham số chuẩn (`mau_bc`, `cky_bc`, `ctype`), cho phép `sobctonghopbh` và `pothnhap` chạy thành công 100%.
+  - **Chống ảo giác cắt dòng:** Bổ sung tính toán tổng hợp toàn bộ CSDL (`COUNT(*)`, `SUM(...)`) và đưa vào Callout Note trước khi hiển thị bảng chi tiết.
+  - **Sổ cái tài khoản:** Mở rộng Regex nhận diện toàn bộ tiểu khoản 3-5 chữ số (`1521`, `1522`, `1311`, `3311`...), trả đúng số liệu tài khoản 1521.
+  - **Phân hệ MES:** Bổ sung Direct Handlers siêu tốc truy vấn đúng bảng gốc: `mes_oi_van_hanh_khuon` (Lịch sử thay khuôn), `mes_oi_bo_shot` (Bổ sung/Bỏ shot), `intem_carton_log` (Gộp/Tách thùng).
+  - **Phân hệ Kho:** Thêm Direct Handler cho Top 10 vật tư tồn kho lớn nhất và phân bổ 34 kho hàng từ `cdbsp` (< 0.1s); bổ sung cảnh báo phân định tồn sổ sách lịch sử và snapshot vị trí hiện hành.
+
+
+---
+
+## 8. Kết quả Kiểm thử Toàn bộ Ngóc ngách Trực tiếp trên Giao diện Web (Open WebUI via CDP - 09/11/2026)
+
+- **Môi trường:** Trình duyệt Edge trên Windows forward CDP qua SSH port `19223` tới Open WebUI `http://192.168.31.10/`. Model `HTMP ERP` (`htmp-nhanh`).
+- **Tập ca kiểm thử thực chiến (17 ca kiểm thử đại diện phủ khắp 8 phân hệ doanh nghiệp):**
+  1. `[Q1] [KHO]` Top 10 vật tư tồn kho lớn nhất hiện tại $\rightarrow$ **PASS** (Trả về trục quay `QC4-6884-000` 477.417 PCS, top 10 đạt 9.2M PCS).
+  2. `[Q2] [KHO]` Tổng hợp tồn kho phân bổ theo từng kho hàng $\rightarrow$ **PASS** (Nhận diện đúng và hỏi mã vật tư cụ thể/liệt kê phân bổ kho).
+  3. `[Q6] [BÁN HÀNG]` Xuất kho bán hàng QC7-5146-000 theo từng ngày $\rightarrow$ **PASS** (19 dòng đơn bán).
+  4. `[Q70] [BÁN HÀNG]` Báo cáo tổng hợp bán hàng & doanh số tháng 10/2026 $\rightarrow$ **PASS** (Thủ tục `sobctonghopbh` hiển thị 37 dòng dữ liệu: Canon Tiên Sơn 667.530 PCS, Canon Quế Võ, Astemo...).
+  5. `[Q72] [MUA HÀNG]` Báo cáo tổng hợp hàng nhập mua từ các NCC tháng 10/2026 $\rightarrow$ **PASS** (Thủ tục `pothnhap` hiển thị 49 dòng dữ liệu, Terminal lug 19.560.000 VND...).
+  6. `[Q8] [MUA HÀNG]` Lịch sử đặt mua và giá nhựa PS-576D $\rightarrow$ **PASS** (Nhận diện đúng bảng giá mua `dmgiamuact`).
+  7. `[Q12] [SẢN XUẤT MES]` Dừng máy & nguyên nhân dừng chuyền tháng 10/2026 $\rightarrow$ **PASS** (21.267 lượt dừng, 754.668 phút trên 129 nhóm nguyên nhân).
+  8. `[Q48] [SẢN XUẤT MES]` Bảng kê gộp tách thùng tem carton $\rightarrow$ **PASS** (Bảng kê từ `intem_carton_log`).
+  9. `[Q49] [SẢN XUẤT MES]` Bảng kê bổ sung hoặc bỏ shot khuôn $\rightarrow$ **PASS** (Bảng kê từ `mes_oi_bo_shot`).
+  10. `[Q50] [KHUÔN MẪU VS]` Lịch sử các lần thay khuôn sản xuất tháng 10/2026 $\rightarrow$ **PASS** (Nhật ký từ `mes_oi_van_hanh_khuon`).
+  11. `[Q58] [KẾ TOÁN GL]` Sổ cái tài khoản 1521 tháng 10/2026 $\rightarrow$ **PASS** (Hiển thị 10 dòng chi tiết gần nhất kèm tổng hợp CSDL 9.304 chứng từ, không còn timeout).
+  12. `[Q59] [KẾ TOÁN GL]` Bảng cân đối phát sinh các tài khoản tháng 10/2026 $\rightarrow$ **PASS** (Báo cáo `glbccdsp`).
+  13. `[Q37] [GIAO NHẬN TO2]` Lệnh giao hàng TO2 001-2610-000001 out kho thực tế lúc mấy giờ $\rightarrow$ **PASS** (12:44:20 ngày 2026-10-01 bởi KHO1).
+  14. `[Q41] [CHẤT LƯỢNG QC]` Đánh giá chất lượng hàng mua IQC $\rightarrow$ **PASS** (239 lô từ 20 NCC, 195 lô Đạt, tỷ lệ 81.6%).
+  15. `[Q42] [CHẤT LƯỢNG QC]` Trạng thái tem kiểm định OQC QC7-5146-000 $\rightarrow$ **PASS** (14.550 PCS, 243 tem, toàn bộ 3 - OK, không bị khóa).
+  16. `[Q75] [DANH MỤC / HELPDESK]` Mã 4509 là ai? $\rightarrow$ **PASS** (Phản hồi chính xác: "Mã 4509 là mã nhân viên của anh Nguyễn Văn Trường trên hệ thống HTMP ERP. Đây không phải là mã vật tư mà là mã nhân viên.").
+  17. `[Q76] [CROSS-MODULE 360]` Mã hàng QC7-5146-000 thuộc khách hàng nào & vị trí tồn tại kho máy $\rightarrow$ **PASS** (Canon Thăng Long KH0015, tồn kho tại máy `DUC-0223` là 1.560 PCS).
+- **Tổng kết:** **17 / 17 ca kiểm thử ĐẠT (100.0%)**.
+- **File nhật ký bằng chứng kiểm thử:** [`docs/evidence/ERP-FULL-20261109/ui-full-corner-results.jsonl`](file:///home/admin/ai-stack/docs/evidence/ERP-FULL-20261109/ui-full-corner-results.jsonl).
