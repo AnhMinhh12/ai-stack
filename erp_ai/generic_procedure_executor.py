@@ -158,7 +158,11 @@ class GenericProcedureExecutor:
     ) -> Dict[str, Any]:
         """Universal entry point to execute and format any ERP 3S / MES business report."""
         combined_text = f"{report_type} {query}".strip()
-        report_meta = find_report_in_catalog(report_type) or find_report_in_catalog(combined_text)
+        report_meta = None
+        if query.strip():
+            report_meta = find_report_in_catalog(query.strip())
+        if not report_meta:
+            report_meta = find_report_in_catalog(report_type) or find_report_in_catalog(combined_text)
 
         if not report_meta:
             return {
@@ -561,6 +565,78 @@ class GenericProcedureExecutor:
                 summary_fields=report_meta.get("summary_fields", [])
             )
             return {"success": True, "report_id": report_id, "title": title, "row_count": len(rows), "formatted_text": formatted_text}
+
+        if report_id == "so-sanh-do-fcst":
+            from erp_ai.native_tools import connection_settings
+            import psycopg
+            with psycopg.connect(**connection_settings(), autocommit=False) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT DISTINCT id, date0
+                        FROM public.mfkhsx_po_fc
+                        ORDER BY id DESC LIMIT 2
+                    """)
+                    snapshots = cursor.fetchall()
+                    if not snapshots:
+                        return {"success": False, "formatted_text": "Không tìm thấy dữ liệu phiên bản cập nhật kế hoạch trong mfkhsx_po_fc."}
+                    id1, d1 = snapshots[0]
+                    id2 = snapshots[1][0] if len(snapshots) >= 2 else id1
+                    d2 = snapshots[1][1] if len(snapshots) >= 2 else d1
+
+                    cursor.execute("""
+                        SELECT id, nguon_du_lieu, coalesce(sum(so_luong), 0)
+                        FROM public.mfkhsx_po_fc
+                        WHERE (%s = '' OR upper(trim(ma_vt)) = %s) AND id IN (%s, %s)
+                        GROUP BY id, nguon_du_lieu
+                        ORDER BY id DESC, nguon_du_lieu
+                    """, (c_item, c_item, id1, id2))
+                    demand_rows = cursor.fetchall()
+
+                    cur_do, cur_fc = 0, 0
+                    prev_do, prev_fc = 0, 0
+                    for r in demand_rows:
+                        snap_id, src, qty = r[0], str(r[1]).upper(), int(r[2])
+                        if snap_id == id1:
+                            if src in ("SO", "PO"):
+                                cur_do += qty
+                            elif src == "FC":
+                                cur_fc += qty
+                        elif snap_id == id2:
+                            if src in ("SO", "PO"):
+                                prev_do += qty
+                            elif src == "FC":
+                                prev_fc += qty
+
+            diff_do = cur_do - prev_do
+            pct_do = (diff_do / prev_do * 100) if prev_do > 0 else 0
+            diff_fc = cur_fc - prev_fc
+            pct_fc = (diff_fc / prev_fc * 100) if prev_fc > 0 else 0
+
+            do_trend = f"tăng {diff_do:+,} PCS ({pct_do:+.2f}%)" if diff_do != 0 else "không đổi (0 PCS)"
+            fc_trend = f"tăng {diff_fc:+,} PCS ({pct_fc:+.2f}%)" if diff_fc != 0 else "không đổi (0 PCS)"
+
+            vt_title = f" — MÃ **{c_item}**" if c_item else ""
+            msg = (
+                f"### So sánh Biến động Demand (DO & FCST) giữa 2 Lần Cập nhật Kế hoạch{vt_title}\n\n"
+                f"- **Lần cập nhật mới nhất (`{id1}` — ngày {d1})**:\n"
+                f"  + Nhu cầu giao hàng DO (SO Demand): **{cur_do:,} PCS**\n"
+                f"  + Dự báo nhu cầu FCST (FC Demand): **{cur_fc:,} PCS**\n\n"
+                f"- **Lần cập nhật trước đó (`{id2}` — ngày {d2})**:\n"
+                f"  + Nhu cầu giao hàng DO (SO Demand): **{prev_do:,} PCS**\n"
+                f"  + Dự báo nhu cầu FCST (FC Demand): **{prev_fc:,} PCS**\n\n"
+                f"| Chỉ tiêu Demand | Bản mới nhất ({id1}) | Bản trước ({id2}) | Chênh lệch (PCS) | Tỷ lệ biến động |\n"
+                f"| :--- | :--- | :--- | :--- | :--- |\n"
+                f"| **Nhu cầu giao hàng DO (SO Demand)** | {cur_do:,} PCS | {prev_do:,} PCS | {diff_do:+,} PCS | **{pct_do:+.2f}%** ({do_trend}) |\n"
+                f"| **Dự báo nhu cầu FCST (FC Demand)** | {cur_fc:,} PCS | {prev_fc:,} PCS | {diff_fc:+,} PCS | **{pct_fc:+.2f}%** ({fc_trend}) |\n\n"
+                f"*(Căn cứ nghiệp vụ: Hệ thống đối soát biến động demand trên cùng dải kế hoạch giữa 2 phiên bản nhập snapshot dữ liệu kế hoạch sản xuất theo chuẩn MRP/Demand Planning từ bảng `mfkhsx_po_fc`).*"
+            )
+            return {
+                "success": True,
+                "report_id": "so-sanh-do-fcst",
+                "title": "So sánh biến động Demand giữa 2 lần cập nhật kế hoạch",
+                "row_count": 2,
+                "formatted_text": msg
+            }
 
         if report_id == "sobkdubaotieuthu":
             sql = """

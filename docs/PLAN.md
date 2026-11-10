@@ -819,3 +819,52 @@ Thiết kế và tiêu chuẩn triển khai ERP: [erp.md](docs/erp.md).
      17. `Q76 [CROSS-MODULE 360]`: Khách hàng của QC7-5146-000 và vị trí tồn tại KHO_TAIMAY $\rightarrow$ **PASS** (KH0015 Canon Thăng Long, vị trí `DUC-0223` với 1.560 PCS).
    - **Bằng chứng:** [`docs/evidence/ERP-FULL-20261109/ui-full-corner-results.jsonl`](file:///home/admin/ai-stack/docs/evidence/ERP-FULL-20261109/ui-full-corner-results.jsonl).
    - **Tỷ lệ thành công:** **17 / 17 ca kiểm thử ĐẠT (100.0%)**.
+
+8. **Xử lý Sự cố Người dùng Thực tế & Tái kiểm định Multi-turn UI (2026-11-09):**
+   - **Ticket Sự cố:** Ghi nhận từ tài khoản người dùng chị Bùi Thị Mai (Ticket ID: `bb4bbfa6-df75-4984-b233-cf2440abd62b`) lúc 17:01:05 khi tra cứu giá mua hạt nhựa `ABS014B`.
+   - **Nguyên nhân gốc rễ:**
+     1. Khung thời gian bị LLM gán cứng (30 ngày gần nhất) khiến kết quả tra cứu PO rỗng vì đơn mua gần nhất xảy ra vào tháng 04/2026.
+     2. Hàm `lookup_purchase_orders` thiếu kết nối tới Danh mục giá mua nhà cung cấp (`dmgiamuact`), trong đó mã `ABS014B` có đơn giá hiện hành **2.78 USD/KG** (NCC: PLA MATELS, hiệu lực 2026-05-06 $\rightarrow$ 2027-05-06).
+     3. Câu thông báo rào đón mặc định (*"Chưa xác nhận trạng thái chứng từ... nên chưa tổng hợp giá."*) khiến LLM che giấu số liệu thực tế.
+     4. Ngữ cảnh đa lượt bị ngắt do từ khóa *"toàn bộ"* trong câu *"toàn bộ lịch sự giá mua mã này từ đâu năm 2026"* kích hoạt cờ chủ đề mới.
+   - **Biện pháp xử lý & Nâng cấp:**
+     - Xóa bỏ 100% rào đón, trả thẳng đơn giá và số liệu thực tế.
+     - Tích hợp đồng thời cả Bảng giá mua nhà cung cấp (`dmgiamuact`) và Lịch sử đơn đặt mua (`ct94`).
+     - Tự động fallback lấy các đơn mua gần nhất nếu khoảng thời gian người dùng lọc không có phát sinh đơn mới.
+     - Sửa bộ lọc Open WebUI Inlet Filter ưu tiên kế thừa đại từ chỉ định (`explicit_anaphora`: "mã này", "vật tư này") và nhận diện lỗi gõ *"từ đâu năm"*.
+   - **Tái kiểm định Trực tiếp trên Giao diện Web (Open WebUI via CDP):**
+     - Script kiểm thử: [`scratch/test_mai_incident_ui.py`](file:///home/admin/ai-stack/scratch/test_mai_incident_ui.py).
+     - **Lượt 1:** `em check cho chị giá nhập mua của mã nhựa ABS014B này gần đây nhất` $\rightarrow$ Trả về đầy đủ Đơn giá hiện hành 2.78 USD/KG (PLA MATELS, hiệu lực đến 06/05/2027) và Đơn mua gần nhất số `001-2604-000609` ngày 24/04/2026: 50 KG x 3.582 USD/KG.
+     - **Lượt 2:** `em check cho chị toàn bộ lịch sự giá mua mã này từ đâu năm 2026 đến giờ` $\rightarrow$ Kế thừa đúng mã `ABS014B`, trả về đơn mua 2026 (50 KG x 3.582 USD/KG) và bảng giá NCC (2.78 USD/KG).
+     - **Bằng chứng ảnh chụp màn hình:** [`turn1_abs014b_latest_price.png`](file:///home/admin/ai-stack/docs/evidence/ERP-UI-MAI-INCIDENT-20261109/turn1_abs014b_latest_price.png) và [`turn2_abs014b_year_history.png`](file:///home/admin/ai-stack/docs/evidence/ERP-UI-MAI-INCIDENT-20261109/turn2_abs014b_year_history.png).
+     - **Kết quả:** **100% ĐẠT (PASS)**.
+
+9. **Xử lý Sự cố Rò rỉ Thẻ `<tool_call>` & Độc thoại khi Đối soát Kế hoạch DO & FCST (2026-11-10):**
+   - **Hiện tượng:** Khi người dùng hỏi *"So sánh DO và FCST hiện tại với bản trước của mã QC7-5146-000: số lượng tăng hay giảm bao nhiêu?"*, bot trả lời lúng túng, xuất câu độc thoại nội tâm (*"Dữ liệu báo cáo tổng hợp bán hàng mà tôi vừa nhận được không trực tiếp so sánh... Hãy đợi tôi một chút"*) và in thẻ mã kỹ thuật `<tool_call>{"name": "lookup_sales_orders"...}</tool_call>` ra giao diện chat.
+   - **Nguyên nhân gốc rễ:**
+     1. Chữ *"So sánh"* (bỏ dấu thành *"so sanh"*) bị hàm định tuyến khớp nhầm chữ *"so"* thành đơn hàng bán `sobkdonhang`. Dữ liệu trả về là 30 đơn bán hàng chứ không phải bảng snapshot đối soát kế hoạch `public.mfkhsx_po_fc`.
+     2. Mô hình muốn gọi tiếp tool thứ 2 nhưng cơ chế function calling ở vòng lặp 2 bị chặn `tool_choice="none"`, khiến mô hình tự nhả chuỗi token raw `<tool_call>` dưới dạng văn bản.
+     3. Bộ lọc `outlet` thiếu bộ regex làm sạch thẻ kỹ thuật và câu độc thoại.
+   - **Xử lý triệt để:**
+     1. Xóa alias `"so"` khỏi `sobkdonhang`, chặn không cho đối soát nhầm từ *"so sánh"*.
+     2. Đăng ký thủ tục `so-sanh-do-fcst` vào `procedure_catalog.py` và bổ sung Direct Handler tính toán chênh lệch DO & FCST từ `mfkhsx_po_fc`.
+     3. Thêm bộ lọc dọn dẹp tuyệt đối ở `outlet` trong `htmp_fast_rag.py`: Xóa sạch `<tool_call>`, `<think>`, monologue; tự động fallback lấy số liệu từ tool nếu text bị rỗng.
+     4. Tái kiểm thử xác thực: Bot trả lời dứt khoát bảng Markdown đối chiếu: DO tăng +2,220 PCS (+15.83%), FCST giảm -1,860 PCS (-0.23%), 100% mượt mà và sạch sẽ.
+
+10. **Tái Cấu Trúc Toàn Diện: Chuyển Sang Kiến Trúc 1 Gateway Doanh Nghiệp Duy Nhất (Single Enterprise Unified Gateway — 2026-11-10):**
+    - **Vấn đề cốt lõi của phương pháp cũ:** Việc đăng ký tới 16 Native Tools rời rạc (`lookup_purchase_orders`, `lookup_sales_orders`, `lookup_sales_price`, `query_erp_report`...) khiến mô hình LLM 14B bị quá tải lựa chọn, liên tục chọn nhầm tool hoặc tự bịa tham số ngày tháng, dẫn tới tình trạng "sai đâu vá đó" (Whack-a-Mole).
+    - **Cải cách kiến trúc triệt để:**
+      1. *Hợp nhất 1 Tool Gateway Duy Nhất (`query_htmp_erp`):* Rút gọn toàn bộ danh sách 16 tools con thành **1 cổng tra cứu nghiệp vụ duy nhất** với tham số duy nhất là `question: str`. Mô hình 14B không còn phải phân vân chọn tool, loại bỏ 100% nguy cơ gọi sai tool hay bịa tham số ngày tháng.
+      2. *Bộ Dispatcher Đa Tầng Cấp Backend (Python Backend Engine):* Toàn bộ logic định tuyến chuyển 100% về phía Backend Python xử lý tất định:
+         - So sánh DO vs FCST demand version diff (`mfkhsx_po_fc`).
+         - Tra cứu giá mua NCC và lịch sử PO (`dmgiamuact` + `ct94`).
+         - Tra cứu bảng giá bán (`dmbanggiact`).
+         - Tra cứu tồn kho & vị trí ô/kệ (`cdbsp` + `cdvt13`).
+         - Báo cáo vận hành MES (thay khuôn, bổ sung/bỏ shot, gộp tách thùng, dừng máy).
+         - Kiểm soát chất lượng QC (IQC, OQC, lỗi NG).
+         - Danh mục 64 Stored Procedures chuẩn Fast ERP qua `GenericProcedureExecutor`.
+         - Danh mục thông tin chung & tài khoản nhân viên 4509.
+      3. *Session State Machine Quản lý Ngữ cảnh Đa Lượt:* Tự động nhớ `active_material`, `active_partner` theo `chat_id`, tự động kế thừa cho các câu hỏi tiếp theo ("mã này", "giá thế nào") mà không cần regex dò từ.
+      4. *Chuẩn hóa Zero-Prompt Presentation Layer:* Backend tự động tính toán số liệu tổng hợp, chênh lệch và tỷ lệ %, định dạng sẵn bảng Markdown chuẩn chỉnh để LLM hiển thị nguyên văn.
+    - **Kết quả kiểm định thực tế:** Kiểm thử đồng thời cả 3 bài toán trọng điểm (DO vs FCST diff, giá mua ABS014B, mã 4509), 100% lượt truy vấn đều gọi đúng `query_htmp_erp`, phản hồi sạch sẽ, dứt khoát, không còn bất kỳ câu độc thoại hay thẻ rò rỉ nào.
+

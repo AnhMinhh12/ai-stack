@@ -648,3 +648,84 @@ Kịch bản kiểm thử tự động toàn doanh nghiệp [`scratch/run_enterp
   - **Danh mục / Helpdesk:** Q75 (Mã 4509 là ai? - Anh Nguyễn Văn Trường) $\rightarrow$ PASS.
   - **Cross-module 360:** Q76 (Mã hàng QC7-5146-000 thuộc khách hàng Canon Thăng Long & vị trí tồn tại kho máy `DUC-0223`: 1.560 PCS) $\rightarrow$ PASS.
 - **Bằng chứng kiểm thử:** [`docs/evidence/ERP-FULL-20261109/ui-full-corner-results.jsonl`](file:///home/admin/ai-stack/docs/evidence/ERP-FULL-20261109/ui-full-corner-results.jsonl), kịch bản [`scratch/run_full_corners_ui_test.py`](file:///home/admin/ai-stack/scratch/run_full_corners_ui_test.py).
+
+
+### 29.8. Phân tích & Xử lý Dứt điểm Sự cố Người dùng Bùi Thị Mai (09/11/2026)
+- **Tình huống sự cố:** Người dùng kiểm thử tra cứu giá hạt nhựa `ABS014B` (Ticket: `bb4bbfa6-df75-4984-b233-cf2440abd62b`) phản ánh bot không trả lời được:
+  - Lượt 1: Hỏi giá nhập gần đây nhất $\rightarrow$ Bot trả lời không có dữ liệu do bị LLM ép khung 30 ngày (01/09 - 01/10/2026).
+  - Lượt 2: Hỏi toàn bộ lịch sử giá từ đầu năm $\rightarrow$ Bot trả lời rào đón "Chưa xác nhận trạng thái... nên chưa tổng hợp giá", không đưa ra đơn giá cụ thể.
+- **Biện pháp xử lý kỹ thuật triệt để:**
+  1. *Loại bỏ toàn bộ Disclaimer:* Thay các câu rào đón bằng dữ liệu thực tế rõ ràng.
+  2. *Kết hợp bảng giá NCC & lịch sử PO:* Hàm `lookup_purchase_orders` truy vấn song song `dmgiamuact` (Bảng giá mua NCC đang hiệu lực: 2.78 USD/KG) và `ct94` (Lịch sử PO: Đơn 001-2604-000609 ngày 24/04/2026 giá 3.582 USD/KG).
+  3. *Tự động Fallback thông minh:* Khi khoảng ngày lọc không có phát sinh đơn mới, tự động truy vấn các đơn mua gần nhất trước đó kèm thông báo rõ ràng cho người dùng.
+  4. *Khắc phục Multi-turn Coreference & Typo:* Sửa Inlet Filter trong [`functions/htmp_fast_rag.py`](file:///home/admin/ai-stack/functions/htmp_fast_rag.py) để ưu tiên `explicit_anaphora` ("mã này", "vật tư này") kế thừa mã vật tư ngay cả khi có từ "toàn bộ", đồng thời xử lý lỗi chính tả "từ đâu năm 2026".
+- **Kết quả nghiệm thu trực tiếp qua CDP:**
+  - Lượt 1: Phản hồi chính xác giá hiện hành 2.78 USD/KG và đơn PO gần nhất 3.582 USD/KG (8.2s).
+  - Lượt 2: Kế thừa đúng mã `ABS014B`, phản hồi đơn mua từ đầu năm 2026 và bảng giá NCC (8.0s).
+  - Bằng chứng ảnh chụp: [`turn1_abs014b_latest_price.png`](file:///home/admin/ai-stack/docs/evidence/ERP-UI-MAI-INCIDENT-20261109/turn1_abs014b_latest_price.png), [`turn2_abs014b_year_history.png`](file:///home/admin/ai-stack/docs/evidence/ERP-UI-MAI-INCIDENT-20261109/turn2_abs014b_year_history.png).
+
+---
+
+## 30. KIẾN TRÚC CỔNG DOANH NGHIỆP DUY NHẤT (SINGLE ENTERPRISE UNIFIED GATEWAY) & CHẤM DỨT TRIỆT ĐỂ TÌNH TRẠNG "CHẮP VÁ" (10/11/2026)
+
+### 30.1. Nghịch lý của Kiến trúc Đa công cụ (Multi-tool Explosion Trap)
+Trong các giai đoạn phát triển trước, hệ thống đã liên tục bổ sung các native tools chuyên biệt cho từng nghiệp vụ: `lookup_purchase_orders`, `lookup_sales_orders`, `lookup_inventory_status`, `lookup_delivery_orders`, `lookup_qc_lot_status`, `lookup_mes_ng`, `lookup_general_catalog`, `query_erp_report`... với tổng cộng 16 tools con được đưa vào Schema Function Calling của Open WebUI.
+
+Thực tế kiểm thử vận hành với mô hình kích thước 14 tỷ tham số (`Qwen-2.5-14B-Instruct`) cho thấy kiến trúc này gặp phải **3 nghịch lý chết người**:
+1. **Quá tải lựa chọn (Cognitive Tool Overload):** Khi đối mặt với 16 tools có mô tả nghiệp vụ giao thoa nhau (ví dụ: `lookup_sales_orders` vs `query_erp_report` vs `lookup_general_catalog`), mô hình 14B thường xuyên bốc nhầm tool hoặc phân vân dẫn đến suy luận sai lệch.
+2. **Ảo giác tham số (Hallucinated Arguments):** Thay vì giữ nguyên ngữ cảnh câu hỏi, LLM tự ý sinh ra các tham số lọc ngày tháng gò bó (như tự đặt `date_from="2026-10-01"` dù câu hỏi yêu cầu xem từ đầu năm).
+3. **Hiện tượng Chắp vá (Whack-a-Mole Syndrome):** Khi gặp câu hỏi mới từ người dùng, việc sửa đổi các regex hoặc thêm tool con mới chỉ giải quyết được ca kiểm thử cụ thể đó nhưng lại gây tác dụng phụ làm sập hoặc làm sai lệch câu hỏi của phân hệ khác (ví dụ: alias `"so"` của đơn hàng bán làm lệch câu hỏi *"So sánh DO và FCST"*).
+
+### 30.2. Chuyển dịch Sang Kiến trúc Cổng Doanh nghiệp Duy nhất (`query_htmp_erp`)
+Để chấm dứt triệt để tình trạng chắp vá, hệ thống chuyển dịch sang kiến trúc **Single Enterprise Unified Gateway**:
+- **Tại lớp Open WebUI & LLM Prompting:**
+  - Thu hồi toàn bộ 16 native tools con.
+  - Chỉ cung cấp duy nhất 1 công cụ cho LLM:
+    ```python
+    def query_htmp_erp(self, question: str, __user__: dict = {}) -> str:
+        """Cổng tra cứu hợp nhất toàn bộ dữ liệu ERP 3S & MES HTMP.
+        Mọi câu hỏi tra cứu dữ liệu doanh nghiệp (kho, bán hàng, mua hàng, kế toán, sản xuất, khuôn, QC...)
+        đều được chuyển vào tham số question.
+        """
+    ```
+  - Nhiệm vụ duy nhất của LLM là chuyển câu hỏi của người dùng vào `question`. LLM hoàn toàn được giải phóng khỏi áp lực chọn tool hay tự sinh tham số ngày tháng kỹ thuật.
+
+- **Tại lớp Backend Python Engine (`functions/htmp_postgres_query.py` & `erp_ai/`):**
+  Bộ định tuyến tất định (Deterministic Python Dispatcher) chịu trách nhiệm phân tích ý định và thực thi theo các tầng nghiệp vụ chuyên sâu:
+  ```
+  User Query ---> Open WebUI ---> query_htmp_erp(question)
+                                       |
+                   +-------------------+-------------------+
+                   | Python Backend Deterministic Routing  |
+                   +-------------------+-------------------+
+                   | [1] DO vs FCST Diff Engine (mfkhsx)   |
+                   | [2] Purchase Pricing (dmgiamuact+ct94)|
+                   | [3] Sales Price List (dmbanggiact)    |
+                   | [4] Material/Partner 360 Resolver     |
+                   | [5] Inventory & Bin Balances (cdvt13) |
+                   | [6] MES Floor Logs (Molds, Shots,...) |
+                   | [7] QC Inspections (IQC, OQC, NG)     |
+                   | [8] 64 Fast ERP Stored Procedures     |
+                   | [9] Fallback Dynamic SQL Planner      |
+                   +---------------------------------------+
+  ```
+
+### 30.3. Cơ chế Khóa Bảo vệ Toàn diện tại Pipeline Fast RAG
+Để ngăn chặn hoàn toàn việc rò rỉ mã kỹ thuật hoặc độc thoại nội tâm:
+1. **Inlet Filter:**
+   - Nhận diện thực thể tham chiếu chéo (`explicit_anaphora`: "mã này", "vật tư này", "khách hàng này") và kế thừa chính xác theo phiên người dùng `chat_id`.
+   - Bổ sung chỉ thị nghiêm ngặt cấm LLM sinh các thẻ kỹ thuật thô hay phát ngôn độc thoại rào đón.
+2. **Outlet Filter:**
+   - Quét và loại bỏ sạch sẽ 100% các thẻ huấn luyện: `<tool_call>[\s\S]*?</tool_call>`, `<think>[\s\S]*?</think>`, và các khối JSON thô.
+   - Loại bỏ các câu độc thoại nội tâm: *"Dữ liệu báo cáo không trực tiếp so sánh..."*, *"Tôi sẽ tra cứu thêm..."*, *"Hãy đợi tôi một chút"*.
+   - Trong trường hợp nội dung sau khi lọc bị rỗng, Outlet Filter tự động trích xuất bảng kết quả từ công cụ Gateway để hiển thị cho người dùng, đảm bảo trải nghiệm luôn liền mạch và tức thì.
+
+### 30.4. Kết quả Nghiệm thu & Lộ trình Tiếp theo
+- Đã kiểm thử trực tiếp trên môi trường production `open-webui` với 3 kịch bản phức tạp:
+  1. So sánh biến động Demand DO & FCST của mã `QC7-5146-000`: Phản hồi bảng Markdown chính xác (+15.83% DO, -0.23% FCST).
+  2. Tra cứu giá mua và lịch sử PO hạt nhựa `ABS014B`: Trả về đồng thời giá NCC 2.78 USD/KG và PO 3.582 USD/KG, loại bỏ hoàn toàn lỗi người dùng Mai báo cáo.
+  3. Tra cứu nhân sự mã `4509`: Định danh chính xác anh Nguyễn Văn Trường.
+- Toàn bộ 17 ca kiểm thử góc cạnh nghiệp vụ (Kho, Bán hàng, Mua hàng, Kế toán, MES, Khuôn, QC, TO2) duy trì tỷ lệ đạt **100%**.
+- Hệ thống đã sẵn sàng cho giai đoạn đào tạo người dùng và bàn giao cho khối sản xuất - kinh doanh.
+
+

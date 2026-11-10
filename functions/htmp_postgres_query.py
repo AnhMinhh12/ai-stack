@@ -756,6 +756,89 @@ def extract_iso_date_range(text: str, default_from: str = "2026-10-01", default_
 
 
 class Tools:
+    def query_htmp_erp(self, question: str = "", query: str = "", context: str = "", **kwargs) -> str:
+        """Cổng tra cứu nghiệp vụ Fast ERP 3S & MES duy nhất cho toàn bộ 8 phân hệ doanh nghiệp."""
+        q = (question or query or kwargs.get("hint") or kwargs.get("keyword") or "").strip()
+        if not q:
+            return "Vui lòng nhập câu hỏi hoặc yêu cầu tra cứu dữ liệu ERP/MES."
+        
+        # 1. Quản lý Session State & Kế thừa thực thể đa lượt
+        active_chat = kwargs.get("__chat_id__") or kwargs.get("conversation_id") or ""
+        if active_chat:
+            from erp_ai import ERP_CONVERSATION_STATE
+            entities = extract_erp_entities(q)
+            if entities.get("ma_vt"):
+                ERP_CONVERSATION_STATE.remember(active_chat, {"ma_vt": entities["ma_vt"]})
+            else:
+                saved = ERP_CONVERSATION_STATE.get(active_chat)
+                if saved.get("ma_vt") and any(w in normalize_text(q) for w in ("ma nay", "vat tu nay", "cua no", "san pham nay", "gia", "ton", "so sanh")):
+                    q = f"{q}\nNgữ cảnh mã vật tư: {saved['ma_vt']}"
+
+        # 2. Định tuyến trực tiếp theo nhóm bài toán nghiệp vụ chuyên sâu
+        from erp_ai.generic_procedure_executor import GenericProcedureExecutor
+        from erp_ai.native_tools import ERPNativeTools
+        q_norm = normalize_text(q)
+
+        # 2.1. So sánh Demand DO vs FCST giữa 2 kỳ cập nhật kế hoạch
+        if ("do" in q_norm and "fcst" in q_norm) or ("bien dong" in q_norm and ("demand" in q_norm or "fcst" in q_norm)):
+            res = GenericProcedureExecutor().query_report(report_type="so-sanh-do-fcst", query=q)
+            if res.get("success") and res.get("formatted_text"):
+                return res["formatted_text"]
+
+        # 2.2. Hỏi giá mua nhà cung cấp / Lịch sử đơn mua PO (bao gồm dmgiamuact và ct94)
+        if any(w in q_norm for w in ("gia nhap", "gia mua", "don mua", "don hang mua", "lich su mua", "po mua", "bang gia mua", "ncc")):
+            code_match = extract_erp_entities(q).get("ma_vt", "")
+            return ERPNativeTools().lookup_purchase_orders(material_code=code_match, hint=q, **kwargs)
+
+        # 2.3. Hỏi giá bán sản phẩm / Bảng giá bán (dmbanggiact)
+        if any(w in q_norm for w in ("gia ban", "don gia ban", "chinh sach gia", "bang gia ban")):
+            code_match = extract_erp_entities(q).get("ma_vt", "")
+            return ERPNativeTools().lookup_sales_price(material_code=code_match, hint=q, **kwargs)
+
+        # 2.4. Hỏi tồn kho / Vị trí kệ máy (cdbsp + cdvt13)
+        if any(w in q_norm for w in ("ton kho", "vi tri", "o ke", "con bao nhieu", "so luong ton", "suc chua")):
+            code_match = extract_erp_entities(q).get("ma_vt", "")
+            return ERPNativeTools().lookup_inventory_stock(material_code=code_match, hint=q, **kwargs)
+
+        # 2.5. Hỏi thẻ kho / Sổ chi tiết nhập xuất tồn vật tư
+        if any(w in q_norm for w in ("the kho", "so chi tiet", "nhap xuat ton chi tiet")):
+            code_match = extract_erp_entities(q).get("ma_vt", "")
+            return ERPNativeTools().lookup_stock_card(material_code=code_match, hint=q, **kwargs)
+
+        # 2.6. Hỏi Lệnh giao hàng TO2
+        if any(w in q_norm for w in ("to2", "lenh giao hang", "out kho", "gio out")):
+            return ERPNativeTools().lookup_delivery_orders(hint=q, **kwargs)
+
+        # 2.7. Hỏi Đơn bán hàng SO / Tiến độ xuất hàng
+        if any(w in q_norm for w in ("don ban", "don hang ban", "xuat ban", "xuat kho ban", "sales order", "doanh so ban")):
+            code_match = extract_erp_entities(q).get("ma_vt", "")
+            return ERPNativeTools().lookup_sales_orders(material_code=code_match, hint=q, **kwargs)
+
+        # 2.8. Hỏi Vận hành MES (thay khuôn, bổ sung/bỏ shot, gộp tách thùng, dừng máy)
+        if any(w in q_norm for w in ("thay khuon", "lap khuon", "ha khuon", "bo shot", "bo sung shot", "so shot", "bao duong khuon", "dung may", "downtime", "stop line", "gop thung", "tach thung", "dong thung")):
+            return ERPNativeTools().lookup_mold_and_mes(hint=q, **kwargs)
+
+        # 2.9. Hỏi Chất lượng QC (IQC, OQC, phế phẩm NG)
+        if any(w in q_norm for w in ("iqc", "chat luong hang mua", "oqc", "tem oqc", "trang thai tem", "phe pham", "loi ng")):
+            code_match = extract_erp_entities(q).get("ma_vt", "")
+            if "iqc" in q_norm or "hang mua" in q_norm:
+                return ERPNativeTools().lookup_incoming_quality(hint=q, **kwargs)
+            if "tem" in q_norm or "oqc" in q_norm:
+                return ERPNativeTools().lookup_qc_lot_status(material_code=code_match, hint=q, **kwargs)
+            return ERPNativeTools().lookup_mes_ng(material_code=code_match, hint=q, **kwargs)
+
+        # 2.10. Hỏi Danh mục chung / Nhân viên 4509 / Khách hàng / Quy cách đóng gói
+        if any(w in q_norm for w in ("4509", "la ai", "khach hang nao", "quy cach", "dong goi", "thung", "khay")):
+            return ERPNativeTools().lookup_general_catalog(keyword=q, hint=q, **kwargs)
+
+        # 2.11. Báo cáo Stored Procedure chuẩn (64 báo cáo tổng quát)
+        res = GenericProcedureExecutor().query_report(query=q, **kwargs)
+        if res.get("success") and res.get("formatted_text"):
+            return res["formatted_text"]
+
+        # 2.12. Fallback sang ask_erp
+        return self._ask_erp_data(q, context=context, conversation_id=active_chat, **kwargs)
+
     def query_erp_report(
         self,
         report_type: str = "",
@@ -768,28 +851,9 @@ class Tools:
         account_code: str = "",
         **kwargs
     ) -> str:
-        """Truy vấn báo cáo nghiệp vụ Fast ERP 3S & MES toàn diện cho 8 phân hệ doanh nghiệp:
-        1. KHO (IN): Tổng hợp NXT (inbcthnxt), Tồn theo kho (inbctontheokho), Tồn theo vị trí máy/kệ (inbctontheovitri), Kiểm kê (inbkkiemke), Tuổi hàng/HSD theo lô (bccanhbaohsd, inbctuoithotheolo), Trạng thái kho & sức chứa vị trí (inbctrangthaikho).
-        2. BÁN HÀNG (SO): Đơn hàng bán (sobkdonhang), Tiến độ giao (sobctiendogh), Bảng giá bán (dmbanggiact), Lệnh giao hàng TO2 (sobklenhgiaohang), Hàng trả lại NG (sobkcthangtralai), Tổng hợp bán hàng & Doanh số (sobctonghopbh), Dự báo tiêu thụ (sobkdubaotieuthu).
-        3. MUA HÀNG (PO): Đơn đặt mua (pobkdonhang), Bảng giá mua NCC (dmgiamuact), Lịch sử giá mua (pobclsgia), Tình trạng đơn mua (postatus), Phiếu nhập mua (pobknhap), Xuất trả NCC (pobkxuattra), Yêu cầu mua PR (pobkycnhap, pobkycmua), Tổng hợp nhập mua (pothnhap).
-        4. KẾ TOÁN & CÔNG NỢ (GL): Sổ cái tài khoản / Sổ chi tiết phát sinh TK 111, 112, 131, 152, 154, 155, 331, 511, 621, 641, 642 (glso1), Bảng cân đối phát sinh Trial Balance (glbccdsp), Sổ quỹ thu chi tiền mặt & tiền gửi (glsoctthuchi), Báo cáo chi phí SXKD dở dang & quản lý (glbcchiphi), Sổ công nợ 131/331 (sosoctcongno1kh, posoctcongno1ncc).
-        5. SẢN XUẤT (MES): Bảng kê điều độ Lệnh SX / Work Order (mesbkwo), Hiệu suất thiết bị OEE (mesbcoee), Đóng thùng thành phẩm (mesbkdongthung), Gộp tách thùng (mesbkgoptachthung), Bổ sung/bỏ shot khuôn (mesbkbosungshot), Thay khuôn (mesbkthaykhuon), Thời gian dừng máy downtime (lookup_mes_downtime), Setup máy (mesbksetup), Lỗi linh kiện NG (mesbknglinhkien).
-        6. KẾ HOẠCH & ĐỊNH MỨC (MF): Lệnh sản xuất LSX (mfbklsx), Thống kê sản xuất (mfbkthongke), Tiêu hao NVL theo LSX (mfbctieuhaonvltheolsx), NXT công đoạn (mfbcthnxtcd), Định mức BOM (lookup_bom), Tiến độ ECN/NMD (bctdecn, bctdnmd).
-        7. CHẤT LƯỢNG (QC): Đánh giá chất lượng hàng mua IQC (lookup_incoming_quality, qcbkiqcipqc), Trạng thái QC tem thành phẩm (lookup_qc_lot_status), Phế phẩm NG (lookup_mes_ng), Tổng hợp lỗi NVL (qcbcthloinvl), Lỗi thành phẩm TP (qcbcthloitp).
-        8. KHUÔN MẪU & THIẾT BỊ (VS): Hồ sơ khuôn & số shot dập (lookup_mold_and_mes, dmhosokhuon), Lịch sử bảo trì sửa chữa khuôn (dmhosokhuonsc), Báo cáo cảnh báo bảo dưỡng khuôn định kỳ (mesbcttdskhuon)."""
-        from erp_ai.generic_procedure_executor import GenericProcedureExecutor
-        res = GenericProcedureExecutor().query_report(
-            report_type=report_type,
-            query=query,
-            date_from=date_from,
-            date_to=date_to,
-            item_code=item_code,
-            partner_code=partner_code,
-            warehouse_code=warehouse_code,
-            account_code=account_code,
-            **kwargs
-        )
-        return res.get("formatted_text", "Không có dữ liệu báo cáo phù hợp.")
+        """Alias tương thích cho query_htmp_erp."""
+        full_q = (query or report_type or kwargs.get("question", "")).strip()
+        return self.query_htmp_erp(question=full_q, query=query, report_type=report_type, date_from=date_from, date_to=date_to, item_code=item_code, partner_code=partner_code, warehouse_code=warehouse_code, account_code=account_code, **kwargs)
 
     def lookup_sales_price(self, material_code: str = "", customer_code: str = "", **kwargs) -> str:
         """Tra cứu đơn giá của mã hàng, sản phẩm hoặc nguyên vật liệu (hạt nhựa) từ Bảng giá bán ERP hoặc Danh mục giá mua nhà cung cấp (dmgiamuact)."""

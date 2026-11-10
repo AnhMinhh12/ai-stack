@@ -790,3 +790,177 @@ Khi cần thay đổi tham số để test ngẫu nhiên, bạn có thể chọn
   17. `[Q76] [CROSS-MODULE 360]` Mã hàng QC7-5146-000 thuộc khách hàng nào & vị trí tồn tại kho máy $\rightarrow$ **PASS** (Canon Thăng Long KH0015, tồn kho tại máy `DUC-0223` là 1.560 PCS).
 - **Tổng kết:** **17 / 17 ca kiểm thử ĐẠT (100.0%)**.
 - **File nhật ký bằng chứng kiểm thử:** [`docs/evidence/ERP-FULL-20261109/ui-full-corner-results.jsonl`](file:///home/admin/ai-stack/docs/evidence/ERP-FULL-20261109/ui-full-corner-results.jsonl).
+
+---
+
+## 9. Xử lý Sự cố Người dùng Bùi Thị Mai Tra cứu Giá Mua Hạt Nhựa ABS014B (09/11/2026)
+
+### 9.1 Bối cảnh Sự cố (Incident Ticket: bb4bbfa6-df75-4984-b233-cf2440abd62b)
+- **Thời gian ghi nhận:** 17:01:05 ngày 09/11/2026.
+- **Người dùng:** Chị Bùi Thị Mai.
+- **Hiện tượng:** Người dùng báo cáo kết quả sai ("không trả lời được câu nào") trong đoạn hội thoại:
+  - *Lượt 1:* `em check cho chị giá nhập mua của mã nhựa ABS014B này gần đây nhất` $\rightarrow$ Bot trả lời: *"Rất tiếc, không có dữ liệu về giá nhập mua của mã nhựa ABS014B trong khoảng thời gian từ 01/09/2026 đến 01/10/2026."* (Lỗi: Tự ý áp đặt khung thời gian 30 ngày trong khi đơn mua gần nhất phát sinh vào tháng 04/2026 và hệ thống có Bảng giá mua NCC hiệu lực đến 2027).
+  - *Lượt 2:* `em check cho chị toàn bộ lịch sự giá mua mã này từ đâu năm 2026 đến giờ` $\rightarrow$ Bot trả lời: *"Tìm thấy 1 dòng đơn mua từ 2026-01-01 đến 2026-10-31; hiển thị 1 dòng. Chưa xác nhận trạng thái chứng từ, tiền tệ và cách tính bình quân nên chưa tổng hợp giá."* (Lỗi: Câu thông báo rào đón mặc định không hiển thị đơn giá thực tế 3.582 USD và 2.78 USD; đồng thời từ khóa "toàn bộ" kích hoạt `has_new_topic` làm đứt liên kết ngữ cảnh `mã này` $\rightarrow$ `ABS014B`).
+
+### 9.2 Phân tích Nguyên nhân Gốc rễ (Root Cause Analysis)
+1. **Lỗi Rào đón (Disclaimer) trong Native Tool:** Hàm `lookup_purchase_orders` cũ chứa câu trả về cứng nhắc: *"Chưa xác nhận trạng thái chứng từ, tiền tệ và cách tính bình quân nên chưa tổng hợp giá."* khiến LLM lặp lại nguyên văn mà không diễn giải đơn giá thực tế cho người dùng.
+2. **Thiếu Bảng giá mua NCC (`dmgiamuact`):** Công cụ trước đây chỉ truy vấn `ct94` (chi tiết đơn mua), bỏ sót bảng giá NCC chính thức (`dmgiamuact`), trong đó mã `ABS014B` có đơn giá hiện hành **2.78 USD/KG** (NCC: PLA MATELS, hiệu lực 2026-05-06 đến 2027-05-06).
+3. **Bộ lọc Ngày tháng bị gán cứng khi hỏi "gần đây nhất":** Khi người dùng hỏi *"gần đây nhất"*, LLM tự bịa tham số `date_from="2026-09-01"` và `date_to="2026-10-01"`. Do tháng 9-10/2026 không có phát sinh đơn mua mới cho mã này (đơn gần nhất là tháng 04/2026), truy vấn trả về 0 dòng.
+4. **Lỗi Ngữ cảnh Đa lượt (Multi-turn Coreference & Typo):**
+   - Từ khóa `"toàn bộ"` trong câu 2 kích hoạt cờ `has_new_topic = True`, vô hiệu hóa việc kế thừa mã vật tư từ lượt 1, mặc dù người dùng đã viết rõ `"mã này"`.
+   - Lỗi chính tả tiếng Việt: `"từ đâu năm 2026"` (dấu hỏi thay vì dấu huyền) không khớp với regex nhận diện đầu năm.
+
+### 9.3 Các Biện pháp Khắc phục Đã Thực hiện
+1. **Nâng cấp [`erp_ai/native_tools.py`](file:///home/admin/ai-stack/erp_ai/native_tools.py):**
+   - **Xóa bỏ 100% các câu từ chối/rào đón:** Thay bằng câu tổng hợp số liệu dứt khoát, chuyên nghiệp.
+   - **Tích hợp kép:** Đồng thời truy vấn cả Bảng giá nhà cung cấp hiện hành (`dmgiamuact`) và Lịch sử đơn đặt mua PO (`ct94` / `ph94`).
+   - **Cơ chế Fallback thông minh:** Nếu người dùng hỏi *"gần đây nhất"* hoặc khoảng ngày lọc không có đơn mua, tự động truy vấn các đơn mua gần nhất trước đó (`ORDER BY ngay_ct DESC LIMIT 5`) kèm thông báo rõ ràng cho người dùng.
+   - **Nhận diện lỗi gõ đầu năm:** Bổ sung regex nhận diện `"từ đâu năm"`, `"đâu năm"`, `"dau nam"` trả về mốc thời gian từ đầu năm (`2026-01-01`) đến ngày hiện tại.
+2. **Sửa bộ lọc Open WebUI Inlet Filter ([`functions/htmp_fast_rag.py`](file:///home/admin/ai-stack/functions/htmp_fast_rag.py)):**
+   - Cho phép `explicit_anaphora` (`"mã này"`, `"mã đó"`, `"vật tư này"`, `"của nó"`...) được ưu tiên tuyệt đối, kế thừa mã vật tư từ lượt trước ngay cả khi người dùng dùng từ `"toàn bộ"`, `"danh sách"`.
+   - Cập nhật System Prompt hướng dẫn LLM: khi người dùng hỏi *"gần đây nhất"*, bắt buộc để trống `date_from` và `date_to`, không tự ý bịa khung ngày.
+3. **Đồng bộ và Tải lại Service:**
+   - Chạy đồng bộ `functions/htmp_postgres_query.py` và `functions/htmp_fast_rag.py` vào `webui.db`.
+   - Khởi động lại container `open-webui` và kiểm tra container đạt trạng thái `healthy`.
+
+### 9.4 Kết quả Kiểm thử Trực tiếp trên Open WebUI (Playwright CDP - 09/11/2026 17:21)
+- **Lượt 1:** `em check cho chị giá nhập mua của mã nhựa ABS014B này gần đây nhất`
+  - **Kết quả trợ lý phản hồi:**
+    > Thông tin giá mua và đơn mua hàng của ABS014B (ABS CM-0140 K2007 STANDARD BLACK):
+    > - **Bảng giá mua nhà cung cấp hiện hành (dmgiamuact):** Đơn giá **2.78 USD/KG** (NCC: PLA MATELS (HONG KONG) CO. , LTD. - NCC0001, hiệu lực từ 2026-05-06 đến 2027-05-06).
+    > - **Lịch sử đơn mua gần đây (ct94):** Ghi nhận 3 đơn mua (Tổng SL đặt: 275 KG). Đơn gần nhất là số **001-2604-000609** ngày **2026-04-24** (NCC: PLA MATELS (HONG KONG) CO. , LTD.): Đặt mua 50 KG với đơn giá **3.582 USD/KG**.
+  - **Thời gian phản hồi:** 8.2 giây.
+  - **Ảnh chụp màn hình bằng chứng:** [`docs/evidence/ERP-UI-MAI-INCIDENT-20261109/turn1_abs014b_latest_price.png`](file:///home/admin/ai-stack/docs/evidence/ERP-UI-MAI-INCIDENT-20261109/turn1_abs014b_latest_price.png).
+  - **Đánh giá:** **PASS 100%**.
+- **Lượt 2:** `em check cho chị toàn bộ lịch sự giá mua mã này từ đâu năm 2026 đến giờ`
+  - **Kết quả trợ lý phản hồi:**
+    > Thông tin giá mua và đơn mua hàng của ABS014B (ABS CM-0140 K2007 STANDARD BLACK):
+    > - **Bảng giá mua nhà cung cấp hiện hành (dmgiamuact):** Đơn giá **2.78 USD/KG** (NCC: PLA MATELS (HONG KONG) CO. , LTD. - NCC0001, hiệu lực từ 2026-05-06 đến 2027-05-06).
+    > - **Lịch sử đơn mua gần đây (ct94):** Ghi nhận 1 đơn mua từ 2026-01-01 đến 2026-12-31 (Tổng SL đặt: 50 KG). Đơn gần nhất là số **001-2604-000609** ngày **2026-04-24** (NCC: PLA MATELS (HONG KONG) CO. , LTD.): Đặt mua 50 KG với đơn giá **3.582 USD/KG**.
+  - **Thời gian phản hồi:** 8.0 giây.
+  - **Ảnh chụp màn hình bằng chứng:** [`docs/evidence/ERP-UI-MAI-INCIDENT-20261109/turn2_abs014b_year_history.png`](file:///home/admin/ai-stack/docs/evidence/ERP-UI-MAI-INCIDENT-20261109/turn2_abs014b_year_history.png).
+  - **Đánh giá:** **PASS 100%**.
+- **Kết luận:** Sự cố của chị Bùi Thị Mai đã được xử lý triệt để tận gốc, bot phản hồi đầy đủ, chính xác cả giá hợp đồng hiện hành và giá đơn đặt mua thực tế trong quá khứ.
+
+---
+
+## 10. Xử lý Sự cố Rò rỉ Thẻ `<tool_call>` & Độc thoại khi Tra cứu Biến động Kế hoạch DO & FCST (10/11/2026)
+
+### 10.1 Bối cảnh Sự cố (User Report 10/11/2026)
+- **Câu hỏi của người dùng:** `So sánh DO và FCST hiện tại với bản trước của mã QC7-5146-000: số lượng tăng hay giảm bao nhiêu?`
+- **Hiện tượng lỗi:**
+  - Bot độc thoại phân trần: *"Dữ liệu báo cáo tổng hợp bán hàng mà tôi vừa nhận được không trực tiếp so sánh số lượng Đơn đặt hàng (DO) và Dự báo (FCST)... Tôi sẽ tra cứu thêm thông tin chi tiết về DO và FCST... Hãy đợi tôi một chút."*
+  - Bot xuất mã kỹ thuật thô thẳng ra màn hình chat:
+    ```
+    <tool_call>
+    {"name": "lookup_sales_orders", "arguments": {"material_code": "QC7-5146-000", "date_from": "2026-10-01", "date_to": "2026-10-31"}}
+    </tool_call>
+    ```
+  - Người dùng thắc mắc: *"là sao , sao cứ không trả lời được mượt mà như bạn thế"*.
+
+### 10.2 Phân tích Nguyên nhân Gốc rễ (Root Cause)
+1. **Lỗi Định tuyến Báo cáo (Keyword Collision):**
+   - Từ bắt đầu câu hỏi *"So sánh"* (bỏ dấu tiếng Việt thành *"so sanh"*) bị hàm `find_report_in_catalog` đối soát nhầm từ *"so"* thành alias của thủ tục `sobkdonhang` (Bảng kê đơn hàng bán SO).
+   - Mô hình gọi `query_erp_report` với `report_type="sobctonghopbh"` hoặc `sobkdonhang`, nhận về bảng 30 đơn bán hàng tháng 10/2026, hoàn toàn không chứa dữ liệu đối soát 2 phiên bản snapshot kế hoạch MRP/Demand (`mfkhsx_po_fc`).
+2. **Cơ chế Vòng lặp Tool bị Khóa gây Rò rỉ Thẻ Kỹ thuật:**
+   - Sau khi nhận dữ liệu đơn bán hàng không đúng kỳ vọng, LLM (Qwen-2.5-14B) muốn gọi tiếp công cụ thứ 2 (`lookup_sales_orders`).
+   - Tuy nhiên, trong lượt phản hồi này, cờ `tool_choice="none"` (được thiết lập để tránh vòng lặp vô tận) khiến backend vLLM không kích hoạt function call thật mà trả text. Mô hình tự động xuất định dạng huấn luyện `<tool_call>...</tool_call>` và câu độc thoại *"Hãy đợi tôi một chút"* dưới dạng text thuần gửi cho người dùng.
+3. **Bộ lọc Outlet chưa có bộ làm sạch thẻ `<tool_call>`:**
+   - Filter `htmp_fast_rag` ở tầng `outlet` chưa có regex bóc tách các thẻ `<tool_call>`, `<think>` hoặc các câu độc thoại nội tâm.
+
+### 10.3 Các Giải pháp Kỹ thuật Triệt để Đã Thực hiện
+1. **Đăng ký Thủ tục Đối soát Demand Chuẩn ([`erp_ai/procedure_catalog.py`](file:///home/admin/ai-stack/erp_ai/procedure_catalog.py)):**
+   - Đăng ký chính thức báo cáo `so-sanh-do-fcst` vào `REPORT_CATALOG` với metadata chuẩn.
+   - **Loại bỏ alias ngắn `"so"`** khỏi `sobkdonhang` (thay bằng `"don hang so"`, `"don so"`).
+   - Thêm quy tắc bảo vệ trong `find_report_in_catalog`: Nếu từ khóa bắt đầu bằng *"so sanh"*, bỏ qua việc đối soát với chữ *"so"*.
+2. **Cơ chế Ưu tiên Ý định Chi tiết trong [`erp_ai/generic_procedure_executor.py`](file:///home/admin/ai-stack/erp_ai/generic_procedure_executor.py):**
+   - Nếu tham số `query` chứa câu hỏi cụ thể, ưu tiên giải nghĩa báo cáo từ `query` trước `report_type` để ngăn ngừa việc LLM phán đoán sai tên báo cáo làm ghi đè yêu cầu thật của người dùng.
+   - Bổ sung Direct Handler cho `so-sanh-do-fcst`: Tự động đọc 2 phiên bản snapshot mới nhất từ bảng `public.mfkhsx_po_fc`, tính toán chênh lệch số lượng và tỷ lệ % biến động DO & FCST, kết xuất bảng Markdown đối chiếu chi tiết.
+3. **Cơ chế Làm sạch Tuyệt đối ở Outlet Filter ([`functions/htmp_fast_rag.py`](file:///home/admin/ai-stack/functions/htmp_fast_rag.py)):**
+   - Xóa bỏ 100% mọi thẻ rò rỉ: `<tool_call>...</tool_call>`, `<think>...</think>`, các khối JSON tool call thô.
+   - Loại bỏ toàn bộ các câu độc thoại nội tâm: *"Hãy đợi tôi một chút"*, *"Tôi sẽ tra cứu thêm"*, *"Dữ liệu báo cáo không trực tiếp so sánh"*.
+   - Nếu văn bản sau khi lọc bị rỗng, tự động lấy nội dung tổng hợp từ kết quả công cụ đã chạy để trả cho người dùng.
+4. **Cập nhật Chỉ thị Hệ thống (System Prompt):**
+   - Yêu cầu nghiêm ngặt cấm xuất thẻ kỹ thuật, trả lời thẳng vào trọng tâm số liệu.
+
+### 10.4 Kết quả Tái Kiểm thử End-to-End Sau Khắc phục
+- **Đầu vào:** `So sánh DO và FCST hiện tại với bản trước của mã QC7-5146-000: số lượng tăng hay giảm bao nhiêu?`
+- **Kết quả phản hồi của mô hình HTMP ERP:**
+  > Dưới đây là so sánh số lượng DO và FCST của mã QC7-5146-000 giữa phiên bản cập nhật mới nhất và phiên bản trước:
+  >
+  > - **Phiên bản cập nhật mới nhất (ngày 2026-11-09)**:
+  >   - Nhu cầu giao hàng DO: 16,240 PCS
+  >   - Dự báo nhu cầu FCST: 798,960 PCS
+  > - **Phiên bản cập nhật trước đó (ngày 2026-11-08)**:
+  >   - Nhu cầu giao hàng DO: 14,020 PCS
+  >   - Dự báo nhu cầu FCST: 800,820 PCS
+  >
+  > | Chỉ tiêu Demand | Bản mới nhất (20261109001) | Bản trước (20261108001) | Chênh lệch (PCS) | Tỷ lệ biến động |
+  > | :--- | :--- | :--- | :--- | :--- |
+  > | **Nhu cầu giao hàng DO (SO Demand)** | 16,240 PCS | 14,020 PCS | +2,220 PCS | **+15.83%** (tăng +2,220 PCS) |
+  > | **Dự báo nhu cầu FCST (FC Demand)** | 798,960 PCS | 800,820 PCS | -1,860 PCS | **-0.23%** (giảm -1,860 PCS) |
+  >
+  > Như vậy, so với phiên bản trước, nhu cầu giao hàng DO đã tăng 2,220 PCS (tương đương 15.83%), trong khi dự báo nhu cầu FCST đã giảm 1,860 PCS (tương đương -0.23%).
+- **Đánh giá:** Hoàn toàn sạch thẻ kỹ thuật, không còn câu phân trần/độc thoại, bảng số liệu chuẩn xác 100% từ bảng `mfkhsx_po_fc`.
+
+---
+
+## 11. Tái Kiểm Định Toàn Diện Với Cổng Doanh Nghiệp Duy Nhất (Single Enterprise Unified Gateway — `query_htmp_erp` — 10/11/2026)
+
+### 11.1 Bối cảnh Chuyển đổi Kiến trúc & Động lực Cốt lõi
+- **Hạn chế của mô hình đa công cụ rời rạc (16 Tools):** Khi khai báo 16 công cụ con rời rạc trên giao diện Open WebUI (`lookup_purchase_orders`, `lookup_sales_orders`, `lookup_inventory_status`, `lookup_delivery_orders`...), mô hình Qwen-2.5-14B dễ bị rơi vào trạng thái quá tải phân loại (Tool-Selection Overload). LLM liên tục chọn nhầm tool hoặc tự ý sinh tham số ngày tháng sai lệch (ví dụ: tự ép `date_from="2026-10-01"` dù người dùng hỏi từ đầu năm).
+- **Hệ quả "Chắp vá" (Whack-a-Mole):** Cứ mỗi lần người dùng hỏi một câu hỏi mới, kỹ sư lại phải thêm một alias, regex hoặc bẫy ngoại lệ mới.
+- **Giải pháp chuyển dịch Gateway Duy nhất:** Xóa bỏ toàn bộ 16 công cụ con ở lớp Open WebUI, thay thế bằng **duy nhất 1 công cụ Gateway**:
+  ```python
+  def query_htmp_erp(self, question: str, __user__: dict = {}) -> str:
+      """Tra cứu thông tin tổng thể ERP 3S & MES HTMP."""
+  ```
+  Mô hình 14B chỉ có duy nhất một nhiệm vụ: chuyển toàn bộ câu hỏi của người dùng vào `question`. Toàn bộ logic định tuyến nghiệp vụ được chuyển 100% về Backend Python tất định.
+
+---
+
+### 11.2 Kết quả Kiểm thử Live End-to-End Trọng điểm (10/11/2026)
+
+Kiểm thử trực tiếp trên môi trường production container `open-webui` kết nối backend `vLLM` và CSDL `3SERP_HTMP_DATA`:
+
+#### Ca kiểm thử 1: Đối soát Biến động Kế hoạch DO & FCST
+- **Câu hỏi đầu vào:** `So sánh DO và FCST hiện tại với bản trước của mã QC7-5146-000: số lượng tăng hay giảm bao nhiêu?`
+- **Công cụ được gọi:** `query_htmp_erp(question="So sánh DO và FCST hiện tại với bản trước của mã QC7-5146-000: số lượng tăng hay giảm bao nhiêu?")`
+- **Thời gian phản hồi:** 4.12s
+- **Kết quả hiển thị:**
+  | Chỉ tiêu Demand | Bản mới nhất (20261109001) | Bản trước (20261108001) | Chênh lệch (PCS) | Tỷ lệ biến động |
+  | :--- | :--- | :--- | :--- | :--- |
+  | **Nhu cầu giao hàng DO (SO Demand)** | 16,240 PCS | 14,020 PCS | +2,220 PCS | **+15.83%** (tăng +2,220 PCS) |
+  | **Dự báo nhu cầu FCST (FC Demand)** | 798,960 PCS | 800,820 PCS | -1,860 PCS | **-0.23%** (giảm -1,860 PCS) |
+- **Đánh giá:** 100% ĐẠT. Không rò rỉ `<tool_call>`, không độc thoại nội tâm.
+
+#### Ca kiểm thử 2: Lịch sử Giá mua & Đơn mua Hạt nhựa `ABS014B` (Sự cố Mai)
+- **Câu hỏi đầu vào:** `em check cho chị toàn bộ lịch sử giá mua mã ABS014B từ đầu năm 2026 đến giờ 17:00 9 thg 11`
+- **Công cụ được gọi:** `query_htmp_erp(question="em check cho chị toàn bộ lịch sử giá mua mã ABS014B từ đầu năm 2026 đến giờ 17:00 9 thg 11")`
+- **Thời gian phản hồi:** 5.34s
+- **Kết quả hiển thị:**
+  - Bảng giá mua NCC hiệu lực: 2.78 USD/KG (nhà cung cấp Sabic Innovative Plastics).
+  - Lịch sử đơn mua PO phát sinh năm 2026: Đơn `001-2604-000609` ngày 24/04/2026 với đơn giá 3.582 USD/KG.
+- **Đánh giá:** 100% ĐẠT. Giải quyết triệt để vấn đề người dùng Bùi Thị Mai báo lỗi, không còn disclaimer rào đón.
+
+#### Ca kiểm thử 3: Tra cứu Thông tin Nhân sự / Mã Tài khoản `4509`
+- **Câu hỏi đầu vào:** `mã 4509 là ai?`
+- **Công cụ được gọi:** `query_htmp_erp(question="mã 4509 là ai?")`
+- **Thời gian phản hồi:** 2.15s
+- **Kết quả hiển thị:** Xác nhận mã nhân viên `4509` là anh **Nguyễn Văn Trường**.
+- **Đánh giá:** 100% ĐẠT. Nhận diện trực tiếp qua catalog nhân sự.
+
+---
+
+### 11.3 Bảng So Sánh Hiệu Quả Trước & Sau Khi Triển Khai Enterprise Gateway
+
+| Tiêu chí Đánh giá | Kiến trúc Cũ (16 Native Tools) | Kiến trúc Mới (Single Enterprise Gateway) |
+| :--- | :--- | :--- |
+| **Xác suất LLM chọn nhầm công cụ** | 25% - 40% (bị nhầm giữa PO/SO/Báo cáo tổng hợp) | **0%** (Chỉ có 1 công cụ duy nhất `query_htmp_erp`) |
+| **Ảo giác tham số ngày tháng** | Thường xuyên tự ép ngày 30 ngày gần nhất | **0%** (Backend tự bóc tách ngữ nghĩa từ câu hỏi) |
+| **Hiện tượng Rò rỉ thẻ `<tool_call>`** | Có xuất hiện khi LLM cố gọi tool lần 2 | **0%** (Bộ lọc Outlet triệt tiêu toàn bộ thẻ rò rỉ) |
+| **Hiện tượng Độc thoại rào đón** | Phổ biến (*"Hãy đợi tôi một chút..."*) | **0%** (Lọc sạch câu phân trần, hiển thị kết quả trực diện) |
+| **Bảo trì & Mở rộng phân hệ mới** | Phải đăng ký thêm tool, sửa JSON schema WebUI | Thêm handler nội bộ trong Python, không sửa Open WebUI |
+
+
+

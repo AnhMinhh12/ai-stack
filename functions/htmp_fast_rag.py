@@ -108,8 +108,12 @@ class Filter:
             if has_new_topic:
                 inherits_prior_request = False
 
-            explicit_anaphora = any(cue in normalized_last for cue in ("cua no", "ma nay", "vat tu nay", "kho nay"))
-            if not has_explicit_code and not has_new_topic and (inherits_prior_request or explicit_anaphora):
+            explicit_anaphora = any(cue in normalized_last for cue in (
+                "cua no", "ma nay", "ma do", "ma tren", "ma vua roi", "ma vua tra",
+                "vat tu nay", "vat tu do", "hang nay", "san pham nay",
+                "khuon nay", "kho nay", "don nay", "po nay"
+            ))
+            if not has_explicit_code and (explicit_anaphora or (not has_new_topic and inherits_prior_request)):
                 for previous in reversed(messages[:last_user_index]):
                     if previous.get("role") != "user":
                         continue
@@ -135,17 +139,14 @@ class Filter:
 
         body["messages"] = add_or_update_system_message(
             "Bạn là trợ lý AI HTMP ERP chuyên trách tra cứu dữ liệu nhà máy HTMP. BẮT BUỘC TRẢ LỜI 100% BẰNG TIẾNG VIỆT. TUYỆT ĐỐI CẤM SỬ DỤNG TIẾNG TRUNG HOẶC CHỮ HÁN.\n"
-            "QUY TẮC SỬ DỤNG CÔNG CỤ (NATIVE FUNCTION CALLING):\n"
-            "Khi người dùng yêu cầu thông tin, bạn BẮT BUỘC gọi công cụ tương ứng phù hợp nhất:\n"
-            "1. lookup_sales_price: Tra cứu giá bán, chính sách giá bán của mã hàng, sản phẩm hoặc linh kiện (ví dụ: '156279430', 'T1015910DA', 'QC7-5146-000').\n"
-            "2. lookup_inventory_stock: Tra cứu số lượng hàng tồn kho theo mã vật tư hoặc tổng tồn tại từng kho cụ thể (ví dụ: 'KHOTP00', 'KHO-CXL', 'KHO-IN', 'KHONVL').\n"
-            "3. lookup_sales_orders: Tra cứu đơn hàng bán (SO), tiến độ giao hàng hoặc lịch sử xuất bán (HDA).\n"
-            "4. lookup_purchase_orders: Tra cứu lịch sử đặt mua hàng NCC (PO), giá mua vật tư.\n"
-            "5. lookup_mold_and_mes: Tra cứu hồ sơ khuôn mẫu, tổng số shot dập, định mức bảo hành, máy ép MES (ví dụ: khuôn của 'QC7-5146-000' hoặc '14HI202').\n"
-            "6. lookup_general_catalog: Tra cứu danh mục chung: mã nhân viên (ví dụ '4509' là anh Nguyễn Văn Trường), thông tin khách hàng, quy cách đóng gói (thùng/khay trong dmvt).\n"
-            "7. ask_erp: Công cụ dự phòng cho các câu hỏi tổng hợp nhiều chỉ tiêu phức tạp không thuộc các công cụ trên.\n\n"
+            "QUY TẮC SỬ DỤNG CÔNG CỤ (ENTERPRISE UNIFIED GATEWAY):\n"
+            "Khi người dùng yêu cầu tra cứu bất kỳ thông tin nào về nhà máy và dữ liệu ERP/MES (Kho, Bán hàng, Mua hàng, Kế toán, MES sản xuất, BOM, QC, Khuôn mẫu, Danh mục), bạn BẮT BUỘC gọi công cụ duy nhất:\n"
+            "-> query_htmp_erp: Truyền nguyên văn câu hỏi của người dùng vào tham số 'question'.\n\n"
             "DỮ LIỆU THỜI GIAN VẬN HÀNH: Hệ thống ERP HTMP hiện đang vận hành trong năm 2026. Mọi mốc thời gian năm 2026 (ví dụ tháng 10/2026, ngày 29/10/2026, 06/11/2026...) là dữ liệu thực tế đang vận hành, TUYỆT ĐỐI KHÔNG coi là ngày tương lai.\n"
-            "QUY TẮC PHẢN HỒI: Sau khi nhận được kết quả từ công cụ, hãy trả lời THẲNG VÀO TRỌNG TÂM câu hỏi, ngắn gọn, súc tích, dứt khoát đúng số liệu. Tuyệt đối KHÔNG xuất các câu rào đón hoặc độc thoại nội tâm. Khi câu hỏi yêu cầu danh sách hoặc so sánh, hãy trình bày bằng bảng Markdown đẹp mắt. Sau khi gọi công cụ xong, trả lời ngay và DỪNG LẠI.",
+            "QUY TẮC PHẢN HỒI (TUÂN THỦ TUYỆT ĐỐI):\n"
+            "- Trả lời THẲNG VÀO TRỌNG TÂM câu hỏi, ngắn gọn, súc tích, dứt khoát đúng số liệu.\n"
+            "- TUYỆT ĐỐI KHÔNG xuất các thẻ kỹ thuật như <tool_call>, <think>, ```json, arguments, hoặc câu độc thoại như 'Hãy đợi tôi một chút', 'Tôi sẽ tra cứu thêm'.\n"
+            "- Hiển thị nguyên vẹn bảng Markdown và các chỉ tiêu phân tích số liệu mà công cụ đã tính toán và trả về. Sau khi nhận kết quả từ công cụ, tổng hợp trả lời ngay và DỪNG LẠI.",
             body.get("messages", []),
             append=True,
         )
@@ -193,21 +194,41 @@ class Filter:
         if not content:
             return body
 
-        # 1. Clean any raw references to "bảng phía trên", "bảng ở trên", "khung phía trên"
-        patterns_to_remove = [
+        # 1. Clean leaked raw <tool_call>, <think>, or code block tool artifacts
+        content = re.sub(r"<tool_call>[\s\S]*?</tool_call>", "", content)
+        content = re.sub(r"<tool_call>[\s\S]*$", "", content)
+        content = re.sub(r"```json\s*\{\s*\"name\":\s*\"(?:lookup_|query_|ask_)[^\"]+\"[\s\S]*?```", "", content)
+        content = re.sub(r"<think>[\s\S]*?</think>", "", content)
+        content = re.sub(r"<thought>[\s\S]*?</thought>", "", content)
+
+        # 2. Clean monologue filler sentences and raw table references
+        monologues = [
+            r"(?:[^\.\n]*\b(?:Tôi sẽ tra cứu thêm|Hãy đợi tôi một chút|đợi tôi một lát|chờ tôi một chút|đang tra cứu thêm)[^\.\n]*[\.\n]?)",
+            r"(?:[^\.\n]*\bDữ liệu báo cáo[^\.\n]*không trực tiếp so sánh[^\.\n]*[\.\n]?)",
             r"(?:[^\.\n]*\b(?:bảng|khung|chi tiết)\s+(?:ở|phía|ở phía)?\s*trên[^\.\n]*[\.\n]?)",
             r"(?:[^\.\n]*\bxem thêm chi tiết trong bảng[^\.\n]*[\.\n]?)",
         ]
-        for pat in patterns_to_remove:
+        for pat in monologues:
             content = re.sub(pat, "", content, flags=re.I)
 
-        # 2. Strip Chinese/Hanzi characters if any leaked
+        # 3. Strip Chinese/Hanzi characters if any leaked
         if re.search(r"[\u4e00-\u9fff]", content):
             content = re.sub(r"[\u4e00-\u9fff]+(?:\s*[\(\uff08][^\)\uff09]+[\)\uff09])?", "", content)
             content = re.sub(r"^[：:\s]+", "", content)
 
-        # 3. Clean up duplicate empty lines and whitespace
+        # 4. Clean up duplicate empty lines and whitespace
         content = re.sub(r"[ \t]+", " ", content)
         content = re.sub(r"\n{3,}", "\n\n", content).strip()
+
+        # If content became empty because model only emitted a tool call,
+        # fallback to the last tool's text result so user sees the report!
+        if not content:
+            for prev in reversed(messages[:-1]):
+                if prev.get("role") == "tool":
+                    prev_text = str(prev.get("content") or "")
+                    if prev_text:
+                        content = prev_text
+                        break
+
         last_msg["content"] = content
         return body

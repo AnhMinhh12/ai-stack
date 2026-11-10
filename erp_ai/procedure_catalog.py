@@ -310,7 +310,7 @@ REPORT_CATALOG: Dict[str, Dict[str, Any]] = {
         "procedure_name": "sobkdonhang",
         "title": "Bảng kê đơn hàng bán (SO)",
         "aliases": [
-            "don hang ban", "don ban", "so", "sales order", "bang ke don ban",
+            "don hang ban", "don ban", "don hang so", "sales order", "bang ke don ban",
             "danh sach don ban", "tinh hinh ban hang", "doanh so ban"
         ],
         "description": "Danh sách đơn đặt hàng bán từ khách hàng, số lượng đặt, đơn giá và trạng thái.",
@@ -1152,6 +1152,29 @@ REPORT_CATALOG: Dict[str, Dict[str, Any]] = {
         'summary_fields': ['so_luong'],
         'title': 'Bảng kê dự báo tiêu thụ (Forecast)'},
 
+    "so-sanh-do-fcst": {
+        'aliases': [
+            'so sanh do va fcst', 'so sanh do fcst', 'bien dong demand', 'do va fcst',
+            'so sanh do va fcst hien tai', 'so sanh do va fcst hien tai voi ban truoc',
+            'so sanh fcst va do', 'tang hay giam do fcst', 'chenh lech do va fcst',
+            'do fcst', 'demand do', 'demand fcst'
+        ],
+        'column_labels': {
+            'chi_tieu': 'Chỉ tiêu Demand',
+            'ban_moi': 'Bản cập nhật mới nhất',
+            'ban_truoc': 'Bản cập nhật trước đó',
+            'chenh_lech': 'Chênh lệch (PCS)',
+            'ty_le': 'Tỷ lệ biến động'
+        },
+        'default_params': {},
+        'description': 'So sánh đối soát biến động nhu cầu giao hàng DO (SO Demand) và Dự báo tiêu thụ FCST (FC Demand) giữa 2 phiên bản snapshot kế hoạch sản xuất từ mfkhsx_po_fc.',
+        'domain': 'BAN_HANG',
+        'id': 'so-sanh-do-fcst',
+        'procedure_name': None,
+        'summary_fields': [],
+        'title': 'So sánh biến động Demand giữa 2 lần cập nhật kế hoạch (DO vs FCST)'
+    },
+
     "sobkbaogia": {       'aliases': ['bang ke bao gia', 'bao gia khach hang', 'giay bao gia', 'sobkbaogia'],
         'column_labels': {       'gia': 'Đơn giá chào',
                                  'ma_kh': 'Mã KH',
@@ -1632,12 +1655,19 @@ def find_report_in_catalog(query_or_intent: str) -> Optional[Dict[str, Any]]:
     if q in REPORT_CATALOG:
         return REPORT_CATALOG[q]
 
+    # Specific routing for DO vs FCST demand planning comparison
+    if ("do" in q_norm and "fcst" in q_norm) or ("bien dong" in q_norm and ("demand" in q_norm or "fcst" in q_norm)):
+        if "so-sanh-do-fcst" in REPORT_CATALOG:
+            return REPORT_CATALOG["so-sanh-do-fcst"]
+
     # 2. Check each report's aliases
     scored_matches: List[tuple[int, Dict[str, Any]]] = []
     for report_id, report_meta in REPORT_CATALOG.items():
         score = 0
         for alias in report_meta.get("aliases", []):
             alias_norm = normalize_vietnamese(alias)
+            if alias_norm == "so" and "so sanh" in q_norm:
+                continue
             alias_words = set(alias_norm.split())
             if re.search(r"\b" + re.escape(alias_norm) + r"\b", q_norm):
                 # Exact full phrase match

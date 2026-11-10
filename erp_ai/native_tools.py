@@ -82,13 +82,13 @@ def resolve_date_range(date_from: str = "", date_to: str = "", query_hint: str =
         if len(str(year2)) == 2: year2 += 2000
         return f"{year1:04d}-{int(m1):02d}-{int(d1):02d}", f"{year2:04d}-{int(m2):02d}-{int(d2):02d}"
 
-    # 3. Theo năm hoặc từ đầu năm: từ đầu năm 2026, năm 2026, cả năm 2026
-    m_year = re.search(r"\b(?:từ đầu năm|đầu năm|dau nam|cả năm|ca nam|trong năm|năm|nam)\s*(202\d)\b", clean_hint, re.I)
+    # 3. Theo năm hoặc từ đầu năm: từ đầu năm 2026, từ đâu năm 2026, năm 2026, cả năm 2026
+    m_year = re.search(r"\b(?:từ đầu năm|từ đâu năm|đầu năm|đâu năm|dau nam|cả năm|ca nam|trong năm|năm|nam)\s*(202\d)\b", clean_hint, re.I)
     if m_year:
         yr = int(m_year.group(1))
         return f"{yr:04d}-01-01", date.today().isoformat()
 
-    if any(w in clean_hint.lower() for w in ("từ đầu năm", "dau nam", "đầu năm")):
+    if any(w in clean_hint.lower() for w in ("từ đầu năm", "từ đâu năm", "dau nam", "đầu năm", "đâu năm")):
         return f"{date.today().year}-01-01", date.today().isoformat()
 
     # 4. Theo tháng: tháng 10/2026, 10/2026, tháng 10
@@ -563,7 +563,12 @@ class ERPNativeTools:
         d_from = str(date_from or "").strip()
         d_to = str(date_to or "").strip()
         has_explicit_date = bool(d_from and d_to)
-        if not has_explicit_date and any(w in hint.lower() for w in ("từ đầu năm", "dau nam", "2026", "tháng", "tu ngay")):
+
+        is_recent_query = any(w in hint.lower() for w in ("gần đây", "gan day", "mới nhất", "moi nhat", "latest", "gần nhất", "gan nhat"))
+        if is_recent_query:
+            has_explicit_date = False
+
+        if not has_explicit_date and any(w in hint.lower() for w in ("từ đầu năm", "từ đâu năm", "dau nam", "đầu năm", "đâu năm", "2026", "tháng", "tu ngay")):
             d_from, d_to = resolve_date_range(d_from, d_to, hint)
             has_explicit_date = True
 
@@ -652,7 +657,12 @@ class ERPNativeTools:
         d_from = str(date_from or "").strip()
         d_to = str(date_to or "").strip()
         has_explicit_date = bool(d_from and d_to)
-        if not has_explicit_date and any(w in hint.lower() for w in ("từ đầu năm", "dau nam", "2026", "tháng", "tu ngay")):
+
+        is_recent_query = any(w in hint.lower() for w in ("gần đây", "gan day", "mới nhất", "moi nhat", "latest", "gần nhất", "gan nhat"))
+        if is_recent_query:
+            has_explicit_date = False
+
+        if not has_explicit_date and any(w in hint.lower() for w in ("từ đầu năm", "từ đâu năm", "dau nam", "đầu năm", "đâu năm", "2026", "tháng", "tu ngay")):
             d_from, d_to = resolve_date_range(d_from, d_to, hint)
             has_explicit_date = True
 
@@ -703,6 +713,35 @@ class ERPNativeTools:
                     cursor.execute(sql_po, tuple(params))
                     rows = cursor.fetchall()
 
+                    had_fallback = False
+                    if not rows and has_explicit_date and (code or ncc):
+                        cursor.execute("""
+                            SELECT 
+                                trim(h.so_ct) AS so_ct,
+                                to_char(h.ngay_ct, 'YYYY-MM-DD') AS ngay_ct,
+                                trim(h.ma_kh) AS ma_ncc,
+                                coalesce(k.ten_kh, h.ma_kh) AS ten_ncc,
+                                trim(c.ma_vt) AS ma_vt,
+                                coalesce(v.ten_vt, c.ma_vt) AS ten_vt,
+                                coalesce(v.dvt, 'KG') AS dvt,
+                                c.so_luong,
+                                coalesce(nullif(c.gia_nt0, 0), c.gia0) AS don_gia,
+                                c.gia0 AS don_gia_vnd,
+                                coalesce(nullif(trim(h.ma_nt), ''), 'VND') AS ma_nt,
+                                c.tien0 AS thanh_tien_vnd
+                            FROM public.ct94 c 
+                            JOIN public.ph94 h ON h.stt_rec = c.stt_rec
+                            LEFT JOIN public.dmkh k ON upper(trim(k.ma_kh)) = upper(trim(h.ma_kh))
+                            LEFT JOIN public.dmvt v ON upper(trim(v.ma_vt)) = upper(trim(c.ma_vt))
+                            WHERE (%s = '' OR upper(trim(c.ma_vt)) = %s)
+                              AND (%s = '' OR upper(trim(h.ma_kh)) = %s)
+                            ORDER BY h.ngay_ct DESC, h.stt_rec DESC LIMIT 5;
+                        """, (code, code, ncc, ncc))
+                        fallback_rows = cursor.fetchall()
+                        if fallback_rows:
+                            rows = fallback_rows
+                            had_fallback = True
+
                     # 2. Fetch official supplier price list from dmgiamuact if code or ncc is provided
                     price_rows = []
                     if code or ncc:
@@ -749,12 +788,17 @@ class ERPNativeTools:
                         msg_parts.append(f"- **Bảng giá mua nhà cung cấp hiện hành (dmgiamuact):** Đơn giá **{clean_num(latest_p['don_gia'])} {latest_p['ma_nt']}/{latest_p['dvt']}** (NCC: {latest_p['ten_ncc']} - {latest_p['ma_ncc']}, hiệu lực từ {latest_p['ngay_bd']} đến {latest_p['ngay_kt']}).")
 
                     if rows:
-                        total_qty = sum(Decimal(str(r["so_luong"])) for r in rows)
                         latest_po = rows[0]
                         dvt = latest_po.get("dvt", "KG")
-                        msg_parts.append(f"- **Lịch sử đơn mua gần đây (ct94):** Ghi nhận {len(rows)} đơn mua (Tổng SL đặt: {clean_num(total_qty)} {dvt}). Đơn gần nhất là số **{latest_po['so_ct']}** ngày **{latest_po['ngay_ct']}** (NCC: {latest_po['ten_ncc']}): Đặt mua {clean_num(latest_po['so_luong'])} {dvt} với đơn giá **{clean_num(latest_po['don_gia'])} {latest_po['ma_nt']}/{dvt}**.")
+                        if had_fallback:
+                            msg_parts.append(f"- **Lịch sử đơn mua (ct94):** Không có đơn mua mới trong khoảng {d_from} đến {d_to}. Đơn mua gần nhất trước đó là số **{latest_po['so_ct']}** ngày **{latest_po['ngay_ct']}** (NCC: {latest_po['ten_ncc']}): Đặt mua {clean_num(latest_po['so_luong'])} {dvt} với đơn giá **{clean_num(latest_po['don_gia'])} {latest_po['ma_nt']}/{dvt}**.")
+                        else:
+                            total_qty = sum(Decimal(str(r["so_luong"])) for r in rows)
+                            time_str = f" từ {d_from} đến {d_to}" if has_explicit_date else ""
+                            msg_parts.append(f"- **Lịch sử đơn mua gần đây (ct94):** Ghi nhận {len(rows)} đơn mua{time_str} (Tổng SL đặt: {clean_num(total_qty)} {dvt}). Đơn gần nhất là số **{latest_po['so_ct']}** ngày **{latest_po['ngay_ct']}** (NCC: {latest_po['ten_ncc']}): Đặt mua {clean_num(latest_po['so_luong'])} {dvt} với đơn giá **{clean_num(latest_po['don_gia'])} {latest_po['ma_nt']}/{dvt}**.")
                     else:
-                        msg_parts.append("- Chưa phát sinh đơn đặt mua PO nào trong khoảng thời gian này.")
+                        time_str = f" từ {d_from} đến {d_to}" if has_explicit_date else ""
+                        msg_parts.append(f"- Chưa phát sinh đơn đặt mua PO nào{time_str}.")
 
                     full_msg = "\n".join(msg_parts)
 
