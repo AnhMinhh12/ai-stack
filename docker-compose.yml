@@ -31,7 +31,7 @@ services:
         --tokenizer-revision cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8
         --host 0.0.0.0
         --port 8000
-        --kv-cache-memory 68719476736
+        --gpu-memory-utilization 0.25
         --max-model-len 32768
         --max-num-seqs 20
         --quantization fp8

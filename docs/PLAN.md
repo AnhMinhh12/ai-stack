@@ -868,3 +868,15 @@ Thiết kế và tiêu chuẩn triển khai ERP: [erp.md](docs/erp.md).
       4. *Chuẩn hóa Zero-Prompt Presentation Layer:* Backend tự động tính toán số liệu tổng hợp, chênh lệch và tỷ lệ %, định dạng sẵn bảng Markdown chuẩn chỉnh để LLM hiển thị nguyên văn.
     - **Kết quả kiểm định thực tế:** Kiểm thử đồng thời cả 3 bài toán trọng điểm (DO vs FCST diff, giá mua ABS014B, mã 4509), 100% lượt truy vấn đều gọi đúng `query_htmp_erp`, phản hồi sạch sẽ, dứt khoát, không còn bất kỳ câu độc thoại hay thẻ rò rỉ nào.
 
+11. **Tinh chỉnh Phân bổ Bộ nhớ vLLM xuống 25% (2026-11-11):**
+    - **Yêu cầu & Mục tiêu:** Người dùng yêu cầu hạ mức chiếm dụng bộ nhớ của vLLM trên máy chủ NVIDIA GB10 xuống 25% để giải phóng RAM cho hệ thống và các tác vụ khác.
+    - **Thay đổi kỹ thuật:**
+      - Đổi tham số trong [`docker-compose.yml`](file:///home/admin/ai-stack/docker-compose.yml#L34): thay `--kv-cache-memory 68719476736` (64 GiB) bằng `--gpu-memory-utilization 0.25`.
+      - Khởi động lại container `vllm-engine`, nạp lại 8 shard FP8 của model Qwen-2.5-14B và hoàn tất CUDA graph compilation.
+    - **Kết quả nghiệm thu tài nguyên:**
+      - VRAM vLLM giảm từ **82,833 MiB (~81 GiB)** xuống **28,883 MiB (~28.2 GiB)**, tương đương đúng ~23.7% pool bộ nhớ Unified Memory của GB10.
+      - Tổng RAM máy chủ giảm từ **76% xuống 34%**.
+      - RAM khả dụng (Available) tăng từ **29.2 GiB lên 80.1 GiB** (giải phóng thành công hơn 50 GiB RAM trống).
+      - Kiểm thử suy luận trực tiếp qua Open WebUI API và tool `query_htmp_erp`: 100% hoạt động mượt mà, phản hồi trong 2-7 giây.
+
+
