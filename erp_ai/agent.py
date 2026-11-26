@@ -5,13 +5,14 @@ import asyncio
 import json
 import logging
 import math
+import re
 import time
 import uuid
 from dataclasses import dataclass
 from datetime import date
 
 from .presentation import receipt_blocks, render_markdown
-from .semantic_normalizer import normalize_semantic_plan, parse_plan_arguments
+from .semantic_normalizer import normalize_joined_plan, normalize_semantic_plan, parse_plan_arguments
 from .semantic_query import PlanError
 
 LOG = logging.getLogger("erp_ai.agent")
@@ -30,6 +31,7 @@ QUY TẮC CHỌN TOOL:
   + Nếu `recommended_datasets` có từ 2 tập dữ liệu liên quan đến câu hỏi nhiều vế (ví dụ một tập danh mục không cần lọc ngày và một tập dự báo/phát sinh), lần lượt tra cứu đủ các tập dữ liệu liên quan.
   + Nếu kết quả tool trả về trường `hint` (gợi ý tìm theo mã gốc, trường ngày thay thế, hoặc bổ sung `unit`/`order_by`/`valid_dimensions`), thực hiện theo `hint` ngay ở lượt kế tiếp trước khi kết luận.
   + Không đặt trường ngày vào `dimensions` khi hỏi tổng hợp cả tháng/kỳ; chỉ đặt khi hỏi theo từng ngày.
+- Khi câu hỏi đòi hỏi đối chiếu/kết hợp chỉ tiêu từ 2 tập dữ liệu có sẵn trong `available_joins` (ví dụ vừa xem dừng máy vừa xem OEE từng máy), có thể dùng `query_semantic_join` (hoặc gọi lần lượt `query_semantic_plan`).
 - Khi đối tượng là nhân viên công ty hoặc người lập/đề nghị chứng từ (tên người, mã NV, username ERP): nếu chưa có mã NV hoặc `context_hints` có `suggested_lookup_tool`, gọi tool tra cứu danh mục nhân viên đó trước để lấy mã NV/`user_name`, rồi BẮT BUỘC gọi tiếp `query_semantic_plan` vào tập dữ liệu nghiệp vụ phù hợp (chú ý ghi chú phân biệt cột mã nhân viên vs username trong `notes`, và luôn thử tiếp trường thay thế nếu `hint` gợi ý). Không dừng lại ở bước tra danh mục nhân viên.
 - Tra cứu chi tiết chuyên biệt (tồn kho sổ sách/theo kho, bảng giá/MOQ, BOM, quy cách đóng gói, khách hàng, đơn bán/giao hàng, tem QC/khuôn): dùng tool chuyên biệt tương ứng có trong danh sách tool.
 - Khi tool trả `summary` (`total_records`, `total_quantity`, `total_revenue`) và `has_more=true`, dùng số tổng từ `summary`, không tự cộng nhẩm từ `rows`. Giữ nguyên mã `status` gốc nếu chưa có tên trạng thái.
@@ -96,6 +98,20 @@ _FALLBACK_DIRECT_RENDER_TOOLS = frozenset({
     "query_inventory_by_warehouse",
 })
 
+_MULTI_PART_RE = re.compile(
+    r"(?:\b(?:va|và|kem|kèm|cung|cùng|so\s*sanh|so\s*sánh|so\s*voi|so\s*với|dua\s*theo|dựa\s*theo|nguyen\s*nhan|nguyên\s*nhân)\b|[;,])",
+    re.I,
+)
+
+
+def _is_multi_part_question(question: str, seed: dict) -> bool:
+    hints = (seed or {}).get("context_hints") or {}
+    recs = hints.get("recommended_datasets") or []
+    joins = hints.get("available_joins") or []
+    if len(recs) < 2 and not joins:
+        return False
+    return bool(_MULTI_PART_RE.search(question or "")) or len(hints.get("detected_entities") or {}) >= 2
+
 
 async def _notify(callback, msg):
     if not callback:
@@ -149,7 +165,7 @@ async def run_agent(question, *, user, model, backend, limits=None, history=(), 
         grant_fn = getattr(backend, "grant", None)
         grant = grant_fn(user) if callable(grant_fn) else {}
         if grant.get("semantic_datasets") and not grant.get("reports"):
-            specs = [spec for spec in specs if spec["function"]["name"] in ("search_semantic_datasets", "query_semantic_plan")]
+            specs = [spec for spec in specs if spec["function"]["name"] in ("search_semantic_datasets", "query_semantic_plan", "query_semantic_join")]
     messages = [{"role": "system", "content": SYSTEM + f"\nNgày hiện tại của hệ thống: {date.today().isoformat()}."}]
     for item in list(history)[-6:]:
         if item.get("role") in ("user", "assistant") and isinstance(item.get("content"), str):
@@ -259,6 +275,17 @@ async def run_agent(question, *, user, model, backend, limits=None, history=(), 
                         }
                         require_explicit_month(question, semantic_plan, date_fields)
                         args = {"plan_json": json.dumps(semantic_plan, ensure_ascii=False)}
+                    elif name == "query_semantic_join":
+                        from .semantic_request import require_explicit_month
+                        contracts = backend.config.get("semantic_contracts", {})
+                        args = normalize_joined_plan(args, contracts, max_rows=limits.rows, question=question)
+                        for leg_key in ("left", "right"):
+                            leg = args.get(leg_key) or {}
+                            c = contracts.get(leg.get("dataset"), {}) if isinstance(leg, dict) else {}
+                            if isinstance(c, dict) and c.get("require_bounded_date", True):
+                                f_defs = c.get("filters") or {}
+                                d_fields = {f for f, fd in f_defs.items() if isinstance(fd, dict) and fd.get("type") == "date"}
+                                require_explicit_month(question, leg, d_fields)
                     fingerprint = encode([name, sorted(args.items())])
                     if fingerprint in seen:
                         return finish("no_progress", cited=sources)
@@ -303,7 +330,7 @@ async def run_agent(question, *, user, model, backend, limits=None, history=(), 
                 except (ValueError, KeyError, TypeError):
                     counts["tool_errors"] += 1
                     hint_fn = getattr(backend, "missing_args_hint", None)
-                    hint = hint_fn(name) if callable(hint_fn) and name in backend.names else ""
+                    hint = hint_fn(name) if callable(hint_fn) else ""
                     result = {"error": "invalid_tool_or_arguments"}
                     if hint:
                         result["hint"] = hint
@@ -314,9 +341,9 @@ async def run_agent(question, *, user, model, backend, limits=None, history=(), 
                          elapsed_ms=round((time.monotonic() - tool_started) * 1000))))
             # Never let a language model present a partial or NULL aggregate as
             # a complete result. Preserve evidence, but state the actual limit.
-            multi_part_question = len((seed.get("context_hints") or {}).get("recommended_datasets") or []) >= 2
+            multi_part_question = _is_multi_part_question(question if isinstance(question, str) else "", seed)
             if (len(calls) == 1 and len(verified) == 1
-                    and verified[0]["tool"] == "query_semantic_plan"):
+                    and verified[0]["tool"] in ("query_semantic_plan", "query_semantic_join")):
                 semantic_result = verified[0]["result"]
                 status = semantic_result.get("status")
                 contract_id = semantic_result.get("contract_id") or ""
@@ -329,7 +356,7 @@ async def run_agent(question, *, user, model, backend, limits=None, history=(), 
                     "empty": empty_msg,
                     "missing": "Chỉ tiêu có giá trị trống; chưa đủ căn cứ kết luận là số 0 hoặc không có dữ liệu.",
                 }
-                if not semantic_result.get("hint") and (status == "partial" or (status in messages_for_status and not multi_part_question)):
+                if not semantic_result.get("hint") and status in messages_for_status and not multi_part_question:
                     return finish(status, messages_for_status[status],
                                   [s["id"] for s in semantic_result.get("sources", [])])
             # Reports marked direct_render have deterministic display blocks; another

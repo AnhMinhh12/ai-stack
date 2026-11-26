@@ -621,12 +621,27 @@ def receipt_blocks(question, verified, status, *, config=None):
         for r in config.get("reports") or ():
             if isinstance(r, dict) and r.get("tool_name"):
                 reports_by_tool[r["tool_name"]] = r
-    semantic_items = [item for item in verified if item.get("tool") == "query_semantic_plan"]
-    omit_semantic_summary = len(semantic_items) > 1 and status == "answered"
+    semantic_items = [item for item in verified if item.get("tool") in ("query_semantic_plan", "query_semantic_join")]
+    last_non_empty_sem = max(
+        (
+            idx for idx, item in enumerate(verified)
+            if item.get("tool") in ("query_semantic_plan", "query_semantic_join")
+            and (item.get("result") or {}).get("rows")
+        ),
+        default=-1,
+    )
+    active_sem_count = sum(
+        1 for idx, item in enumerate(verified)
+        if item.get("tool") in ("query_semantic_plan", "query_semantic_join")
+        and not (idx < last_non_empty_sem and not (item.get("result") or {}).get("rows") and (item.get("result") or {}).get("hint"))
+    )
+    omit_semantic_summary = active_sem_count > 1 and status == "answered"
     blocks = []
-    for item in verified:
+    for idx, item in enumerate(verified):
         tool_name = str(item.get("tool") or "")
-        if tool_name == "query_semantic_plan":
+        if tool_name in ("query_semantic_plan", "query_semantic_join"):
+            if idx < last_non_empty_sem and not (item.get("result") or {}).get("rows") and (item.get("result") or {}).get("hint"):
+                continue
             blocks.extend(_semantic_blocks(question, item, include_summary=not omit_semantic_summary, config=config))
             continue
         report = reports_by_tool.get(tool_name, {})
@@ -688,7 +703,12 @@ def _semantic_scope_suffix(applied_filters):
                 day_eq = val
         elif field and val not in (None, ""):
             label = SEMANTIC_FIELD_META.get(field, (field,))[0]
-            extras.append(f"{label}={val}")
+            if isinstance(val, (list, tuple)):
+                preview = ", ".join(str(x) for x in val[:5])
+                val_str = f"{preview} (+{len(val) - 5})" if len(val) > 5 else preview
+            else:
+                val_str = str(val)
+            extras.append(f"{label}={val_str}")
     parts = []
     if day_eq:
         parts.append(f"ngày {day_eq}")
@@ -803,19 +823,54 @@ def _semantic_blocks(question, item, *, include_summary=True, config=None):
     rows = result.get("rows", [])
     source_ids = [s["id"] for s in result.get("sources", [])]
     contract_id = result.get("contract_id") or ""
-    contract = ((config.get("semantic_contracts") or {}).get(contract_id) or {}) if isinstance(config, dict) else {}
-    custom_labels = contract.get("field_labels") if isinstance(contract.get("field_labels"), dict) else {}
-    metric_defs = contract.get("metrics") if isinstance(contract.get("metrics"), dict) else {}
+    contracts_map = (config.get("semantic_contracts") or {}) if isinstance(config, dict) else {}
     has_more = bool(result.get("has_more"))
     res_status = result.get("status")
-    try:
-        from .semantic_normalizer import parse_plan_arguments
-        plan = parse_plan_arguments(item.get("arguments") or {})
-    except (ValueError, TypeError):
-        plan = {}
-    if not isinstance(plan, dict):
-        plan = {}
-    title = contract.get("title") or SEMANTIC_DATASET_TITLES.get(contract_id, f"Tổng hợp {contract_id or 'dữ liệu'}")
+    is_join = item.get("tool") == "query_semantic_join" or "+" in contract_id
+    if is_join and isinstance(item.get("arguments"), dict) and "left" in item["arguments"]:
+        join_args = item["arguments"]
+        left_plan = join_args.get("left") or {}
+        right_plan = join_args.get("right") or {}
+        left_c = contracts_map.get(left_plan.get("dataset") or "", {})
+        right_c = contracts_map.get(right_plan.get("dataset") or "", {})
+        custom_labels = {}
+        if isinstance(right_c.get("field_labels"), dict):
+            custom_labels.update(right_c["field_labels"])
+        if isinstance(left_c.get("field_labels"), dict):
+            custom_labels.update(left_c["field_labels"])
+        metric_defs = {}
+        for k, v in (right_c.get("metrics") or {}).items():
+            metric_defs[k] = v
+            metric_defs[f"right_{k}"] = v
+        for k, v in (left_c.get("metrics") or {}).items():
+            metric_defs[k] = v
+            metric_defs[f"left_{k}"] = v
+        left_title = left_c.get("title") or SEMANTIC_DATASET_TITLES.get(left_plan.get("dataset") or "", left_plan.get("dataset") or "")
+        right_title = right_c.get("title") or SEMANTIC_DATASET_TITLES.get(right_plan.get("dataset") or "", right_plan.get("dataset") or "")
+        title = f"{left_title} + {right_title}" if left_title and right_title else f"Đối chiếu {contract_id}"
+        plan_dims = list(left_plan.get("dimensions") or ()) + [d for d in (right_plan.get("dimensions") or ()) if d != join_args.get("join_on")]
+        left_m = list(left_plan.get("metrics") or ())
+        right_m = list(right_plan.get("metrics") or ())
+        plan_metrics = [f"left_{m}" if m in right_m else m for m in left_m] + [f"right_{m}" if m in left_m else m for m in right_m]
+        plan = {
+            "dimensions": plan_dims,
+            "metrics": plan_metrics,
+            "filters": result.get("applied_filters") or [],
+            "order_by": join_args.get("order_by") or left_plan.get("order_by") or [],
+        }
+        contract = left_c
+    else:
+        contract = contracts_map.get(contract_id) or {}
+        custom_labels = contract.get("field_labels") if isinstance(contract.get("field_labels"), dict) else {}
+        metric_defs = contract.get("metrics") if isinstance(contract.get("metrics"), dict) else {}
+        try:
+            from .semantic_normalizer import parse_plan_arguments
+            plan = parse_plan_arguments(item.get("arguments") or {})
+        except (ValueError, TypeError):
+            plan = {}
+        if not isinstance(plan, dict):
+            plan = {}
+        title = contract.get("title") or SEMANTIC_DATASET_TITLES.get(contract_id, f"Tổng hợp {contract_id or 'dữ liệu'}")
     scope_suffix = _semantic_scope_suffix(result.get("applied_filters") or plan.get("filters"))
     total_rows = result.get("total_rows") if isinstance(result.get("total_rows"), int) else None
     if not rows:

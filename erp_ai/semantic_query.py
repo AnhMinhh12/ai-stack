@@ -1,4 +1,4 @@
-"""Compile governed aggregate plans against explicitly approved scoped views.
+"""Compile governed aggregate plans and fanout-safe semantic joins against scoped views.
 
 Contracts must be supplied by trusted server configuration, never by the model.
 An approved view must enforce all row-level ERP permissions itself using the
@@ -10,6 +10,8 @@ import re
 import unicodedata
 from dataclasses import dataclass
 from datetime import date
+
+from .semantic_catalog import CANONICAL_JOIN_ENTITIES
 
 IDENT = re.compile(r'^[a-z_][a-z0-9_]*$')
 _VN_SRC = 'áàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴĐ'
@@ -38,9 +40,20 @@ class CompiledQuery:
     parameters: tuple
     contract_id: str
     contract_version: str
+    output_columns: tuple[str, ...] = ()
 
 
-def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100):
+def _compile_subplan(
+    plan,
+    contracts,
+    allowed_contracts,
+    erp_user_id,
+    max_rows=100,
+    *,
+    include_total_rows=True,
+    enforce_limit_clause=True,
+    extra_truncation_row=True,
+):
     if type(erp_user_id) is not int or erp_user_id <= 0:
         raise PlanError('invalid_identity')
     if not isinstance(plan, dict) or set(plan) - {'dataset', 'dimensions', 'metrics', 'filters', 'order_by', 'limit'}:
@@ -104,7 +117,7 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
                       else f"{aggregate.upper()}({identifier(metric.get('column'))})")
         select.append(f"{expression} AS {identifier(name)}")
     where, params = ([] if (scoped_source or curated_subquery) else [f'{scope} = %s']), [erp_user_id] * user_param_count
-    operators = {'eq': '=', 'gte': '>=', 'lte': '<=', 'contains': 'contains'}
+    operators = {'eq': '=', 'gte': '>=', 'lte': '<=', 'contains': 'contains', 'in': 'in'}
     seen_filters = set()
     date_bounds = {}
     for item in filters:
@@ -114,7 +127,9 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
         if not isinstance(field, str) or field not in filter_defs or not isinstance(op, str) or op not in operators:
             raise PlanError('filter_forbidden')
         definition = filter_defs[field]
-        if not isinstance(definition, dict) or op not in definition.get('ops', []):
+        allowed_ops = definition.get('ops', []) if isinstance(definition, dict) else []
+        op_allowed = op in allowed_ops or (op == 'in' and definition.get('type') == 'text' and 'eq' in allowed_ops)
+        if not isinstance(definition, dict) or not op_allowed:
             raise PlanError('filter_forbidden')
         key = (field, op)
         if key in seen_filters:
@@ -123,9 +138,19 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
         kind = definition.get('type')
         col_ident = identifier(definition.get('column'))
         if kind == 'text':
-            if not isinstance(value, str) or not value.strip() or len(value) > 128:
+            if op == 'in':
+                if not isinstance(value, (list, tuple)) or not 1 <= len(value) <= 50:
+                    raise PlanError('invalid_filter_value')
+                cleaned_vals = []
+                for elem in value:
+                    if not isinstance(elem, str) or not elem.strip() or len(elem) > 128:
+                        raise PlanError('invalid_filter_value')
+                    cleaned_vals.append(elem.strip())
+                where.append(f"{col_ident} = ANY(%s)")
+                params.append(cleaned_vals)
+            elif not isinstance(value, str) or not value.strip() or len(value) > 128:
                 raise PlanError('invalid_filter_value')
-            if op == 'contains':
+            elif op == 'contains':
                 norm_val = _norm_text(value)
                 if not norm_val:
                     raise PlanError('invalid_filter_value')
@@ -193,7 +218,7 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
     # Tie-break on all group dimensions to make limited rankings stable.
     if order_parts:
         order_parts.extend(f'{identifier(name)} ASC NULLS LAST' for name in dimensions if name not in seen_order)
-    if selected_dims:
+    if selected_dims and include_total_rows:
         select.append('COUNT(*) OVER () AS "__total_rows"')
     limit = plan.get('limit', 50)
     if type(max_rows) is not int or not 1 <= max_rows <= 200 or type(limit) is not int or not 1 <= limit <= max_rows:
@@ -205,6 +230,115 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
         query += ' GROUP BY ' + ', '.join(column for column, _ in selected_dims)
     if order_parts:
         query += ' ORDER BY ' + ', '.join(order_parts)
-    query += ' LIMIT %s'
-    params.append(limit + 1)  # Fetch one extra group to detect truncation.
-    return CompiledQuery(query, tuple(params), dataset, version)
+    if enforce_limit_clause:
+        query += ' LIMIT %s'
+        params.append(limit + 1 if extra_truncation_row else limit)
+    return CompiledQuery(query, tuple(params), dataset, version, tuple(dimensions + metrics))
+
+
+def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100):
+    return _compile_subplan(plan, contracts, allowed_contracts, erp_user_id, max_rows=max_rows)
+
+
+def compile_joined_query(join_plan, contracts, allowed_contracts, erp_user_id, max_rows=100):
+    """Compile a fanout-safe Aggregate-before-Join query over two approved contracts."""
+    if not isinstance(join_plan, dict) or set(join_plan) - {'left', 'right', 'join_on', 'join_type', 'order_by', 'limit'}:
+        raise PlanError('invalid_plan')
+    left = join_plan.get('left')
+    right = join_plan.get('right')
+    join_on = join_plan.get('join_on')
+    join_type = join_plan.get('join_type', 'left')
+    if not isinstance(left, dict) or not isinstance(right, dict):
+        raise PlanError('invalid_plan')
+    if not isinstance(join_on, str) or join_on not in CANONICAL_JOIN_ENTITIES:
+        raise PlanError('invalid_join_key')
+    if join_type not in ('left', 'inner'):
+        raise PlanError('invalid_join_type')
+    if join_on not in (left.get('dimensions') or ()) or join_on not in (right.get('dimensions') or ()):
+        raise PlanError('join_key_not_in_dimensions')
+    if type(max_rows) is not int or not 1 <= max_rows <= 200:
+        raise PlanError('invalid_limit')
+
+    left_compiled = _compile_subplan(
+        left, contracts, allowed_contracts, erp_user_id,
+        max_rows=max_rows, include_total_rows=False, enforce_limit_clause=True, extra_truncation_row=False,
+    )
+    # In a LEFT JOIN, avoid truncating the right pre-aggregation unless an explicit limit is desired on INNER JOIN.
+    right_compiled = _compile_subplan(
+        right, contracts, allowed_contracts, erp_user_id,
+        max_rows=200, include_total_rows=False,
+        enforce_limit_clause=(join_type == 'inner' and 'limit' in right),
+        extra_truncation_row=False,
+    )
+
+    select_parts = [f'l.{identifier(join_on)} AS {identifier(join_on)}']
+    output_cols = [join_on]
+    left_dims = left.get('dimensions') or []
+    right_dims = right.get('dimensions') or []
+    left_metrics = left.get('metrics') or []
+    right_metrics = right.get('metrics') or []
+
+    for d in left_dims:
+        if d != join_on and d not in output_cols:
+            select_parts.append(f'l.{identifier(d)} AS {identifier(d)}')
+            output_cols.append(d)
+    for d in right_dims:
+        if d == join_on:
+            continue
+        alias = f'r_{d}' if d in output_cols else d
+        select_parts.append(f'r.{identifier(d)} AS {identifier(alias)}')
+        output_cols.append(alias)
+
+    # Disambiguate colliding metric names cleanly while preserving unique metric names.
+    right_metric_set = set(right_metrics)
+    left_metric_set = set(left_metrics)
+    for m in left_metrics:
+        alias = f'left_{m}' if (m in right_metric_set or m in output_cols) else m
+        select_parts.append(f'l.{identifier(m)} AS {identifier(alias)}')
+        output_cols.append(alias)
+    for m in right_metrics:
+        alias = f'right_{m}' if (m in left_metric_set or m in output_cols) else m
+        select_parts.append(f'r.{identifier(m)} AS {identifier(alias)}')
+        output_cols.append(alias)
+
+    select_parts.append('COUNT(*) OVER () AS "__total_rows"')
+
+    ordering = join_plan.get('order_by')
+    if ordering is None:
+        ordering = [{'field': output_cols[len(left_dims) + len([d for d in right_dims if d != join_on])], 'direction': 'desc'}] if left_metrics else []
+    if not isinstance(ordering, list):
+        raise PlanError('invalid_order')
+    order_parts, seen_order = [], set()
+    valid_cols = set(output_cols)
+    for item in ordering:
+        if not isinstance(item, dict) or set(item) != {'field', 'direction'}:
+            raise PlanError('invalid_order')
+        fld, direction = item['field'], item['direction']
+        if not isinstance(fld, str) or fld not in valid_cols or fld in seen_order or direction not in ('asc', 'desc'):
+            raise PlanError('invalid_order')
+        seen_order.add(fld)
+        order_parts.append(f'{identifier(fld)} {direction.upper()} NULLS LAST')
+    if order_parts:
+        order_parts.append(f'{identifier(join_on)} ASC NULLS LAST')
+
+    limit = join_plan.get('limit', left.get('limit', 50))
+    if type(limit) is not int or not 1 <= limit <= max_rows:
+        raise PlanError('invalid_limit')
+
+    join_kw = 'INNER JOIN' if join_type == 'inner' else 'LEFT JOIN'
+    sql = (
+        f"WITH _left AS ({left_compiled.sql}), _right AS ({right_compiled.sql}) "
+        f"SELECT {', '.join(select_parts)} "
+        f"FROM _left l {join_kw} _right r ON l.{identifier(join_on)} = r.{identifier(join_on)}"
+    )
+    if order_parts:
+        sql += ' ORDER BY ' + ', '.join(order_parts)
+    sql += ' LIMIT %s'
+    params = left_compiled.parameters + right_compiled.parameters + (limit + 1,)
+    return CompiledQuery(
+        sql,
+        params,
+        f"{left_compiled.contract_id}+{right_compiled.contract_id}",
+        f"{left_compiled.contract_version}|{right_compiled.contract_version}",
+        tuple(output_cols),
+    )

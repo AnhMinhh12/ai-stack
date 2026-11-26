@@ -7,9 +7,28 @@ import re
 from typing import Any
 
 from .semantic_query import PlanError
+from .semantic_retriever import normalize_text
 
 PLAN_FIELDS = ("dataset", "dimensions", "metrics", "filters", "order_by", "limit")
 _TOP_N = re.compile(r"\btop\s+(\d{1,3})\b", re.I)
+
+# Universal "unfiltered / all" sentinel literals that models sometimes hallucinate into text filters.
+_WILDCARD_FILTER_VALUES = frozenset({
+    "*", "all", "any", "tat ca", "toan bo", "moi", "bat ky", "khong loc", "none", "null", "n/a",
+})
+
+
+def _is_wildcard_filter(value: Any, field_def: Any = None) -> bool:
+    if isinstance(field_def, dict) and field_def.get("type") == "date":
+        return False
+    if value is None:
+        return True
+    if not isinstance(value, str):
+        return False
+    stripped = value.strip()
+    if not stripped:
+        return True
+    return normalize_text(stripped) in _WILDCARD_FILTER_VALUES
 
 
 def _decode_json_object(raw: str) -> dict[str, Any]:
@@ -74,6 +93,19 @@ def parse_plan_arguments(args: dict[str, Any]) -> dict[str, Any]:
     raise PlanError("invalid_json")
 
 
+def _resolve_value_alias(value: Any, fdef: dict[str, Any]) -> Any:
+    aliases = fdef.get("value_aliases")
+    if not isinstance(aliases, dict) or not isinstance(value, (str, bool)):
+        return value
+    val_low = str(value).strip().lower()
+    if val_low in aliases:
+        return aliases[val_low]
+    val_norm = normalize_text(str(value))
+    if val_norm in aliases:
+        return aliases[val_norm]
+    return value
+
+
 def _coerce_filters(filters: Any, filter_defs: dict[str, Any]) -> Any:
     if filters is None:
         return []
@@ -86,19 +118,20 @@ def _coerce_filters(filters: Any, filter_defs: dict[str, Any]) -> Any:
     if isinstance(filters, dict):
         converted = []
         for field, val in filters.items():
-            if val is None or (isinstance(val, str) and not val.strip()):
-                continue
+            fdef = filter_defs.get(field) if isinstance(filter_defs.get(field), dict) else {}
             if isinstance(val, dict):
                 for raw_op, op_val in val.items():
-                    if op_val is None or (isinstance(op_val, str) and not op_val.strip()):
+                    if _is_wildcard_filter(op_val, fdef):
                         continue
                     op = op_aliases.get(str(raw_op).strip().lower(), str(raw_op).strip().lower())
-                    converted.append({"field": field, "op": op, "value": op_val})
+                    converted.append({"field": field, "op": op, "value": _resolve_value_alias(op_val, fdef)})
             else:
-                allowed_ops = (filter_defs.get(field) or {}).get("ops", []) if isinstance(filter_defs.get(field), dict) else []
+                if _is_wildcard_filter(val, fdef):
+                    continue
+                allowed_ops = fdef.get("ops", [])
                 use_contains = "contains" in allowed_ops and ("eq" not in allowed_ops or str(field).endswith("_name"))
                 op = "contains" if use_contains else "eq"
-                converted.append({"field": field, "op": op, "value": val})
+                converted.append({"field": field, "op": op, "value": _resolve_value_alias(val, fdef)})
         return converted
     if isinstance(filters, list):
         out = []
@@ -111,26 +144,66 @@ def _coerce_filters(filters: Any, filter_defs: dict[str, Any]) -> Any:
                 norm["field"] = norm.pop("field_name")
             if "op" not in norm and "operator" in norm:
                 norm["op"] = norm.pop("operator")
+            field = norm.get("field")
+            fdef = filter_defs.get(field) if isinstance(field, str) and isinstance(filter_defs.get(field), dict) else None
             val = norm.get("value")
-            if val is None or (isinstance(val, str) and not val.strip()):
+            if _is_wildcard_filter(val, fdef):
                 continue
             if isinstance(norm.get("op"), str):
                 raw_op = norm["op"].strip().lower()
                 norm["op"] = op_aliases.get(raw_op, raw_op)
-            field = norm.get("field")
             op = norm.get("op")
-            if isinstance(field, str) and isinstance(filter_defs.get(field), dict):
-                fdef = filter_defs[field]
+            if op == "in":
+                raw_vals = (
+                    [p.strip() for p in val.split(",")] if isinstance(val, str)
+                    else (list(val) if isinstance(val, (list, tuple)) else [])
+                )
+                cleaned_in = []
+                for elem in raw_vals:
+                    if _is_wildcard_filter(elem, fdef):
+                        continue
+                    resolved = _resolve_value_alias(str(elem).strip(), fdef or {})
+                    if isinstance(resolved, str) and resolved and resolved not in cleaned_in:
+                        cleaned_in.append(resolved)
+                if not cleaned_in:
+                    continue
+                if len(cleaned_in) == 1:
+                    norm["op"] = "eq"
+                    norm["value"] = cleaned_in[0]
+                else:
+                    norm["value"] = cleaned_in[:50]
+            elif fdef is not None:
                 allowed_ops = fdef.get("ops", [])
-                if op == "eq" and "contains" in allowed_ops and ("eq" not in allowed_ops or field.endswith("_name")):
+                if op == "eq" and "contains" in allowed_ops and ("eq" not in allowed_ops or str(field).endswith("_name")):
                     norm["op"] = "contains"
-                aliases = fdef.get("value_aliases")
-                if isinstance(aliases, dict) and isinstance(norm.get("value"), (str, bool)):
-                    val_str = str(norm["value"]).strip().lower()
-                    if val_str in aliases:
-                        norm["value"] = aliases[val_str]
+                norm["value"] = _resolve_value_alias(norm.get("value"), fdef)
             out.append(norm)
-        return out
+        # Merge multiple eq filters on the same text field into a single 'in' filter.
+        merged = []
+        eq_buckets: dict[str, list[int]] = {}
+        for item in out:
+            if isinstance(item, dict) and item.get("op") == "eq" and isinstance(item.get("field"), str):
+                fld = item["field"]
+                fdef = filter_defs.get(fld) if isinstance(filter_defs.get(fld), dict) else {}
+                if fdef.get("type", "text") == "text" and isinstance(item.get("value"), str):
+                    eq_buckets.setdefault(fld, []).append(len(merged))
+            merged.append(item)
+        if any(len(idxs) > 1 for idxs in eq_buckets.values()):
+            drop_indices = set()
+            for fld, idxs in eq_buckets.items():
+                if len(idxs) <= 1:
+                    continue
+                vals = []
+                for idx in idxs:
+                    v = merged[idx].get("value")
+                    if isinstance(v, str) and v not in vals:
+                        vals.append(v)
+                if len(vals) > 1:
+                    merged[idxs[0]] = {"field": fld, "op": "in", "value": vals[:50]}
+                for idx in idxs[1:]:
+                    drop_indices.add(idx)
+            merged = [m for i, m in enumerate(merged) if i not in drop_indices]
+        return merged
     return filters
 
 
@@ -314,4 +387,49 @@ def normalize_semantic_plan(
                     filtered_order.append(item)
             out["order_by"] = filtered_order
 
+    return out
+
+
+def normalize_joined_plan(
+    join_plan: dict[str, Any],
+    contracts: dict[str, Any],
+    *,
+    max_rows: int = 50,
+    question: str = "",
+) -> dict[str, Any]:
+    """Normalize both legs of a semantic join plan and ensure the join key is grouped."""
+    if not isinstance(join_plan, dict):
+        raise PlanError("invalid_plan")
+    left_raw = join_plan.get("left")
+    right_raw = join_plan.get("right")
+    join_on = join_plan.get("join_on")
+    if not isinstance(left_raw, dict) or not isinstance(right_raw, dict) or not isinstance(join_on, str) or not join_on:
+        raise PlanError("invalid_plan")
+
+    left_copy = copy.deepcopy(left_raw)
+    right_copy = copy.deepcopy(right_raw)
+    for leg in (left_copy, right_copy):
+        dims = leg.get("dimensions")
+        if dims is None:
+            leg["dimensions"] = [join_on]
+        elif isinstance(dims, list) and join_on not in dims:
+            leg["dimensions"] = [join_on, *dims]
+
+    left_norm = normalize_semantic_plan(left_copy, contracts, max_rows=max_rows, question=question)
+    right_norm = normalize_semantic_plan(right_copy, contracts, max_rows=200, question="")
+    out: dict[str, Any] = {
+        "left": left_norm,
+        "right": right_norm,
+        "join_on": join_on,
+        "join_type": str(join_plan.get("join_type") or "left").strip().lower(),
+    }
+    if join_plan.get("order_by") is not None:
+        out["order_by"] = _coerce_order_by(join_plan["order_by"])
+    raw_limit = join_plan.get("limit")
+    if isinstance(raw_limit, str) and raw_limit.strip().isdigit():
+        raw_limit = int(raw_limit.strip())
+    if isinstance(raw_limit, int) and not isinstance(raw_limit, bool):
+        out["limit"] = min(max_rows, max(1, raw_limit))
+    else:
+        out["limit"] = left_norm.get("limit", min(50, max_rows))
     return out

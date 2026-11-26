@@ -1,13 +1,14 @@
-"""Deterministic date, entity, and dataset hints extracted without DB I/O."""
+"""Deterministic date, entity, and hybrid metadata routing hints without DB I/O."""
 from __future__ import annotations
 
 import calendar
 import re
-import unicodedata
 from datetime import date
 from typing import Any
 
 from .entities import extract_entities, merge_filters
+from .semantic_catalog import recommended_joins_for
+from .semantic_retriever import has_word_cue, normalize_text, rank_datasets
 
 _DMY_DATE = re.compile(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b")
 _ISO_DATE = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
@@ -20,16 +21,11 @@ _DEFAULT_PERSON_CUES = (
 
 
 def _has_cue(text: str, cue: str) -> bool:
-    term = (cue or "").strip()
-    if not term:
-        return False
-    return bool(re.search(rf"(?<![a-z0-9_]){re.escape(term)}(?![a-z0-9_])", text))
+    return has_word_cue(text, cue)
 
 
 def _norm(text: str) -> str:
-    stripped = unicodedata.normalize("NFD", (text or "").replace("đ", "d").replace("Đ", "D"))
-    cleaned = "".join(c for c in stripped if unicodedata.category(c) != "Mn")
-    return re.sub(r"\s+", " ", cleaned.lower()).strip()
+    return normalize_text(text)
 
 
 def _extract_dates_from_text(text: str) -> tuple[list[str], list[dict[str, str]]]:
@@ -65,62 +61,15 @@ def _extract_dates_from_text(text: str) -> tuple[list[str], list[dict[str, str]]
     return iso_dates, months
 
 
-_TITLE_STOPWORDS = frozenset({
-    "bao", "cao", "tong", "hop", "chi", "tiet", "phieu", "danh", "muc", "theo",
-    "va", "cua", "cho", "trong", "hien", "hanh", "moi", "nhat", "du", "lieu",
-    "erp", "mes", "khsx", "nhap", "xuat", "hang", "hoa",
-})
-
-
-def _score_dataset(ds: dict[str, Any], q_norm: str, combined_norm: str) -> int:
-    primary_cues = [c for c in (ds.get("cues") or ()) if isinstance(c, str) and c]
-    secondary_cues = [c for c in (ds.get("secondary_cues") or ()) if isinstance(c, str) and c]
-    score = 0
-    for cue in primary_cues:
-        matched_q = _has_cue(q_norm, cue) if len(cue) <= 4 else (cue in q_norm)
-        matched_ctx = _has_cue(combined_norm, cue) if len(cue) <= 4 else (cue in combined_norm)
-        word_bonus = 2 if " " in cue else 0
-        if matched_q:
-            score += 4 + word_bonus
-        if matched_ctx:
-            score += 2
-    for cue in secondary_cues:
-        matched_q = _has_cue(q_norm, cue) if len(cue) <= 4 else (cue in q_norm)
-        matched_ctx = _has_cue(combined_norm, cue) if len(cue) <= 4 else (cue in combined_norm)
-        if matched_q:
-            score += 3
-        if matched_ctx:
-            score += 1
-    title_norm = _norm(str(ds.get("title") or ""))
-    if title_norm:
-        q_words = set(re.findall(r"[a-z0-9_]{2,}", q_norm))
-        t_words = [w for w in re.findall(r"[a-z0-9_]{2,}", title_norm) if w not in _TITLE_STOPWORDS]
-        overlap = sum(1 for w in set(t_words) if w in q_words)
-        if overlap >= 2:
-            score += 2 if score == 0 else 1
-    return score
-
-
 def score_datasets(
     question: str,
     history: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
     datasets: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
-) -> list[tuple[int, dict[str, Any]]]:
-    """Score and rank datasets against question + recent user history."""
-    user_history = [
-        str(m.get("content") or "")
-        for m in history
-        if isinstance(m, dict) and m.get("role") == "user" and isinstance(m.get("content"), str)
-    ][-3:]
-    q_norm = _norm(question)
-    combined_norm = _norm(" ".join([*user_history, question]))
-    scored = []
-    for ds in datasets:
-        if isinstance(ds, dict) and ds.get("id"):
-            s = _score_dataset(ds, q_norm, combined_norm)
-            scored.append((s, ds))
-    scored.sort(key=lambda pair: (-pair[0], pair[1]["id"]))
-    return scored
+    *,
+    contracts: dict[str, Any] | None = None,
+) -> list[tuple[float, dict[str, Any]]]:
+    """Score and rank datasets using BM25 + 3SERP UI metadata + multi-clause boosting."""
+    return rank_datasets(question, history=history, datasets=datasets, contracts=contracts)
 
 
 def extract_context_hints(
@@ -129,8 +78,9 @@ def extract_context_hints(
     datasets: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
     person_cues: list[str] | tuple[str, ...] | None = None,
     person_lookup_tool: str = "",
+    contracts: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Build deterministic date, entity, and dataset routing hints from metadata."""
+    """Build deterministic date, entity, dataset, and join hints from metadata."""
     user_history = [
         str(m.get("content") or "")
         for m in history
@@ -153,8 +103,8 @@ def extract_context_hints(
     merged_entities = {k: v for k, v in merged_entities.items() if v}
 
     combined_norm = _norm(" ".join([*user_history, question]))
-    ranked = [ds for score, ds in score_datasets(question, history, datasets) if score > 0]
-    recommended = ranked[:5]
+    ranked = [ds for score, ds in score_datasets(question, history, datasets, contracts=contracts) if score > 0]
+    recommended = ranked[:6]
 
     active_person_cues = tuple(person_cues) if person_cues else _DEFAULT_PERSON_CUES
     hints: dict[str, Any] = {"today": date.today().isoformat()}
@@ -182,6 +132,9 @@ def extract_context_hints(
             }
             if ds.get("notes"):
                 item["notes"] = ds["notes"]
-            recommended_target = hints["recommended_datasets"]
-            recommended_target.append(item)
+            hints["recommended_datasets"].append(item)
+        if contracts and len(recommended) >= 2:
+            joins = recommended_joins_for([d["id"] for d in recommended], contracts)
+            if joins:
+                hints["available_joins"] = joins
     return hints

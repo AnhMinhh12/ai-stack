@@ -612,6 +612,131 @@ def build_random_cases() -> list[GoldenCase]:
     ]
 
 
+def build_holdout_cases() -> list[GoldenCase]:
+    """Reconciled ad-hoc & cross-module holdout suite verifying real DB answers."""
+    user_ok = {"id": "golden-eval"}
+    return [
+        GoldenCase(
+            case_id="holdout_q1_canon_so1_oct2026",
+            question="Trong tháng 10/2026 khách hàng Canon có những đơn đặt hàng bán (SO1) nào và tổng số lượng đặt bao nhiêu?",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan", "query_sales_orders"),
+            reconcile_sql=(
+                "SELECT count(DISTINCT h.stt_rec) AS orders, sum(d.so_luong) AS qty "
+                "FROM public.ph64 h JOIN public.ct64 d ON d.stt_rec = h.stt_rec "
+                "LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh "
+                "WHERE h.ngay_ct BETWEEN '2026-10-01' AND '2026-10-31' "
+                "AND h.status::text NOT IN ('14', '15') "
+                "AND lower(coalesce(k.ten_kh, '')) LIKE '%canon%'"
+            ),
+            reconcile_check=lambda res, db_rows: (
+                bool(res.get("verified_results"))
+                and (not db_rows or int(db_rows[0]["orders"] or 0) == 0 or bool(res["verified_results"][-1]["result"].get("rows"))),
+                "Canon SO1 oct-2026 non-empty when DB has rows",
+            ),
+        ),
+        GoldenCase(
+            case_id="holdout_q2_abs014b_price_and_po",
+            question="Giá mua của mã nhựa ABS014B hiện tại theo bảng giá nhà cung cấp là bao nhiêu và đơn PO gần nhất mua giá nào?",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan", "query_semantic_join"),
+            reconcile_sql=(
+                "SELECT count(*) AS cnt, min(d.gia) AS min_gia "
+                "FROM public.dmgiamuact d WHERE d.status::text = '1' AND upper(trim(d.ma_vt)) = 'ABS014B'"
+            ),
+            reconcile_check=lambda res, db_rows: (
+                any(
+                    v.get("result", {}).get("contract_id", "").startswith("purchase_prices_current")
+                    or "+purchase_prices_current" in v.get("result", {}).get("contract_id", "")
+                    for v in (res.get("verified_results") or [])
+                )
+                and (not db_rows or int(db_rows[0]["cnt"] or 0) == 0 or bool(res["verified_results"][0]["result"].get("rows"))),
+                "consulted purchase_prices_current for ABS014B",
+            ),
+        ),
+        GoldenCase(
+            case_id="holdout_q4_downtime_top_machine_and_reason",
+            question="Trong tháng 10/2026 máy nào dừng nhiều nhất và nguyên nhân chính là gì?",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="mes_downtime_lines",
+            reconcile_sql=(
+                "SELECT a.machine_code AS machine "
+                "FROM public.mes_oi_stop_line a "
+                "WHERE a.create_date BETWEEN '2026-10-01' AND '2026-10-31' "
+                "AND a.end_date IS NOT NULL AND a.end_date >= a.create_date AND a.end_date > '1900-01-01' "
+                "GROUP BY a.machine_code "
+                "ORDER BY sum(EXTRACT(EPOCH FROM (a.end_date::timestamp + a.end_time::time - a.create_date::timestamp - a.create_time::time)) / 60.0) DESC "
+                "LIMIT 1"
+            ),
+            reconcile_check=lambda res, db_rows: (
+                bool(res.get("verified_results"))
+                and (
+                    not db_rows
+                    or any(
+                        str(r.get("machine") or "").strip() == str(db_rows[0]["machine"]).strip()
+                        for v in res["verified_results"]
+                        for r in (v.get("result", {}).get("rows") or [])
+                    )
+                ),
+                f"top downtime machine matches SQL ({db_rows[0]['machine'] if db_rows else 'empty'})",
+            ),
+        ),
+        GoldenCase(
+            case_id="holdout_q8_oee_all_line_groups_oct2026",
+            question="So sánh OEE trung bình của tất cả nhóm máy trong tháng 10/2026",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="mes_oee_daily",
+            reconcile_sql=(
+                "SELECT count(DISTINCT coalesce(l.line_group_code3, '')) AS grp_cnt "
+                "FROM public.mes_oi_confirm a LEFT JOIN public.mflist_line l ON l.line_code = a.machine_code "
+                "WHERE a.sp_chinh_yn = 1 AND a.create_date BETWEEN '2026-10-01' AND '2026-10-31'"
+            ),
+            reconcile_check=lambda res, db_rows: (
+                bool(res.get("verified_results"))
+                and bool(res["verified_results"][-1]["result"].get("rows"))
+                and (not db_rows or int(db_rows[0]["grp_cnt"] or 0) == 0 or len(res["verified_results"][-1]["result"]["rows"]) >= 1),
+                "OEE query without bogus ALL filter returns non-empty rows",
+            ),
+        ),
+        GoldenCase(
+            case_id="holdout_join_downtime_and_oee_oct2026",
+            question="Top 5 máy dừng lâu nhất tháng 10/2026 kèm OEE và khả dụng của từng máy",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_join", "query_semantic_plan"),
+        ),
+        GoldenCase(
+            case_id="holdout_3serp_quotation_costings",
+            question="Thống kê chiết tính giá thành báo giá theo trọng lượng sản phẩm và runner trong tháng 10/2026",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial", "empty"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="sales_quotation_costings",
+        ),
+        GoldenCase(
+            case_id="holdout_3serp_machine_cavity_logs",
+            question="Nhật ký tắt đèn tháp máy ép và đổi cavity tháng 10/2026",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="mes_machine_logs_and_cavity",
+        ),
+    ]
+
+
 async def _run_dry_eval(cases: list[GoldenCase]) -> list[dict[str, Any]]:
     cfg = json.loads((ROOT / "config/erp-agent.json").read_text())
     all_reports = [r["id"] for r in cfg["reports"]]
@@ -619,10 +744,12 @@ async def _run_dry_eval(cases: list[GoldenCase]) -> list[dict[str, Any]]:
     grants = {"golden-eval": {"erp_user_id": 11, "reports": all_reports, "semantic_datasets": all_datasets}}
 
     async def dry_db(sql, params, limits):
-        if "FROM (" in sql and "AS scoped_dataset" in sql:
-            # Parse SELECT col AS "alias" list from compiled semantic query for synthetic dry-run.
+        if "AS _probe" in sql:
+            return []
+        if "WITH _left AS (" in sql or ("FROM (" in sql and "AS scoped_dataset" in sql):
+            # Parse outer SELECT col AS "alias" list from compiled semantic query or join for synthetic dry-run.
             import re
-            head = sql.split(" FROM ", 1)[0]
+            head = sql.rsplit(" FROM _left ", 1)[0].rsplit("SELECT ", 1)[-1] if "WITH _left AS (" in sql else sql.split(" FROM ", 1)[0]
             aliases = re.findall(r'AS "([^"]+)"', head)
             if "2026-08-13" in str(params) or "public.ct00" in sql:
                 return []
@@ -639,7 +766,7 @@ async def _run_dry_eval(cases: list[GoldenCase]) -> list[dict[str, Any]]:
                     row[col] = "VND"
                 elif col in ("day", "delivery_date", "expiry_date", "mfg_date", "valid_from", "valid_to", "last_maint_date", "required_date", "confirmed_delivery_date"):
                     row[col] = "2026-10-15"
-                elif col in numeric_cols:
+                elif col in numeric_cols or col.startswith(("left_", "right_")):
                     row[col] = 10
                 else:
                     row[col] = f"SYNTH-{col}"
@@ -668,6 +795,12 @@ async def _run_dry_eval(cases: list[GoldenCase]) -> list[dict[str, Any]]:
                 return {"content": json.dumps({"answer": "Vui lòng cho biết khoảng ngày hoặc tháng cần thống kê.", "source_ids": []})}
             if "employee" in case.case_id or "ba_thanh_2026" in case.case_id or "followup" in case.case_id:
                 return {"tool_calls": [{"id": "c1", "type": "function", "function": {"name": "query_semantic_plan", "arguments": json.dumps({"dataset": "purchase_requests", "dimensions": ["pr_no", "unit"], "metrics": ["quantity"], "filters": [{"field": "day", "op": "eq", "value": "2026-08-13"}]})}}]}
+            if case.case_id == "holdout_q1_canon_so1_oct2026":
+                return {"tool_calls": [{"id": "c1", "type": "function", "function": {"name": "query_semantic_plan", "arguments": json.dumps({"dataset": "sales_order_lines", "dimensions": ["doc_no", "customer_name", "unit"], "metrics": ["quantity", "order_count"], "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}, {"field": "customer_name", "op": "contains", "value": "Canon"}]})}}]}
+            if case.case_id == "holdout_q2_abs014b_price_and_po":
+                return {"tool_calls": [{"id": "c1", "type": "function", "function": {"name": "query_semantic_join", "arguments": json.dumps({"left": {"dataset": "purchase_prices_current", "dimensions": ["material", "supplier_name", "currency", "unit"], "metrics": ["unit_price_vnd"], "filters": [{"field": "material", "op": "eq", "value": "ABS014B"}]}, "right": {"dataset": "purchase_order_lines", "dimensions": ["material"], "metrics": ["quantity", "avg_price_vnd"], "filters": [{"field": "material", "op": "eq", "value": "ABS014B"}, {"field": "day", "op": "gte", "value": "2026-01-01"}, {"field": "day", "op": "lte", "value": "2026-11-26"}]}, "join_on": "material", "join_type": "left"})}}]}
+            if case.case_id == "holdout_join_downtime_and_oee_oct2026":
+                return {"tool_calls": [{"id": "c1", "type": "function", "function": {"name": "query_semantic_join", "arguments": json.dumps({"left": {"dataset": "mes_downtime_lines", "dimensions": ["machine"], "metrics": ["stop_minutes"], "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}], "limit": 5}, "right": {"dataset": "mes_oee_daily", "dimensions": ["machine"], "metrics": ["oee_pct", "availability_pct"], "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}]}, "join_on": "machine", "join_type": "left"})}}]}
             if case.expected_dataset:
                 from erp_ai.context_hints import extract_context_hints
                 ds = case.expected_dataset
@@ -746,7 +879,11 @@ async def _run_live_eval(cases: list[GoldenCase], model_name: str, model_url: st
             if case.expected_tools and not any(t in used_tools for t in case.expected_tools):
                 reasons.append(f"expected tool in {case.expected_tools}, got {used_tools}")
             if case.expected_dataset:
-                ds_used = [v["result"].get("contract_id") for v in res.get("verified_results") or [] if v["tool"] == "query_semantic_plan"]
+                ds_used = []
+                for v in res.get("verified_results") or []:
+                    if v["tool"] in ("query_semantic_plan", "query_semantic_join"):
+                        cid = str(v["result"].get("contract_id") or "")
+                        ds_used.extend(cid.split("+") if "+" in cid else [cid])
                 if case.expected_dataset not in ds_used:
                     reasons.append(f"expected dataset {case.expected_dataset}, got {ds_used}")
             ans = (res.get("display_markdown") or "") + " " + (res.get("answer") or "")
@@ -792,15 +929,17 @@ def main() -> int:
     parser.add_argument("--model", default=os.getenv("HTMP_AGENT_MODEL", "qwen2.5-14b"))
     parser.add_argument("--model-url", default=os.getenv("HTMP_AGENT_MODEL_URL", "http://127.0.0.1:8000/v1/"))
     parser.add_argument("--min-pass-rate", type=float, default=0.85)
-    parser.add_argument("--suite", choices=("golden", "random", "all"), default="golden")
+    parser.add_argument("--suite", choices=("golden", "random", "holdout", "all"), default="golden")
     args = parser.parse_args()
 
     if args.suite == "golden":
         cases = build_golden_cases()
     elif args.suite == "random":
         cases = build_random_cases()
+    elif args.suite == "holdout":
+        cases = build_holdout_cases()
     else:
-        cases = build_golden_cases() + build_random_cases()
+        cases = build_golden_cases() + build_random_cases() + build_holdout_cases()
     results = asyncio.run(_run_dry_eval(cases) if args.dry_run else _run_live_eval(cases, args.model, args.model_url))
     latencies = sorted(r["latency_ms"] for r in results) or [0]
     passed = sum(1 for r in results if r["passed"])

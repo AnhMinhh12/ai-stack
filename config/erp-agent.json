@@ -174,7 +174,7 @@
         "row_limit"
       ],
       "tool_name": "query_price_list",
-      "tool_description": "Tra cứu bảng giá, giá bán hiện tại và MOQ (số lượng đặt tối thiểu sl_min) theo mã vật tư (material) và ngày tham chiếu (date_as_of định dạng YYYY-MM-DD).",
+      "tool_description": "CHỈ tra cứu BẢNG GIÁ BÁN cho khách hàng (dmbanggia) và MOQ bán theo mã vật tư và ngày tham chiếu. KHÔNG dùng cho giá MUA từ nhà cung cấp (giá mua dùng query_semantic_plan với dataset purchase_prices_current).",
       "cues": [
         "bang gia",
         "moq",
@@ -182,6 +182,13 @@
         "gia ban",
         "gia chuan",
         "chua link gia"
+      ],
+      "exclude_cues": [
+        "gia mua",
+        "bang gia mua",
+        "nha cung cap",
+        "ncc",
+        "dmgiamua"
       ],
       "param_schema": {
         "material": {
@@ -983,6 +990,13 @@
         "don ban",
         "so1"
       ],
+      "exclude_cues": [
+        "gia mua",
+        "bang gia mua",
+        "nha cung cap",
+        "ncc",
+        "dmgiamua"
+      ],
       "param_schema": {
         "customer": {
           "type": "identifier",
@@ -1698,7 +1712,7 @@
         },
         "order_count": {
           "aggregate": "count_distinct",
-          "column": "doc_id"
+          "column": "order_id"
         }
       },
       "filters": {
