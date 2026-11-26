@@ -282,6 +282,211 @@ def build_golden_cases() -> list[GoldenCase]:
     ]
 
 
+def build_random_cases() -> list[GoldenCase]:
+    """Cross-module random natural-language eval covering the 40-contract ERP/MES map."""
+    user_ok = {"id": "golden-eval"}
+    return [
+        GoldenCase(
+            case_id="rand_to2_canon_oct2026",
+            question="Trong tháng 10/2026, khách hàng Canon có bao nhiêu lệnh giao hàng (TO2) và tổng số lượng giao là bao nhiêu?",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="sales_delivery_orders",
+        ),
+        GoldenCase(
+            case_id="rand_sq1_quotations_oct2026",
+            question="Thống kê giấy báo giá bán (SQ1) trong tháng 10/2026 theo khách hàng và giá trị.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="sales_quotations",
+        ),
+        GoldenCase(
+            case_id="rand_hdf_returns_2026",
+            question="Trong tháng 10/2026 có bao nhiêu hàng bán bị trả lại (HDF) theo từng khách hàng?",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial", "empty"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="sales_returns",
+        ),
+        GoldenCase(
+            case_id="rand_bg0_supplier_quotes_oct2026",
+            question="Tổng hợp báo giá nhà cung cấp (BG0) phát sinh trong tháng 10/2026 theo từng nhà cung cấp.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="supplier_quotations",
+        ),
+        GoldenCase(
+            case_id="rand_purchase_price_top",
+            question="Liệt kê 10 vật tư có đơn giá trong bảng giá mua nhà cung cấp hiện hành.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="purchase_prices_current",
+        ),
+        GoldenCase(
+            case_id="rand_sales_price_canon",
+            question="Tra danh mục bảng giá bán tổng hợp đang áp dụng cho khách hàng Canon.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="sales_prices_current",
+        ),
+        GoldenCase(
+            case_id="rand_pending_po_top_suppliers",
+            question="Top 5 nhà cung cấp đang có số lượng PO pending linh kiện và nhựa chờ giao nhiều nhất hiện nay là những ai?",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="planning_pending_po",
+        ),
+        GoldenCase(
+            case_id="rand_stock_lots_top_warehouses",
+            question="Thống kê tồn kho hiện hành theo từng kho và đơn vị tính trong hệ thống lô/vị trí kho.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="inventory_stock_lots",
+        ),
+        GoldenCase(
+            case_id="rand_warehouse_transfer_oct2026",
+            question="Trong tháng 10/2026, tổng số lượng hàng điều chuyển kho (PXB/PNF) giữa các kho xuất và kho nhận là bao nhiêu?",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="warehouse_transfers",
+        ),
+        GoldenCase(
+            case_id="rand_pxa_internal_issue_oct2026",
+            question="Tổng hợp phiếu xuất kho nội bộ (PXA) trong tháng 10/2026 theo từng kho xuất.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="warehouse_internal_issues",
+        ),
+        GoldenCase(
+            case_id="rand_pnd_internal_receipt_oct2026",
+            question="Tổng hợp phiếu nhập kho nội bộ (PND) trong tháng 10/2026 theo từng kho nhận.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="warehouse_internal_receipts",
+        ),
+        GoldenCase(
+            case_id="rand_warehouse_requests_oct2026",
+            question="Thống kê phiếu yêu cầu nhập kho và yêu cầu xuất kho (DNV/DXV) trong tháng 10/2026.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="warehouse_requests",
+        ),
+        GoldenCase(
+            case_id="rand_planning_stock_snapshot",
+            question="Ảnh chụp tồn kho KHSX hiện tại theo phân loại Nhựa, Linh kiện, Kho OK và Kho NG gồm bao nhiêu dòng và tổng số lượng?",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="planning_stock_snapshot",
+        ),
+        GoldenCase(
+            case_id="rand_pd1_production_orders_oct2026",
+            question="Tổng hợp lệnh sản xuất ERP (PD1) tháng 10/2026 theo phân xưởng và tổng số lượng kế hoạch.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="production_orders",
+        ),
+        GoldenCase(
+            case_id="rand_bom_reverse_lookup",
+            question="Theo định mức cấu trúc BOM hiện hành, Top 5 nguyên vật liệu xuất hiện trong nhiều cấu trúc sản phẩm nhất là mã nào?",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="bom_materials",
+        ),
+        GoldenCase(
+            case_id="rand_ecn_bom_changes",
+            question="Thống kê lịch sử cập nhật BOM và phiếu ECN kỹ thuật theo loại thay đổi.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="ecn_and_bom_changes",
+        ),
+        GoldenCase(
+            case_id="rand_mes_setup_mold_oct2026",
+            question="Trong tháng 10/2026, thống kê số lượt setup máy và vận hành lên/xuống khuôn theo từng máy ép.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="mes_setup_and_mold_ops",
+        ),
+        GoldenCase(
+            case_id="rand_mes_operators_oct2026",
+            question="Top 5 nhân sự đứng máy có sản lượng thực hiện cao nhất trong tháng 10/2026 là những ai?",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="mes_operators_output",
+        ),
+        GoldenCase(
+            case_id="rand_mes_carton_packing_oct2026",
+            question="Thống kê sản lượng đóng thùng thành phẩm MES trong tháng 10/2026 theo trạm sản xuất.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="mes_carton_packing",
+        ),
+        GoldenCase(
+            case_id="rand_mes_scheduling_oct2026",
+            question="Tổng hợp lịch điều độ sản xuất theo máy trong tháng 10/2026 với tổng số lượng kế hoạch và số lệnh WO.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="mes_scheduling_plan",
+        ),
+        GoldenCase(
+            case_id="rand_qc_pqc_summary",
+            question="Thống kê tổng số phiếu kiểm tra chất lượng công đoạn PQC theo trạng thái kết quả.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="qc_pqc_lines",
+        ),
+        GoldenCase(
+            case_id="rand_mold_incident_summary",
+            question="Tổng hợp tình trạng sự cố khuôn và bảo dưỡng khuôn hiện nay theo loại sự cố và trạng thái.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="mold_incident_status",
+        ),
+    ]
+
+
 async def _run_dry_eval(cases: list[GoldenCase]) -> list[dict[str, Any]]:
     cfg = json.loads((ROOT / "config/erp-agent.json").read_text())
     all_reports = [r["id"] for r in cfg["reports"]]
@@ -297,6 +502,9 @@ async def _run_dry_eval(cases: list[GoldenCase]) -> list[dict[str, Any]]:
             if "2026-08-13" in str(params) or "public.ct00" in sql:
                 return []
             row = {}
+            numeric_cols = {
+                m for c in cfg["semantic_contracts"].values() for m in (c.get("metrics") or {})
+            } | {"quantity", "revenue_vnd", "amount_vnd", "oee_pct", "stop_minutes", "ng_qty", "lot_qty", "ok_qty", "cavity", "cycle_sec", "total_shots", "pr_count", "po_count", "stop_count", "defect_events", "inspection_count", "line_count"}
             for col in aliases:
                 if col == "__total_rows":
                     row[col] = 1
@@ -304,9 +512,9 @@ async def _run_dry_eval(cases: list[GoldenCase]) -> list[dict[str, Any]]:
                     row[col] = "PCS"
                 elif col in ("currency",):
                     row[col] = "VND"
-                elif col in ("day",):
+                elif col in ("day", "delivery_date", "expiry_date", "mfg_date", "valid_from", "valid_to", "last_maint_date", "required_date", "confirmed_delivery_date"):
                     row[col] = "2026-10-15"
-                elif col in ("quantity", "revenue_vnd", "amount_vnd", "oee_pct", "stop_minutes", "ng_qty", "lot_qty", "ok_qty", "cavity", "cycle_sec", "total_shots", "pr_count", "po_count", "stop_count", "defect_events", "inspection_count", "line_count"):
+                elif col in numeric_cols:
                     row[col] = 10
                 else:
                     row[col] = f"SYNTH-{col}"
@@ -441,9 +649,15 @@ def main() -> int:
     parser.add_argument("--model", default=os.getenv("HTMP_AGENT_MODEL", "qwen2.5-14b"))
     parser.add_argument("--model-url", default=os.getenv("HTMP_AGENT_MODEL_URL", "http://127.0.0.1:8000/v1/"))
     parser.add_argument("--min-pass-rate", type=float, default=0.85)
+    parser.add_argument("--suite", choices=("golden", "random", "all"), default="golden")
     args = parser.parse_args()
 
-    cases = build_golden_cases()
+    if args.suite == "golden":
+        cases = build_golden_cases()
+    elif args.suite == "random":
+        cases = build_random_cases()
+    else:
+        cases = build_golden_cases() + build_random_cases()
     results = asyncio.run(_run_dry_eval(cases) if args.dry_run else _run_live_eval(cases, args.model, args.model_url))
     latencies = sorted(r["latency_ms"] for r in results) or [0]
     passed = sum(1 for r in results if r["passed"])

@@ -324,7 +324,7 @@ class CuratedSubqueryAndPresentationTests(unittest.TestCase):
         from pathlib import Path
         cfg = json.loads((Path(__file__).resolve().parents[1] / 'config/erp-agent.json').read_text())
         contracts = cfg.get('semantic_contracts', {})
-        self.assertEqual(len(contracts), 16)
+        self.assertEqual(len(contracts), 40)
         for name, contract in contracts.items():
             self.assertEqual(contract.get('status'), 'approved')
             first_dim = next(d for d in contract['dimensions'] if d not in ('day', 'unit', 'currency'))

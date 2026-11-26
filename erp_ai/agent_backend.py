@@ -8,7 +8,7 @@ import unicodedata
 from datetime import date
 from pathlib import Path
 from .validator import validate_inventory_balance_result
-from .context_hints import _norm as _norm_hint_text, extract_context_hints
+from .context_hints import _norm as _norm_hint_text, extract_context_hints, score_datasets
 from .semantic_executor import execute_plan
 from .semantic_normalizer import normalize_semantic_plan, parse_plan_arguments
 from .semantic_query import PlanError
@@ -82,7 +82,7 @@ STRUCTURED_SEMANTIC_SPEC = {
 }
 
 BASE_SPECS = [
-    spec("search_semantic_datasets", "Danh sách tập dữ liệu tổng hợp đã duyệt và được cấp quyền", []),
+    spec("search_semantic_datasets", "Danh sách tập dữ liệu tổng hợp đã duyệt và được cấp quyền (truyền tùy chọn query để lọc và lấy đủ trường của dataset phù hợp)", [], optional=["query"]),
     spec(
         "query_semantic_plan",
         "Chạy kế hoạch tổng hợp JSON theo tập dữ liệu được duyệt. Tham số plan_json là chuỗi JSON gồm: "
@@ -283,8 +283,6 @@ class ReportBackend:
         conflicts = sorted({s["conflict_group"] for _, s in matches if s.get("conflict_group")})
         result = {"schemas": schemas, "sources": selected, "conflicts": conflicts}
         semantic_datasets = self.semantic_datasets_for(user, include_cues=False)
-        if semantic_datasets:
-            result["semantic_datasets"] = semantic_datasets
         scoring_datasets = self.semantic_datasets_for(user, include_cues=True)
         hints = extract_context_hints(
             query,
@@ -295,6 +293,19 @@ class ReportBackend:
         )
         if hints:
             result["context_hints"] = hints
+        if semantic_datasets:
+            if len(semantic_datasets) <= 16:
+                result["semantic_datasets"] = semantic_datasets
+            else:
+                rec_ids = [d["id"] for d in (hints or {}).get("recommended_datasets", []) if isinstance(d, dict) and d.get("id")]
+                ds_by_id = {ds["id"]: ds for ds in semantic_datasets}
+                if rec_ids:
+                    result["semantic_datasets"] = [ds_by_id[i] for i in rec_ids if i in ds_by_id]
+                result["other_datasets"] = [
+                    f"{ds['id']}: {ds.get('title', ds['id'])}"
+                    for ds in semantic_datasets
+                    if ds["id"] not in rec_ids
+                ]
         return result
 
     def model_specs(self, question="", history=(), user=None):
@@ -390,7 +401,37 @@ class ReportBackend:
             return {"error": "forbidden"}
         self.validate(name, args)
         if name == "search_semantic_datasets":
-            return {"datasets": self.semantic_datasets_for(user, include_cues=False), "sources": []}
+            query_text = str(args.get("query") or "").strip() if isinstance(args, dict) else ""
+            full_list = self.semantic_datasets_for(user, include_cues=False)
+            if query_text:
+                scored = score_datasets(query_text, (), self.semantic_datasets_for(user, include_cues=True))
+                q_terms = tokens(query_text)
+                enriched = []
+                for cue_score, ds in scored:
+                    text_score = len(q_terms & tokens(" ".join([
+                        ds.get("id", ""), ds.get("title", ""),
+                        " ".join(ds.get("dimensions", ())),
+                        " ".join(ds.get("metrics", ())),
+                    ])))
+                    total_score = cue_score * 2 + text_score
+                    enriched.append((total_score, {k: v for k, v in ds.items() if k not in ("cues", "secondary_cues")}))
+                enriched.sort(key=lambda pair: (-pair[0], pair[1]["id"]))
+                matched = [ds for score, ds in enriched if score > 0][:8]
+                return {"datasets": matched or [ds for _, ds in enriched[:8]], "sources": []}
+            if len(full_list) <= 16:
+                return {"datasets": full_list, "sources": []}
+            return {
+                "datasets": [
+                    {
+                        "id": ds["id"],
+                        "title": ds.get("title", ds["id"]),
+                        "require_bounded_date": ds.get("require_bounded_date", True),
+                    }
+                    for ds in full_list
+                ],
+                "hint": "Hãy gọi lại search_semantic_datasets với tham số query mô tả nghiệp vụ (hoặc mã dataset) để xem đủ dimensions/metrics/filters.",
+                "sources": [],
+            }
         if name == "query_semantic_plan":
             try:
                 raw_plan = parse_plan_arguments(args)
@@ -411,17 +452,35 @@ class ReportBackend:
                     alt_label = contract_meta.get("alternate_date_label") or alt_date
                     plan_filters = plan.get("filters") or []
                     used_fields = {f.get("field") for f in plan_filters if isinstance(f, dict)}
+                    contract_cues = {
+                        str(c).strip().lower()
+                        for key in ("cues", "secondary_cues")
+                        for c in (contract_meta.get(key) or ())
+                        if isinstance(c, str) and c.strip()
+                    }
                     for f in plan_filters:
                         if not isinstance(f, dict) or f.get("op") != "eq":
                             continue
                         f_name = f.get("field")
-                        f_val = str(f.get("value") or "")
+                        f_val = str(f.get("value") or "").strip()
                         if isinstance(fdefs.get(f_name), dict) and fdefs[f_name].get("parent_prefix_fallback") and "-" in f_val:
                             base_prefix = f_val.rsplit("-", 1)[0]
                             if len(base_prefix) >= 5:
                                 res["hint"] = (
                                     f"Không có dữ liệu khớp chính xác '{f_val}'; hãy thử gọi lại query_semantic_plan "
                                     f"với trường '{f_name}' op='contains' và value='{base_prefix}' (và ghi chú rõ nếu tìm thấy theo mã gốc)."
+                                )
+                                break
+                    if "hint" not in res and contract_cues:
+                        for f in plan_filters:
+                            if not isinstance(f, dict):
+                                continue
+                            f_name = str(f.get("field") or "")
+                            f_val = str(f.get("value") or "").strip()
+                            if f_name in ("department", "warehouse", "work_center", "location", "doc_no", "so_no", "po_no", "pr_no") and f_val.lower() in contract_cues:
+                                res["hint"] = (
+                                    f"Không có dữ liệu khớp '{f_name}={f_val}' vì '{f_val}' là tên loại chứng từ của dataset này chứ không phải giá trị cột '{f_name}'; "
+                                    f"HÃY GỌI LẠI NGAY query_semantic_plan và BỎ bộ lọc '{f_name}'."
                                 )
                                 break
                     if "hint" not in res and alt_date and alt_date not in used_fields and contract_meta.get("date_field", "day") in used_fields:
@@ -442,6 +501,19 @@ class ReportBackend:
                                     f"thay bộ lọc '{f_name}' bằng '{alt_field}' với giá trị '{f.get('value')}' (giữ nguyên khoảng ngày)."
                                 )
                                 break
+                    if "hint" not in res:
+                        for f in plan_filters:
+                            if not isinstance(f, dict) or f.get("op") != "eq":
+                                continue
+                            f_name = str(f.get("field") or "")
+                            f_val = str(f.get("value") or "").strip()
+                            name_candidate = f"{f_name}_name" if f_name != "employee_code" else "employee_name"
+                            if f_val and not any(ch.isdigit() for ch in f_val) and name_candidate in fdefs and name_candidate not in used_fields:
+                                res["hint"] = (
+                                    f"Không có dòng khớp mã chính xác '{f_name}={f_val}'; nếu '{f_val}' là tên gọi, "
+                                    f"HÃY GỌI TIẾP query_semantic_plan thay bộ lọc '{f_name}' bằng '{name_candidate}' với op='contains' và value='{f_val}'."
+                                )
+                                break
                 return res
             except PlanError as exc:
                 hints = {
@@ -459,14 +531,37 @@ class ReportBackend:
                 if str(exc) in hints:
                     err["hint"] = hints[str(exc)]
                 try:
-                    ds_id = parse_plan_arguments(args).get("dataset")
+                    parsed_plan = parse_plan_arguments(args)
+                    ds_id = parsed_plan.get("dataset")
                 except (PlanError, ValueError, TypeError):
+                    parsed_plan = {}
                     ds_id = None
                 c_meta = (self.config.get("semantic_contracts") or {}).get(ds_id or "")
                 if isinstance(c_meta, dict) and c_meta.get("status") == "approved":
-                    err["valid_dimensions"] = sorted(c_meta.get("dimensions") or {})
-                    err["valid_metrics"] = sorted(c_meta.get("metrics") or {})
-                    err["valid_filters"] = sorted(c_meta.get("filters") or {})
+                    valid_dims = sorted(c_meta.get("dimensions") or {})
+                    valid_metrics = sorted(c_meta.get("metrics") or {})
+                    valid_filters = sorted(c_meta.get("filters") or {})
+                    err["valid_dimensions"] = valid_dims
+                    err["valid_metrics"] = valid_metrics
+                    err["valid_filters"] = valid_filters
+                    if str(exc) == "filter_forbidden" and isinstance(parsed_plan, dict):
+                        f_meta = c_meta.get("filters") or {}
+                        bad = [
+                            str(f.get("field")) for f in (parsed_plan.get("filters") or ())
+                            if isinstance(f, dict) and (f.get("field") not in f_meta or f.get("op") not in (f_meta.get(f.get("field")) or {}).get("ops", []))
+                        ]
+                        if bad:
+                            err["hint"] = f"Trường lọc hoặc toán tử không hợp lệ: {', '.join(bad)}. CHỈ dùng tên có trong valid_filters ({', '.join(valid_filters)}); hãy BỎ hoặc SỬA trường sai và GỌI LẠI NGAY query_semantic_plan."
+                    elif str(exc) == "dimension_forbidden" and isinstance(parsed_plan, dict):
+                        d_meta = c_meta.get("dimensions") or {}
+                        bad = [str(d) for d in (parsed_plan.get("dimensions") or ()) if d not in d_meta]
+                        if bad:
+                            err["hint"] = f"Chiều phân tích không hợp lệ: {', '.join(bad)}. CHỈ dùng tên có trong valid_dimensions ({', '.join(valid_dims)}); hãy SỬA và GỌI LẠI NGAY query_semantic_plan."
+                    elif str(exc) == "metric_forbidden" and isinstance(parsed_plan, dict):
+                        m_meta = c_meta.get("metrics") or {}
+                        bad = [str(m) for m in (parsed_plan.get("metrics") or ()) if m not in m_meta]
+                        if bad:
+                            err["hint"] = f"Chỉ tiêu không hợp lệ: {', '.join(bad)}. CHỈ dùng tên có trong valid_metrics ({', '.join(valid_metrics)}); hãy SỬA và GỌI LẠI NGAY query_semantic_plan."
                     if c_meta.get("notes"):
                         err["notes"] = c_meta["notes"]
                 return err

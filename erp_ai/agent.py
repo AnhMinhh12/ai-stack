@@ -202,18 +202,24 @@ async def run_agent(question, *, user, model, backend, limits=None, history=(), 
                     return finish("answered", answer[:6000], cited)
                 except (ValueError, KeyError, TypeError):
                     content = (message.get("content") or "").strip()
-                    if verified and content and not any(x in content.lower() for x in ("http:", "https:", "](")):
-                        if content.startswith("{"):
-                            try:
-                                parsed_obj, _ = json.JSONDecoder().raw_decode(content)
-                                if isinstance(parsed_obj, dict) and isinstance(parsed_obj.get("answer"), str) and parsed_obj["answer"].strip():
-                                    content = parsed_obj["answer"].strip()
-                            except ValueError:
-                                pass
-                        tool_sources = [s["id"] for v in verified for s in v.get("result", {}).get("sources", []) if s.get("id") in sources]
-                        record_sources = [s for s in tool_sources if s.startswith("records:")]
-                        if record_sources:
-                            return finish("answered", content[:6000], record_sources[:3])
+                    if content and not any(x in content.lower() for x in ("http:", "https:", "](")):
+                        if verified:
+                            if content.startswith("{"):
+                                try:
+                                    parsed_obj, _ = json.JSONDecoder().raw_decode(content)
+                                    if isinstance(parsed_obj, dict) and isinstance(parsed_obj.get("answer"), str) and parsed_obj["answer"].strip():
+                                        content = parsed_obj["answer"].strip()
+                                except ValueError:
+                                    pass
+                            tool_sources = [s["id"] for v in verified for s in v.get("result", {}).get("sources", []) if s.get("id") in sources]
+                            record_sources = [s for s in tool_sources if s.startswith("records:")]
+                            if record_sources:
+                                return finish("answered", content[:6000], record_sources[:3])
+                        elif not any(ch in content for ch in "{}") and (
+                            "?" in content
+                            or any(tok in content.lower() for tok in ("khoảng thời gian", "thời gian", "ngày nào", "tháng nào", "cần xem", "vui lòng cho biết", "bổ sung"))
+                        ):
+                            return finish("insufficient_evidence", content[:6000])
                     return finish("invalid_final", cited=sources)
             if not isinstance(calls, list) or len(calls) > limits.tools - counts["tools"]:
                 return finish("tool_limit", cited=sources)

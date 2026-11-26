@@ -243,6 +243,107 @@ class IncidentChangesTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(blocks[1]["title"], "Lịch sử tùy biến")
         self.assertEqual(blocks[2]["chart_type"], "line")
 
+    async def test_scalability_40_contracts_and_clarification_fallback(self):
+        from erp_ai.semantic_query import compile_query
+        from erp_ai.semantic_normalizer import normalize_semantic_plan
+
+        cfg = json.loads((ROOT / "config/erp-agent.json").read_text())
+        contracts = cfg["semantic_contracts"]
+        self.assertGreaterEqual(len(contracts), 40)
+
+        async def empty_db(*args):
+            return []
+
+        all_reports = [r["id"] for r in cfg["reports"]]
+        all_datasets = list(contracts)
+        backend = ReportBackend(
+            ROOT,
+            cfg,
+            {"u": {"erp_user_id": 11, "reports": all_reports, "semantic_datasets": all_datasets}},
+            empty_db,
+        )
+        allowed = set(all_datasets)
+        for cid, c in contracts.items():
+            self.assertEqual(c.get("status"), "approved", cid)
+            filters = []
+            if c.get("require_bounded_date", True):
+                df = c.get("date_field", "day")
+                filters = [{"field": df, "op": "gte", "value": "2026-10-01"}, {"field": df, "op": "lte", "value": "2026-10-31"}]
+            dims = list(c.get("dimensions", {}))[:1]
+            metrics = list(c.get("metrics", {}))[:1]
+            plan = normalize_semantic_plan({"dataset": cid, "dimensions": dims, "metrics": metrics, "filters": filters}, contracts)
+            compiled = compile_query(plan, contracts, allowed, 11)
+            self.assertIn("userinfo", compiled.sql)
+
+        seed = backend.retrieve("Thống kê tồn kho theo lô và hạn sử dụng tháng 10/2026", {"id": "u"})
+        self.assertLess(len(json.dumps(seed, ensure_ascii=False)), 26000)
+        self.assertIn("inventory_stock_lots", [d["id"] for d in seed["context_hints"]["recommended_datasets"]])
+        self.assertIn("inventory_stock_lots", [d["id"] for d in seed["semantic_datasets"]])
+        self.assertEqual(len(seed["semantic_datasets"]) + len(seed["other_datasets"]), len(contracts))
+
+        canon_empty = await backend.execute(
+            "query_semantic_plan",
+            {
+                "dataset": "sales_prices_current",
+                "dimensions": ["material_name"],
+                "metrics": ["line_count"],
+                "filters": [{"field": "customer", "op": "eq", "value": "CANON"}],
+            },
+            {"id": "u"},
+            Limits(),
+        )
+        self.assertIn("customer_name", canon_empty.get("hint", ""))
+
+        pnd_empty = await backend.execute(
+            "query_semantic_plan",
+            {
+                "dataset": "warehouse_internal_receipts",
+                "dimensions": ["warehouse_name"],
+                "metrics": ["in_qty"],
+                "filters": [
+                    {"field": "department", "op": "eq", "value": "PND"},
+                    {"field": "day", "op": "gte", "value": "2026-10-01"},
+                    {"field": "day", "op": "lte", "value": "2026-10-31"},
+                ],
+            },
+            {"id": "u"},
+            Limits(),
+        )
+        self.assertIn("BỎ bộ lọc 'department'", pnd_empty.get("hint", ""))
+
+        bad_filter_err = await backend.execute(
+            "query_semantic_plan",
+            {
+                "dataset": "warehouse_transfers",
+                "dimensions": ["warehouse"],
+                "metrics": ["transfer_qty"],
+                "filters": [
+                    {"field": "nonexistent_filter", "op": "eq", "value": "X"},
+                    {"field": "day", "op": "gte", "value": "2026-10-01"},
+                    {"field": "day", "op": "lte", "value": "2026-10-31"},
+                ],
+            },
+            {"id": "u"},
+            Limits(),
+        )
+        self.assertIn("nonexistent_filter", bad_filter_err.get("hint", ""))
+
+        searched = await backend.execute("search_semantic_datasets", {"query": "điều chuyển kho PXB PNF"}, {"id": "u"}, Limits())
+        self.assertIn("warehouse_transfers", [d["id"] for d in searched["datasets"]])
+        self.assertIn("dimensions", searched["datasets"][0])
+
+        async def clarify_model(messages, specs):
+            return {"content": "Bạn muốn xem doanh thu xuất bán theo khách hàng trong khoảng thời gian nào?"}
+
+        clarify_res = await run_agent("Tổng doanh thu theo khách hàng là bao nhiêu?", user={"id": "u"}, model=clarify_model, backend=backend)
+        self.assertEqual(clarify_res["status"], "insufficient_evidence")
+
+        async def broken_json_model(messages, specs):
+            return {"content": "{not json"}
+
+        broken_res = await run_agent("Tổng doanh thu theo khách hàng là bao nhiêu?", user={"id": "u"}, model=broken_json_model, backend=backend)
+        self.assertEqual(broken_res["status"], "invalid_final")
+
     def test_incident_persisted_without_question_and_bounded_listing(self):
         with tempfile.TemporaryDirectory() as d, patch_env(d + "/i.db"):
             record("u", "c", "planner", "invalid_json")

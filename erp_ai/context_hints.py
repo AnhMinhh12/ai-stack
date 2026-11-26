@@ -68,11 +68,45 @@ def _extract_dates_from_text(text: str) -> tuple[list[str], list[dict[str, str]]
 def _score_dataset(ds: dict[str, Any], q_norm: str, combined_norm: str) -> int:
     primary_cues = [c for c in (ds.get("cues") or ()) if isinstance(c, str) and c]
     secondary_cues = [c for c in (ds.get("secondary_cues") or ()) if isinstance(c, str) and c]
-    q_primary = sum(1 for cue in primary_cues if cue in q_norm)
-    ctx_primary = sum(1 for cue in primary_cues if cue in combined_norm)
-    q_secondary = sum(1 for cue in secondary_cues if cue in q_norm)
-    ctx_secondary = sum(1 for cue in secondary_cues if cue in combined_norm)
-    return (q_primary * 4 + ctx_primary * 2) + (q_secondary * 3 + ctx_secondary)
+    score = 0
+    for cue in primary_cues:
+        matched_q = _has_cue(q_norm, cue) if len(cue) <= 4 else (cue in q_norm)
+        matched_ctx = _has_cue(combined_norm, cue) if len(cue) <= 4 else (cue in combined_norm)
+        word_bonus = 2 if " " in cue else 0
+        if matched_q:
+            score += 4 + word_bonus
+        if matched_ctx:
+            score += 2
+    for cue in secondary_cues:
+        matched_q = _has_cue(q_norm, cue) if len(cue) <= 4 else (cue in q_norm)
+        matched_ctx = _has_cue(combined_norm, cue) if len(cue) <= 4 else (cue in combined_norm)
+        if matched_q:
+            score += 3
+        if matched_ctx:
+            score += 1
+    return score
+
+
+def score_datasets(
+    question: str,
+    history: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
+    datasets: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
+) -> list[tuple[int, dict[str, Any]]]:
+    """Score and rank datasets against question + recent user history."""
+    user_history = [
+        str(m.get("content") or "")
+        for m in history
+        if isinstance(m, dict) and m.get("role") == "user" and isinstance(m.get("content"), str)
+    ][-3:]
+    q_norm = _norm(question)
+    combined_norm = _norm(" ".join([*user_history, question]))
+    scored = []
+    for ds in datasets:
+        if isinstance(ds, dict) and ds.get("id"):
+            s = _score_dataset(ds, q_norm, combined_norm)
+            scored.append((s, ds))
+    scored.sort(key=lambda pair: (-pair[0], pair[1]["id"]))
+    return scored
 
 
 def extract_context_hints(
@@ -105,20 +139,8 @@ def extract_context_hints(
     merged_entities = {k: v for k, v in merged_entities.items() if v}
 
     combined_norm = _norm(" ".join([*user_history, question]))
-    q_norm = _norm(question)
-
-    dataset_scores: dict[str, int] = {}
-    for ds in datasets:
-        if isinstance(ds, dict) and ds.get("id"):
-            dataset_scores[ds["id"]] = _score_dataset(ds, q_norm, combined_norm)
-
-    recommended = []
-    if datasets:
-        ranked = sorted(
-            (ds for ds in datasets if dataset_scores.get(ds["id"], 0) > 0),
-            key=lambda ds: (-dataset_scores[ds["id"]], ds["id"]),
-        )
-        recommended = ranked[:3]
+    ranked = [ds for score, ds in score_datasets(question, history, datasets) if score > 0]
+    recommended = ranked[:5]
 
     active_person_cues = tuple(person_cues) if person_cues else _DEFAULT_PERSON_CUES
     hints: dict[str, Any] = {"today": date.today().isoformat()}

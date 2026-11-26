@@ -226,6 +226,56 @@ SEMANTIC_FIELD_META = {
     "debit_orig": ("Phát sinh Nợ (NT)", "number"),
     "credit_orig": ("Phát sinh Có (NT)", "number"),
     "voucher_count": ("Số chứng từ", "number"),
+    "doc_no": ("Số chứng từ", "text"),
+    "status_name": ("Trạng thái", "text"),
+    "delivery_date": ("Ngày giao hàng", "date"),
+    "expiry_date": ("Hạn sử dụng", "date"),
+    "mfg_date": ("Ngày sản xuất", "date"),
+    "valid_from": ("Hiệu lực từ", "date"),
+    "valid_to": ("Hiệu lực đến", "date"),
+    "last_maint_date": ("Ngày bảo dưỡng cuối", "date"),
+    "so_no": ("Số đơn bán (SO)", "text"),
+    "po_kh": ("Số PO khách hàng", "text"),
+    "lot_no": ("Số lô", "text"),
+    "location": ("Vị trí kho", "text"),
+    "target_warehouse": ("Kho nhận", "text"),
+    "target_warehouse_name": ("Tên kho nhận", "text"),
+    "stock_qty": ("SL tồn kho", "number"),
+    "return_qty": ("SL trả lại", "number"),
+    "transfer_qty": ("SL điều chuyển", "number"),
+    "pending_qty": ("SL còn pending", "number"),
+    "bom_qty": ("Định mức BOM", "number"),
+    "loss_pct": ("Tỷ lệ hao hụt (%)", "number"),
+    "unit_price_vnd": ("Đơn giá (VND)", "number"),
+    "unit_price_orig": ("Đơn giá (NT)", "number"),
+    "moq": ("SL tối thiểu (MOQ)", "number"),
+    "bom_code": ("Mã BOM", "text"),
+    "bom_version": ("Phiên bản BOM", "text"),
+    "change_type": ("Loại thay đổi", "text"),
+    "change_count": ("Số lần thay đổi", "number"),
+    "ecn_no": ("Số ECN", "text"),
+    "setup_minutes": ("Thời gian setup (phút)", "number"),
+    "setup_count": ("Số lượt setup", "number"),
+    "mold_op_count": ("Số lượt lên/xuống khuôn", "number"),
+    "employee_code": ("Mã nhân viên", "text"),
+    "employee_name": ("Tên nhân viên", "text"),
+    "actual_qty": ("SL thực hiện", "number"),
+    "operator_count": ("Số nhân sự", "number"),
+    "carton_count": ("Số thùng đóng gói", "number"),
+    "box_code": ("Mã thùng", "text"),
+    "skip_shots": ("Số shot bỏ", "number"),
+    "skip_qty": ("SL sản phẩm bỏ shot", "number"),
+    "schedule_qty": ("SL kế hoạch điều độ", "number"),
+    "pqc_count": ("Số phiếu PQC", "number"),
+    "incident_type": ("Loại sự cố khuôn", "text"),
+    "incident_detail": ("Chi tiết sự cố", "text"),
+    "mold_count": ("Số khuôn", "number"),
+    "stock_type": ("Loại tồn kho", "text"),
+    "pending_type": ("Nhóm vật tư pending", "text"),
+    "request_type": ("Loại phiếu YC", "text"),
+    "confirmed_delivery_date": ("Ngày NCC xác nhận giao", "date"),
+    "price_list_id": ("Mã bảng giá", "text"),
+    "price_list_name": ("Tên bảng giá", "text"),
 }
 
 
@@ -603,6 +653,14 @@ def _semantic_scope_suffix(applied_filters):
     return f" ({', '.join(parts)})" if parts else ""
 
 
+_UNIT_METRIC_KEYS = frozenset({
+    "quantity", "in_qty", "out_qty", "lot_qty", "ok_qty", "ng_qty",
+    "planned_qty", "complete_qty", "packing_qty", "required_qty", "issued_qty",
+    "used_qty", "remaining_qty", "variance_qty", "stock_qty", "return_qty",
+    "transfer_qty", "pending_qty", "actual_qty", "bom_qty", "skip_qty", "schedule_qty",
+})
+
+
 def _semantic_chart_block(question, title, rows, columns, plan, has_more, source_ids):
     """Build an optional chart block for uniform-unit semantic aggregates."""
     if not (2 <= len(rows) <= 20):
@@ -615,10 +673,10 @@ def _semantic_chart_block(question, title, rows, columns, plan, has_more, source
     metric_key = next((f for f in order_fields if f in num_cols), num_cols[0])
     if any(not isinstance(r.get(metric_key), (int, float, Decimal)) for r in rows):
         return None
-    if metric_key in ("quantity", "in_qty", "out_qty", "lot_qty", "ok_qty", "ng_qty", "planned_qty", "complete_qty", "packing_qty", "required_qty", "issued_qty", "used_qty", "remaining_qty", "variance_qty") and "unit" in rows[0]:
+    if metric_key in _UNIT_METRIC_KEYS and "unit" in rows[0]:
         if len({str(r.get("unit") or "") for r in rows}) > 1:
             return None
-    if metric_key in ("revenue_orig", "amount_orig", "debit_orig", "credit_orig") and "currency" in rows[0]:
+    if metric_key.endswith("_orig") and "currency" in rows[0]:
         if len({str(r.get("currency") or "") for r in rows}) > 1:
             return None
     dim_keys = [c["key"] for c in columns if c["type"] != "number"]
@@ -631,9 +689,11 @@ def _semantic_chart_block(question, title, rows, columns, plan, has_more, source
         "material": "material_name",
         "product": "product_name",
         "warehouse": "warehouse_name",
+        "target_warehouse": "target_warehouse_name",
         "mold": "mold_name",
         "account": "account_name",
         "partner": "partner_name",
+        "employee_code": "employee_name",
         "reason_code": "reason_name",
         "defect_code": "defect_name",
     }
@@ -658,7 +718,7 @@ def _semantic_chart_block(question, title, rows, columns, plan, has_more, source
         unit = "VND"
     elif metric_key.endswith("_pct") or metric_key == "efficiency":
         unit = "%"
-    elif metric_key in ("stop_minutes", "avg_stop_minutes", "run_minutes", "net_minutes", "standard_minutes"):
+    elif metric_key in ("stop_minutes", "avg_stop_minutes", "run_minutes", "net_minutes", "standard_minutes", "setup_minutes"):
         unit = "phút"
     elif metric_key in ("cycle_time", "cycle_sec"):
         unit = "giây"
@@ -727,17 +787,18 @@ def _semantic_blocks(question, item, *, include_summary=True, config=None):
             non_summable = {"oee_pct", "availability_pct", "performance_pct", "quality_pct", "efficiency", "avg_price_vnd", "avg_stop_minutes", "cycle_time", "cycle_sec", "cavity", "total_shots", "warranty_shots", "remaining_warranty_shots"}
             sum_parts = []
             for m in metric_keys[:3]:
-                agg = (metric_defs.get(m) or {}).get("aggregate") if isinstance(metric_defs.get(m), dict) else None
-                if agg in ("avg", "min", "max") or m in non_summable:
+                mdef = metric_defs.get(m) if isinstance(metric_defs.get(m), dict) else {}
+                agg = mdef.get("aggregate")
+                if agg in ("avg", "min", "max") or mdef.get("non_summable") or m in non_summable:
                     continue
-                if m in ("quantity", "in_qty", "out_qty", "lot_qty", "ok_qty", "ng_qty", "planned_qty", "complete_qty", "packing_qty", "required_qty", "issued_qty", "used_qty", "remaining_qty", "variance_qty") and not unit_single:
+                if (mdef.get("unit_dimension") == "unit" or m in _UNIT_METRIC_KEYS) and not unit_single:
                     continue
-                if m.endswith("_orig") and not curr_single:
+                if (mdef.get("unit_dimension") == "currency" or m.endswith("_orig")) and not curr_single:
                     continue
                 total_val = sum(float(r[m]) for r in rows)
                 lbl = custom_labels.get(m) or SEMANTIC_FIELD_META.get(m, (m,))[0]
                 fmt = f"{int(total_val):,}" if float(total_val).is_integer() else f"{total_val:,.2f}"
-                unit_lbl = f" {rows[0]['unit']}" if ("unit" in rows[0] and unit_single and m in ("quantity", "in_qty", "out_qty", "lot_qty", "ok_qty", "ng_qty", "planned_qty", "complete_qty", "packing_qty")) else ""
+                unit_lbl = f" {rows[0]['unit']}" if ("unit" in rows[0] and unit_single and (mdef.get("unit_dimension") == "unit" or m in _UNIT_METRIC_KEYS)) else ""
                 sum_parts.append(f"{lbl}: {fmt}{unit_lbl}")
             if sum_parts:
                 totals_note = " Tổng cộng: " + "; ".join(sum_parts) + "."
@@ -755,12 +816,12 @@ def _semantic_blocks(question, item, *, include_summary=True, config=None):
     columns = []
     for key in ordered_keys:
         if key in custom_labels:
-            col_type = "date" if key == "day" else ("number" if isinstance(rows[0].get(key), (int, float, Decimal)) else "text")
+            col_type = "date" if (key == "day" or key.endswith("_date") or key in ("valid_from", "valid_to")) else ("number" if isinstance(rows[0].get(key), (int, float, Decimal)) else "text")
             lbl = custom_labels[key]
         elif key in SEMANTIC_FIELD_META:
             lbl, col_type = SEMANTIC_FIELD_META[key]
         else:
-            col_type = "date" if key == "day" else ("number" if isinstance(rows[0].get(key), (int, float, Decimal)) else "text")
+            col_type = "date" if (key == "day" or key.endswith("_date") or key in ("valid_from", "valid_to")) else ("number" if isinstance(rows[0].get(key), (int, float, Decimal)) else "text")
             lbl = get_column_caption(key)
         columns.append({"key": key, "label": lbl, "type": col_type})
     out.append({
