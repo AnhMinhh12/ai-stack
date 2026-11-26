@@ -11,6 +11,19 @@ from .system_dictionary import get_column_caption, get_document_status_name, get
 # Use local static asset first for fast offline loading, fallback to jsdelivr CDN
 CHART_JS_TAG = '<script src="/static/chart.umd.min.js" onerror="this.onerror=null;this.src=\'https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js\'"></script>'
 
+_NUM_KEYS = frozenset((
+    "so_luong", "so_luong_dat", "tong_so_luong_dat", "so_don_hang", "sl_nhap", "sl_xuat",
+    "so_luong_ton", "gia", "gia0", "gia2", "don_gia", "tien", "tien2", "tong_gia_tri",
+    "doanh_thu", "tong_doanh_thu", "tien_thanh_toan", "so_luong_lo", "so_luong_mau",
+    "so_shot", "tong_so_shot", "so_shot_bh", "so_shot_dinh_muc", "so_shot_con_lai",
+    "thoi_gian_dung", "so_thung", "hien_tai", "ban_truoc", "sl_min", "sl_dinh_muc", "so_tem",
+))
+
+
+def _is_numeric_col(c):
+    key = str(c.get("key") or "")
+    return key != "stt" and (c.get("type") == "number" or key in _NUM_KEYS)
+
 
 def _text(value):
     return escape("—" if value is None or value == "" else str(value), quote=True)
@@ -50,11 +63,16 @@ def render_erp_embed(result, downloads=(), show_table=True):
                 if not lbl or lbl == key or lbl in ("hien_tai", "ban_truoc", "chenh_lech", "chi_tieu"):
                     return get_column_caption(key, grid_id=grid_id)
                 return lbl
-            headers = "".join(f'<th scope="col">{_text(_col_label(c))}</th>' for c in columns)
+            def _th(c):
+                key = str(c.get("key") or "")
+                cls = ' class="stt-col"' if key == "stt" else (' class="num-col"' if _is_numeric_col(c) else "")
+                return f'<th scope="col"{cls}>{_text(_col_label(c))}</th>'
+            headers = "".join(_th(c) for c in columns)
+            doc_status_table = str(block.get("title") or "").startswith(("Bảng kê đơn hàng", "Bảng kê phiếu", "Trạng thái lệnh giao"))
             def _cell(row, c):
                 key = str(c.get("key") or "")
                 val = row.get(key)
-                if key in ("status", "trang_thai") and str(val).isdigit():
+                if key in ("status", "trang_thai") and str(val).isdigit() and (row.get("ma_ct") or doc_status_table):
                     doc_type = row.get("ma_ct") or "SO1"
                     val = get_document_status_name(doc_type, val)
                 elif key == "status_qc" and str(val).strip():
@@ -69,8 +87,9 @@ def render_erp_embed(result, downloads=(), show_table=True):
                     except ValueError:
                         num_val = None
 
+                is_num = _is_numeric_col(c)
                 if num_val is not None:
-                    if key in ("so_luong", "so_luong_dat", "tong_so_luong_dat", "so_don_hang", "sl_nhap", "sl_xuat", "so_luong_ton", "gia", "gia2", "don_gia", "tien", "tien2", "tong_gia_tri", "doanh_thu", "tong_doanh_thu", "tien_thanh_toan", "so_luong_lo", "so_luong_mau", "so_shot", "so_shot_dinh_muc", "so_shot_con_lai", "thoi_gian_dung", "so_thung", "hien_tai", "ban_truoc"):
+                    if is_num:
                         if num_val.is_integer():
                             val = f"{int(num_val):,}"
                         else:
@@ -78,9 +97,9 @@ def render_erp_embed(result, downloads=(), show_table=True):
 
                 txt = _text(val)
                 cls = []
-                if key in ("ten_kh", "ten_ncc", "ten_vt", "ten_sp", "ghi_chu", "nguyen_nhan", "ten_kho", "ten_loi", "ten_may", "gia_tri_do"):
+                if key.endswith("_name") or key in ("ten_kh", "ten_ncc", "ten_vt", "ten_sp", "ten_khuon", "ten_viet_tat", "dia_chi", "dien_giai", "ghi_chu", "nguyen_nhan", "ten_kho", "ten_loi", "ten_may", "gia_tri_do", "trang_thai_qc", "statusname"):
                     cls.append("col-wrap")
-                elif key in ("so_luong", "so_luong_dat", "tong_so_luong_dat", "so_don_hang", "sl_nhap", "sl_xuat", "so_luong_ton", "gia", "gia2", "don_gia", "tien", "tien2", "tong_gia_tri", "doanh_thu", "tong_doanh_thu", "tien_thanh_toan", "so_luong_lo", "so_luong_mau", "so_shot", "so_shot_dinh_muc", "so_shot_con_lai", "thoi_gian_dung", "so_thung", "hien_tai", "ban_truoc", "chenh_lech"):
+                elif is_num or key == "chenh_lech":
                     cls.append("num-cell")
                 elif key == "stt":
                     cls.append("stt-cell")
@@ -98,7 +117,7 @@ def render_erp_embed(result, downloads=(), show_table=True):
             if block.get("has_more"):
                 total = block.get("total_rows")
                 detail = f" trên tổng {total} dòng" if isinstance(total, int) else ""
-                sections.append(f'<p class="warning">Chỉ hiển thị {len(block.get("rows") or [])} dòng{detail}; bảng và file tải xuống chưa đầy đủ.</p>')
+                sections.append(f'<p class="warning">Chỉ hiển thị {len(block.get("rows") or [])} dòng{detail}; bảng và file tải xuống chưa đầy đủ (tổng số liệu được tính trên toàn bộ kết quả).</p>')
         elif kind == "chart":
             index = len(chart_data)
             points = block.get("points") or []
@@ -520,8 +539,9 @@ th{background:var(--th-bg);font-size:12px;font-weight:600;color:var(--text-sub);
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:var(--tr-hover)}
 td.col-wrap{white-space:normal;min-width:160px;max-width:320px;word-break:normal;overflow-wrap:break-word;line-height:1.45}
-td.num-cell{text-align:right;font-variant-numeric:tabular-nums}
-td.stt-cell{text-align:center;width:48px;color:var(--text-muted)}
+th.num-col,td.num-cell{text-align:right;font-variant-numeric:tabular-nums}
+th.stt-col,td.stt-cell{text-align:center;width:48px}
+td.stt-cell{color:var(--text-muted)}
 td.status-cell{text-align:center}
 .badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.02em}
 .badge-ok{background:var(--badge-ok-bg);color:var(--badge-ok-color);border:1px solid var(--badge-ok-border)}

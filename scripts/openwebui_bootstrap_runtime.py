@@ -87,12 +87,19 @@ def main() -> int:
     capabilities = {"file_context": True, "file_upload": True, "citations": True, "status_updates": True, "builtin_tools": True, "web_search": False, "memory": False}
     for item in cfg["models"]:
         base_id = item["base_model_id"]
-        if not conn.execute("select 1 from model where id=?", (base_id,)).fetchone():
-            if base_id.startswith("models/"):
+        has_base_model = bool(conn.execute("select 1 from model where id=?", (base_id,)).fetchone())
+        has_base_pipe = bool(conn.execute("select 1 from function where id=? and type='pipe' and is_active=1", (base_id,)).fetchone())
+        if not has_base_model:
+            if base_id.startswith("models/") or has_base_pipe:
                 conn.execute(
                     "insert into model (id,user_id,base_model_id,name,params,meta,updated_at,created_at,is_active) values (?,?,NULL,?,?,?,?,?,1)",
                     (base_id, owner_id, base_id, json.dumps({}), json.dumps({}), now, now)
                 )
+                if has_base_pipe:
+                    conn.execute(
+                        "insert or ignore into access_grant (id,resource_type,resource_id,principal_type,principal_id,permission,created_at) values (lower(hex(randomblob(16))),'model',?,'user','*','read',?)",
+                        (base_id, now),
+                    )
             else:
                 fail(f"base model missing: {base_id}")
         row = conn.execute("select meta from model where id=?", (item["id"],)).fetchone()

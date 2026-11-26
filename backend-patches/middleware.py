@@ -149,7 +149,6 @@ log = logging.getLogger(__name__)
 MODEL_TOOL_BINDINGS = {
     'gpt-5.6-sol': [],
     'gpt-5.6-luna': [],
-    'htmp-nhanh': ['htmp_postgres_query'],
     'htmp-erp-agent-staging': [],
 }
 
@@ -4762,13 +4761,8 @@ async def streaming_chat_response_handler(response, ctx):
                             last_delta_type = delta_type
                             last_delta_key = delta_key
 
-                        # Keep ERP answer text together; tool calls and all other models
-                        # retain the normal streaming behavior.
-                        batch_erp_text = (
-                            (model.get('id') if isinstance(model, dict) else model) == 'htmp-nhanh'
-                            and delta_type == 'response.output_text.delta'
-                        )
-                        if not batch_erp_text and delta_count >= delta_chunk_size:
+                        # Preserve streaming behavior cleanly across non-ERP models.
+                        if delta_count >= delta_chunk_size:
                             await flush_pending_delta_data(delta_chunk_size)
 
                     async def emit_response_completion_event(response_data: dict, stream_output: list | None = None):
@@ -5541,7 +5535,7 @@ async def streaming_chat_response_handler(response, ctx):
                     'max_tool_call_iterations',
                     CHAT_RESPONSE_MAX_TOOL_CALL_ITERATIONS,
                 )
-                if model_id == 'htmp-nhanh':
+                if model_id == 'htmp-erp-agent-staging':
                     max_tool_call_iterations = 1
                 tool_call_sources = []  # Track citation sources from tool results
                 all_tool_call_sources = []  # Accumulated sources across all iterations
@@ -5928,11 +5922,8 @@ async def streaming_chat_response_handler(response, ctx):
                             'metadata': metadata,
                         }
 
-                        # Prevent tool-call loops by disallowing further forced function calls
-                        if model_id == 'htmp-nhanh' or any(
-                            (tc.get('function', {}).get('name') == 'ask_erp' or tc.get('name') == 'ask_erp')
-                            for tc in response_tool_calls
-                        ):
+                        # Prevent tool-call loops on the staging ERP profile.
+                        if model_id == 'htmp-erp-agent-staging':
                             new_form_data['tool_choice'] = 'none'
                         elif isinstance(form_data.get('tool_choice'), dict):
                             new_form_data['tool_choice'] = 'auto'

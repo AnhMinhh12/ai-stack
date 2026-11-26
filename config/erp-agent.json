@@ -1,13 +1,13 @@
 {
   "version": 1,
   "limits": {
-    "rounds": 6,
-    "tools": 10,
-    "db_queries": 4,
+    "rounds": 8,
+    "tools": 12,
+    "db_queries": 6,
     "seconds": 120,
     "rows": 50,
-    "result_chars": 12000,
-    "context_chars": 48000
+    "result_chars": 32000,
+    "context_chars": 64000
   },
   "reports": [
     {
@@ -43,7 +43,102 @@
         "date_from",
         "date_to",
         "row_limit"
-      ]
+      ],
+      "tool_name": "query_allowed_records",
+      "tool_description": "Đọc chi tiết và tổng hợp dòng phiếu xuất kho bán hàng (ph81/ct81). BẮT BUỘC có mã vật tư (material) và khoảng ngày ISO (tối đa 31 ngày). Chỉ dùng cho xuất kho bán hàng; KHÔNG dùng cho tồn kho, BOM, bảng giá/MOQ, QC, đơn hàng hay master khách hàng. Sử dụng trường summary trong kết quả để lấy tổng số lượng và số dòng toàn kỳ.",
+      "cues": [
+        "xuat ban",
+        "xuat kho ban",
+        "hda",
+        "lot"
+      ],
+      "param_schema": {
+        "report_id": {
+          "type": "string",
+          "required": true
+        },
+        "material": {
+          "type": "identifier",
+          "required": true
+        },
+        "date_from": {
+          "type": "date",
+          "required": true
+        },
+        "date_to": {
+          "type": "date",
+          "required": true
+        }
+      },
+      "max_date_span_days": 62,
+      "max_returned_rows": 20,
+      "status_message": "Đang tra cứu dữ liệu xuất bán...",
+      "presentation": {
+        "mode": "table",
+        "title": "Bảng kê phiếu xuất kho bán hàng",
+        "scope_template": "mã {material}, {date_from} đến {date_to}",
+        "empty_text": "Không có phiếu xuất kho bán hàng cho {scope}.",
+        "summary_noun": "dòng xuất bán",
+        "fallback_summary_verb": "đã trích xuất",
+        "summary_revenue": true,
+        "filter_keys": [
+          "material",
+          "date_from",
+          "date_to"
+        ],
+        "sort": [
+          {
+            "key": "ngay_ct",
+            "direction": "desc"
+          },
+          {
+            "key": "so_ct",
+            "direction": "desc"
+          }
+        ],
+        "columns": [
+          {
+            "key": "ngay_ct",
+            "label": "Ngày xuất",
+            "type": "date"
+          },
+          {
+            "key": "so_ct",
+            "label": "Số chứng từ",
+            "type": "text"
+          },
+          {
+            "key": "ma_kh",
+            "label": "Mã khách hàng",
+            "type": "text"
+          },
+          {
+            "key": "ma_vt",
+            "label": "Mã vật tư",
+            "type": "text"
+          },
+          {
+            "key": "ma_kho",
+            "label": "Kho xuất",
+            "type": "text"
+          },
+          {
+            "key": "dvt",
+            "label": "ĐVT",
+            "type": "text"
+          },
+          {
+            "key": "so_luong",
+            "label": "Số lượng",
+            "type": "number"
+          },
+          {
+            "key": "tien2",
+            "label": "Thành tiền (VND)",
+            "type": "number"
+          }
+        ]
+      }
     },
     {
       "id": "price_list",
@@ -77,7 +172,28 @@
         "material",
         "date_as_of",
         "row_limit"
-      ]
+      ],
+      "tool_name": "query_price_list",
+      "tool_description": "Tra cứu bảng giá, giá bán hiện tại và MOQ (số lượng đặt tối thiểu sl_min) theo mã vật tư (material) và ngày tham chiếu (date_as_of định dạng YYYY-MM-DD).",
+      "cues": [
+        "bang gia",
+        "moq",
+        "sl_min",
+        "gia ban",
+        "gia chuan",
+        "chua link gia"
+      ],
+      "param_schema": {
+        "material": {
+          "type": "identifier",
+          "required": true
+        },
+        "date_as_of": {
+          "type": "date",
+          "required": true
+        }
+      },
+      "status_message": "Đang tra cứu bảng giá & MOQ..."
     },
     {
       "id": "product_structure",
@@ -108,7 +224,27 @@
         "material",
         "date_as_of",
         "row_limit"
-      ]
+      ],
+      "tool_name": "query_bom_structure",
+      "tool_description": "Tra cứu cấu trúc sản phẩm BOM, định mức nguyên vật liệu và loại nhựa theo mã sản phẩm mẹ (material) và ngày tham chiếu (date_as_of định dạng YYYY-MM-DD).",
+      "cues": [
+        "bom",
+        "dinh muc",
+        "loai nhua",
+        "hat nhua",
+        "cau truc"
+      ],
+      "param_schema": {
+        "material": {
+          "type": "identifier",
+          "required": true
+        },
+        "date_as_of": {
+          "type": "date",
+          "required": true
+        }
+      },
+      "status_message": "Đang tra cứu định mức BOM & nhựa..."
     },
     {
       "id": "customer_master",
@@ -123,6 +259,10 @@
         "ten_viet_tat",
         "dien_thoai",
         "dia_chi",
+        "ma_bp",
+        "nv_yn",
+        "kh_yn",
+        "cc_yn",
         "status"
       ],
       "validation": "pending_ui_validation",
@@ -134,18 +274,93 @@
         "query_text",
         "query_text",
         "row_limit"
-      ]
+      ],
+      "tool_name": "query_customer_info",
+      "tool_description": "Tra cứu danh mục khách hàng/đối tác theo mã hoặc tên (query_text).",
+      "core_tool": true,
+      "param_schema": {
+        "query_text": {
+          "type": "text",
+          "max_len": 128,
+          "required": true
+        }
+      },
+      "status_message": "Đang tra cứu danh mục khách hàng..."
+    },
+    {
+      "id": "employee_master",
+      "title": "Danh mục nhân viên và tài khoản ERP",
+      "tables": [
+        "public.dmkh",
+        "public.userinfo"
+      ],
+      "join": "union dmkh(nv_yn=1) + userinfo",
+      "fields": [
+        "loai_ho_so",
+        "ma_nv",
+        "ten_nv",
+        "ma_bp",
+        "chuc_vu",
+        "trang_thai"
+      ],
+      "validation": "curated_staging",
+      "manifest": "config/erp-reports/danh-muc-khach-hang.json",
+      "query_file": "sql/erp-reports/agent-employee-master.sql",
+      "parameters": [
+        "user_id",
+        "query_text",
+        "query_text",
+        "row_limit"
+      ],
+      "tool_name": "query_employee_info",
+      "tool_description": "Chỉ dùng tra cứu mã nhân viên công ty (dmkh nv_yn=1) hoặc username đăng nhập ERP (userinfo) theo tên có/không dấu, mã NV hoặc username (query_text) — KHÔNG dùng cho tài khoản kế toán (131, 331...) hay khách hàng (KH...).",
+      "core_tool": true,
+      "param_schema": {
+        "query_text": {
+          "type": "text",
+          "max_len": 500,
+          "required": true
+        }
+      },
+      "next_step_note": "Đây mới là danh mục nhân viên/tài khoản ERP. Nếu câu hỏi gắn với chứng từ nghiệp vụ (như phiếu đề nghị mua, đơn đặt mua...), hãy gọi tiếp query_semantic_plan với tập dữ liệu phù hợp trước khi kết luận.",
+      "status_message": "Đang tra cứu danh mục nhân viên & tài khoản ERP...",
+      "person_lookup": true
     },
     {
       "id": "material_customer",
       "title": "Khách hàng khai báo trên mã vật tư",
-      "tables": ["public.dmvt", "public.dmkh", "public.userinfo"],
+      "tables": [
+        "public.dmvt",
+        "public.dmkh",
+        "public.userinfo"
+      ],
       "join": "dmvt.ma_kh = dmkh.ma_kh",
-      "fields": ["ma_vt", "ma_kh", "ten_kh"],
+      "fields": [
+        "ma_vt",
+        "ma_kh",
+        "ten_kh"
+      ],
       "validation": "pending_ui_validation",
       "manifest": "config/erp-reports/danh-muc-san-pham-vat-tu.json",
       "query_file": "sql/erp-reports/agent-material-customer.sql",
-      "parameters": ["user_id", "material", "row_limit"]
+      "parameters": [
+        "user_id",
+        "material",
+        "row_limit"
+      ],
+      "tool_name": "query_material_customer",
+      "tool_description": "Tra khách hàng ĐƯỢC KHAI BÁO trên mã hàng/vật tư (material) từ dmvt.ma_kh. Dùng khi hỏi mã hàng thuộc khách nào; không dùng query_customer_info.",
+      "cues": [
+        "khach hang",
+        "thuoc khach"
+      ],
+      "param_schema": {
+        "material": {
+          "type": "identifier",
+          "required": true
+        }
+      },
+      "status_message": "Đang tra khách hàng khai báo trên mã vật tư..."
     },
     {
       "id": "inventory_balance",
@@ -173,18 +388,119 @@
         "date_as_of",
         "date_as_of",
         "row_limit"
-      ]
+      ],
+      "tool_name": "query_inventory_balance",
+      "tool_description": "Tra cứu số lượng tồn kho sổ sách của mã vật tư (material) tính đến ngày tham chiếu (date_as_of định dạng YYYY-MM-DD).",
+      "cues": [
+        "ton kho",
+        "ton ",
+        "trong kho",
+        "con bao nhieu",
+        "kho nao",
+        "tung kho"
+      ],
+      "param_schema": {
+        "material": {
+          "type": "identifier",
+          "required": true
+        },
+        "date_as_of": {
+          "type": "date",
+          "required": true
+        }
+      },
+      "validator": "inventory_balance",
+      "summary_zero_on_empty": false,
+      "status_message": "Đang tra cứu tồn kho sổ sách...",
+      "direct_render": true,
+      "presentation": {
+        "mode": "scalar_inventory"
+      }
     },
     {
       "id": "inventory_by_warehouse",
       "title": "Tồn kho sổ sách theo từng kho",
-      "tables": ["public.cdvt", "public.ct70", "public.dmkho", "public.dmvt"],
+      "tables": [
+        "public.cdvt",
+        "public.ct70",
+        "public.dmkho",
+        "public.dmvt"
+      ],
       "join": "cdvt union all ct70, grouped by ma_kho",
-      "fields": ["ma_kho", "ten_kho", "dvt", "so_luong_ton"],
+      "fields": [
+        "ma_kho",
+        "ten_kho",
+        "dvt",
+        "so_luong_ton"
+      ],
       "validation": "pending_ui_validation",
       "manifest": "config/erp-reports/bao-cao-ton-theo-kho.json",
       "query_file": "sql/erp-reports/agent-inventory-by-warehouse.sql",
-      "parameters": ["user_id", "date_as_of", "material", "material", "date_as_of", "date_as_of", "material", "row_limit"]
+      "parameters": [
+        "user_id",
+        "date_as_of",
+        "material",
+        "material",
+        "date_as_of",
+        "date_as_of",
+        "material",
+        "row_limit"
+      ],
+      "tool_name": "query_inventory_by_warehouse",
+      "tool_description": "Tra tồn kho sổ sách của mã vật tư (material) THEO TỪNG KHO tại ngày tham chiếu (date_as_of). Dùng khi người dùng hỏi 'ở từng kho', 'theo kho', hoặc 'kho nào bao nhiêu'.",
+      "cues": [
+        "ton kho",
+        "ton ",
+        "trong kho",
+        "con bao nhieu",
+        "kho nao",
+        "tung kho"
+      ],
+      "param_schema": {
+        "material": {
+          "type": "identifier",
+          "required": true
+        },
+        "date_as_of": {
+          "type": "date",
+          "required": true
+        }
+      },
+      "status_message": "Đang tra cứu tồn kho theo từng kho...",
+      "direct_render": true,
+      "presentation": {
+        "mode": "table",
+        "title": "Báo cáo tồn kho theo từng kho",
+        "scope_template": "mã {material} tính đến {date_as_of}",
+        "empty_text": "Không tìm thấy số dư tồn kho theo kho cho {scope}.",
+        "summary_mode": "warehouse_balance",
+        "filter_keys": [
+          "material",
+          "date_as_of"
+        ],
+        "columns": [
+          {
+            "key": "ma_kho",
+            "label": "Mã kho",
+            "type": "text"
+          },
+          {
+            "key": "ten_kho",
+            "label": "Tên kho",
+            "type": "text"
+          },
+          {
+            "key": "dvt",
+            "label": "ĐVT",
+            "type": "text"
+          },
+          {
+            "key": "so_luong_ton",
+            "label": "Số lượng tồn",
+            "type": "number"
+          }
+        ]
+      }
     },
     {
       "id": "receipt_lines",
@@ -216,7 +532,101 @@
         "date_to",
         "user_id",
         "row_limit"
-      ]
+      ],
+      "tool_name": "query_receipt_lines",
+      "tool_description": "Tra cứu dòng phiếu nhập kho và điều chuyển theo mã vật tư (material) và khoảng ngày (date_from, date_to). Trả về ngày nhập, số lượng nhập, người nhập và kho xuất.",
+      "cues": [
+        "nhap kho",
+        "phieu nhap",
+        "dieu chuyen"
+      ],
+      "param_schema": {
+        "material": {
+          "type": "identifier",
+          "required": true
+        },
+        "date_from": {
+          "type": "date",
+          "required": true
+        },
+        "date_to": {
+          "type": "date",
+          "required": true
+        }
+      },
+      "max_date_span_days": 62,
+      "status_message": "Đang tra cứu dữ liệu nhập kho...",
+      "direct_render": true,
+      "presentation": {
+        "mode": "table",
+        "title": "Lịch sử nhập kho",
+        "scope_template": "mã {material}, {date_from} đến {date_to}",
+        "empty_text": "Không có giao dịch nhập kho cho {scope}.",
+        "empty_unknown_text": "Chưa có dòng dữ liệu cho {scope}.",
+        "summary_noun": "dòng nhập kho",
+        "fallback_summary_verb": "đã nhận",
+        "filter_keys": [
+          "material",
+          "date_from",
+          "date_to"
+        ],
+        "sort": [
+          {
+            "key": "ngay_ct",
+            "direction": "desc"
+          },
+          {
+            "key": "so_ct",
+            "direction": "desc"
+          }
+        ],
+        "columns": [
+          {
+            "key": "ngay_ct",
+            "label": "Ngày nhập",
+            "type": "date"
+          },
+          {
+            "key": "so_ct",
+            "label": "Số chứng từ",
+            "type": "text"
+          },
+          {
+            "key": "ma_kho",
+            "label": "Kho nhận",
+            "type": "text"
+          },
+          {
+            "key": "kho_xuat",
+            "label": "Kho xuất chuyển",
+            "type": "text"
+          },
+          {
+            "key": "sl_nhap",
+            "label": "Số lượng",
+            "type": "number"
+          },
+          {
+            "key": "dvt",
+            "label": "Đơn vị",
+            "type": "text"
+          },
+          {
+            "key": "nguoi_nhap",
+            "label": "Người nhập",
+            "type": "text"
+          }
+        ],
+        "chart": {
+          "value_field": "sl_nhap",
+          "unit_field": "dvt",
+          "date_field": "ngay_ct",
+          "group_field": "ma_kho",
+          "date_label": "Ngày nhập",
+          "group_label": "Kho nhận",
+          "series_label": "Số lượng nhập"
+        }
+      }
     },
     {
       "id": "forecast_po",
@@ -246,7 +656,21 @@
         "material",
         "user_id",
         "row_limit"
-      ]
+      ],
+      "tool_name": "query_forecast_po",
+      "tool_description": "Tra cứu dữ liệu kế hoạch sản xuất PO và dự báo FCST theo mã vật tư (material) từ bảng mfkhsx_po_fc.",
+      "retired_when_semantic": true,
+      "param_schema": {
+        "material": {
+          "type": "identifier",
+          "required": true
+        },
+        "date_as_of": {
+          "type": "date",
+          "required": false
+        }
+      },
+      "status_message": "Đang tra cứu kế hoạch PO / FCST..."
     },
     {
       "id": "packaging_spec",
@@ -274,7 +698,27 @@
         "material",
         "user_id",
         "row_limit"
-      ]
+      ],
+      "tool_name": "query_packaging_spec",
+      "tool_description": "Tra cứu quy cách đóng gói chi tiết của mã vật tư (material) từ danh mục dmvt (packs0, ma_thung, ma_khay, số lượng vật tư/khay, pallet).",
+      "cues": [
+        "dong goi",
+        "thung",
+        "khay",
+        "pallet",
+        "packs0"
+      ],
+      "param_schema": {
+        "material": {
+          "type": "identifier",
+          "required": true
+        },
+        "date_as_of": {
+          "type": "date",
+          "required": false
+        }
+      },
+      "status_message": "Đang tra cứu quy cách đóng gói..."
     },
     {
       "id": "mold_profile",
@@ -299,7 +743,26 @@
         "material",
         "user_id",
         "row_limit"
-      ]
+      ],
+      "tool_name": "query_mold_profile",
+      "tool_description": "Tra cứu hồ sơ khuôn, tổng số shot dập lũy kế (tong_so_shot) và số shot bảo hành định mức (so_shot_bh) theo mã khuôn (mold) và mã sản phẩm (material).",
+      "retired_when_semantic": true,
+      "param_schema": {
+        "mold": {
+          "type": "identifier",
+          "required": true
+        },
+        "material": {
+          "type": "identifier",
+          "required": true
+        },
+        "date_as_of": {
+          "type": "date",
+          "required": false
+        }
+      },
+      "missing_args_hint": "query_mold_profile yêu cầu đủ cả mold và material; nếu thiếu material hoặc cần cavity/chu kỳ, hãy gọi query_semantic_plan với dataset='mold_cavity_specs'.",
+      "status_message": "Đang tra cứu thông tin & tuổi thọ khuôn..."
     },
     {
       "id": "mold_label_stock",
@@ -321,7 +784,27 @@
         "material",
         "user_id",
         "row_limit"
-      ]
+      ],
+      "tool_name": "query_mold_label_stock",
+      "tool_description": "Tra cứu tồn kho theo khuôn và die_no (V1, V2...) từ tem hoạt động intem_log theo mã vật tư (material).",
+      "cues": [
+        "die_no",
+        "die no",
+        "tem khuon",
+        "ton khuon",
+        "ton kho theo khuon"
+      ],
+      "param_schema": {
+        "material": {
+          "type": "identifier",
+          "required": true
+        },
+        "date_as_of": {
+          "type": "date",
+          "required": false
+        }
+      },
+      "status_message": "Đang tra cứu tồn kho tem theo khuôn..."
     },
     {
       "id": "sales_orders",
@@ -353,18 +836,158 @@
         "date_to",
         "user_id",
         "row_limit"
-      ]
+      ],
+      "tool_name": "query_sales_orders",
+      "tool_description": "Tra cứu đơn hàng bán (SO) trong kỳ theo mã khách hàng (customer: ví dụ KH0015) và khoảng ngày (date_from, date_to). Dùng để lấy data đơn hàng hoặc kiểm tra mã chưa link giá chuẩn (gia_chuan = 0).",
+      "cues": [
+        "khach hang",
+        "thuoc khach",
+        "don hang ban",
+        "don ban",
+        "so1"
+      ],
+      "param_schema": {
+        "customer": {
+          "type": "identifier",
+          "required": true
+        },
+        "date_from": {
+          "type": "date",
+          "required": true
+        },
+        "date_to": {
+          "type": "date",
+          "required": true
+        }
+      },
+      "max_date_span_days": 62,
+      "max_returned_rows": 20,
+      "status_message": "Đang tra cứu đơn hàng bán quá khứ...",
+      "direct_render": true,
+      "presentation": {
+        "mode": "table",
+        "title": "Bảng kê đơn hàng bán (SO1)",
+        "scope_template": "khách hàng {customer}, từ {date_from} đến {date_to}",
+        "empty_text": "Không có đơn hàng bán nào của {scope}.",
+        "summary_noun": "dòng đơn hàng",
+        "filter_keys": [
+          "customer",
+          "date_from",
+          "date_to"
+        ],
+        "sort": [
+          {
+            "key": "ngay_ct",
+            "direction": "desc"
+          },
+          {
+            "key": "so_ct",
+            "direction": "desc"
+          }
+        ],
+        "columns": [
+          {
+            "key": "ngay_ct",
+            "label": "Ngày đơn hàng",
+            "type": "date"
+          },
+          {
+            "key": "so_ct",
+            "label": "Số đơn hàng",
+            "type": "text"
+          },
+          {
+            "key": "ma_kh",
+            "label": "Mã khách",
+            "type": "text"
+          },
+          {
+            "key": "ma_vt",
+            "label": "Mã vật tư",
+            "type": "text"
+          },
+          {
+            "key": "dvt",
+            "label": "ĐVT",
+            "type": "text"
+          },
+          {
+            "key": "so_luong",
+            "label": "Số lượng",
+            "type": "number"
+          },
+          {
+            "key": "gia2",
+            "label": "Đơn giá",
+            "type": "number"
+          },
+          {
+            "key": "gia_chuan",
+            "label": "Giá chuẩn",
+            "type": "number"
+          },
+          {
+            "key": "status",
+            "label": "Trạng thái",
+            "type": "text"
+          }
+        ]
+      }
     },
     {
       "id": "sales_order_price_gaps",
       "title": "Ứng viên đơn hàng thiếu giá chuẩn",
-      "tables": ["public.ph64", "public.ct64", "public.userinfo"],
+      "tables": [
+        "public.ph64",
+        "public.ct64",
+        "public.userinfo"
+      ],
       "join": "ph64 join ct64 using(stt_rec)",
-      "fields": ["ma_vt", "order_lines", "null_price_lines", "zero_price_lines"],
+      "fields": [
+        "ma_vt",
+        "order_lines",
+        "null_price_lines",
+        "zero_price_lines"
+      ],
       "validation": "pending_ui_validation",
       "manifest": "config/erp-reports/don-hang-hop-dong.json",
       "query_file": "sql/erp-reports/agent-sales-order-price-gaps.sql",
-      "parameters": ["user_id", "customer", "date_from", "date_to", "row_limit"]
+      "parameters": [
+        "user_id",
+        "customer",
+        "date_from",
+        "date_to",
+        "row_limit"
+      ],
+      "tool_name": "query_sales_order_price_gaps",
+      "tool_description": "Liệt kê TOÀN BỘ mã hàng là ứng viên thiếu liên kết giá chuẩn trong đơn hàng bán của khách (customer) và khoảng ngày; gia_chuan NULL/0 cần xác minh nghiệp vụ.",
+      "cues": [
+        "bang gia",
+        "moq",
+        "sl_min",
+        "gia ban",
+        "gia chuan",
+        "chua link gia",
+        "don hang ban",
+        "don ban",
+        "so1"
+      ],
+      "param_schema": {
+        "customer": {
+          "type": "identifier",
+          "required": true
+        },
+        "date_from": {
+          "type": "date",
+          "required": true
+        },
+        "date_to": {
+          "type": "date",
+          "required": true
+        }
+      },
+      "max_date_span_days": 62,
+      "status_message": "Đang kiểm tra đơn hàng thiếu liên kết giá chuẩn..."
     },
     {
       "id": "delivery_order",
@@ -389,7 +1012,21 @@
         "delivery_code",
         "user_id",
         "row_limit"
-      ]
+      ],
+      "tool_name": "query_delivery_order",
+      "tool_description": "Tra cứu trạng thái lệnh giao hàng (delivery_code: số chứng từ TO2, ví dụ 001-2610-001811) và thời điểm tạo lập.",
+      "cues": [
+        "lenh giao",
+        "to2",
+        "giao hang"
+      ],
+      "param_schema": {
+        "delivery_code": {
+          "type": "identifier",
+          "required": true
+        }
+      },
+      "status_message": "Đang tra cứu lệnh giao hàng..."
     },
     {
       "id": "qc_label_status",
@@ -412,7 +1049,26 @@
         "material",
         "user_id",
         "row_limit"
-      ]
+      ],
+      "tool_name": "query_qc_status",
+      "tool_description": "Tra cứu tồn kho thành phẩm theo trạng thái kiểm tra chất lượng tem QC (status_qc) theo mã vật tư (material).",
+      "cues": [
+        "qc",
+        "tem",
+        "oqc",
+        "khoa lo"
+      ],
+      "param_schema": {
+        "material": {
+          "type": "identifier",
+          "required": true
+        },
+        "date_as_of": {
+          "type": "date",
+          "required": false
+        }
+      },
+      "status_message": "Đang kiểm tra trạng thái chất lượng QC..."
     },
     {
       "id": "replacement_orders",
@@ -439,7 +1095,30 @@
         "date_to",
         "user_id",
         "row_limit"
-      ]
+      ],
+      "tool_name": "query_replacement_orders",
+      "tool_description": "Tra cứu lệnh giao hàng giao bù NG (mã giao dịch 10) theo mã vật tư (material) và khoảng ngày (date_from, date_to).",
+      "cues": [
+        "giao bu",
+        "doi tra",
+        "gd 10"
+      ],
+      "param_schema": {
+        "material": {
+          "type": "identifier",
+          "required": true
+        },
+        "date_from": {
+          "type": "date",
+          "required": true
+        },
+        "date_to": {
+          "type": "date",
+          "required": true
+        }
+      },
+      "max_date_span_days": 62,
+      "status_message": "Đang đối soát giao bù hàng lỗi NG..."
     }
   ],
   "knowledge": [
@@ -583,5 +1262,1674 @@
       "status": "current",
       "provenance": "curated_from_repository; pending_ui_validation"
     }
+  ],
+  "semantic_contracts": {
+    "sales_delivery_lines": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v1",
+      "title": "Tổng hợp xuất kho bán hàng (HDA: ph81/ct81)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT h.ma_kh AS customer, coalesce(k.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, d.so_luong AS quantity, d.tien2 AS revenue_vnd, d.tien_nt2 AS revenue_orig, h.stt_rec AS doc_id FROM public.ph81 h JOIN public.ct81 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt JOIN public.userinfo u ON u.user_id = %s WHERE h.ma_gd <> 4 AND h.status::text IN ('1', '2') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
+      "dimensions": {
+        "customer": "customer",
+        "customer_name": "customer_name",
+        "material": "material",
+        "material_name": "material_name",
+        "warehouse": "warehouse",
+        "currency": "currency",
+        "day": "day",
+        "unit": "unit"
+      },
+      "metrics": {
+        "quantity": {
+          "aggregate": "sum",
+          "column": "quantity",
+          "unit_dimension": "unit"
+        },
+        "revenue_vnd": {
+          "aggregate": "sum",
+          "column": "revenue_vnd"
+        },
+        "revenue_orig": {
+          "aggregate": "sum",
+          "column": "revenue_orig",
+          "unit_dimension": "currency"
+        },
+        "delivery_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "customer": {
+          "column": "customer",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "material": {
+          "column": "material",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "warehouse": {
+          "column": "warehouse",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "doanh thu",
+        "xuat ban",
+        "xuat kho ban",
+        "hda"
+      ],
+      "secondary_cues": [
+        "don hang ban",
+        "don ban",
+        "so1"
+      ]
+    },
+    "sales_order_lines": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v1",
+      "title": "Tổng hợp đơn đặt hàng bán (SO1: ph64/ct64)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT h.ma_kh AS customer, coalesce(k.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, d.so_luong AS quantity, d.tien2 AS amount_vnd, d.tien_nt2 AS amount_orig, h.stt_rec AS doc_id FROM public.ph64 h JOIN public.ct64 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('0', '14', '15') AND (coalesce(u.is_super, 0) = 1 OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "dimensions": {
+        "customer": "customer",
+        "customer_name": "customer_name",
+        "material": "material",
+        "material_name": "material_name",
+        "warehouse": "warehouse",
+        "currency": "currency",
+        "day": "day",
+        "unit": "unit"
+      },
+      "metrics": {
+        "quantity": {
+          "aggregate": "sum",
+          "column": "quantity",
+          "unit_dimension": "unit"
+        },
+        "amount_vnd": {
+          "aggregate": "sum",
+          "column": "amount_vnd"
+        },
+        "amount_orig": {
+          "aggregate": "sum",
+          "column": "amount_orig",
+          "unit_dimension": "currency"
+        },
+        "order_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "customer": {
+          "column": "customer",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "material": {
+          "column": "material",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "warehouse": {
+          "column": "warehouse",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "don hang ban",
+        "don ban",
+        "so1"
+      ],
+      "secondary_cues": [
+        "doanh thu",
+        "xuat ban",
+        "xuat kho ban",
+        "hda"
+      ]
+    },
+    "purchase_order_lines": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v3",
+      "title": "Tổng hợp đơn đặt hàng mua (PO1: ph94/ct94)",
+      "notes": "day (ngay_ct) là Ngày lập đơn PO; required_date (ct94.ngay_yc) là Ngày nhận hàng yêu cầu. Mã nhân viên (dmkh) lọc theo 'requester' hoặc 'in_charge'; username đăng nhập ERP lọc theo 'creator_user'.",
+      "date_field": "day",
+      "bounded_date_fields": [
+        "day",
+        "required_date"
+      ],
+      "alternate_date_field": "required_date",
+      "default_metrics": [
+        "quantity",
+        "po_count"
+      ],
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT h.so_ct AS po_no, h.ma_kh AS supplier, coalesce(k.ten_kh, '') AS supplier_name, coalesce(h.ma_bp, '') AS department, coalesce(h.ma_nvbh, '') AS requester, coalesce(req.ten_kh, '') AS requester_name, coalesce(h.nguoi_phu_trach, '') AS in_charge, coalesce(pic.ten_kh, '') AS in_charge_name, coalesce(cr.user_name, '') AS creator_user, coalesce(cr.ten, '') AS creator_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, d.ngay_yc AS required_date, coalesce(d.dvt, v.dvt, '') AS unit, d.so_luong AS quantity, d.tien AS amount_vnd, d.tien_nt AS amount_orig, d.gia AS unit_price_vnd, h.stt_rec AS doc_id FROM public.ph94 h JOIN public.ct94 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmkh req ON req.ma_kh = h.ma_nvbh LEFT JOIN public.dmkh pic ON pic.ma_kh = h.nguoi_phu_trach LEFT JOIN public.userinfo cr ON cr.user_id = h.user_id0 LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('0', '14', '15') AND (coalesce(u.is_super, 0) = 1 OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "dimensions": {
+        "po_no": "po_no",
+        "supplier": "supplier",
+        "supplier_name": "supplier_name",
+        "department": "department",
+        "requester": "requester",
+        "requester_name": "requester_name",
+        "in_charge": "in_charge",
+        "in_charge_name": "in_charge_name",
+        "creator_user": "creator_user",
+        "creator_name": "creator_name",
+        "material": "material",
+        "material_name": "material_name",
+        "warehouse": "warehouse",
+        "currency": "currency",
+        "day": "day",
+        "required_date": "required_date",
+        "unit": "unit"
+      },
+      "metrics": {
+        "quantity": {
+          "aggregate": "sum",
+          "column": "quantity",
+          "unit_dimension": "unit"
+        },
+        "amount_vnd": {
+          "aggregate": "sum",
+          "column": "amount_vnd"
+        },
+        "amount_orig": {
+          "aggregate": "sum",
+          "column": "amount_orig",
+          "unit_dimension": "currency"
+        },
+        "avg_price_vnd": {
+          "aggregate": "avg",
+          "column": "unit_price_vnd"
+        },
+        "po_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "required_date": {
+          "column": "required_date",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "po_no": {
+          "column": "po_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "supplier": {
+          "column": "supplier",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "supplier_name": {
+          "column": "supplier_name",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "department": {
+          "column": "department",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "requester": {
+          "column": "requester",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "requester_name": {
+          "column": "requester_name",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "in_charge": {
+          "column": "in_charge",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "in_charge_name": {
+          "column": "in_charge_name",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "creator_user": {
+          "column": "creator_user",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "creator_name": {
+          "column": "creator_name",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "material": {
+          "column": "material",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "warehouse": {
+          "column": "warehouse",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "dat mua",
+        "don mua",
+        "po1",
+        "nha cung cap",
+        "ncc",
+        "ph94"
+      ],
+      "secondary_cues": [
+        "de nghi mua",
+        "yeu cau mua",
+        "phieu mua",
+        "viet phieu mua",
+        "pr0",
+        "ph91"
+      ],
+      "alternate_date_label": "ngày nhận hàng yêu cầu",
+      "alternate_filter_fields": {
+        "creator_user": "requester",
+        "requester": "creator_user"
+      }
+    },
+    "purchase_requests": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v2",
+      "title": "Tổng hợp phiếu yêu cầu / đề nghị mua hàng (PR0: ph91/ct91)",
+      "notes": "day (ngay_ct) là Ngày lập phiếu; required_date (ct91.ngay_yc) là Ngày nhận hàng yêu cầu. Mã nhân viên (dmkh) lọc theo trường 'requester'; username đăng nhập ERP lọc theo 'creator_user'.",
+      "date_field": "day",
+      "bounded_date_fields": [
+        "day",
+        "required_date"
+      ],
+      "alternate_date_field": "required_date",
+      "default_metrics": [
+        "quantity",
+        "pr_count"
+      ],
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT h.so_ct AS pr_no, h.ngay_ct AS day, d.ngay_yc AS required_date, coalesce(h.ma_bp, d.ma_bp, '') AS department, coalesce(h.ma_nv, '') AS requester, coalesce(req.ten_kh, '') AS requester_name, coalesce(cr.user_name, '') AS creator_user, coalesce(cr.ten, '') AS creator_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(d.dvt, v.dvt, '') AS unit, d.ma_kho AS warehouse, trim(coalesce(h.status::text, '')) AS status, d.so_luong AS quantity, h.stt_rec AS doc_id FROM public.ph91 h JOIN public.ct91 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh req ON req.ma_kh = h.ma_nv LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.userinfo cr ON cr.user_id = h.user_id0 JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('0', '14', '15') AND (coalesce(u.is_super, 0) = 1 OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "dimensions": {
+        "pr_no": "pr_no",
+        "day": "day",
+        "required_date": "required_date",
+        "department": "department",
+        "requester": "requester",
+        "requester_name": "requester_name",
+        "creator_user": "creator_user",
+        "creator_name": "creator_name",
+        "material": "material",
+        "material_name": "material_name",
+        "warehouse": "warehouse",
+        "unit": "unit",
+        "status": "status"
+      },
+      "metrics": {
+        "quantity": {
+          "aggregate": "sum",
+          "column": "quantity",
+          "unit_dimension": "unit"
+        },
+        "pr_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "required_date": {
+          "column": "required_date",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "pr_no": {
+          "column": "pr_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "department": {
+          "column": "department",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "requester": {
+          "column": "requester",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "requester_name": {
+          "column": "requester_name",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "creator_user": {
+          "column": "creator_user",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "creator_name": {
+          "column": "creator_name",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "material": {
+          "column": "material",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "warehouse": {
+          "column": "warehouse",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "status": {
+          "column": "status",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "de nghi mua",
+        "yeu cau mua",
+        "phieu mua",
+        "viet phieu mua",
+        "pr0",
+        "ph91"
+      ],
+      "secondary_cues": [
+        "dat mua",
+        "don mua",
+        "po1",
+        "nha cung cap",
+        "ncc",
+        "ph94"
+      ],
+      "alternate_date_label": "ngày nhận hàng yêu cầu",
+      "alternate_filter_fields": {
+        "creator_user": "requester",
+        "requester": "creator_user"
+      }
+    },
+    "purchase_receipt_lines": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v1",
+      "title": "Tổng hợp phiếu nhập mua hàng từ NCC (PR1: ph77/ct77)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT h.ma_kh AS supplier, coalesce(k.ten_kh, '') AS supplier_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, d.so_luong AS quantity, d.tien AS amount_vnd, d.tien_nt AS amount_orig, h.stt_rec AS doc_id FROM public.ph77 h JOIN public.ct77 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text IN ('1', '11', '12') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
+      "dimensions": {
+        "supplier": "supplier",
+        "supplier_name": "supplier_name",
+        "material": "material",
+        "material_name": "material_name",
+        "warehouse": "warehouse",
+        "currency": "currency",
+        "day": "day",
+        "unit": "unit"
+      },
+      "metrics": {
+        "quantity": {
+          "aggregate": "sum",
+          "column": "quantity",
+          "unit_dimension": "unit"
+        },
+        "amount_vnd": {
+          "aggregate": "sum",
+          "column": "amount_vnd"
+        },
+        "amount_orig": {
+          "aggregate": "sum",
+          "column": "amount_orig",
+          "unit_dimension": "currency"
+        },
+        "receipt_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "supplier": {
+          "column": "supplier",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "material": {
+          "column": "material",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "warehouse": {
+          "column": "warehouse",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "nhap mua",
+        "phieu nhap mua"
+      ]
+    },
+    "inventory_movements": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v1",
+      "title": "Tổng hợp phát sinh nhập xuất kho trong kỳ (ct70)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT c.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, c.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(c.dvt, v.dvt, '') AS unit, trim(coalesce(c.ma_ct, '')) AS doc_type, c.ngay_ct AS day, c.sl_nhap AS in_qty, c.sl_xuat AS out_qty, c.tien_nhap AS in_amount_vnd, c.tien_xuat AS out_amount_vnd, c.stt_rec AS doc_id FROM public.ct70 c LEFT JOIN public.dmkho w ON w.ma_kho = c.ma_kho LEFT JOIN public.dmvt v ON v.ma_vt = c.ma_vt JOIN public.userinfo u ON u.user_id = %s WHERE (c.ma_ct NOT IN ('PXB', 'PNF') OR NOT EXISTS (SELECT 1 FROM public.ph85 b WHERE c.so_ct = b.so_ct AND b.ma_kho = b.ma_khon)) AND (coalesce(u.is_super, 0) = 1 OR (coalesce(u.ds_stocks, '') = '' OR c.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ','))))",
+      "dimensions": {
+        "warehouse": "warehouse",
+        "warehouse_name": "warehouse_name",
+        "material": "material",
+        "material_name": "material_name",
+        "unit": "unit",
+        "doc_type": "doc_type",
+        "day": "day"
+      },
+      "metrics": {
+        "in_qty": {
+          "aggregate": "sum",
+          "column": "in_qty",
+          "unit_dimension": "unit"
+        },
+        "out_qty": {
+          "aggregate": "sum",
+          "column": "out_qty",
+          "unit_dimension": "unit"
+        },
+        "in_amount_vnd": {
+          "aggregate": "sum",
+          "column": "in_amount_vnd"
+        },
+        "out_amount_vnd": {
+          "aggregate": "sum",
+          "column": "out_amount_vnd"
+        },
+        "tx_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "warehouse": {
+          "column": "warehouse",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "material": {
+          "column": "material",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "doc_type": {
+          "column": "doc_type",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "nhap xuat",
+        "dieu chuyen",
+        "bien dong kho"
+      ],
+      "secondary_cues": [
+        "nhap mua",
+        "phieu nhap mua"
+      ]
+    },
+    "mes_downtime_lines": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v1",
+      "title": "Thống kê dừng máy / dừng chuyền MES (mes_oi_stop_line)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT a.machine_code AS machine, coalesce(a.error_code, '') AS reason_code, coalesce(d.ten_loi, '') AS reason_name, coalesce(d.nh_nndungmay1, '') AS reason_group, a.create_date AS day, round((EXTRACT(EPOCH FROM (a.end_date::timestamp + a.end_time::time - a.create_date::timestamp - a.create_time::time)) / 60.0)::numeric, 2) AS stop_minutes, a.id AS event_id FROM public.mes_oi_stop_line a LEFT JOIN public.dmnndungmay d ON d.ma_loi = a.error_code CROSS JOIN public.userinfo u WHERE u.user_id = %s AND a.end_date IS NOT NULL AND a.end_date >= a.create_date AND a.end_date > '1900-01-01'",
+      "dimensions": {
+        "machine": "machine",
+        "reason_code": "reason_code",
+        "reason_name": "reason_name",
+        "reason_group": "reason_group",
+        "day": "day"
+      },
+      "metrics": {
+        "stop_minutes": {
+          "aggregate": "sum",
+          "column": "stop_minutes"
+        },
+        "avg_stop_minutes": {
+          "aggregate": "avg",
+          "column": "stop_minutes"
+        },
+        "stop_count": {
+          "aggregate": "count",
+          "column": "event_id"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "machine": {
+          "column": "machine",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "reason_code": {
+          "column": "reason_code",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "reason_group": {
+          "column": "reason_group",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "dung may",
+        "downtime",
+        "su co may"
+      ],
+      "secondary_cues": [
+        "oee",
+        "hieu suat thiet bi",
+        "kha dung"
+      ]
+    },
+    "mes_ng_defects": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v1",
+      "title": "Thống kê phế phẩm / lỗi sản xuất NG MES (mes_oi_ng_confirm)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT a.machine_code AS machine, a.product_code AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(a.error_code, '') AS defect_code, coalesce(l.ten_loi, '') AS defect_name, a.create_date AS day, coalesce(a.ng_qty, 0) AS ng_qty, a.id_oi_ng AS record_id FROM public.mes_oi_ng_confirm a LEFT JOIN public.dmloi l ON l.ma_loi = a.error_code LEFT JOIN public.dmvt v ON v.ma_vt = a.product_code CROSS JOIN public.userinfo u WHERE u.user_id = %s",
+      "dimensions": {
+        "machine": "machine",
+        "material": "material",
+        "material_name": "material_name",
+        "defect_code": "defect_code",
+        "defect_name": "defect_name",
+        "day": "day"
+      },
+      "metrics": {
+        "ng_qty": {
+          "aggregate": "sum",
+          "column": "ng_qty"
+        },
+        "defect_events": {
+          "aggregate": "count",
+          "column": "record_id"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "machine": {
+          "column": "machine",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "material": {
+          "column": "material",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "defect_code": {
+          "column": "defect_code",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "loi ng",
+        "phe pham",
+        "defect"
+      ]
+    },
+    "qc_iqc_lines": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v1",
+      "title": "Thống kê kiểm tra chất lượng hàng mua IQC (phiqc)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT h.ma_ncc AS supplier, coalesce(k.ten_kh, '') AS supplier_name, h.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, h.ngay_ct AS day, coalesce(h.ket_qua::text, '') AS qc_result, coalesce(h.so_luong, 0) AS lot_qty, coalesce(h.so_luong_ok, 0) AS ok_qty, coalesce(h.so_luong_ng, 0) AS ng_qty, h.stt_rec AS doc_id FROM public.phiqc h LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_ncc LEFT JOIN public.dmvt v ON v.ma_vt = h.ma_vt JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "dimensions": {
+        "supplier": "supplier",
+        "supplier_name": "supplier_name",
+        "material": "material",
+        "material_name": "material_name",
+        "qc_result": "qc_result",
+        "day": "day"
+      },
+      "metrics": {
+        "inspection_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        },
+        "lot_qty": {
+          "aggregate": "sum",
+          "column": "lot_qty"
+        },
+        "ok_qty": {
+          "aggregate": "sum",
+          "column": "ok_qty"
+        },
+        "ng_qty": {
+          "aggregate": "sum",
+          "column": "ng_qty"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "supplier": {
+          "column": "supplier",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "material": {
+          "column": "material",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "qc_result": {
+          "column": "qc_result",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "iqc",
+        "kiem tra dau vao"
+      ],
+      "secondary_cues": [
+        "loi ng",
+        "phe pham",
+        "defect"
+      ]
+    },
+    "mes_production_output": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v1",
+      "title": "Sản lượng sản xuất MES theo máy, ca, lệnh SX (mes_oi_confirm)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT a.machine_code AS machine, coalesce(l.line_group_code3, '') AS line_group, CASE WHEN a.create_time >= TIME '08:00:00' AND a.create_time < TIME '20:00:00' THEN 'Ca ngày (08-20h)' ELSE 'Ca đêm (20-08h)' END AS shift, coalesce(a.production_order, '') AS work_order, a.product_code AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(a.step_code, '') AS step, coalesce(a.station_code, '') AS station, a.create_date AS day, coalesce(v.dvt, 'PCS') AS unit, coalesce(a.quantity, 0) AS planned_qty, coalesce(a.complete, 0) AS complete_qty, coalesce(a.packing, 0) AS packing_qty, coalesce(a.ng, 0) AS ng_qty, coalesce(a.skip_shot, 0) AS skip_shot, CASE WHEN a.end_date IS NOT NULL AND a.end_date >= a.create_date AND a.end_date > '1900-01-01' THEN round((EXTRACT(EPOCH FROM (a.end_date::timestamp + a.end_time::time - a.create_date::timestamp - a.create_time::time)) / 60.0)::numeric, 2) ELSE 0 END AS run_minutes, a.id_oi AS run_id FROM public.mes_oi_confirm a LEFT JOIN public.dmvt v ON v.ma_vt = a.product_code LEFT JOIN public.mflist_line l ON l.line_code = a.machine_code JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(a.branch_code, '001') = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "dimensions": {
+        "machine": "machine",
+        "line_group": "line_group",
+        "shift": "shift",
+        "work_order": "work_order",
+        "material": "material",
+        "material_name": "material_name",
+        "step": "step",
+        "station": "station",
+        "day": "day",
+        "unit": "unit"
+      },
+      "metrics": {
+        "planned_qty": {
+          "aggregate": "sum",
+          "column": "planned_qty",
+          "unit_dimension": "unit"
+        },
+        "complete_qty": {
+          "aggregate": "sum",
+          "column": "complete_qty",
+          "unit_dimension": "unit"
+        },
+        "packing_qty": {
+          "aggregate": "sum",
+          "column": "packing_qty",
+          "unit_dimension": "unit"
+        },
+        "ng_qty": {
+          "aggregate": "sum",
+          "column": "ng_qty"
+        },
+        "skip_shot": {
+          "aggregate": "sum",
+          "column": "skip_shot"
+        },
+        "run_minutes": {
+          "aggregate": "sum",
+          "column": "run_minutes"
+        },
+        "run_count": {
+          "aggregate": "count_distinct",
+          "column": "run_id"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "machine": {
+          "column": "machine",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "line_group": {
+          "column": "line_group",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "shift": {
+          "column": "shift",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "work_order": {
+          "column": "work_order",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "material": {
+          "column": "material",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "san luong",
+        "san xuat",
+        "ca lam",
+        "work order",
+        "lenh sx",
+        "wo"
+      ]
+    },
+    "mes_work_orders": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v1",
+      "title": "Lệnh sản xuất và tiến độ kế hoạch WO (mes_scheduling_output)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT a.machine_code AS machine, coalesce(a.production_order, '') AS work_order, a.mes_scheduling_code AS schedule_code, a.product_code AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(a.mold_code, '') AS mold, coalesce(s.statusname, a.status_wo::text, '') AS wo_status, coalesce(a.work_center_code, b.work_center_code, '') AS work_center, a.start_date AS day, coalesce(a.uom, v.dvt, 'PCS') AS unit, coalesce(a.quantity, 0) AS planned_qty, a.cavity AS cavity, a.cycle_time AS cycle_time, a.efficiency AS efficiency FROM public.mes_scheduling_output a LEFT JOIN public.mes_scheduling b ON b.stt_rec = a.stt_rec LEFT JOIN public.dmvt v ON v.ma_vt = a.product_code LEFT JOIN public.sys_dmtt s ON s.ma_ct = 'WOMS' AND s.status = a.status_wo JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(b.ma_dvcs, '001') = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "dimensions": {
+        "machine": "machine",
+        "work_order": "work_order",
+        "schedule_code": "schedule_code",
+        "material": "material",
+        "material_name": "material_name",
+        "mold": "mold",
+        "wo_status": "wo_status",
+        "work_center": "work_center",
+        "day": "day",
+        "unit": "unit"
+      },
+      "metrics": {
+        "wo_count": {
+          "aggregate": "count_distinct",
+          "column": "schedule_code"
+        },
+        "planned_qty": {
+          "aggregate": "sum",
+          "column": "planned_qty",
+          "unit_dimension": "unit"
+        },
+        "cavity": {
+          "aggregate": "avg",
+          "column": "cavity"
+        },
+        "cycle_time": {
+          "aggregate": "avg",
+          "column": "cycle_time"
+        },
+        "efficiency": {
+          "aggregate": "avg",
+          "column": "efficiency"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "machine": {
+          "column": "machine",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "work_order": {
+          "column": "work_order",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "material": {
+          "column": "material",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "mold": {
+          "column": "mold",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "wo_status": {
+          "column": "wo_status",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "work order",
+        "lenh sx",
+        "wo",
+        "tien do ke hoach"
+      ],
+      "secondary_cues": [
+        "san luong",
+        "san xuat",
+        "ca lam"
+      ]
+    },
+    "mes_oee_daily": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v1",
+      "title": "Hiệu suất vận hành & OEE theo máy (theo logic mesbcoee)",
+      "notes": "Chỉ số OEE tính cho máy có khai báo cycle_time và cavity; máy lắp ráp không có cycle_time trả NULL (chưa đủ căn cứ tính OEE).",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT r.machine_code AS machine, coalesce(l.line_group_code3, '') AS line_group, r.day, round(r.run_minutes::numeric, 2) AS run_minutes, round(coalesce(st.stop_minutes, 0)::numeric, 2) AS stop_minutes, round(GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0)::numeric, 2) AS net_minutes, round((r.ok_minutes + r.ng_minutes)::numeric, 2) AS standard_minutes, r.ok_qty, r.ng_qty, round((CASE WHEN r.run_minutes > 0 THEN GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0) * 100.0 / r.run_minutes END)::numeric, 2) AS availability_pct, round((CASE WHEN GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0) > 0 AND (r.ok_minutes + r.ng_minutes + r.skip_minutes) > 0 THEN LEAST(100.0, (r.ok_minutes + r.ng_minutes + r.skip_minutes) * 100.0 / GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0)) END)::numeric, 2) AS performance_pct, round((CASE WHEN (r.ok_qty + r.ng_qty) > 0 THEN r.ok_qty * 100.0 / (r.ok_qty + r.ng_qty) END)::numeric, 2) AS quality_pct, round((CASE WHEN r.run_minutes > 0 AND GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0) > 0 AND (r.ok_qty + r.ng_qty) > 0 AND (r.ok_minutes + r.ng_minutes + r.skip_minutes) > 0 THEN (GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0) * 100.0 / r.run_minutes) * LEAST(100.0, (r.ok_minutes + r.ng_minutes + r.skip_minutes) * 100.0 / GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0)) * (r.ok_qty * 100.0 / (r.ok_qty + r.ng_qty)) / 10000.0 END)::numeric, 2) AS oee_pct, 1::int AS line_days FROM (SELECT a.machine_code, a.create_date AS day, sum(coalesce(a.complete, 0)) AS ok_qty, sum(coalesce(a.ng, 0)) AS ng_qty, sum(CASE WHEN a.end_date IS NOT NULL AND a.end_date >= a.create_date AND a.end_date > '1900-01-01' THEN EXTRACT(EPOCH FROM (a.end_date::timestamp + a.end_time::time - a.create_date::timestamp - a.create_time::time)) / 60.0 ELSE 0 END) AS run_minutes, sum(CASE WHEN coalesce(k.cavity, s.cavity, 0) > 0 AND coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) > 0 THEN coalesce(a.complete, 0) * coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) / coalesce(k.cavity, s.cavity) / 60.0 ELSE 0 END) AS ok_minutes, sum(CASE WHEN coalesce(k.cavity, s.cavity, 0) > 0 AND coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) > 0 THEN coalesce(a.ng, 0) * coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) / coalesce(k.cavity, s.cavity) / 60.0 ELSE 0 END) AS ng_minutes, sum(CASE WHEN coalesce(k.cavity, s.cavity, 0) > 0 AND coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) > 0 THEN coalesce(a.skip_shot, 0) * coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) / coalesce(k.cavity, s.cavity) / 60.0 ELSE 0 END) AS skip_minutes FROM public.mes_oi_confirm a LEFT JOIN public.mes_scheduling_output s ON s.mes_scheduling_code = a.mes_scheduling_code AND s.product_code = a.product_code LEFT JOIN public.dmhosokhuonsp k ON k.ma_khuon = s.mold_code AND k.ma_sp = a.product_code WHERE a.sp_chinh_yn = 1 GROUP BY a.machine_code, a.create_date) r LEFT JOIN public.mflist_line l ON l.line_code = r.machine_code LEFT JOIN (SELECT machine_code, create_date AS day, sum(EXTRACT(EPOCH FROM (end_date::timestamp + end_time::time - create_date::timestamp - create_time::time)) / 60.0) AS stop_minutes FROM public.mes_oi_stop_line WHERE end_date IS NOT NULL AND end_date >= create_date AND end_date > '1900-01-01' GROUP BY machine_code, create_date) st ON st.machine_code = r.machine_code AND st.day = r.day JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(l.branch_code, '001') = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "dimensions": {
+        "machine": "machine",
+        "line_group": "line_group",
+        "day": "day"
+      },
+      "metrics": {
+        "oee_pct": {
+          "aggregate": "avg",
+          "column": "oee_pct"
+        },
+        "availability_pct": {
+          "aggregate": "avg",
+          "column": "availability_pct"
+        },
+        "performance_pct": {
+          "aggregate": "avg",
+          "column": "performance_pct"
+        },
+        "quality_pct": {
+          "aggregate": "avg",
+          "column": "quality_pct"
+        },
+        "run_minutes": {
+          "aggregate": "sum",
+          "column": "run_minutes"
+        },
+        "stop_minutes": {
+          "aggregate": "sum",
+          "column": "stop_minutes"
+        },
+        "net_minutes": {
+          "aggregate": "sum",
+          "column": "net_minutes"
+        },
+        "standard_minutes": {
+          "aggregate": "sum",
+          "column": "standard_minutes"
+        },
+        "ok_qty": {
+          "aggregate": "sum",
+          "column": "ok_qty"
+        },
+        "ng_qty": {
+          "aggregate": "sum",
+          "column": "ng_qty"
+        },
+        "line_days": {
+          "aggregate": "sum",
+          "column": "line_days"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "machine": {
+          "column": "machine",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "line_group": {
+          "column": "line_group",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "oee",
+        "hieu suat thiet bi",
+        "kha dung"
+      ],
+      "secondary_cues": [
+        "dung may",
+        "downtime",
+        "su co may"
+      ]
+    },
+    "mes_material_usage": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v1",
+      "title": "Cấp và tiêu hao nguyên vật liệu sản xuất (mes_oi_material)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT a.machine_code AS machine, coalesce(a.production_order, '') AS work_order, a.product_code AS product, coalesce(vp.ten_vt, '') AS product_name, a.material_code AS material, coalesce(NULLIF(a.material_name, ''), vm.ten_vt, '') AS material_name, coalesce(NULLIF(a.dvt, ''), vm.dvt, '') AS unit, a.create_date AS day, coalesce(a.so_luong_can_cap, 0) AS required_qty, coalesce(a.so_luong, 0) AS issued_qty, coalesce(a.sl_su_dung, 0) AS used_qty, coalesce(a.sl_con_lai, 0) AS remaining_qty, coalesce(a.sl_chenh_lech, 0) AS variance_qty, a.id_material AS feed_id FROM public.mes_oi_material a LEFT JOIN public.dmvt vp ON vp.ma_vt = a.product_code LEFT JOIN public.dmvt vm ON vm.ma_vt = a.material_code CROSS JOIN public.userinfo u WHERE u.user_id = %s",
+      "dimensions": {
+        "machine": "machine",
+        "work_order": "work_order",
+        "product": "product",
+        "product_name": "product_name",
+        "material": "material",
+        "material_name": "material_name",
+        "unit": "unit",
+        "day": "day"
+      },
+      "metrics": {
+        "required_qty": {
+          "aggregate": "sum",
+          "column": "required_qty",
+          "unit_dimension": "unit"
+        },
+        "issued_qty": {
+          "aggregate": "sum",
+          "column": "issued_qty",
+          "unit_dimension": "unit"
+        },
+        "used_qty": {
+          "aggregate": "sum",
+          "column": "used_qty",
+          "unit_dimension": "unit"
+        },
+        "remaining_qty": {
+          "aggregate": "sum",
+          "column": "remaining_qty",
+          "unit_dimension": "unit"
+        },
+        "variance_qty": {
+          "aggregate": "sum",
+          "column": "variance_qty",
+          "unit_dimension": "unit"
+        },
+        "feed_count": {
+          "aggregate": "count_distinct",
+          "column": "feed_id"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "machine": {
+          "column": "machine",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "work_order": {
+          "column": "work_order",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "product": {
+          "column": "product",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "material": {
+          "column": "material",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "tieu hao",
+        "cap nvl",
+        "nguyen vat lieu"
+      ]
+    },
+    "mold_cavity_specs": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v1",
+      "title": "Liên kết Khuôn - Sản phẩm - Cavity - Chu kỳ - Tuổi thọ shot",
+      "notes": "Bảng danh mục khuôn; không yêu cầu lọc ngày. Dùng max trên total_shots/warranty_shots/cavity để không cộng trùng qua các mã con.",
+      "require_bounded_date": false,
+      "default_dimensions": [
+        "mold",
+        "material"
+      ],
+      "user_param_count": 1,
+      "source_sql": "SELECT h.ma_khuon AS mold, coalesce(h.ten_khuon, '') AS mold_name, s.ma_sp AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(s.id_cap, '') AS cavity_group, coalesce(s.chinh_phu::text, '') AS primary_flag, coalesce(s.cavity, h.so_cavity, 0) AS cavity, coalesce(s.chu_ki, 0) AS cycle_sec, coalesce(h.tong_so_shot, 0) AS total_shots, coalesce(h.so_shot_bh, 0) AS warranty_shots, (coalesce(h.so_shot_bh, 0) - coalesce(h.tong_so_shot, 0)) AS remaining_warranty_shots, s.ln AS line_id FROM public.dmhosokhuon h JOIN public.dmhosokhuonsp s ON s.ma_khuon = h.ma_khuon LEFT JOIN public.dmvt v ON v.ma_vt = s.ma_sp JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(h.branch_code, '001') = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "dimensions": {
+        "mold": "mold",
+        "mold_name": "mold_name",
+        "material": "material",
+        "material_name": "material_name",
+        "cavity_group": "cavity_group",
+        "primary_flag": "primary_flag"
+      },
+      "metrics": {
+        "cavity": {
+          "aggregate": "max",
+          "column": "cavity"
+        },
+        "cycle_sec": {
+          "aggregate": "max",
+          "column": "cycle_sec"
+        },
+        "total_shots": {
+          "aggregate": "max",
+          "column": "total_shots"
+        },
+        "warranty_shots": {
+          "aggregate": "max",
+          "column": "warranty_shots"
+        },
+        "remaining_warranty_shots": {
+          "aggregate": "max",
+          "column": "remaining_warranty_shots"
+        },
+        "product_links": {
+          "aggregate": "count_distinct",
+          "column": "line_id"
+        }
+      },
+      "filters": {
+        "mold": {
+          "column": "mold",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "material": {
+          "column": "material",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ],
+          "parent_prefix_fallback": true
+        },
+        "primary_flag": {
+          "column": "primary_flag",
+          "type": "text",
+          "ops": [
+            "eq"
+          ],
+          "value_aliases": {
+            "true": "1",
+            "yes": "1",
+            "false": "0",
+            "no": "0"
+          }
+        }
+      },
+      "cues": [
+        "khuon",
+        "cavity",
+        "chu ky",
+        "shot"
+      ]
+    },
+    "production_forecast_demand": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v1",
+      "title": "Nhu cầu giao hàng PO & Dự báo FCST (snapshot mới nhất mfkhsx_po_fc)",
+      "notes": "Chỉ lấy snapshot tính toán mới nhất (max(date0)) để tránh cộng trùng giữa các ngày chạy MRP; lọc day theo ngày giao hàng (ngay_giao_hang). Với câu hỏi nhu cầu/FCST tương lai không nêu tháng cụ thể, lọc day từ ngày hiện tại (today) đến +365 ngày; nếu mã biến thể có hậu tố trả 0 dòng, thử lọc material bằng op='contains' theo mã gốc.",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT f.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(f.ma_kh, '') AS customer, coalesce(k.ten_kh, '') AS customer_name, coalesce(f.loai_du_lieu, '') AS demand_type, coalesce(f.nguon_du_lieu, '') AS data_source, coalesce(f.model, '') AS model, f.ngay_giao_hang AS day, coalesce(v.dvt, 'PCS') AS unit, coalesce(f.so_luong, 0) AS quantity, f.id AS line_id FROM public.mfkhsx_po_fc f LEFT JOIN public.dmkh k ON k.ma_kh = f.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = f.ma_vt CROSS JOIN public.userinfo u WHERE u.user_id = %s AND f.date0 = (SELECT max(date0) FROM public.mfkhsx_po_fc)",
+      "dimensions": {
+        "material": "material",
+        "material_name": "material_name",
+        "customer": "customer",
+        "customer_name": "customer_name",
+        "demand_type": "demand_type",
+        "data_source": "data_source",
+        "model": "model",
+        "day": "day",
+        "unit": "unit"
+      },
+      "metrics": {
+        "quantity": {
+          "aggregate": "sum",
+          "column": "quantity",
+          "unit_dimension": "unit"
+        },
+        "line_count": {
+          "aggregate": "count_distinct",
+          "column": "line_id"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "material": {
+          "column": "material",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ],
+          "parent_prefix_fallback": true
+        },
+        "customer": {
+          "column": "customer",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "demand_type": {
+          "column": "demand_type",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "data_source": {
+          "column": "data_source",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "fcst",
+        "du bao",
+        "ke hoach giao",
+        "demand"
+      ]
+    },
+    "gl_account_movements": {
+      "status": "approved",
+      "scope": "curated_scoped_subquery",
+      "version": "2026-11-25-v1",
+      "title": "Phát sinh sổ cái & công nợ kế toán (ct00 / dmtk0)",
+      "notes": "Chỉ gồm các dòng có phát sinh tiền khác 0. Trong CSDL ERP hiện tại, ct00 chỉ có số tiền phát sinh đến 2024-09-06 và bảng số dư đầu kỳ cdkh/cdtk đang trống (0 dòng).",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "user_param_count": 1,
+      "source_sql": "SELECT trim(coalesce(c.tk, '')) AS account, coalesce(t.ten_tk, '') AS account_name, trim(coalesce(c.tk_du, '')) AS offset_account, trim(coalesce(c.ma_kh, '')) AS partner, coalesce(k.ten_kh, '') AS partner_name, trim(coalesce(c.ma_ct, '')) AS doc_type, trim(coalesce(c.ma_nt, '')) AS currency, c.ngay_ct AS day, coalesce(c.ps_no, 0) AS debit_vnd, coalesce(c.ps_co, 0) AS credit_vnd, coalesce(c.ps_no_nt, 0) AS debit_orig, coalesce(c.ps_co_nt, 0) AS credit_orig, c.stt_rec AS doc_id FROM public.ct00 c LEFT JOIN public.dmtk0 t ON t.tk = c.tk LEFT JOIN public.dmkh k ON k.ma_kh = c.ma_kh JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(c.ps_no, 0) <> 0 OR coalesce(c.ps_co, 0) <> 0 OR coalesce(c.ps_no_nt, 0) <> 0 OR coalesce(c.ps_co_nt, 0) <> 0) AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR c.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "dimensions": {
+        "account": "account",
+        "account_name": "account_name",
+        "offset_account": "offset_account",
+        "partner": "partner",
+        "partner_name": "partner_name",
+        "doc_type": "doc_type",
+        "currency": "currency",
+        "day": "day"
+      },
+      "metrics": {
+        "debit_vnd": {
+          "aggregate": "sum",
+          "column": "debit_vnd"
+        },
+        "credit_vnd": {
+          "aggregate": "sum",
+          "column": "credit_vnd"
+        },
+        "debit_orig": {
+          "aggregate": "sum",
+          "column": "debit_orig",
+          "unit_dimension": "currency"
+        },
+        "credit_orig": {
+          "aggregate": "sum",
+          "column": "credit_orig",
+          "unit_dimension": "currency"
+        },
+        "voucher_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "account": {
+          "column": "account",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "offset_account": {
+          "column": "offset_account",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "partner": {
+          "column": "partner",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "doc_type": {
+          "column": "doc_type",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "cues": [
+        "so cai",
+        "cong no",
+        "hach toan",
+        "tai khoan",
+        "ct00"
+      ]
+    }
+  },
+  "person_cues": [
+    "nhan vien",
+    "nguoi tao",
+    "nguoi lap",
+    "nguoi de nghi",
+    "phu trach",
+    "viet phieu",
+    "dat mua",
+    "ai",
+    "cua ai",
+    "user",
+    "username"
   ]
 }

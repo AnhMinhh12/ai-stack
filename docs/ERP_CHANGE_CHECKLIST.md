@@ -2,177 +2,79 @@
 
 Tag file này vào đầu chat mới khi yêu cầu sửa, bổ sung hoặc triển khai một nghiệp vụ ERP.
 
-## Chỉ dẫn cho Codex
+## Chỉ dẫn thực hiện
 
-Khi xử lý thay đổi ERP, không chỉ sửa để câu hỏi hiện tại trả lời đúng. Phải rà soát và đồng bộ toàn bộ chuỗi: **định nghĩa nghiệp vụ → nguồn dữ liệu → truy vấn → quyền truy cập → output → kiểm thử → tài liệu → triển khai → đối chiếu UI**.
+Khi xử lý thay đổi ERP, không chỉ sửa để câu hỏi hiện tại trả lời đúng. Phải rà soát và đồng bộ toàn bộ chuỗi: **đối chiếu màn hình 3SERP thật → hợp đồng dữ liệu → truy vấn & quyền → hiển thị Rich UI → kiểm thử & Golden Eval → tài liệu → triển khai (`bootstrap` + `restart open-webui`) → đối chiếu UI**.
 
-Không được kết luận hoàn tất nếu thay đổi mới chỉ nằm trong source code hoặc mới chạy đúng ở môi trường local.
+Không kết luận hoàn tất nếu mới sửa file trên đĩa hoặc mới qua test mock mà chưa nạp lại vào runtime `open-webui`.
 
-## 1. Xác nhận yêu cầu nghiệp vụ
+## 1. Xác nhận yêu cầu nghiệp vụ & đối chiếu màn 3SERP thật
 
 - Ghi lại câu hỏi thực tế của người dùng và các cách diễn đạt tương đương.
-- Xác định rõ khái niệm nghiệp vụ, ví dụ:
-  - “giao gần nhất” là phiếu xuất bán, lệnh giao hàng hay lịch giao trên đơn hàng;
-  - “số lượng” là số lượng từng dòng, tổng trong một chứng từ hay tổng trong ngày;
-  - có chỉ lấy chứng từ đã ghi sổ/hoàn thành hay không.
-- Xác định phạm vi thời gian: ngày cụ thể, kỳ được chọn trên UI hay toàn bộ dữ liệu được phép xem.
-- Xác định cách xử lý khi cùng một mã xuất hiện nhiều dòng trong một chứng từ.
-- Không suy luận nguồn dữ liệu chỉ từ tên gọi. Phải đối chiếu màn hình ERP, catalog hoặc mapping đã xác nhận.
+- **Mở màn hình 3SERP thật** (hoặc chụp bảng + đối chiếu SQL DB chỉ đọc) trước khi viết/sửa hợp đồng; không suy đoán cột chỉ từ tên gọi:
+  - Kiểm tra đầy đủ các cột ngày trên cả **header** và **lưới chi tiết** (ví dụ `ph91.ngay_ct` là *Ngày lập* còn `ct91.ngay_yc` là *Ngày nhận hàng \**).
+  - Kiểm tra cách ghi mã biến thể so với mã gốc (ví dụ `dmhosokhuonsp` dùng `425-00107-2`, còn `mfkhsx_po_fc` dùng mã gốc `425-00107`).
+  - Kiểm tra định dạng giá trị thật trong DB (`'0'`/`'1'` vs boolean, trạng thái chứng từ hủy/nháp `14`/`15`, tiểu khoản/đơn vị tính).
 
-## 2. Xác định nguồn và hạt dữ liệu
+## 2. Xác định nguồn, hạt dữ liệu và quyền
 
-- Ghi rõ bảng header, bảng detail và khóa nối.
-- Xác định hạt kết quả: dòng, chứng từ, ngày, khách hàng, vật tư hoặc lô.
-- Kiểm tra các trường ngày có thể dùng: ngày chứng từ, ngày hạch toán, ngày giao thực tế.
-- Kiểm tra trạng thái chứng từ và điều kiện loại trừ chứng từ hủy/nháp/chưa ghi sổ.
-- Kiểm tra mã giao dịch và các loại nghiệp vụ phải loại trừ.
-- Kiểm tra điều kiện phân quyền theo `userinfo.ds_branchs`, kho và ĐVCS.
-- Nếu có nhiều dòng cùng mã trong một chứng từ, xác định rõ có dùng `SUM(so_luong)` hay trả từng dòng.
+- Ghi rõ bảng header, bảng detail, khóa nối và hạt dữ liệu (dòng chứng từ, chứng từ, ngày, máy, vật tư).
+- Kiểm tra điều kiện phân quyền `userinfo.is_super`, `userinfo.ds_branchs` và `userinfo.ds_stocks` ngay trong SQL tham số hóa hoặc `curated_scoped_subquery`.
+- Phân biệt rõ **trạng thái rỗng (`empty`)**, **số `0`**, **thiếu giá trị (`missing` / `NULL`)**, **cắt dòng (`partial` + `total_rows`)** và **lỗi (`error`)**.
+- Nếu câu hỏi đòi hỏi phép tính tổng hợp/ước lượng liên phân hệ mà chưa có công thức backend, **không để LLM tự chia nhẩm từ các dòng mẫu**; hoặc bổ sung công thức xác định ở backend, hoặc chỉ trả các bảng số liệu đã xác minh.
 
-## 3. Cập nhật đủ artifact nghiệp vụ
+## 3. Cập nhật artifact đúng chỗ (không vá đặc thù theo dataset)
 
-Rà soát tất cả vị trí sau, không mặc định chỉ cần sửa một file:
+- `config/erp-agent.json` (nguồn sự thật duy nhất của hợp đồng & báo cáo `htmp-erp-agent-staging`):
+  - Với `semantic_contracts`: khai báo `source_sql`, `dimensions`, `metrics`, `filters`, `cues`/`secondary_cues`, `field_labels`, `notes`; dùng các thuộc tính chung (`default_dimensions`, `default_metrics`, `bounded_date_fields`, `alternate_date_field`, `alternate_date_label`, `value_aliases`, `parent_prefix_fallback`) thay vì thêm `if/else` hay luật đặc thù trong `erp_ai/*.py`.
+  - Với `reports`: khai báo `tool_name`, `tool_description`, `cues`, `param_schema`, `max_date_span_days`, `status_message`, `field_labels`, `next_step_note` trực tiếp trong JSON để `ReportBackend` và `presentation.py` tự động sinh spec, validate tham số và render bảng không cần sửa Python.
+- `sql/erp-reports/<report>.sql` & `config/erp-reports/<report>.json` (nếu thêm/sửa báo cáo tra cứu).
+- `erp_ai/presentation.py` / `erp_ai/rich_ui.py` (chỉ chỉnh khi đổi layout Rich UI hoặc từ điển chung `SEMANTIC_FIELD_META` / `LOOKUP_FIELD_META`).
+- `functions/htmp_erp_agent_pipe.py` & `config/htmp-erp-agent-profile.json` (khi thay đổi đường gọi Pipe hoặc cấu hình profile).
+- `tests/` & `scripts/eval_erp_golden.py`: thêm unit test cho quy tắc chuẩn hóa/quyền/hiển thị và thêm ca đối soát SQL thật vào bộ Golden Eval.
+- Tài liệu: cập nhật [AGENTS.md](../AGENTS.md), [ERP_MES_COVERAGE.md](ERP_MES_COVERAGE.md), [PROJECT_MAP.md](PROJECT_MAP.md) và [PLAN.md](PLAN.md) khi thay đổi phạm vi/quy tắc.
 
-- `config/erp-business-intents.json`
-  - thêm/sửa intent, từ khóa, nguồn, quyền và trường kết quả;
-  - tăng version khi thay đổi hợp đồng nghiệp vụ.
-- `functions/htmp_postgres_query.py`
-  - thêm/sửa handler và thứ tự định tuyến;
-  - bảo đảm intent cụ thể chạy trước các intent rộng dễ bắt nhầm;
-  - truy vấn chỉ đọc và có statement timeout.
-- `erp_ai/`
-  - cập nhật router, entity extraction, contracts hoặc conversation state nếu thay đổi liên quan.
-- `config/erp-reports/<report>.json`
-  - cập nhật nguồn, filters, aliases, columns, metrics, computed fields và permission scope.
-- `sql/erp-reports/<report>.sql`
-  - ưu tiên fixed SQL khi nghiệp vụ thuộc một report/màn hình đã quản lý;
-  - tham số SQL phải khớp manifest và code gọi;
-  - không gọi function ERP động từ đường truy vấn AI nếu contract yêu cầu fixed SQL.
-- `tests/erp-reports/<report>.json`
-  - ghi case đối chiếu UI cụ thể và expected result;
-  - không để toàn bộ case ở dạng placeholder nếu đã có bằng chứng thật.
-- `tests/test_erp_report_contract.py` và test liên quan
-  - thêm regression test cho câu hỏi gây lỗi;
-  - thêm test nguồn, aggregation, permission, routing và fail-closed.
-- `config/htmp-rag-models.json` hoặc prompt/profile liên quan
-  - cập nhật khi output mới cần quy tắc diễn đạt đặc biệt.
-- Tài liệu nghiệp vụ:
-  - `docs/erp-screen-mapping.md`;
-  - `docs/erp-ui-validation-guide.md`;
-  - file evidence/catalog liên quan trong `docs/evidence/`;
-  - checklist trạng thái UI nếu dự án đang theo dõi tại `docs/check-ui-erp.md`.
+Không nhồi thêm luật đặc thù câu chat đơn lẻ vào `SYSTEM` prompt để bù cho giới hạn suy luận đa bước của `qwen2.5-14b`.
 
-Không hard-code kết quả dữ liệu thật vào logic sản phẩm. Giá trị cụ thể chỉ nên nằm trong test fixture hoặc hồ sơ evidence khi cần tái kiểm chứng.
+## 4. Kiểm thử trước triển khai
 
-## 4. Kiểm tra lỗi định tuyến và ngôn ngữ
-
-- Kiểm tra cả tiếng Việt có dấu và không dấu.
-- So khớp từ/cụm từ theo ranh giới từ; không dùng substring khiến `gia` khớp nhầm `giao`.
-- Kiểm tra mã có dấu gạch ngang, dấu `/`, chữ và số ở nhiều vị trí.
-- Mã được nêu trong câu hỏi mới phải ghi đè mã kế thừa từ context.
-- Kiểm tra câu hỏi ngắn follow-up vẫn kế thừa đúng điều kiện.
-- Kiểm tra intent mới không bị intent cũ bắt trước.
-
-## 5. Kiểm thử trước triển khai
-
-Chạy tối thiểu:
+Chạy từ `/home/admin/ai-stack`:
 
 ```bash
-cd /home/admin/ai-stack
-git diff --check
-python3 -m py_compile \
-  functions/htmp_postgres_query.py \
-  scripts/bootstrap_openwebui_rag.py \
-  scripts/openwebui_bootstrap_runtime.py
-python3 -m unittest discover -s tests -p 'test_erp_report*.py'
+python3 -B -m unittest tests.test_erp_agent tests.test_erp_semantic_query tests.test_erp_semantic_retrieval tests.test_erp_export tests.test_erp_incident_changes tests.test_erp_golden_pipeline tests.test_openwebui_speed_selector_patch
+python3 -B scripts/eval_erp_golden.py --dry-run
+bash scripts/test_erp_agent_postgres.sh
 ```
 
-Ngoài test tự động, phải kiểm tra trực tiếp:
-
-- entity được trích xuất đúng;
-- intent mới trả `true`;
-- intent sai từng bắt nhầm phải trả `false`;
-- SQL dùng đúng bảng, khóa, trạng thái và phép tổng hợp;
-- kết quả không vượt phạm vi quyền người dùng.
-
-## 6. Triển khai Open WebUI
-
-`--check` chỉ dùng để xác minh. Muốn cập nhật function/tool phải chạy pha apply trước:
+Khi được phép kiểm tra live trên vLLM + ERP DB chỉ đọc:
 
 ```bash
-cd /home/admin/ai-stack
-
-python3 scripts/bootstrap_openwebui_rag.py \
-  --owner-email hoanhminhz@gmail.com
-
-python3 scripts/bootstrap_openwebui_rag.py \
-  --owner-email hoanhminhz@gmail.com \
-  --check
+docker cp scripts/eval_erp_golden.py open-webui:/tmp/eval_erp_golden.py
+docker exec open-webui env HTMP_AGENT_ROOT=/app/backend python3 -B /tmp/eval_erp_golden.py --live --model-url http://vllm:8000/v1/ --min-pass-rate 0.90
+docker exec open-webui rm -f /tmp/eval_erp_golden.py
 ```
 
-Kết quả mong đợi:
+## 5. Triển khai lên Open WebUI & bắt buộc restart khi đổi code Python/config
 
-```text
-bootstrap apply: PASS
-bootstrap check: PASS
-```
+- Nếu sửa `functions/htmp_erp_agent_pipe.py` hoặc `config/htmp-erp-agent-profile.json`: chạy `scripts/openwebui_bootstrap_runtime.py` để upsert vào `/app/backend/data/webui.db` và chạy lại với `--check` (`bootstrap check: PASS`).
+- **Nếu sửa bất kỳ file nào trong `erp_ai/`, `config/` hoặc `backend-patches/`:** các thư mục này được bind-mount chỉ đọc vào `open-webui`, tiến trình `uvicorn` đang chạy **không tự nạp lại** module đã import. **Bắt buộc chạy `docker compose restart open-webui`** và đợi `/health` trả OK trước khi báo hoàn tất hoặc kiểm tra trên trình duyệt.
 
-Lưu ý:
+## 6. Đối chiếu với ERP UI
 
-- `/app/backend/erp_ai` có thể là bind mount chỉ đọc; bootstrap phải dùng mount hiện tại thay vì cố xóa/copy vào đó.
-- Không coi việc copy file cấu hình vào container là đã triển khai xong; nội dung function/tool trong database Open WebUI phải được upsert.
-- `--check` phải đối chiếu nội dung function/tool, không chỉ kiểm tra object có tồn tại.
-- Nếu bootstrap dừng giữa chừng, trạng thái runtime có thể bị cập nhật một phần. Phải chạy lại apply đầy đủ rồi mới check.
-
-## 7. Đối chiếu với ERP UI
-
-So sánh cùng điều kiện, không chỉ nhìn dòng đầu tiên trên màn hình:
-
-- cùng khoảng ngày;
-- cùng mã hàng, khách hàng, kho, ĐVCS và trạng thái;
-- cùng số chứng từ nếu đang kiểm tra một bản ghi;
-- cùng cách sắp xếp tăng/giảm dần;
-- cùng cách tổng hợp nhiều dòng;
+So sánh cùng điều kiện trên màn 3SERP:
+- cùng khoảng ngày và **cùng loại ngày** (ngày chứng từ vs ngày nhận hàng/giao hàng);
+- cùng mã hàng, đối tượng, kho, ĐVCS, trạng thái chứng từ và đơn vị tính;
 - cùng quyền người dùng.
 
-Với câu hỏi “gần nhất”:
-
-- lọc đúng mã hàng trên UI;
-- sắp xếp ngày giảm dần hoặc tìm trực tiếp số chứng từ do AI trả;
-- xác nhận ngày, số chứng từ, số lượng, ĐVT, khách hàng, kho và trạng thái;
-- ảnh dòng đầu của báo cáo sắp xếp tăng dần không phải bằng chứng về bản ghi mới nhất.
-
-Ghi case đã xác nhận vào test fixture và tài liệu evidence. Không chỉ xác nhận trong chat.
-
-## 8. Kiểm tra Git và bàn giao
-
-- Chạy `git status --short` và `git diff --name-only`.
-- Phân biệt thay đổi của nhiệm vụ với file người dùng đã sửa từ trước.
-- Không commit file tạm, database local, scratch file hoặc thông tin nhạy cảm.
-- Kiểm tra mọi artifact liên quan đã được cập nhật; nếu còn thiếu phải nói rõ.
-- Chỉ báo “hoàn tất” khi:
-  - source và config đã đồng bộ;
-  - test đạt;
-  - bootstrap apply đạt;
-  - bootstrap check đạt;
-  - UI đã đối chiếu;
-  - evidence/docs đã cập nhật;
-  - thay đổi cần lưu đã được commit/push theo yêu cầu.
-
-## 9. Mẫu báo cáo hoàn tất
+## 7. Mẫu báo cáo hoàn tất
 
 ```text
 Nghiệp vụ: <tên nghiệp vụ>
-Nguồn: <header/detail và khóa nối>
+Nguồn: <header/detail, khóa nối và trường ngày>
 Phạm vi: <thời gian, trạng thái, quyền>
-Aggregation: <hạt dữ liệu và cách cộng>
 Files đã cập nhật: <danh sách>
-Tests: <số lượng/kết quả>
-Bootstrap apply: PASS/FAIL
-Bootstrap check: PASS/FAIL
+Tests & Eval: <unittest + eval_erp_golden --dry-run/--live>
+Open WebUI sync/restart: <bootstrap check + restart open-webui health>
 UI comparison: PASS/FAIL — <case cụ thể>
-Git status: <đã commit/chưa commit và file còn lại>
 Việc còn thiếu: <không có hoặc danh sách>
 ```
-
-

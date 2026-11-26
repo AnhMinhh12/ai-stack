@@ -879,4 +879,42 @@ Thiết kế và tiêu chuẩn triển khai ERP: [erp.md](docs/erp.md).
       - RAM khả dụng (Available) tăng từ **29.2 GiB lên 80.1 GiB** (giải phóng thành công hơn 50 GiB RAM trống).
       - Kiểm thử suy luận trực tiếp qua Open WebUI API và tool `query_htmp_erp`: 100% hoạt động mượt mà, phản hồi trong 2-7 giây.
 
+12. **Kiểm thử hồi quy cổng `htmp-nhanh` — 2026-11-23**
+    - Đã tái hiện lỗi import khi cổng nhận `chat_id` và lỗi truyền trùng `question` qua alias `query_erp_report` bằng mock cục bộ.
+    - Cổng dùng kho ngữ cảnh hiện có, nhận `__chat_id__` và `__user__` do Open WebUI truyền vào, rồi chuyển phiên và người dùng tới `_ask_erp_data` khi cần. Nhánh tra cứu trực tiếp kế thừa mã vật tư khi câu hỏi có cụm tham chiếu như “mã này”. Mã nêu ở lượt mới được ưu tiên.
+    - Nhánh stored procedure lấy `user_id` từ `HTMP_ERP_USER_ID_MAP` dựa trên tài khoản WebUI do server truyền. Tài khoản thiếu liên kết và lỗi quyền PostgreSQL (`42501`) dừng định tuyến. Nhánh procedure yêu cầu liên kết riêng cho từng tài khoản được dùng báo cáo.
+    - Tám ca tại `tests/test_erp_gateway.py` đạt với adapter giả lập, trong đó có kiểm tra payload của hai tài khoản và lỗi từ chối quyền. Còn cần kiểm tra tool đã đăng ký trên Open WebUI, xác minh procedure áp giới hạn chi nhánh/kho và đối soát kết quả theo hai tài khoản có phạm vi khác nhau. Các nhánh SQL trực tiếp vẫn cần xác minh quyền riêng.
 
+13. **Báo cáo sự cố #38 về MOQ và giá hiệu lực — 2026-11-23**
+    - Câu trả lời thiếu MOQ và đưa dòng giá có ngày bắt đầu hiệu lực sau ngày được hỏi. Cổng ERP ưu tiên câu hỏi gốc do Open WebUI cung cấp cho nhóm tra MOQ và giá hiệu lực. Truy vấn Danh mục bảng giá lọc ngày trước khi giới hạn dòng, rồi hiển thị từng bậc MOQ còn hiệu lực.
+    - Đã kiểm thử cục bộ hai biên ngày hiệu lực, nhiều bậc MOQ, tập kết quả rỗng, ngày sai và tài khoản thiếu liên kết. Tài khoản gửi báo cáo chưa có liên kết ERP trên runtime. Bản sửa vẫn ở checkout và chưa đối soát giá với ERP thật.
+
+14. **Ma trận độ phủ và môi trường kiểm thử staging cục bộ — 2026-11-23**
+    - [Ma trận ERP/MES](ERP_MES_COVERAGE.md) ghi tài sản và khoảng trống theo phân hệ, dựa trên bản đồ khảo sát và cấu hình hiện có.
+    - Khôi phục 14 ghi chú mà staging tham chiếu và module từ điển phục vụ Rich UI. Chạy 34 ca agent, 20 ca semantic và 13 đối soát SQL trên PostgreSQL tổng hợp cô lập.
+    - Nghiệm thu qua Open WebUI staging cần cấu hình DB chỉ đọc, quyền cho tài khoản thử và nguồn ERP đối chiếu.
+
+15. **Kích hoạt và nghiệm thu Open WebUI Staging với Live DB — 2026-11-23**
+    - Đã kết nối nguồn ERP `3SERP_HTMP_DATA` qua giao dịch chỉ đọc (`read_htmp`, statement timeout 10-15s, lock timeout 1s) cho profile `htmp-erp-agent-staging`.
+    - Phân quyền mặc định tài khoản xem toàn bộ theo chỉ đạo (`erp_user_id = 11`), mở toàn bộ 17 báo cáo trong danh mục staging.
+    - Cập nhật binding tool `htmp_erp_agent` trong `backend-patches/middleware.py` và đưa model vào `erp_staging` trong `config/model-picker-policy.json`. Nâng `result_chars` lên 32K để chứa đủ dữ liệu bảng kê 50 dòng.
+    - Kiểm thử thành công 100% flow end-to-end qua Open WebUI API và vLLM:
+      + Bảng giá và MOQ mã `QC7-5146-000` ngày 2026-10-20 (Khách hàng Canon KH0015, giá 0.08563 USD, MOQ 1.000 PCS).
+      + Số lượng tồn kho theo tem và sổ sách.
+      + Dòng phiếu xuất kho bán hàng (51 dòng chứng từ xuất cho Canon).
+
+16. **Chuyển `htmp-erp-agent-staging` sang Pipe trực tiếp, gỡ `htmp-nhanh` và chuẩn hóa Golden Eval — 2026-11-25**
+    - **Gỡ nhánh cũ & bỏ Double-LLM:** Loại bỏ nhánh sinh SQL tự do khỏi `functions/htmp_postgres_query.py`, tắt và gỡ `htmp-nhanh` + `htmp_fast_rag` khỏi model picker (`config/model-picker-policy.json`) và runtime `webui.db`. Chuyển `htmp-erp-agent-staging` sang Pipe trực tiếp (`functions/htmp_erp_agent_pipe.py`) gọi thẳng `erp_ai.agent_runtime.answer` và phát Rich UI qua sự kiện `embeds`.
+    - **Chuẩn hóa theo metadata & cắt gọn tool:** Mở rộng lên 16 `semantic_contracts` đã duyệt trong `config/erp-agent.json` (gồm cả `purchase_requests` `ph91`/`ct91`, MES, khuôn và sổ cái `ct00`), thêm `erp_ai/semantic_normalizer.py` và `erp_ai/context_hints.py` đọc quy tắc khai báo (`default_dimensions`, `value_aliases`, `parent_prefix_fallback`, `notes`) từ hợp đồng, đồng thời thu gọn tập tool cấp cho model qua `ReportBackend.model_specs`.
+    - **Nghiệm thu kiểm thử:** Đạt 98/99 unit test (1 skipped pre-existing) qua 8 suite ERP/UI và 17/17 ca `--dry-run` trên `scripts/eval_erp_golden.py`.
+    - **Khắc phục sau đối soát màn 3SERP (`001-2608-000052`) & quy trình vận hành:** Bổ sung `required_date` (`ct91.ngay_yc` / `ct94.ngay_yc`) cùng `bounded_date_fields`, `alternate_date_field` và `default_metrics` trên `purchase_requests` / `purchase_order_lines`; xử lý `metrics: []` và `limit: null` trong `semantic_normalizer.py`; chốt quy tắc bắt buộc đối chiếu màn 3SERP thật trước khi sửa hợp đồng và bắt buộc `docker compose restart open-webui` sau khi sửa `erp_ai/` hoặc `config/`.
+
+17. **Xóa toàn bộ mã nguồn/cấu hình lỗi thời và chuẩn hóa kiến trúc mở rộng theo metadata — 2026-11-25**
+    - **Dọn bỏ thành phần lỗi thời:** Xóa hoàn toàn đường `htmp-nhanh`, bộ bọc LLM ngoài (`htmp_erp_agent.py`, `htmp_erp_agent_filter.py`), `htmp_postgres_query.py`, `htmp_fast_rag.py`, `htmp_technical_rag.py`, các module legacy (`procedure_catalog.py`, `native_tools.py`, `generic_procedure_executor.py`, `router.py`, `contracts.py`, `context.py`), cấu hình dư (`htmp-rag-models.json`, `erp-business-intents.json`, `erp-semantic-pilot.json`, 3 manifest và 5 SQL không còn gắn report), các script benchmark/reconcile cũ và làm sạch nhánh `htmp-nhanh`/`ask_erp` trong `backend-patches/middleware.py`. Gỡ bỏ fallback mật khẩu cứng trong `agent_runtime.py` và `extract_erp_system_metadata.py`.
+    - **Chuẩn hóa 100% hướng mở rộng từ `config/erp-agent.json`:** Đưa `cues`/`secondary_cues`, `param_schema`, `tool_name`, `tool_description`, `retired_when_semantic`, `status_message`, `next_step_note`, `alternate_date_label` và `field_labels` vào `config/erp-agent.json`. `context_hints.py`, `agent_backend.py`, `agent.py` và `presentation.py` tự đọc metadata khai báo, xóa luật từng ca sự cố khỏi `SYSTEM` prompt và sửa lỗi đặt `limit` mặc định trước khi xử lý `Top N` trong `semantic_normalizer.py`.
+    - **Kiểm thử & đồng bộ runtime:** Đạt 90/90 unit test qua 7 suite ERP/UI, 17/17 ca `--dry-run`, 13/13 SQL fixture PostgreSQL cô lập; đồng bộ `htmp_erp_agent_pipe` + `htmp-erp-agent-staging` vào `webui.db` (`bootstrap check: PASS`), dọn các bản ghi tool/filter cũ, restart `open-webui` (`healthy`) và chạy `eval_erp_golden.py --live` đạt 16/17 (`pass_rate: 0.941`, `0 tool_errors`; 1 ca `ba_thanh_month_08_2026` còn lệch đối soát `agent prs=0 vs sql prs=7`).
+
+18. **Hoàn thiện kiến trúc hiển thị khai báo, sửa khớp biên từ khóa và lọc nhân viên thay thế — 2026-11-26**
+    - **Loại bỏ hardcode tool còn sót:** Chuyển toàn bộ đặc tả hiển thị (`presentation` gồm `mode`, `title`, `scope_template`, `empty_text`, `empty_unknown_text`, `summary_noun`, `summary_revenue`, `summary_mode`, `sort`, `columns`, `chart`), `direct_render` và `person_lookup` về `config/erp-agent.json`; bỏ `SPECIALIZED_TOOLS` và 5 vòng lặp chuyên biệt theo tên tool trong `erp_ai/presentation.py`, bỏ tên `query_employee_info` khỏi `SYSTEM` prompt và sửa kiểm tra độ dài `verified` trước khi đọc `verified[0]` trong `erp_ai/agent.py`.
+    - **Khắc phục lỗi chọn lọc nhân viên & tài khoản kế toán:** Bổ sung `alternate_filter_fields` (`creator_user` <-> `requester`) và làm rõ phân biệt mã NV vs username trong `purchase_requests` / `purchase_order_lines`; sửa khớp biên từ `_has_cue` trong `erp_ai/context_hints.py` để `"ai"` không trùng nhầm chữ `"phải"`/`"tài"` trên câu hỏi công nợ kế toán, đồng thời làm rõ `tool_description` của `employee_master`.
+    - **Kiểm thử sau sửa & giới hạn đối chiếu UI:** Đạt **91/91** unit test qua 7 suite, **17/17** ca `--dry-run`, **13/13** SQL PostgreSQL cô lập; sau `docker compose restart open-webui` (`healthy`), chạy `eval_erp_golden.py --live` đạt **16/17** (`pass_rate: 0.941`, `0 tool_errors`, `p50_ms: 15702`, `p95_ms: 43845`) — cả `ba_thanh_month_08_2026` và `gl_131_kh0034_oct2026` đều đạt, riêng `sales_revenue_missing_period` trả câu hỏi làm rõ dạng text thuần không bọc JSON nên dừng ở `invalid_final`. Endpoint 3SERP UI (`127.0.0.1:19223`) không kết nối được từ máy chủ hiện tại (`NO_3SERP_CDP`), nên giữ nguyên trạng thái `pending_ui_validation`.

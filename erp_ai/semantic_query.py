@@ -7,10 +7,19 @@ server-injected scope column. No production views are implicitly approved.
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass
 from datetime import date
 
 IDENT = re.compile(r'^[a-z_][a-z0-9_]*$')
+_VN_SRC = 'áàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴĐ'
+_VN_DST = 'aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyydAAAAAAAAAAAAAAAAAEEEEEEEEEEEIIIIIOOOOOOOOOOOOOOOOOUUUUUUUUUUUYYYYYD'
+
+
+def _norm_text(value: str) -> str:
+    stripped = unicodedata.normalize('NFD', value.strip())
+    stripped = ''.join(c for c in stripped if unicodedata.category(c) != 'Mn')
+    return ' '.join(stripped.replace('đ', 'd').replace('Đ', 'D').lower().split())
 
 
 class PlanError(ValueError):
@@ -40,7 +49,8 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
     if not isinstance(dataset, str) or dataset not in allowed_contracts or dataset not in contracts:
         raise PlanError('dataset_forbidden')
     contract = contracts[dataset]
-    if not isinstance(contract, dict) or contract.get('status') != 'approved' or contract.get('scope') not in ('erp_user_view', 'sales_orders_scoped_v1'):
+    scope_type = contract.get('scope') if isinstance(contract, dict) else None
+    if not isinstance(contract, dict) or contract.get('status') != 'approved' or scope_type not in ('erp_user_view', 'sales_orders_scoped_v1', 'curated_scoped_subquery'):
         raise PlanError('contract_not_approved')
     version = contract.get('version')
     if not isinstance(version, str) or not version:
@@ -48,10 +58,19 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
     view = contract.get('view', {})
     if not isinstance(view, dict):
         raise PlanError('invalid_contract')
-    scoped_source = contract.get('scope') == 'sales_orders_scoped_v1'
+    scoped_source = scope_type == 'sales_orders_scoped_v1'
+    curated_subquery = scope_type == 'curated_scoped_subquery'
+    user_param_count = 1
     if scoped_source:
         # Fixed, reviewed code: SQL and identity cannot come from the model.
         table = "(SELECT h.ma_kh AS customer, h.ma_nt AS currency, h.ngay_ct AS day, h.stt_rec AS order_id, d.tien_nt2 AS amount FROM public.ph64 h JOIN public.ct64 d ON d.stt_rec=h.stt_rec JOIN public.userinfo u ON u.user_id=%s WHERE h.status::text NOT IN ('14','15') AND (coalesce(u.is_super,0)=1 OR (h.ma_dvcs=ANY(string_to_array(coalesce(u.ds_branchs,''),',')) AND d.ma_kho=ANY(string_to_array(coalesce(u.ds_stocks,''),','))))) AS scoped_orders"
+        scope = None
+    elif curated_subquery:
+        source_sql = contract.get('source_sql')
+        user_param_count = contract.get('user_param_count', 1)
+        if not isinstance(source_sql, str) or not source_sql.strip() or type(user_param_count) is not int or user_param_count < 0:
+            raise PlanError('invalid_contract')
+        table = f"({source_sql}) AS scoped_dataset"
         scope = None
     else:
         table = identifier(view.get('schema')) + '.' + identifier(view.get('name'))
@@ -74,7 +93,7 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
     select = [f'{column} AS {alias}' for column, alias in selected_dims]
     for name in metrics:
         metric = metric_defs.get(name)
-        if not isinstance(metric, dict) or metric.get('aggregate') not in ('sum', 'count', 'count_distinct'):
+        if not isinstance(metric, dict) or metric.get('aggregate') not in ('sum', 'count', 'count_distinct', 'avg', 'min', 'max'):
             raise PlanError('metric_forbidden')
         # A metric with variable units must be grouped by its unit dimension.
         unit_dimension = metric.get('unit_dimension')
@@ -84,8 +103,8 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
         expression = (f"COUNT(DISTINCT {identifier(metric.get('column'))})" if aggregate == 'count_distinct'
                       else f"{aggregate.upper()}({identifier(metric.get('column'))})")
         select.append(f"{expression} AS {identifier(name)}")
-    where, params = ([] if scoped_source else [f'{scope} = %s']), [erp_user_id]
-    operators = {'eq': '=', 'gte': '>=', 'lte': '<='}
+    where, params = ([] if (scoped_source or curated_subquery) else [f'{scope} = %s']), [erp_user_id] * user_param_count
+    operators = {'eq': '=', 'gte': '>=', 'lte': '<=', 'contains': 'contains'}
     seen_filters = set()
     date_bounds = {}
     for item in filters:
@@ -102,21 +121,30 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
             raise PlanError('duplicate_filter')
         seen_filters.add(key)
         kind = definition.get('type')
+        col_ident = identifier(definition.get('column'))
         if kind == 'text':
-            if not isinstance(value, str) or not value or len(value) > 128:
+            if not isinstance(value, str) or not value.strip() or len(value) > 128:
                 raise PlanError('invalid_filter_value')
+            if op == 'contains':
+                norm_val = _norm_text(value)
+                if not norm_val:
+                    raise PlanError('invalid_filter_value')
+                where.append(f"strpos(lower(translate(coalesce({col_ident}::text, ''), '{_VN_SRC}', '{_VN_DST}')), %s) > 0")
+                params.append(norm_val)
+            else:
+                where.append(f"{col_ident} {operators[op]} %s")
+                params.append(value)
         elif kind == 'date':
             try:
                 if not isinstance(value, str) or date.fromisoformat(value).isoformat() != value:
                     raise ValueError()
             except ValueError:
                 raise PlanError('invalid_filter_value') from None
+            date_bounds.setdefault(field, {})[op] = value
+            where.append(f"{col_ident} {operators[op]} %s")
+            params.append(value)
         else:
             raise PlanError('invalid_filter_type')
-        if kind == 'date':
-            date_bounds.setdefault(field, {})[op] = value
-        where.append(f"{identifier(definition.get('column'))} {operators[op]} %s")
-        params.append(value)
     for bounds in date_bounds.values():
         if 'gte' in bounds and 'lte' in bounds and bounds['gte'] > bounds['lte']:
             raise PlanError('invalid_date_range')
@@ -127,6 +155,19 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
         starts = [x['value'] for x in filters if x['field'] == 'day' and x['op'] == 'gte']
         ends = [x['value'] for x in filters if x['field'] == 'day' and x['op'] == 'lte']
         if len(starts) != 1 or len(ends) != 1 or not 0 <= (date.fromisoformat(ends[0]) - date.fromisoformat(starts[0])).days <= 366:
+            raise PlanError('bounded_date_range_required')
+    elif curated_subquery and contract.get('require_bounded_date', True):
+        date_fields = contract.get('bounded_date_fields') or [contract.get('date_field', 'day')]
+        has_bounded = False
+        for date_field in date_fields:
+            eqs = [x['value'] for x in filters if x['field'] == date_field and x['op'] == 'eq']
+            starts = [x['value'] for x in filters if x['field'] == date_field and x['op'] == 'gte']
+            ends = [x['value'] for x in filters if x['field'] == date_field and x['op'] == 'lte']
+            valid_range = len(starts) == 1 and len(ends) == 1 and 0 <= (date.fromisoformat(ends[0]) - date.fromisoformat(starts[0])).days <= 366
+            if len(eqs) == 1 or valid_range:
+                has_bounded = True
+                break
+        if not has_bounded:
             raise PlanError('bounded_date_range_required')
     ordering = plan.get('order_by', [])
     if not isinstance(ordering, list) or len(ordering) > len(dimensions) + len(metrics):
@@ -142,7 +183,7 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
         order_parts.append(f'{identifier(field)} {direction.upper()} NULLS LAST')
     for item in ordering:
         metric = metric_defs.get(item['field'])
-        if isinstance(metric, dict) and metric.get('unit_dimension'):
+        if isinstance(metric, dict) and metric.get('unit_dimension') == 'currency':
             unit = metric['unit_dimension']
             if not any(f['field'] == unit and f['op'] == 'eq' for f in filters):
                 raise PlanError('ranking_requires_single_unit')
@@ -151,6 +192,8 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
     # Tie-break on all group dimensions to make limited rankings stable.
     if order_parts:
         order_parts.extend(f'{identifier(name)} ASC NULLS LAST' for name in dimensions if name not in seen_order)
+    if selected_dims:
+        select.append('COUNT(*) OVER () AS "__total_rows"')
     limit = plan.get('limit', 50)
     if type(max_rows) is not int or not 1 <= max_rows <= 200 or type(limit) is not int or not 1 <= limit <= max_rows:
         raise PlanError('invalid_limit')

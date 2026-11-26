@@ -17,8 +17,20 @@ async def execute_plan(plan, *, contracts, allowed_contracts, erp_user_id, db, l
     if not isinstance(rows, list):
         raise PlanError('invalid_result')
     expected = set(plan.get('dimensions', [])) | set(plan['metrics'])
-    if any(not isinstance(row, dict) or set(row) != expected for row in rows):
-        raise PlanError('invalid_result_shape')
+    total_rows = None
+    cleaned_rows = []
+    for row in rows:
+        if not isinstance(row, dict):
+            raise PlanError('invalid_result_shape')
+        clean = dict(row)
+        if '__total_rows' in clean:
+            total_val = clean.pop('__total_rows')
+            if isinstance(total_val, int) and not isinstance(total_val, bool) and total_rows is None:
+                total_rows = total_val
+        if set(clean) != expected:
+            raise PlanError('invalid_result_shape')
+        cleaned_rows.append(clean)
+    rows = cleaned_rows
     limit = plan.get('limit', 50)
     has_more = len(rows) > limit
     rows = rows[:limit]
@@ -28,7 +40,7 @@ async def execute_plan(plan, *, contracts, allowed_contracts, erp_user_id, db, l
     # not label that value a verified zero or a complete result.
     missing_metric = any(row.get(metric) is None for row in rows for metric in plan['metrics'])
     status = 'partial' if has_more else ('empty' if not rows else ('missing' if missing_metric else 'complete'))
-    return {'rows': rows, 'returned_rows': len(rows), 'has_more': has_more,
+    return {'rows': rows, 'returned_rows': len(rows), 'total_rows': total_rows, 'has_more': has_more,
             'status': status,
             'contract_id': compiled.contract_id, 'contract_version': compiled.contract_version,
             'applied_filters': plan.get('filters', []),

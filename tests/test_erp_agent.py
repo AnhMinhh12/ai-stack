@@ -180,20 +180,26 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         for content in (envelope + envelope, envelope + ' trailing extra text'):
             with self.assertRaises(ValueError): parse_final(content)
 
-    async def test_profile_filter_isolates_legacy_tools(self):
-        spec = importlib.util.spec_from_file_location('agent_filter', ROOT/'functions/htmp_erp_agent_filter.py')
-        module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
-        body = {'model':'htmp-erp-agent-staging', 'tool_ids':['htmp_postgres_query'], 'files':['untrusted']}
-        result = await module.Filter().inlet(body)
-        self.assertEqual(result['tool_ids'], ['htmp_erp_agent'])
-        self.assertNotIn('files', result)
-        other = {'model':'htmp-nhanh', 'tool_ids':['htmp_postgres_query']}
-        self.assertEqual(await module.Filter().inlet(copy.deepcopy(other)), other)
+    async def test_profile_uses_direct_pipe_without_legacy_tools(self):
+        spec = importlib.util.spec_from_file_location('agent_pipe', ROOT / 'functions/htmp_erp_agent_pipe.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        cleaned = module.sanitize_reply_text('OK.<tool_call>{"name":"x"}</tool_call>\n瞬间测试')
+        self.assertEqual(cleaned, 'OK.')
+        profile = json.loads((ROOT / 'config/htmp-erp-agent-profile.json').read_text())
+        self.assertEqual([f['id'] for f in profile['functions']], ['htmp_erp_agent_pipe'])
+        self.assertEqual(profile['functions'][0]['type'], 'pipe')
+        model_cfg = profile['models'][0]
+        self.assertEqual(model_cfg['id'], 'htmp-erp-agent-staging')
+        self.assertEqual(model_cfg['base_model_id'], 'htmp_erp_agent_pipe')
+        self.assertEqual(model_cfg['tool_ids'], [])
+        self.assertEqual(model_cfg['filter_ids'], [])
+        self.assertFalse(model_cfg['use_knowledge'])
 
-    def test_profile_does_not_expose_identity_or_history_arguments(self):
-        profile = json.loads((ROOT/'config/htmp-erp-agent-profile.json').read_text())
-        tool = next(f for f in profile['functions'] if f['type']=='tool')
-        self.assertEqual(set(tool['specs'][0]['parameters']['properties']), {'question'})
+    def test_profile_picker_allows_only_staging_and_gpt(self):
+        policy = json.loads((ROOT / 'config/model-picker-policy.json').read_text())
+        self.assertEqual(policy['groups'].get('erp_staging'), ['htmp-erp-agent-staging'])
+        self.assertNotIn('htmp-nhanh', json.dumps(policy))
 
     async def test_backend_summary_aggregations(self):
         async def db_with_summary(*args):
@@ -390,6 +396,31 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("type:'iframe:height'", html)
         self.assertIn('animation: false', html)
         self.assertIsNone(render_erp_embed({'blocks': [{'type': 'summary', 'text': 'Rỗng'}]}))
+
+    def test_lookup_tools_render_rich_ui_tables_or_flag_no_table(self):
+        from erp_ai.presentation import receipt_blocks
+        from erp_ai.rich_ui import render_erp_embed
+        mold_item = {
+            'tool': 'query_mold_profile',
+            'arguments': {'mold': 'K_QC5-2919-000-V1', 'material': 'QC7-5146-000'},
+            'result': {'rows': [{'ma_khuon': 'K_QC5-2919-000-V1', 'ten_khuon': 'Khuôn 2919',
+                                 'tong_so_shot': 1760047, 'so_shot_bh': 1000000, 'ma_sp': 'QC7-5146-000'}],
+                       'sources': [{'id': 'records:mold'}]},
+        }
+        blocks = receipt_blocks('Tuổi thọ khuôn K_QC5-2919-000-V1', [mold_item], 'answered')
+        self.assertEqual([b['type'] for b in blocks], ['table'])
+        html = render_erp_embed({'blocks': blocks})
+        self.assertIn('<th scope="col" class="num-col">Tổng số shot đã chạy</th>', html)
+        self.assertIn('1,760,047', html)
+        self.assertIn('1,000,000', html)
+        empty_item = {
+            'tool': 'query_qc_status',
+            'arguments': {'material': 'NONE-01'},
+            'result': {'rows': [], 'sources': [{'id': 'records:qc'}]},
+        }
+        empty_blocks = receipt_blocks('Trạng thái QC NONE-01', [empty_item], 'answered')
+        self.assertEqual(empty_blocks, [])
+        self.assertIsNone(render_erp_embed({'blocks': empty_blocks}))
 
     def test_invalid_limits(self):
         for kwargs in [dict(rounds=0),dict(rows=201),dict(tools=1.5),dict(seconds=float('nan'))]:

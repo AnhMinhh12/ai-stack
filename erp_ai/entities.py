@@ -9,7 +9,12 @@ DOCUMENT = re.compile(r"\b\d{3}-\d{4}-\d{6}\b")
 # Treat slash-delimited segments as part of the identifier rather than text
 # separators; otherwise a lookup silently queries a different material.
 MATERIAL = re.compile(
-    r"\b(?=[a-z0-9/-]*\d)(?=[a-z0-9/-]*[a-z])[a-z0-9]+(?:[-/][a-z0-9]+)*\b",
+    r"(?<![a-z0-9_/-])(?=[a-z0-9/-]*\d)(?=[a-z0-9/-]*[a-z])[a-z0-9]+(?:[-/][a-z0-9]+)*(?![a-z0-9_/-])",
+    re.I,
+)
+MOLD = re.compile(
+    r"(?<![a-z0-9_/-])(K_[a-z0-9_/-]*\d[a-z0-9_/-]*)(?![a-z0-9_/-])"
+    r"|(?:khuôn|khuon|mã\s*khuôn|ma\s*khuon|mold)\s*[:#-]?\s*(?=[a-z0-9_/-]*\d)([a-z0-9][a-z0-9_/-]{2,})\b",
     re.I,
 )
 NUMERIC_MATERIAL = re.compile(
@@ -23,7 +28,7 @@ STANDALONE_NUMERIC_MATERIAL = re.compile(r"^\s*(\d{6,})\s*(?:[?!.…]+)?\s*$")
 # is explicitly labelled, and must contain a separator so ordinary phrases
 # such as "mã này" are not mistaken for a code.
 LABELLED_HYPHENATED_MATERIAL = re.compile(
-    r"(?:mã|ma)(?:\s*(?:vật\s*tư|vat\s*tu|vt|hàng|hang|sản\s*phẩm|san\s*pham))?\s*[:#-]?\s*"
+    r"(?:mã|ma)(?:\s*(?:vật\s*tư|vat\s*tu|vt|hàng|hang|sản\s*phẩm|san\s*pham|sp))?\s*[:#-]?\s*"
     r"([a-z0-9][a-z0-9]*(?:[-/][a-z0-9]+)+)\b",
     re.I,
 )
@@ -55,12 +60,18 @@ def extract_entities(text: str) -> dict[str, str]:
     document = DOCUMENT.search(value)
     customer = CUSTOMER.search(value)
     customer_code = (customer.group(1) or customer.group(2)).upper() if customer else ""
+    mold_match = MOLD.search(value)
+    mold_code = (mold_match.group(1) or mold_match.group(2)).upper() if mold_match else ""
 
     warehouse_code = ""
     material = None
     for m in MATERIAL.finditer(value):
         candidate = m.group(0).upper()
-        if customer_code and candidate == customer_code:
+        if (customer_code and candidate == customer_code) or (mold_code and candidate == mold_code):
+            continue
+        if re.search(r"\b(?:khuôn|khuon|mold)\s*[:#-]?\s*$", value[:m.start()], re.I):
+            if not mold_code:
+                mold_code = candidate
             continue
         # Warehouse check: if code starts with KHO or is a known warehouse code, it is ma_kho
         if candidate.startswith("KHO") or candidate in KNOWN_WAREHOUSES or re.search(r"\b(?:kho|o\s*kho|ở\s*kho|tai\s*kho|tại\s*kho|ở|tai|tại)\s*[:#-]?\s*$", value[:m.start()], re.I):
@@ -83,11 +94,11 @@ def extract_entities(text: str) -> dict[str, str]:
     date = DATE.search(value)
     transaction = TRANSACTION.search(value)
     matched_ma_vt = (
-        material.group(0).upper()
-        if material
+        labelled_hyphenated_material.group(1).upper()
+        if labelled_hyphenated_material
         else (
-            labelled_hyphenated_material.group(1).upper()
-            if labelled_hyphenated_material
+            material.group(0).upper()
+            if material
             else next((
                 group
                 for group in (numeric_material.groups() if numeric_material else ())
@@ -104,6 +115,7 @@ def extract_entities(text: str) -> dict[str, str]:
 
     return {
         "ma_vt": matched_ma_vt,
+        "ma_khuon": mold_code,
         "ma_kh": customer_code,
         "ma_kho": warehouse_code,
         "so_ct": document.group(0) if document else "",
@@ -116,5 +128,5 @@ def merge_filters(current: Mapping[str, str], previous: Mapping[str, str]) -> di
     """Current-turn explicit values override state; missing values inherit state."""
     return {
         key: current.get(key) or previous.get(key) or ""
-        for key in ("ma_vt", "ma_kh", "ma_kho", "so_ct", "ngay_ct", "ma_gd")
+        for key in ("ma_vt", "ma_khuon", "ma_kh", "ma_kho", "so_ct", "ngay_ct", "ma_gd")
     }

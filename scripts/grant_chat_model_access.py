@@ -11,8 +11,8 @@ import uuid
 
 OWNER_EMAIL = "hoanhminhz@gmail.com"
 USER_EMAILS = ("products@htmp.com.vn", "sales@htmp.com.vn")
-PICKER_MODELS = ("htmp-nhanh", "htmp-erp-agent-staging", "gpt-5.6-sol", "gpt-5.6-luna")
-BASE_MODELS = ("qwen2.5-14b",)
+PICKER_MODELS = ("htmp-erp-agent-staging", "gpt-5.6-sol", "gpt-5.6-luna")
+BASE_MODELS = ("htmp_erp_agent_pipe", "qwen2.5-14b")
 MODEL_IDS = PICKER_MODELS + BASE_MODELS
 
 
@@ -43,7 +43,7 @@ def main() -> None:
                 MODEL_IDS,
             )
         }
-        for model_id in ("htmp-nhanh", "htmp-erp-agent-staging", *BASE_MODELS):
+        for model_id in ("htmp-erp-agent-staging", *BASE_MODELS):
             if model_id not in models or not models[model_id][2]:
                 raise SystemExit(f"Required active model is missing: {model_id}")
         for model_id in ("gpt-5.6-sol", "gpt-5.6-luna"):

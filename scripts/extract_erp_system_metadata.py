@@ -15,12 +15,16 @@ from collections import defaultdict
 from pathlib import Path
 
 def extract_metadata():
+    required_env = ('HTMP_DB_HOST', 'HTMP_DB_USER', 'HTMP_DB_PASSWORD')
+    missing = [k for k in required_env if not os.getenv(k)]
+    if missing:
+        raise RuntimeError(f"Thiếu biến môi trường kết nối DB: {', '.join(missing)}")
     conn_params = {
-        'host': os.getenv('HTMP_DB_HOST', '10.0.6.2'),
+        'host': os.environ['HTMP_DB_HOST'],
         'port': os.getenv('HTMP_DB_PORT', '5410'),
         'dbname': os.getenv('HTMP_DB_NAME', '3SERP_HTMP_DATA'),
-        'user': os.getenv('HTMP_DB_USER', 'read_htmp'),
-        'password': os.getenv('HTMP_DB_PASSWORD', 'P@ss@Htmp@W0rd!2025'),
+        'user': os.environ['HTMP_DB_USER'],
+        'password': os.environ['HTMP_DB_PASSWORD'],
         'connect_timeout': 10
     }
 

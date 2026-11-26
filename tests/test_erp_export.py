@@ -119,19 +119,53 @@ class ExportTests(unittest.TestCase):
         self.assertEqual(downloads[0]["name"], "bao-cao-erp.pdf")
         self.assertTrue(downloads[0]["data"].startswith(b"%PDF-"))
 
-    @unittest.skipUnless(importlib.util.find_spec("fastapi") and importlib.util.find_spec("openpyxl"), "Open WebUI libraries unavailable")
-    def test_existing_erp_result_remains_visible_to_model(self):
-        staged = Path("/tmp/htmp-erp-export-deploy/htmp_postgres_query.py")
-        source = staged if staged.is_file() else Path(__file__).resolve().parents[1] / "functions" / "htmp_postgres_query.py"
-        spec = importlib.util.spec_from_file_location("erp_export_tool_test", source)
+    @unittest.skipUnless(importlib.util.find_spec("openpyxl") and importlib.util.find_spec("docx"), "Office libraries unavailable")
+    def test_pipe_generates_downloads_and_embeds_for_verified_table(self):
+        import asyncio
+        import sys
+        import types
+        from unittest.mock import AsyncMock, patch
+
+        if "fastapi" not in sys.modules:
+            fastapi_mod = types.ModuleType("fastapi")
+            responses_mod = types.ModuleType("fastapi.responses")
+            responses_mod.HTMLResponse = object
+            fastapi_mod.responses = responses_mod
+            sys.modules["fastapi"] = fastapi_mod
+            sys.modules["fastapi.responses"] = responses_mod
+
+        source = Path(__file__).resolve().parents[1] / "functions" / "htmp_erp_agent_pipe.py"
+        spec = importlib.util.spec_from_file_location("erp_pipe_export_test", source)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        tool = module.Tools()
-        tool._ask_erp_data = lambda *args: json.dumps({"rows": [{"so_ct": "PN-1", "sl_nhap": 2}], "row_count": 1})
-        response, context = tool.ask_erp("liệt kê nhập kho")
-        self.assertEqual(context["rows"][0]["so_ct"], "PN-1")
-        self.assertEqual(context["download_formats"], ["xlsx", "docx", "pdf"])
-        self.assertIn("Tải XLSX", response.body.decode())
+        pipe = module.Pipe()
+        emitted = []
+
+        async def emitter(event):
+            emitted.append(event)
+
+        fake_result = {
+            "status": "answered",
+            "answer": "Có 1 dòng nhập kho.",
+            "blocks": [
+                {"type": "summary", "text": "Có 1 dòng nhập kho.", "source_ids": ["records:1"]},
+                {"type": "table", "title": "Nhập kho", "columns": [
+                    {"key": "so_ct", "label": "Số chứng từ", "type": "text"},
+                    {"key": "sl_nhap", "label": "Số lượng", "type": "number"},
+                ], "rows": [{"so_ct": "PN-1", "sl_nhap": 2}], "total_rows": 1, "has_more": False, "source_ids": ["records:1"]},
+            ],
+        }
+        with patch.object(module, "answer", AsyncMock(return_value=fake_result)):
+            reply = asyncio.run(pipe.pipe(
+                {"messages": [{"role": "user", "content": "liệt kê nhập kho"}]},
+                __user__={"id": "u1"},
+                __event_emitter__=emitter,
+            ))
+        self.assertEqual(reply, "Có 1 dòng nhập kho.")
+        embeds = [ev["data"]["embeds"][0] for ev in emitted if ev.get("type") == "embeds"]
+        self.assertEqual(len(embeds), 1)
+        self.assertIn("Tải XLSX", embeds[0])
+        self.assertIn("PN-1", embeds[0])
 
 
 if __name__ == "__main__":
