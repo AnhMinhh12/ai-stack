@@ -158,12 +158,13 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
             raise PlanError('bounded_date_range_required')
     elif curated_subquery and contract.get('require_bounded_date', True):
         date_fields = contract.get('bounded_date_fields') or [contract.get('date_field', 'day')]
+        max_span = int(contract.get('max_date_span_days', 366))
         has_bounded = False
         for date_field in date_fields:
             eqs = [x['value'] for x in filters if x['field'] == date_field and x['op'] == 'eq']
             starts = [x['value'] for x in filters if x['field'] == date_field and x['op'] == 'gte']
             ends = [x['value'] for x in filters if x['field'] == date_field and x['op'] == 'lte']
-            valid_range = len(starts) == 1 and len(ends) == 1 and 0 <= (date.fromisoformat(ends[0]) - date.fromisoformat(starts[0])).days <= 366
+            valid_range = len(starts) == 1 and len(ends) == 1 and 0 <= (date.fromisoformat(ends[0]) - date.fromisoformat(starts[0])).days <= max_span
             if len(eqs) == 1 or valid_range:
                 has_bounded = True
                 break

@@ -65,6 +65,13 @@ def _extract_dates_from_text(text: str) -> tuple[list[str], list[dict[str, str]]
     return iso_dates, months
 
 
+_TITLE_STOPWORDS = frozenset({
+    "bao", "cao", "tong", "hop", "chi", "tiet", "phieu", "danh", "muc", "theo",
+    "va", "cua", "cho", "trong", "hien", "hanh", "moi", "nhat", "du", "lieu",
+    "erp", "mes", "khsx", "nhap", "xuat", "hang", "hoa",
+})
+
+
 def _score_dataset(ds: dict[str, Any], q_norm: str, combined_norm: str) -> int:
     primary_cues = [c for c in (ds.get("cues") or ()) if isinstance(c, str) and c]
     secondary_cues = [c for c in (ds.get("secondary_cues") or ()) if isinstance(c, str) and c]
@@ -84,6 +91,13 @@ def _score_dataset(ds: dict[str, Any], q_norm: str, combined_norm: str) -> int:
             score += 3
         if matched_ctx:
             score += 1
+    title_norm = _norm(str(ds.get("title") or ""))
+    if title_norm:
+        q_words = set(re.findall(r"[a-z0-9_]{2,}", q_norm))
+        t_words = [w for w in re.findall(r"[a-z0-9_]{2,}", title_norm) if w not in _TITLE_STOPWORDS]
+        overlap = sum(1 for w in set(t_words) if w in q_words)
+        if overlap >= 2:
+            score += 2 if score == 0 else 1
     return score
 
 

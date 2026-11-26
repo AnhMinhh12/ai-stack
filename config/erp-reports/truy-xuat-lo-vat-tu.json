@@ -1,0 +1,19 @@
+{
+  "id": "lot_and_master_trace",
+  "title": "Truy xuất phát sinh lô (ctlo), HSD lô, quy cách đóng thùng và quy đổi ĐVT",
+  "validation": {
+    "status": "pending_ui_validation",
+    "note": "Tra cứu theo mã lô (ctlovitri_ma_lo) hoặc mã vật tư (ctlovitri_ma_vt) kết hợp dmloupdatehsd, dmvtqcdg, dmqddvt."
+  },
+  "inputs": {
+    "required": ["lookup_code"]
+  },
+  "sources": [
+    "ctlo",
+    "dmloupdatehsd",
+    "dmvtqcdg",
+    "dmqddvt",
+    "dmvt"
+  ],
+  "query_file": "agent-lot-trace.sql"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "label_serial_trace",
+  "title": "Truy xuất nhanh tem QR / Serial / Thùng / Carton",
+  "validation": {
+    "status": "pending_ui_validation",
+    "note": "Tra cứu trực tiếp qua khóa chính hoặc chỉ mục QR/Serial trên data_intem, intemeerolog, intem_serisp_log, mes_oi_dong_thung_eero, intem_aristonlog, intem_carton_log."
+  },
+  "inputs": {
+    "required": ["serial_code"]
+  },
+  "sources": [
+    "data_intem",
+    "intemeerolog",
+    "intem_serisp_log",
+    "mes_oi_dong_thung_eero",
+    "intem_aristonlog",
+    "intem_carton_log"
+  ],
+  "query_file": "agent-label-serial-trace.sql"
+}

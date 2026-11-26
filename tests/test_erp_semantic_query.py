@@ -324,7 +324,7 @@ class CuratedSubqueryAndPresentationTests(unittest.TestCase):
         from pathlib import Path
         cfg = json.loads((Path(__file__).resolve().parents[1] / 'config/erp-agent.json').read_text())
         contracts = cfg.get('semantic_contracts', {})
-        self.assertEqual(len(contracts), 40)
+        self.assertEqual(len(contracts), 62)
         for name, contract in contracts.items():
             self.assertEqual(contract.get('status'), 'approved')
             first_dim = next(d for d in contract['dimensions'] if d not in ('day', 'unit', 'currency'))
@@ -334,8 +334,9 @@ class CuratedSubqueryAndPresentationTests(unittest.TestCase):
             first_metric = next(iter(contract['metrics']))
             if contract['metrics'][first_metric].get('unit_dimension') == 'currency' and 'currency' in contract['dimensions']:
                 dims.append('currency')
-            filters = ([{'field': 'day', 'op': 'gte', 'value': '2026-10-01'},
-                        {'field': 'day', 'op': 'lte', 'value': '2026-10-31'}]
+            df = contract.get('date_field', 'day')
+            filters = ([{'field': df, 'op': 'gte', 'value': '2026-10-01'},
+                        {'field': df, 'op': 'lte', 'value': '2026-10-10'}]
                        if contract.get('require_bounded_date', True) else [])
             compiled = compile_query({
                 'dataset': name,

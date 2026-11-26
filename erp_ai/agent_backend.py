@@ -248,6 +248,8 @@ class ReportBackend:
             }
             if contract.get("title"):
                 item["title"] = contract["title"]
+            if contract.get("max_date_span_days") and int(contract["max_date_span_days"]) < 366:
+                item["max_date_span_days"] = int(contract["max_date_span_days"])
             if contract.get("notes"):
                 item["notes"] = contract["notes"]
             if unit_reqs:
@@ -562,6 +564,13 @@ class ReportBackend:
                         bad = [str(m) for m in (parsed_plan.get("metrics") or ()) if m not in m_meta]
                         if bad:
                             err["hint"] = f"Chỉ tiêu không hợp lệ: {', '.join(bad)}. CHỈ dùng tên có trong valid_metrics ({', '.join(valid_metrics)}); hãy SỬA và GỌI LẠI NGAY query_semantic_plan."
+                    elif str(exc) == "bounded_date_range_required":
+                        d_fields = c_meta.get("bounded_date_fields") or [c_meta.get("date_field", "day")]
+                        max_span = int(c_meta.get("max_date_span_days", 366))
+                        err["hint"] = (
+                            f"Bắt buộc lọc trường ngày ({', '.join(d_fields)}) bằng 'eq' hoặc cặp 'gte' và 'lte' "
+                            f"trong tối đa {max_span} ngày. HÃY GỌI LẠI NGAY query_semantic_plan."
+                        )
                     if c_meta.get("notes"):
                         err["notes"] = c_meta["notes"]
                 return err

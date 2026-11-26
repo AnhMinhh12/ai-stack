@@ -484,6 +484,131 @@ def build_random_cases() -> list[GoldenCase]:
             expected_tools=("query_semantic_plan",),
             expected_dataset="mold_incident_status",
         ),
+        GoldenCase(
+            case_id="rand_ycn_receipt_requests_nov2026",
+            question="Trong tháng 11/2026, thống kê phiếu yêu cầu nhập hàng mua (YCN) theo nhà cung cấp và trạng thái.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="purchase_receipt_requests",
+        ),
+        GoldenCase(
+            case_id="rand_pxc_purchase_returns",
+            question="Tổng hợp các phiếu xuất trả lại nhà cung cấp (PXC) hiện có theo nhà cung cấp và số chứng từ.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="purchase_returns",
+        ),
+        GoldenCase(
+            case_id="rand_rq2_return_requests",
+            question="Thống kê các phiếu yêu cầu đổi trả hàng mua (RQ2) hiện có theo nhà cung cấp và lý do.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="purchase_return_requests",
+        ),
+        GoldenCase(
+            case_id="rand_mixing_pd2_qlt",
+            question="Thống kê lệnh sản xuất và quản lý công đoạn trộn nhựa (PD2 / QLT) theo loại phiếu và mã hàng.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="resin_mixing_operations",
+        ),
+        GoldenCase(
+            case_id="rand_po_delivery_schedule_nov2026",
+            question="Tổng hợp kế hoạch nhận hàng và lịch hẹn giao hàng từ nhà cung cấp (ctkhnh) có ngày hứa giao trong tháng 11/2026.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="purchase_delivery_schedules",
+        ),
+        GoldenCase(
+            case_id="rand_ct70bsp_oct2026",
+            question="Thống kê sổ chi tiết nhập xuất kho theo vị trí và mã nhập xuất (ct70bsp) trong tháng 10/2026.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="warehouse_stock_detail_ledger",
+        ),
+        GoldenCase(
+            case_id="rand_pallet_packing_nov2026",
+            question="Tổng hợp đóng Pallet theo mã hàng từ ngày 20/11/2026 đến 26/11/2026.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="warehouse_pallet_packing",
+        ),
+        GoldenCase(
+            case_id="rand_to2_delivery_lots_nov2026",
+            question="Thống kê chỉ thị lô xuất trên Lệnh giao hàng TO2 (ct96lo) từ ngày 20/11/2026 đến 26/11/2026.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="sales_delivery_lots",
+        ),
+        GoldenCase(
+            case_id="rand_plan_btp_fcst",
+            question="Tổng hợp nhu cầu PO và dự báo FCST bán thành phẩm (BTP) theo công đoạn trong tháng 12/2026.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="planning_btp_forecast",
+        ),
+        GoldenCase(
+            case_id="rand_material_leadtime_moq",
+            question="Top 5 mã nhựa và linh kiện KHSX có leadtime chuẩn cao nhất hiện nay.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="planning_material_leadtime_moq",
+        ),
+        GoldenCase(
+            case_id="rand_mes_cbsx_prep_oct2026",
+            question="Thống kê tình hình chuẩn bị sản xuất (CBSX) và cấp NVL chuẩn bị trên MES trong tháng 10/2026.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="mes_preproduction_prep",
+        ),
+        GoldenCase(
+            case_id="rand_mes_ng_material_oct2026",
+            question="Tổng hợp lỗi NG nguyên vật liệu, bù sản lượng và bàn giao công đoạn inbound trên MES trong tháng 10/2026.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="mes_material_ng_and_adjustments",
+        ),
+        GoldenCase(
+            case_id="rand_eero_labels_nov2026",
+            question="Thống kê nhật ký in tem EERO theo khách hàng từ ngày 24/11/2026 đến 26/11/2026.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="label_eero_print_logs",
+        ),
+        GoldenCase(
+            case_id="rand_label_serial_trace_id",
+            question="Truy xuất thông tin tem có mã QR hoặc id_tem là 20220403000007445110.",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered",),
+            expected_tools=("query_label_serial_trace",),
+        ),
     ]
 
 
@@ -544,11 +669,25 @@ async def _run_dry_eval(cases: list[GoldenCase]) -> list[dict[str, Any]]:
             if "employee" in case.case_id or "ba_thanh_2026" in case.case_id or "followup" in case.case_id:
                 return {"tool_calls": [{"id": "c1", "type": "function", "function": {"name": "query_semantic_plan", "arguments": json.dumps({"dataset": "purchase_requests", "dimensions": ["pr_no", "unit"], "metrics": ["quantity"], "filters": [{"field": "day", "op": "eq", "value": "2026-08-13"}]})}}]}
             if case.expected_dataset:
+                from erp_ai.context_hints import extract_context_hints
                 ds = case.expected_dataset
                 c = cfg["semantic_contracts"][ds]
                 dim = next(d for d in c["dimensions"] if d not in ("day", "unit", "currency"))
                 metric = next(iter(c["metrics"]))
-                filters = [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}] if c.get("require_bounded_date", True) else []
+                df = c.get("date_field", "day")
+                hints = extract_context_hints(case.question)
+                months = hints.get("detected_months") or []
+                dates = hints.get("detected_dates_iso") or []
+                if not c.get("require_bounded_date", True):
+                    filters = []
+                elif len(dates) >= 2:
+                    filters = [{"field": df, "op": "gte", "value": min(dates)}, {"field": df, "op": "lte", "value": max(dates)}]
+                elif len(dates) == 1:
+                    filters = [{"field": df, "op": "eq", "value": dates[0]}]
+                elif months:
+                    filters = [{"field": df, "op": "gte", "value": months[0]["start"]}, {"field": df, "op": "lte", "value": months[0]["end"]}]
+                else:
+                    filters = [{"field": df, "op": "gte", "value": "2026-10-01"}, {"field": df, "op": "lte", "value": "2026-10-31"}]
                 if ds == "purchase_requests":
                     filters = [{"field": "day", "op": "gte", "value": "2026-08-01"}, {"field": "day", "op": "lte", "value": "2026-08-31"}]
                     dim = "pr_no"
@@ -557,6 +696,10 @@ async def _run_dry_eval(cases: list[GoldenCase]) -> list[dict[str, Any]]:
             args = {"material": "QC7-5146-000", "date_as_of": "2026-10-20"}
             if tool in ("query_allowed_records",):
                 args = {"report_id": "sales_lines", "material": "QC7-5146-000", "date_from": "2026-10-01", "date_to": "2026-10-20"}
+            elif tool == "query_label_serial_trace":
+                args = {"serial_code": "20220403000007445110"}
+            elif tool == "query_lot_trace":
+                args = {"lookup_code": "QC7-5146-000"}
             return {"tool_calls": [{"id": "c1", "type": "function", "function": {"name": tool, "arguments": json.dumps(args)}}]}
 
         res = await run_agent(case.question, user=case.user, model=mock_model, backend=backend, limits=Limits(**cfg["limits"]), history=list(case.history))

@@ -249,7 +249,7 @@ class IncidentChangesTests(unittest.IsolatedAsyncioTestCase):
 
         cfg = json.loads((ROOT / "config/erp-agent.json").read_text())
         contracts = cfg["semantic_contracts"]
-        self.assertGreaterEqual(len(contracts), 40)
+        self.assertGreaterEqual(len(contracts), 62)
 
         async def empty_db(*args):
             return []
@@ -268,7 +268,7 @@ class IncidentChangesTests(unittest.IsolatedAsyncioTestCase):
             filters = []
             if c.get("require_bounded_date", True):
                 df = c.get("date_field", "day")
-                filters = [{"field": df, "op": "gte", "value": "2026-10-01"}, {"field": df, "op": "lte", "value": "2026-10-31"}]
+                filters = [{"field": df, "op": "gte", "value": "2026-10-01"}, {"field": df, "op": "lte", "value": "2026-10-10"}]
             dims = list(c.get("dimensions", {}))[:1]
             metrics = list(c.get("metrics", {}))[:1]
             plan = normalize_semantic_plan({"dataset": cid, "dimensions": dims, "metrics": metrics, "filters": filters}, contracts)
@@ -331,6 +331,28 @@ class IncidentChangesTests(unittest.IsolatedAsyncioTestCase):
         searched = await backend.execute("search_semantic_datasets", {"query": "điều chuyển kho PXB PNF"}, {"id": "u"}, Limits())
         self.assertIn("warehouse_transfers", [d["id"] for d in searched["datasets"]])
         self.assertIn("dimensions", searched["datasets"][0])
+
+        span_err = await backend.execute(
+            "query_semantic_plan",
+            {
+                "dataset": "label_eero_print_logs",
+                "dimensions": ["customer"],
+                "metrics": ["label_count"],
+                "filters": [
+                    {"field": "mfg_date", "op": "gte", "value": "2026-10-01"},
+                    {"field": "mfg_date", "op": "lte", "value": "2026-10-31"},
+                ],
+            },
+            {"id": "u"},
+            Limits(),
+        )
+        self.assertEqual(span_err.get("error_code"), "bounded_date_range_required")
+        self.assertIn("14 ngày", span_err.get("hint", ""))
+
+        r_serial = await backend.execute("query_label_serial_trace", {"serial_code": "QR123"}, {"id": "u"}, Limits())
+        self.assertEqual(r_serial.get("returned_rows"), 0)
+        r_lot = await backend.execute("query_lot_trace", {"lookup_code": "QC7-5146-000"}, {"id": "u"}, Limits())
+        self.assertEqual(r_lot.get("returned_rows"), 0)
 
         async def clarify_model(messages, specs):
             return {"content": "Bạn muốn xem doanh thu xuất bán theo khách hàng trong khoảng thời gian nào?"}
