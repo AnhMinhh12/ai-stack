@@ -824,6 +824,22 @@ class ReportBackend:
                         )
                         if probe_hint:
                             res["hint"] = probe_hint
+                elif res.get("has_more") and not res.get("hint"):
+                    non_unit_dims = [
+                        d for d in (plan.get("dimensions") or ())
+                        if d not in ("unit", "currency")
+                    ]
+                    plan_limit = int(plan.get("limit", 50) or 50)
+                    if len(non_unit_dims) >= 2 and plan_limit <= 3:
+                        total_info = res.get("total_rows") or "nhiều"
+                        res["hint"] = (
+                            f"CẢNH BÁO TỔ HỢP CHIỀU: đang nhóm đồng thời {non_unit_dims} với limit={plan_limit} "
+                            f"(chỉ thấy {len(res.get('rows') or [])}/{total_info} tổ hợp). "
+                            f"Nếu cần xác định đối tượng dẫn đầu ('nào nhiều nhất / cao nhất') kèm chi tiết hoặc nguyên nhân, "
+                            f"dòng đầu của cặp KHÔNG đảm bảo là tổng cao nhất của '{non_unit_dims[0]}'. "
+                            f"HÃY GỌI TIẾP query_semantic_plan chỉ với dimensions=['{non_unit_dims[0]}'] "
+                            f"(order_by giảm dần, limit=5) để tìm đúng đối tượng dẫn đầu trước, rồi lọc riêng đối tượng đó nếu cần xem {non_unit_dims[1]}."
+                        )
                 return res
             except PlanError as exc:
                 hints = {

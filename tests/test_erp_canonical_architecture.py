@@ -577,6 +577,69 @@ class CanonicalArchitectureTests(unittest.IsolatedAsyncioTestCase):
         top_ids = [ds["id"] for _, ds in ranked[:5]]
         self.assertIn("purchase_delivery_schedules", top_ids[:2])
 
+    async def test_all_62_facts_in_semantic_model_and_multi_dim_guard_and_grant_profiles(self):
+        model_raw = json.loads((ROOT / "config/erp-semantic-model.json").read_text())
+        self.assertEqual(len(model_raw["facts"]), 62)
+        compiled_facts, _ = compile_semantic_model(model_raw)
+        self.assertEqual(set(compiled_facts), {k for k, v in CONFIG["semantic_contracts"].items() if v.get("status") == "approved"})
+
+        # Multi-dimension limit<=3 with truncation emits a statistical ranking hint; single-dim does not.
+        async def mock_multi_dim_db(*_):
+            return [
+                {"machine": "DUC-0069", "reason_name": "Ve sinh", "stop_minutes": 11616, "__total_rows": 3553},
+                {"machine": "DUC-0065", "reason_name": "Sua khuon", "stop_minutes": 9000, "__total_rows": 3553},
+            ]
+
+        backend = ReportBackend.from_root(
+            ROOT,
+            {"u": {"erp_user_id": 11, "reports": [], "semantic_datasets": ["mes_downtime_lines"]}},
+            mock_multi_dim_db,
+        )
+        res_multi = await backend.execute(
+            "query_semantic_plan",
+            {
+                "dataset": "mes_downtime_lines",
+                "dimensions": ["machine", "reason_name"],
+                "metrics": ["stop_minutes"],
+                "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}],
+                "order_by": [{"field": "stop_minutes", "direction": "desc"}],
+                "limit": 1,
+            },
+            {"id": "u"},
+            Limits(),
+        )
+        self.assertIn("CẢNH BÁO TỔ HỢP CHIỀU", res_multi.get("hint", ""))
+
+        res_single = await backend.execute(
+            "query_semantic_plan",
+            {
+                "dataset": "mes_downtime_lines",
+                "dimensions": ["machine"],
+                "metrics": ["stop_minutes"],
+                "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}],
+                "order_by": [{"field": "stop_minutes", "direction": "desc"}],
+                "limit": 1,
+            },
+            {"id": "u"},
+            Limits(),
+        )
+        self.assertNotIn("hint", res_single)
+
+        # Grant role profiles cover valid IDs and separate domain boundaries.
+        from scripts.generate_erp_grants import compile_user_grants, validate_grant_profiles
+
+        profiles = json.loads((ROOT / "config/erp-grant-profiles.json").read_text())
+        self.assertEqual(validate_grant_profiles(CONFIG, profiles), [])
+        compiled_grants = compile_user_grants(
+            [{"email": "Sales.User@htmp.invalid", "erp_user_id": 42, "roles": "sales"}],
+            config=CONFIG,
+            profiles=profiles,
+        )
+        sales_grant = compiled_grants["sales.user@htmp.invalid"]
+        self.assertEqual(sales_grant["erp_user_id"], 42)
+        self.assertIn("sales_order_lines", sales_grant["semantic_datasets"])
+        self.assertNotIn("gl_account_movements", sales_grant["semantic_datasets"])
+
 
 if __name__ == "__main__":
     unittest.main()

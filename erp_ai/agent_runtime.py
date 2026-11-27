@@ -83,7 +83,7 @@ async def query(sql, parameters, limits):
     async with await psycopg.AsyncConnection.connect(dsn, connect_timeout=5, row_factory=dict_row) as conn:
         async with conn.cursor() as cur:
             await cur.execute("SET TRANSACTION READ ONLY")
-            await cur.execute("SELECT set_config('statement_timeout', %s, true)", (str(min(10000, int(limits.seconds*1000))),))
+            await cur.execute("SELECT set_config('statement_timeout', %s, true)", (str(min(20000, int(limits.seconds*1000))),))
             await cur.execute("SELECT set_config('lock_timeout', '1000', true)")
             await cur.execute(sql, parameters)
             return await cur.fetchmany(limits.rows + 1)

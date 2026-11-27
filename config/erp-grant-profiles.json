@@ -1,0 +1,183 @@
+{
+  "version": "2026-11-27",
+  "description": "Mẫu hồ sơ phân quyền ERP/MES theo phòng ban (non-secret). Dùng scripts/generate_erp_grants.py để biên dịch thành HTMP_AGENT_GRANTS khi triển khai theo từng tài khoản.",
+  "roles": {
+    "sales": {
+      "label": "Kinh doanh / CSKH (SO, TO2, SQ1, Bảng giá bán)",
+      "reports": [
+        "sales_lines",
+        "price_list",
+        "customer_master",
+        "employee_master",
+        "material_customer",
+        "sales_orders",
+        "sales_order_price_gaps",
+        "delivery_order",
+        "replacement_orders"
+      ],
+      "semantic_datasets": [
+        "sales_delivery_lines",
+        "sales_order_lines",
+        "sales_delivery_orders",
+        "sales_quotations",
+        "sales_returns",
+        "sales_return_requests",
+        "sales_prices_current",
+        "sales_delivery_lots",
+        "sales_delivery_serials",
+        "sales_delivery_tools",
+        "sales_quotation_costings",
+        "production_forecast_demand",
+        "planning_customer_forecast_headers"
+      ]
+    },
+    "purchase": {
+      "label": "Mua hàng (PR0, PO1, BG0, Giá mua NCC, Pending PO)",
+      "reports": [
+        "customer_master",
+        "employee_master",
+        "receipt_lines"
+      ],
+      "semantic_datasets": [
+        "purchase_requests",
+        "purchase_order_lines",
+        "purchase_receipt_lines",
+        "supplier_quotations",
+        "purchase_prices_current",
+        "planning_pending_po",
+        "purchase_receipt_requests",
+        "purchase_returns",
+        "purchase_return_requests",
+        "purchase_delivery_schedules",
+        "qc_iqc_lines"
+      ]
+    },
+    "warehouse": {
+      "label": "Kho vận, Nhập/Xuất, Lô & Tem/Pallet",
+      "reports": [
+        "inventory_balance",
+        "inventory_by_warehouse",
+        "receipt_lines",
+        "packaging_spec",
+        "qc_label_status",
+        "label_serial_trace",
+        "lot_and_master_trace",
+        "delivery_order",
+        "employee_master"
+      ],
+      "semantic_datasets": [
+        "inventory_movements",
+        "inventory_stock_lots",
+        "warehouse_transfers",
+        "warehouse_internal_issues",
+        "warehouse_internal_receipts",
+        "warehouse_requests",
+        "planning_stock_snapshot",
+        "warehouse_stock_detail_ledger",
+        "warehouse_pallet_packing",
+        "sales_delivery_lots",
+        "sales_delivery_serials",
+        "sales_delivery_tools",
+        "label_eero_print_logs"
+      ]
+    },
+    "planning": {
+      "label": "Kế hoạch sản xuất (KHSX, FCST, BOM, Leadtime/MOQ)",
+      "reports": [
+        "product_structure",
+        "forecast_po",
+        "inventory_balance",
+        "inventory_by_warehouse",
+        "material_customer",
+        "packaging_spec",
+        "employee_master"
+      ],
+      "semantic_datasets": [
+        "production_forecast_demand",
+        "production_orders",
+        "bom_materials",
+        "ecn_and_bom_changes",
+        "resin_mixing_operations",
+        "planning_btp_forecast",
+        "planning_customer_forecast_headers",
+        "planning_material_leadtime_moq",
+        "planning_machine_and_resin_stock",
+        "planning_bom_and_alternatives",
+        "planning_pending_po",
+        "planning_stock_snapshot",
+        "production_order_materials_and_steps",
+        "mold_cavity_specs"
+      ]
+    },
+    "production_mes": {
+      "label": "Sản xuất MES (Sản lượng, OEE, Dừng máy, NG, Trộn nhựa)",
+      "reports": [
+        "product_structure",
+        "mold_profile",
+        "employee_master"
+      ],
+      "semantic_datasets": [
+        "mes_production_output",
+        "mes_work_orders",
+        "mes_oee_daily",
+        "mes_downtime_lines",
+        "mes_ng_defects",
+        "mes_material_usage",
+        "mes_setup_and_mold_ops",
+        "mes_operators_output",
+        "mes_carton_packing",
+        "mes_shot_rejections",
+        "mes_scheduling_plan",
+        "mes_preproduction_prep",
+        "mes_machine_logs_and_cavity",
+        "mes_material_ng_and_adjustments",
+        "production_orders",
+        "resin_mixing_operations",
+        "mold_cavity_specs",
+        "mold_incident_status"
+      ]
+    },
+    "qc_mold": {
+      "label": "QC & Kỹ thuật Khuôn (IQC, PQC, Khuôn, Truy xuất tem/lô)",
+      "reports": [
+        "qc_label_status",
+        "mold_profile",
+        "mold_label_stock",
+        "label_serial_trace",
+        "lot_and_master_trace",
+        "product_structure",
+        "employee_master"
+      ],
+      "semantic_datasets": [
+        "qc_iqc_lines",
+        "qc_pqc_lines",
+        "qc_inspection_criteria_lines",
+        "mold_cavity_specs",
+        "mold_incident_status",
+        "ecn_and_bom_changes",
+        "bom_materials",
+        "mes_ng_defects",
+        "mes_shot_rejections",
+        "label_eero_print_logs",
+        "inventory_stock_lots"
+      ]
+    },
+    "finance": {
+      "label": "Kế toán & Công nợ (GL, Doanh thu, Giá vốn/Mua/Bán)",
+      "reports": [
+        "customer_master",
+        "employee_master",
+        "price_list",
+        "sales_order_price_gaps"
+      ],
+      "semantic_datasets": [
+        "gl_account_movements",
+        "sales_delivery_lines",
+        "sales_returns",
+        "purchase_receipt_lines",
+        "purchase_returns",
+        "inventory_movements"
+      ]
+    }
+  }
+}

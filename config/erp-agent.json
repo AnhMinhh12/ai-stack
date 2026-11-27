@@ -1873,11 +1873,32 @@
         "required_date"
       ],
       "alternate_date_field": "required_date",
+      "alternate_date_label": "ngày nhận hàng yêu cầu",
+      "alternate_filter_fields": {
+        "creator_user": "requester",
+        "requester": "creator_user"
+      },
       "default_metrics": [
         "quantity",
         "po_count"
       ],
       "require_bounded_date": true,
+      "cues": [
+        "dat mua",
+        "don mua",
+        "po1",
+        "nha cung cap",
+        "ncc",
+        "ph94"
+      ],
+      "secondary_cues": [
+        "de nghi mua",
+        "yeu cau mua",
+        "phieu mua",
+        "viet phieu mua",
+        "pr0",
+        "ph91"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT h.so_ct AS po_no, h.ma_kh AS supplier, coalesce(k.ten_kh, '') AS supplier_name, coalesce(h.ma_bp, '') AS department, coalesce(h.ma_nvbh, '') AS requester, coalesce(req.ten_kh, '') AS requester_name, coalesce(h.nguoi_phu_trach, '') AS in_charge, coalesce(pic.ten_kh, '') AS in_charge_name, coalesce(cr.user_name, '') AS creator_user, coalesce(cr.ten, '') AS creator_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(tt.statusname, h.status::text, '') AS status_name, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, d.ngay_yc AS required_date, coalesce(d.dvt, v.dvt, '') AS unit, d.so_luong AS quantity, d.tien AS amount_vnd, d.tien_nt AS amount_orig, d.gia AS unit_price_vnd, h.stt_rec AS doc_id FROM public.ph94 h JOIN public.ct94 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmkh req ON req.ma_kh = h.ma_nvbh LEFT JOIN public.dmkh pic ON pic.ma_kh = h.nguoi_phu_trach LEFT JOIN public.userinfo cr ON cr.user_id = h.user_id0 LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'PO1' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('0', '14', '15') AND (coalesce(u.is_super, 0) = 1 OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -2073,27 +2094,6 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "dat mua",
-        "don mua",
-        "po1",
-        "nha cung cap",
-        "ncc",
-        "ph94"
-      ],
-      "secondary_cues": [
-        "de nghi mua",
-        "yeu cau mua",
-        "phieu mua",
-        "viet phieu mua",
-        "pr0",
-        "ph91"
-      ],
-      "alternate_date_label": "ngày nhận hàng yêu cầu",
-      "alternate_filter_fields": {
-        "creator_user": "requester",
-        "requester": "creator_user"
       }
     },
     "purchase_requests": {
@@ -2108,11 +2108,32 @@
         "required_date"
       ],
       "alternate_date_field": "required_date",
+      "alternate_date_label": "ngày nhận hàng yêu cầu",
+      "alternate_filter_fields": {
+        "creator_user": "requester",
+        "requester": "creator_user"
+      },
       "default_metrics": [
         "quantity",
         "pr_count"
       ],
       "require_bounded_date": true,
+      "cues": [
+        "de nghi mua",
+        "yeu cau mua",
+        "phieu mua",
+        "viet phieu mua",
+        "pr0",
+        "ph91"
+      ],
+      "secondary_cues": [
+        "dat mua",
+        "don mua",
+        "po1",
+        "nha cung cap",
+        "ncc",
+        "ph94"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT h.so_ct AS pr_no, h.ngay_ct AS day, d.ngay_yc AS required_date, coalesce(h.ma_bp, d.ma_bp, '') AS department, coalesce(h.ma_nv, '') AS requester, coalesce(req.ten_kh, '') AS requester_name, coalesce(cr.user_name, '') AS creator_user, coalesce(cr.ten, '') AS creator_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(d.dvt, v.dvt, '') AS unit, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, trim(coalesce(h.status::text, '')) AS status, coalesce(tt.statusname, h.status::text, '') AS status_name, d.so_luong AS quantity, h.stt_rec AS doc_id FROM public.ph91 h JOIN public.ct91 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh req ON req.ma_kh = h.ma_nv LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'PR0' AND tt.status::text = h.status::text LEFT JOIN public.userinfo cr ON cr.user_id = h.user_id0 JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('0', '14', '15') AND (coalesce(u.is_super, 0) = 1 OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -2260,27 +2281,6 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "de nghi mua",
-        "yeu cau mua",
-        "phieu mua",
-        "viet phieu mua",
-        "pr0",
-        "ph91"
-      ],
-      "secondary_cues": [
-        "dat mua",
-        "don mua",
-        "po1",
-        "nha cung cap",
-        "ncc",
-        "ph94"
-      ],
-      "alternate_date_label": "ngày nhận hàng yêu cầu",
-      "alternate_filter_fields": {
-        "creator_user": "requester",
-        "requester": "creator_user"
       }
     },
     "purchase_receipt_lines": {
@@ -2432,8 +2432,17 @@
       "title": "Tổng hợp phát sinh nhập xuất kho trong kỳ (ct70)",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "nhap xuat",
+        "dieu chuyen",
+        "bien dong kho"
+      ],
+      "secondary_cues": [
+        "nhap mua",
+        "phieu nhap mua"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT c.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, c.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(c.dvt, v.dvt, '') AS unit, trim(coalesce(c.ma_ct, '')) AS doc_type, c.so_ct AS doc_no, c.ngay_ct AS day, c.sl_nhap AS in_qty, c.sl_xuat AS out_qty, c.tien_nhap AS in_amount_vnd, c.tien_xuat AS out_amount_vnd, c.stt_rec AS doc_id FROM public.ct70 c LEFT JOIN public.dmkho w ON w.ma_kho = c.ma_kho LEFT JOIN public.dmvt v ON v.ma_vt = c.ma_vt JOIN public.userinfo u ON u.user_id = %s WHERE (c.ma_ct NOT IN ('PXB', 'PNF') OR NOT EXISTS (SELECT 1 FROM public.ph85 b WHERE c.so_ct = b.so_ct AND b.ma_kho = b.ma_khon)) AND (coalesce(u.is_super, 0) = 1 OR (coalesce(u.ds_stocks, '') = '' OR c.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ','))))",
+      "source_sql": "SELECT c.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, c.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(c.dvt, v.dvt, '') AS unit, trim(coalesce(c.ma_ct, '')) AS doc_type, c.so_ct AS doc_no, c.ngay_ct AS day, c.sl_nhap AS in_qty, c.sl_xuat AS out_qty, c.tien_nhap AS in_amount_vnd, c.tien_xuat AS out_amount_vnd, c.stt_rec AS doc_id FROM public.ct70 c LEFT JOIN public.dmkho w ON w.ma_kho = c.ma_kho LEFT JOIN public.dmvt v ON v.ma_vt = c.ma_vt JOIN public.userinfo u ON u.user_id = %s WHERE (c.ma_ct NOT IN ('PXB', 'PNF') OR NOT EXISTS (SELECT 1 FROM public.ph85 b WHERE c.so_ct = b.so_ct AND b.ma_kho = b.ma_khon)) AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_stocks, '') = '' OR c.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))",
       "dimensions": {
         "warehouse": "warehouse",
         "warehouse_name": "warehouse_name",
@@ -2530,16 +2539,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "nhap xuat",
-        "dieu chuyen",
-        "bien dong kho"
-      ],
-      "secondary_cues": [
-        "nhap mua",
-        "phieu nhap mua"
-      ]
+      }
     },
     "mes_downtime_lines": {
       "status": "approved",
@@ -2711,6 +2711,15 @@
       "title": "Thống kê kiểm tra chất lượng hàng mua IQC (phiqc)",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "iqc",
+        "kiem tra dau vao"
+      ],
+      "secondary_cues": [
+        "loi ng",
+        "phe pham",
+        "defect"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT h.ma_ncc AS supplier, coalesce(k.ten_kh, '') AS supplier_name, h.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, h.ngay_ct AS day, coalesce(h.ket_qua::text, '') AS qc_result, coalesce(h.so_luong, 0) AS lot_qty, coalesce(h.so_luong_ok, 0) AS ok_qty, coalesce(h.so_luong_ng, 0) AS ng_qty, h.stt_rec AS doc_id FROM public.phiqc h LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_ncc LEFT JOIN public.dmvt v ON v.ma_vt = h.ma_vt JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -2786,16 +2795,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "iqc",
-        "kiem tra dau vao"
-      ],
-      "secondary_cues": [
-        "loi ng",
-        "phe pham",
-        "defect"
-      ]
+      }
     },
     "mes_production_output": {
       "status": "approved",
@@ -2804,6 +2804,14 @@
       "title": "Sản lượng sản xuất MES theo máy, ca, lệnh SX (mes_oi_confirm)",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "san luong",
+        "san xuat",
+        "ca lam",
+        "work order",
+        "lenh sx",
+        "wo"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT a.machine_code AS machine, coalesce(l.line_group_code3, '') AS line_group, CASE WHEN a.create_time >= TIME '08:00:00' AND a.create_time < TIME '20:00:00' THEN 'Ca ngày (08-20h)' ELSE 'Ca đêm (20-08h)' END AS shift, coalesce(a.production_order, '') AS work_order, a.product_code AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(a.step_code, '') AS step, coalesce(a.station_code, '') AS station, a.create_date AS day, coalesce(v.dvt, 'PCS') AS unit, coalesce(a.quantity, 0) AS planned_qty, coalesce(a.complete, 0) AS complete_qty, coalesce(a.packing, 0) AS packing_qty, coalesce(a.ng, 0) AS ng_qty, coalesce(a.skip_shot, 0) AS skip_shot, CASE WHEN a.end_date IS NOT NULL AND a.end_date >= a.create_date AND a.end_date > '1900-01-01' THEN round((EXTRACT(EPOCH FROM (a.end_date::timestamp + a.end_time::time - a.create_date::timestamp - a.create_time::time)) / 60.0)::numeric, 2) ELSE 0 END AS run_minutes, a.id_oi AS run_id FROM public.mes_oi_confirm a LEFT JOIN public.dmvt v ON v.ma_vt = a.product_code LEFT JOIN public.mflist_line l ON l.line_code = a.machine_code JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(a.branch_code, '001') = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -2911,15 +2919,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "san luong",
-        "san xuat",
-        "ca lam",
-        "work order",
-        "lenh sx",
-        "wo"
-      ]
+      }
     },
     "mes_work_orders": {
       "status": "approved",
@@ -2928,6 +2928,17 @@
       "title": "Lệnh sản xuất và tiến độ kế hoạch WO (mes_scheduling_output)",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "work order",
+        "lenh sx",
+        "wo",
+        "tien do ke hoach"
+      ],
+      "secondary_cues": [
+        "san luong",
+        "san xuat",
+        "ca lam"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT a.machine_code AS machine, coalesce(a.production_order, '') AS work_order, a.mes_scheduling_code AS schedule_code, a.product_code AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(a.mold_code, '') AS mold, coalesce(s.statusname, a.status_wo::text, '') AS wo_status, coalesce(a.work_center_code, b.work_center_code, '') AS work_center, a.start_date AS day, coalesce(a.uom, v.dvt, 'PCS') AS unit, coalesce(a.quantity, 0) AS planned_qty, a.cavity AS cavity, a.cycle_time AS cycle_time, a.efficiency AS efficiency FROM public.mes_scheduling_output a LEFT JOIN public.mes_scheduling b ON b.stt_rec = a.stt_rec LEFT JOIN public.dmvt v ON v.ma_vt = a.product_code LEFT JOIN public.sys_dmtt s ON s.ma_ct = 'WOMS' AND s.status = a.status_wo JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(b.ma_dvcs, '001') = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -3028,18 +3039,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "work order",
-        "lenh sx",
-        "wo",
-        "tien do ke hoach"
-      ],
-      "secondary_cues": [
-        "san luong",
-        "san xuat",
-        "ca lam"
-      ]
+      }
     },
     "mes_oee_daily": {
       "status": "approved",
@@ -3049,8 +3049,18 @@
       "notes": "Chỉ số OEE tính cho máy có khai báo cycle_time và cavity; máy lắp ráp không có cycle_time trả NULL (chưa đủ căn cứ tính OEE).",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "oee",
+        "hieu suat thiet bi",
+        "kha dung"
+      ],
+      "secondary_cues": [
+        "dung may",
+        "downtime",
+        "su co may"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT r.machine_code AS machine, coalesce(l.line_group_code3, '') AS line_group, r.day, round(r.run_minutes::numeric, 2) AS run_minutes, round(coalesce(st.stop_minutes, 0)::numeric, 2) AS stop_minutes, round(GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0)::numeric, 2) AS net_minutes, round((r.ok_minutes + r.ng_minutes)::numeric, 2) AS standard_minutes, r.ok_qty, r.ng_qty, round((CASE WHEN r.run_minutes > 0 THEN GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0) * 100.0 / r.run_minutes END)::numeric, 2) AS availability_pct, round((CASE WHEN GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0) > 0 AND (r.ok_minutes + r.ng_minutes + r.skip_minutes) > 0 THEN LEAST(100.0, (r.ok_minutes + r.ng_minutes + r.skip_minutes) * 100.0 / GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0)) END)::numeric, 2) AS performance_pct, round((CASE WHEN (r.ok_qty + r.ng_qty) > 0 THEN r.ok_qty * 100.0 / (r.ok_qty + r.ng_qty) END)::numeric, 2) AS quality_pct, round((CASE WHEN r.run_minutes > 0 AND GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0) > 0 AND (r.ok_qty + r.ng_qty) > 0 AND (r.ok_minutes + r.ng_minutes + r.skip_minutes) > 0 THEN (GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0) * 100.0 / r.run_minutes) * LEAST(100.0, (r.ok_minutes + r.ng_minutes + r.skip_minutes) * 100.0 / GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0)) * (r.ok_qty * 100.0 / (r.ok_qty + r.ng_qty)) / 10000.0 END)::numeric, 2) AS oee_pct, 1::int AS line_days FROM (SELECT a.machine_code, a.create_date AS day, sum(coalesce(a.complete, 0)) AS ok_qty, sum(coalesce(a.ng, 0)) AS ng_qty, sum(CASE WHEN a.end_date IS NOT NULL AND a.end_date >= a.create_date AND a.end_date > '1900-01-01' THEN EXTRACT(EPOCH FROM (a.end_date::timestamp + a.end_time::time - a.create_date::timestamp - a.create_time::time)) / 60.0 ELSE 0 END) AS run_minutes, sum(CASE WHEN coalesce(k.cavity, s.cavity, 0) > 0 AND coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) > 0 THEN coalesce(a.complete, 0) * coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) / coalesce(k.cavity, s.cavity) / 60.0 ELSE 0 END) AS ok_minutes, sum(CASE WHEN coalesce(k.cavity, s.cavity, 0) > 0 AND coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) > 0 THEN coalesce(a.ng, 0) * coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) / coalesce(k.cavity, s.cavity) / 60.0 ELSE 0 END) AS ng_minutes, sum(CASE WHEN coalesce(k.cavity, s.cavity, 0) > 0 AND coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) > 0 THEN coalesce(a.skip_shot, 0) * coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) / coalesce(k.cavity, s.cavity) / 60.0 ELSE 0 END) AS skip_minutes FROM public.mes_oi_confirm a LEFT JOIN public.mes_scheduling_output s ON s.mes_scheduling_code = a.mes_scheduling_code AND s.product_code = a.product_code LEFT JOIN public.dmhosokhuonsp k ON k.ma_khuon = s.mold_code AND k.ma_sp = a.product_code WHERE a.sp_chinh_yn = 1 GROUP BY a.machine_code, a.create_date) r LEFT JOIN public.mflist_line l ON l.line_code = r.machine_code LEFT JOIN (SELECT machine_code, create_date AS day, sum(EXTRACT(EPOCH FROM (end_date::timestamp + end_time::time - create_date::timestamp - create_time::time)) / 60.0) AS stop_minutes FROM public.mes_oi_stop_line WHERE end_date IS NOT NULL AND end_date >= create_date AND end_date > '1900-01-01' GROUP BY machine_code, create_date) st ON st.machine_code = r.machine_code AND st.day = r.day JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(l.branch_code, '001') = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "source_sql": "SELECT r.machine_code AS machine, coalesce(l.line_group_code3, '') AS line_group, r.day AS day, round(r.run_minutes::numeric, 2) AS run_minutes, round(coalesce(st.stop_minutes, 0)::numeric, 2) AS stop_minutes, round(GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0)::numeric, 2) AS net_minutes, round((r.ok_minutes + r.ng_minutes)::numeric, 2) AS standard_minutes, r.ok_qty AS ok_qty, r.ng_qty AS ng_qty, round((CASE WHEN r.run_minutes > 0 THEN GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0) * 100.0 / r.run_minutes END)::numeric, 2) AS availability_pct, round((CASE WHEN GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0) > 0 AND (r.ok_minutes + r.ng_minutes + r.skip_minutes) > 0 THEN LEAST(100.0, (r.ok_minutes + r.ng_minutes + r.skip_minutes) * 100.0 / GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0)) END)::numeric, 2) AS performance_pct, round((CASE WHEN (r.ok_qty + r.ng_qty) > 0 THEN r.ok_qty * 100.0 / (r.ok_qty + r.ng_qty) END)::numeric, 2) AS quality_pct, round((CASE WHEN r.run_minutes > 0 AND GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0) > 0 AND (r.ok_qty + r.ng_qty) > 0 AND (r.ok_minutes + r.ng_minutes + r.skip_minutes) > 0 THEN (GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0) * 100.0 / r.run_minutes) * LEAST(100.0, (r.ok_minutes + r.ng_minutes + r.skip_minutes) * 100.0 / GREATEST(r.run_minutes - coalesce(st.stop_minutes, 0), 0)) * (r.ok_qty * 100.0 / (r.ok_qty + r.ng_qty)) / 10000.0 END)::numeric, 2) AS oee_pct, 1::int AS line_days FROM (SELECT a.machine_code, a.create_date AS day, sum(coalesce(a.complete, 0)) AS ok_qty, sum(coalesce(a.ng, 0)) AS ng_qty, sum(CASE WHEN a.end_date IS NOT NULL AND a.end_date >= a.create_date AND a.end_date > '1900-01-01' THEN EXTRACT(EPOCH FROM (a.end_date::timestamp + a.end_time::time - a.create_date::timestamp - a.create_time::time)) / 60.0 ELSE 0 END) AS run_minutes, sum(CASE WHEN coalesce(k.cavity, s.cavity, 0) > 0 AND coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) > 0 THEN coalesce(a.complete, 0) * coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) / coalesce(k.cavity, s.cavity) / 60.0 ELSE 0 END) AS ok_minutes, sum(CASE WHEN coalesce(k.cavity, s.cavity, 0) > 0 AND coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) > 0 THEN coalesce(a.ng, 0) * coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) / coalesce(k.cavity, s.cavity) / 60.0 ELSE 0 END) AS ng_minutes, sum(CASE WHEN coalesce(k.cavity, s.cavity, 0) > 0 AND coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) > 0 THEN coalesce(a.skip_shot, 0) * coalesce(NULLIF(a.cycle_plan, 0), s.cycle_time, k.chu_ki, 0) / coalesce(k.cavity, s.cavity) / 60.0 ELSE 0 END) AS skip_minutes FROM public.mes_oi_confirm a LEFT JOIN public.mes_scheduling_output s ON s.mes_scheduling_code = a.mes_scheduling_code AND s.product_code = a.product_code LEFT JOIN public.dmhosokhuonsp k ON k.ma_khuon = s.mold_code AND k.ma_sp = a.product_code WHERE a.sp_chinh_yn = 1 GROUP BY a.machine_code, a.create_date) r LEFT JOIN public.mflist_line l ON l.line_code = r.machine_code LEFT JOIN (SELECT machine_code, create_date AS day, sum(EXTRACT(EPOCH FROM (end_date::timestamp + end_time::time - create_date::timestamp - create_time::time)) / 60.0) AS stop_minutes FROM public.mes_oi_stop_line WHERE end_date IS NOT NULL AND end_date >= create_date AND end_date > '1900-01-01' GROUP BY machine_code, create_date) st ON st.machine_code = r.machine_code AND st.day = r.day JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(l.branch_code, '001') = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
         "machine": "machine",
         "line_group": "line_group",
@@ -3130,17 +3140,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "oee",
-        "hieu suat thiet bi",
-        "kha dung"
-      ],
-      "secondary_cues": [
-        "dung may",
-        "downtime",
-        "su co may"
-      ]
+      }
     },
     "mes_material_usage": {
       "status": "approved",
@@ -3149,6 +3149,11 @@
       "title": "Cấp và tiêu hao nguyên vật liệu sản xuất (mes_oi_material)",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "tieu hao",
+        "cap nvl",
+        "nguyen vat lieu"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT a.machine_code AS machine, coalesce(a.production_order, '') AS work_order, a.product_code AS product, coalesce(vp.ten_vt, '') AS product_name, a.material_code AS material, coalesce(NULLIF(a.material_name, ''), vm.ten_vt, '') AS material_name, coalesce(NULLIF(a.dvt, ''), vm.dvt, '') AS unit, a.create_date AS day, coalesce(a.so_luong_can_cap, 0) AS required_qty, coalesce(a.so_luong, 0) AS issued_qty, coalesce(a.sl_su_dung, 0) AS used_qty, coalesce(a.sl_con_lai, 0) AS remaining_qty, coalesce(a.sl_chenh_lech, 0) AS variance_qty, a.id_material AS feed_id FROM public.mes_oi_material a LEFT JOIN public.dmvt vp ON vp.ma_vt = a.product_code LEFT JOIN public.dmvt vm ON vm.ma_vt = a.material_code CROSS JOIN public.userinfo u WHERE u.user_id = %s",
       "dimensions": {
@@ -3253,12 +3258,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "tieu hao",
-        "cap nvl",
-        "nguyen vat lieu"
-      ]
+      }
     },
     "mold_cavity_specs": {
       "status": "approved",
@@ -3266,10 +3266,16 @@
       "version": "2026-11-25-v1",
       "title": "Liên kết Khuôn - Sản phẩm - Cavity - Chu kỳ - Tuổi thọ shot",
       "notes": "Bảng danh mục khuôn; không yêu cầu lọc ngày. Dùng max trên total_shots/warranty_shots/cavity để không cộng trùng qua các mã con.",
-      "require_bounded_date": false,
       "default_dimensions": [
         "mold",
         "material"
+      ],
+      "require_bounded_date": false,
+      "cues": [
+        "khuon",
+        "cavity",
+        "chu ky",
+        "shot"
       ],
       "user_param_count": 1,
       "source_sql": "SELECT h.ma_khuon AS mold, coalesce(h.ten_khuon, '') AS mold_name, s.ma_sp AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(s.id_cap, '') AS cavity_group, coalesce(s.chinh_phu::text, '') AS primary_flag, coalesce(s.cavity, h.so_cavity, 0) AS cavity, coalesce(s.chu_ki, 0) AS cycle_sec, coalesce(h.tong_so_shot, 0) AS total_shots, coalesce(h.so_shot_bh, 0) AS warranty_shots, (coalesce(h.so_shot_bh, 0) - coalesce(h.tong_so_shot, 0)) AS remaining_warranty_shots, s.ln AS line_id FROM public.dmhosokhuon h JOIN public.dmhosokhuonsp s ON s.ma_khuon = h.ma_khuon LEFT JOIN public.dmvt v ON v.ma_vt = s.ma_sp JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(h.branch_code, '001') = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
@@ -3354,13 +3360,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "khuon",
-        "cavity",
-        "chu ky",
-        "shot"
-      ]
+      }
     },
     "production_forecast_demand": {
       "status": "approved",
@@ -3370,8 +3370,14 @@
       "notes": "Chỉ lấy snapshot tính toán mới nhất (max(date0)) để tránh cộng trùng giữa các ngày chạy MRP; lọc day theo ngày giao hàng (ngay_giao_hang). Giá trị demand_type trong DB là 'FC' (FCST/dự báo) và 'PO' (DO/đơn hàng). Với câu hỏi nhu cầu/FCST tương lai không nêu tháng cụ thể, lọc day từ ngày hiện tại (today) đến +365 ngày; nếu mã biến thể có hậu tố trả 0 dòng, thử lọc material bằng op='contains' theo mã gốc.",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "fcst",
+        "du bao",
+        "ke hoach giao",
+        "demand"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT f.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(f.ma_kh, '') AS customer, coalesce(k.ten_kh, '') AS customer_name, coalesce(f.loai_du_lieu, '') AS demand_type, coalesce(f.nguon_du_lieu, '') AS data_source, coalesce(f.model, '') AS model, f.ngay_giao_hang AS day, coalesce(v.dvt, 'PCS') AS unit, coalesce(f.so_luong, 0) AS quantity, f.id AS line_id FROM public.mfkhsx_po_fc f LEFT JOIN public.dmkh k ON k.ma_kh = f.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = f.ma_vt CROSS JOIN public.userinfo u WHERE u.user_id = %s AND f.date0 = (SELECT max(date0) FROM public.mfkhsx_po_fc)",
+      "source_sql": "SELECT f.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(f.ma_kh, '') AS customer, coalesce(k.ten_kh, '') AS customer_name, coalesce(f.loai_du_lieu, '') AS demand_type, coalesce(f.nguon_du_lieu, '') AS data_source, coalesce(f.model, '') AS model, f.ngay_giao_hang AS day, coalesce(v.dvt, 'PCS') AS unit, coalesce(f.so_luong, 0) AS quantity, f.id AS line_id FROM public.mfkhsx_po_fc f LEFT JOIN public.dmkh k ON k.ma_kh = f.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = f.ma_vt CROSS JOIN public.userinfo u WHERE f.date0 = (SELECT max(date0) FROM public.mfkhsx_po_fc) AND u.user_id = %s",
       "dimensions": {
         "material": "material",
         "material_name": "material_name",
@@ -3467,13 +3473,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "fcst",
-        "du bao",
-        "ke hoach giao",
-        "demand"
-      ]
+      }
     },
     "gl_account_movements": {
       "status": "approved",
@@ -3483,6 +3483,13 @@
       "notes": "Chỉ gồm các dòng có phát sinh tiền khác 0. Trong CSDL ERP hiện tại, ct00 chỉ có số tiền phát sinh đến 2024-09-06 và bảng số dư đầu kỳ cdkh/cdtk đang trống (0 dòng).",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "so cai",
+        "cong no",
+        "hach toan",
+        "tai khoan",
+        "ct00"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT trim(coalesce(c.tk, '')) AS account, coalesce(t.ten_tk, '') AS account_name, trim(coalesce(c.tk_du, '')) AS offset_account, trim(coalesce(c.ma_kh, '')) AS partner, coalesce(k.ten_kh, '') AS partner_name, trim(coalesce(c.ma_ct, '')) AS doc_type, trim(coalesce(c.ma_nt, '')) AS currency, c.ngay_ct AS day, coalesce(c.ps_no, 0) AS debit_vnd, coalesce(c.ps_co, 0) AS credit_vnd, coalesce(c.ps_no_nt, 0) AS debit_orig, coalesce(c.ps_co_nt, 0) AS credit_orig, c.stt_rec AS doc_id FROM public.ct00 c LEFT JOIN public.dmtk0 t ON t.tk = c.tk LEFT JOIN public.dmkh k ON k.ma_kh = c.ma_kh JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(c.ps_no, 0) <> 0 OR coalesce(c.ps_co, 0) <> 0 OR coalesce(c.ps_no_nt, 0) <> 0 OR coalesce(c.ps_co_nt, 0) <> 0) AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR c.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -3580,14 +3587,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "so cai",
-        "cong no",
-        "hach toan",
-        "tai khoan",
-        "ct00"
-      ]
+      }
     },
     "sales_delivery_orders": {
       "status": "approved",
@@ -4151,6 +4151,16 @@
       "notes": "Lưu báo giá chào hàng của NCC theo từng vật tư và hiệu lực ngày bắt đầu/kết thúc.",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "bao gia ncc",
+        "bao gia nha cung cap",
+        "bg0"
+      ],
+      "secondary_cues": [
+        "nha cung cap",
+        "ncc",
+        "chao gia"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT h.so_ct AS doc_no, h.ma_kh AS supplier, coalesce(k.ten_kh, h.ten_kh, '') AS supplier_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(tt.statusname, h.status::text, '') AS status_name, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, d.ngay_bd AS valid_from, d.ngay_kt AS valid_to, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS quantity, coalesce(d.gia, 0) AS unit_price_vnd, coalesce(d.tien, 0) AS amount_vnd, coalesce(d.tien_nt, 0) AS amount_orig, h.stt_rec AS doc_id FROM public.phbgncc h JOIN public.ctbgncc d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'BG0' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -4253,17 +4263,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "bao gia ncc",
-        "bao gia nha cung cap",
-        "bg0"
-      ],
-      "secondary_cues": [
-        "nha cung cap",
-        "ncc",
-        "chao gia"
-      ]
+      }
     },
     "purchase_prices_current": {
       "status": "approved",
@@ -4498,8 +4498,20 @@
       "notes": "Ảnh chụp snapshot mới nhất của PO linh kiện và PO nhựa còn pending chờ giao hàng. Không bắt buộc lọc ngày; required_date (ngay_yc) là ngày yêu cầu giao.",
       "date_field": "required_date",
       "require_bounded_date": false,
+      "cues": [
+        "po pending",
+        "pending linh kien",
+        "pending nhua",
+        "chua giao po",
+        "po con thieu"
+      ],
+      "secondary_cues": [
+        "pending",
+        "nha cung cap",
+        "cho giao"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT p.pending_type, coalesce(p.so_ct, '') AS po_no, coalesce(p.so_ct_ycm, '') AS pr_no, coalesce(p.ma_ncc, '') AS supplier, coalesce(p.ten_ncc, '') AS supplier_name, coalesce(p.ma_vt, '') AS material, coalesce(p.ten_vt, '') AS material_name, coalesce(nullif(p.trang_thai, ''), 'Chưa gán trạng thái') AS status_name, p.ngay_yc AS required_date, p.ngay_ncc_xac_nhan_giao AS confirmed_delivery_date, coalesce(p.so_luong, 0) AS pending_qty, p.row_key FROM (  SELECT 'Linh kiện'::text AS pending_type, so_ct, so_ct_ycm, ma_ncc, ten_ncc, ma_vt, ten_vt, trang_thai, ngay_yc, ngay_ncc_xac_nhan_giao, so_luong, ('LK|' || id || '|' || stt) AS row_key   FROM public.mfkhsx_po_pending_linhkien WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_po_pending_linhkien)   UNION ALL   SELECT 'Nhựa'::text AS pending_type, so_ct, so_ct_ycm, ma_ncc, ten_ncc, ma_vt, ten_vt, trang_thai, ngay_yc, ngay_ncc_xac_nhan_giao, so_luong, ('NH|' || id || '|' || stt) AS row_key   FROM public.mfkhsx_po_nhua_pending WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_po_nhua_pending)) p CROSS JOIN public.userinfo u WHERE u.user_id = %s",
+      "source_sql": "SELECT p.pending_type AS pending_type, coalesce(p.so_ct, '') AS po_no, coalesce(p.so_ct_ycm, '') AS pr_no, coalesce(p.ma_ncc, '') AS supplier, coalesce(p.ten_ncc, '') AS supplier_name, coalesce(p.ma_vt, '') AS material, coalesce(p.ten_vt, '') AS material_name, coalesce(nullif(p.trang_thai, ''), 'Chưa gán trạng thái') AS status_name, p.ngay_yc AS required_date, p.ngay_ncc_xac_nhan_giao AS confirmed_delivery_date, coalesce(p.so_luong, 0) AS pending_qty, p.row_key AS row_key FROM (SELECT 'Linh kiện'::text AS pending_type, so_ct AS so_ct, so_ct_ycm AS so_ct_ycm, ma_ncc AS ma_ncc, ten_ncc AS ten_ncc, ma_vt AS ma_vt, ten_vt AS ten_vt, trang_thai AS trang_thai, ngay_yc AS ngay_yc, ngay_ncc_xac_nhan_giao AS ngay_ncc_xac_nhan_giao, so_luong AS so_luong, ('LK|' || id || '|' || stt) AS row_key FROM public.mfkhsx_po_pending_linhkien WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_po_pending_linhkien) UNION ALL SELECT 'Nhựa'::text AS pending_type, so_ct, so_ct_ycm, ma_ncc, ten_ncc, ma_vt, ten_vt, trang_thai, ngay_yc, ngay_ncc_xac_nhan_giao, so_luong, ('NH|' || id || '|' || stt) AS row_key FROM public.mfkhsx_po_nhua_pending WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_po_nhua_pending)) p CROSS JOIN public.userinfo u WHERE u.user_id = %s",
       "dimensions": {
         "pending_type": "pending_type",
         "po_no": "po_no",
@@ -4603,19 +4615,7 @@
             "lte"
           ]
         }
-      },
-      "cues": [
-        "po pending",
-        "pending linh kien",
-        "pending nhua",
-        "chua giao po",
-        "po con thieu"
-      ],
-      "secondary_cues": [
-        "pending",
-        "nha cung cap",
-        "cho giao"
-      ]
+      }
     },
     "inventory_stock_lots": {
       "status": "approved",
@@ -4625,8 +4625,22 @@
       "notes": "Ảnh chụp số dư tồn hiện tại trong cdvt13 (loại bỏ dòng tồn bằng 0) ghép ngày sản xuất/hạn sử dụng từ dmlo. Không bắt buộc lọc ngày.",
       "date_field": "expiry_date",
       "require_bounded_date": false,
+      "cues": [
+        "ton lo",
+        "ton theo lo",
+        "han su dung",
+        "vi tri kho",
+        "ton kho hien tai",
+        "ton hien hanh",
+        "sap het han"
+      ],
+      "secondary_cues": [
+        "ton kho",
+        "cdvt13",
+        "vi tri"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT c.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(c.ma_vi_tri, '') AS location, c.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(c.ma_lo, '') AS lot_no, coalesce(v.dvt, '') AS unit, l.ngay_sx AS mfg_date, l.ngay_hhsd AS expiry_date, c.ton13 AS stock_qty, (c.ma_kho || '|' || c.ma_vt || '|' || coalesce(c.ma_lo, '') || '|' || coalesce(c.ma_vi_tri, '') || '|' || coalesce(c.so_seri_vt, '')) AS row_key FROM public.cdvt13 c LEFT JOIN public.dmkho w ON w.ma_kho = c.ma_kho LEFT JOIN public.dmvt v ON v.ma_vt = c.ma_vt LEFT JOIN public.dmlo l ON l.ma_vt = c.ma_vt AND l.ma_lo = c.ma_lo JOIN public.userinfo u ON u.user_id = %s WHERE coalesce(c.ton13, 0) <> 0 AND (coalesce(u.is_super, 0) = 1 OR (coalesce(u.ds_stocks, '') = '' OR c.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ','))))",
+      "source_sql": "SELECT c.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(c.ma_vi_tri, '') AS location, c.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(c.ma_lo, '') AS lot_no, coalesce(v.dvt, '') AS unit, l.ngay_sx AS mfg_date, l.ngay_hhsd AS expiry_date, c.ton13 AS stock_qty, (c.ma_kho || '|' || c.ma_vt || '|' || coalesce(c.ma_lo, '') || '|' || coalesce(c.ma_vi_tri, '') || '|' || coalesce(c.so_seri_vt, '')) AS row_key FROM public.cdvt13 c LEFT JOIN public.dmkho w ON w.ma_kho = c.ma_kho LEFT JOIN public.dmvt v ON v.ma_vt = c.ma_vt LEFT JOIN public.dmlo l ON l.ma_vt = c.ma_vt AND l.ma_lo = c.ma_lo JOIN public.userinfo u ON u.user_id = %s WHERE coalesce(c.ton13, 0) <> 0 AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_stocks, '') = '' OR c.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))",
       "dimensions": {
         "warehouse": "warehouse",
         "warehouse_name": "warehouse_name",
@@ -4721,21 +4735,7 @@
             "lte"
           ]
         }
-      },
-      "cues": [
-        "ton lo",
-        "ton theo lo",
-        "han su dung",
-        "vi tri kho",
-        "ton kho hien tai",
-        "ton hien hanh",
-        "sap het han"
-      ],
-      "secondary_cues": [
-        "ton kho",
-        "cdvt13",
-        "vi tri"
-      ]
+      }
     },
     "warehouse_transfers": {
       "status": "approved",
@@ -4745,6 +4745,17 @@
       "notes": "Điều chuyển kho giữa kho xuất (warehouse) và kho nhận (target_warehouse). Toàn bộ chứng từ điều chuyển ph85/ct85 mang doc_type='PXB' (bao hàm luồng xuất/nhập chuyển kho); không cần lọc thêm doc_type khi thống kê toàn bộ chuyển kho.",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "dieu chuyen kho",
+        "chuyen kho",
+        "pxb",
+        "pnf",
+        "kho chuyen"
+      ],
+      "secondary_cues": [
+        "dieu chuyen",
+        "luan chuyen"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT trim(coalesce(h.ma_ct, '')) AS doc_type, h.so_ct AS doc_no, d.ma_kho AS warehouse, coalesce((SELECT wk.ten_kho FROM public.dmkho wk WHERE wk.ma_kho = d.ma_kho LIMIT 1), '') AS warehouse_name, coalesce(nullif(d.ma_khon, ''), h.ma_khon, '') AS target_warehouse, coalesce((SELECT wn.ten_kho FROM public.dmkho wn WHERE wn.ma_kho = coalesce(nullif(d.ma_khon, ''), h.ma_khon) LIMIT 1), '') AS target_warehouse_name, d.ma_vt AS material, coalesce((SELECT v.ten_vt FROM public.dmvt v WHERE v.ma_vt = d.ma_vt LIMIT 1), '') AS material_name, coalesce((SELECT tt.statusname FROM public.sys_dmtt tt WHERE tt.ma_ct = h.ma_ct AND tt.status::text = h.status::text LIMIT 1), h.status::text, '') AS status_name, coalesce(nullif(d.dvt, ''), (SELECT v.dvt FROM public.dmvt v WHERE v.ma_vt = d.ma_vt LIMIT 1), '') AS unit, h.ngay_ct AS day, coalesce(d.so_luong, 0) AS transfer_qty, coalesce(d.tien, 0) AS amount_vnd, h.stt_rec AS doc_id FROM public.ph85 h JOIN public.ct85 d ON d.stt_rec = h.stt_rec JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')) OR coalesce(d.ma_khon, h.ma_khon) = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
       "dimensions": {
@@ -4852,18 +4863,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "dieu chuyen kho",
-        "chuyen kho",
-        "pxb",
-        "pnf",
-        "kho chuyen"
-      ],
-      "secondary_cues": [
-        "dieu chuyen",
-        "luan chuyen"
-      ]
+      }
     },
     "warehouse_internal_issues": {
       "status": "approved",
@@ -5261,8 +5261,20 @@
       "notes": "Tổng hợp snapshot tồn kho mới nhất phục vụ kế hoạch sản xuất (lấy max(date0) cho từng bảng mfkhsx_ton_*). Không bắt buộc lọc ngày.",
       "date_field": "snapshot_date",
       "require_bounded_date": false,
+      "cues": [
+        "ton nhua",
+        "ton linh kien",
+        "ton kho khsx",
+        "kho ng",
+        "kho ok"
+      ],
+      "secondary_cues": [
+        "linh kien",
+        "nhua",
+        "ton ke hoach"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT s.stock_type, coalesce(s.ma_kho, '') AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(s.ma_vi_tri, '') AS location, coalesce(s.ma_vt, '') AS material, coalesce(s.ten_vt, '') AS material_name, coalesce(s.model, '') AS model, coalesce(s.ten_ncc, '') AS supplier_name, coalesce(s.ma_lo, '') AS lot_no, s.date0 AS snapshot_date, coalesce(s.so_luong, 0) AS stock_qty, s.row_key FROM (  SELECT 'Nhựa'::text AS stock_type, ma_kho, ''::text AS ma_vi_tri, ma_vt, ten_vt, model, ten_ncc, ma_lo, date0, so_luong, ('NH|' || id || '|' || stt) AS row_key   FROM public.mfkhsx_ton_nhua WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_nhua)   UNION ALL   SELECT 'Linh kiện'::text, ma_kho, ''::text, ma_vt, ten_vt, model, ten_ncc, ''::text, date0, so_luong, ('LK|' || id || '|' || stt)   FROM public.mfkhsx_ton_linhkien WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_linhkien)   UNION ALL   SELECT 'Kho OK'::text, ma_kho, ma_vi_tri, ma_vt, ten_vt, model, ''::text, ''::text, date0, so_luong, ('OK|' || id || '|' || stt)   FROM public.mfkhsx_ton_kho_ok WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_kho_ok)   UNION ALL   SELECT 'Kho NG'::text, ma_kho, ma_vi_tri, ma_vt, ten_vt, model, ''::text, ''::text, date0, so_luong, ('NG|' || id || '|' || stt)   FROM public.mfkhsx_ton_kho_ng WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_kho_ng)) s LEFT JOIN public.dmkho w ON w.ma_kho = s.ma_kho JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_stocks, '') = '' OR coalesce(s.ma_kho, '') = '' OR s.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))",
+      "source_sql": "SELECT s.stock_type AS stock_type, coalesce(s.ma_kho, '') AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(s.ma_vi_tri, '') AS location, coalesce(s.ma_vt, '') AS material, coalesce(s.ten_vt, '') AS material_name, coalesce(s.model, '') AS model, coalesce(s.ten_ncc, '') AS supplier_name, coalesce(s.ma_lo, '') AS lot_no, s.date0 AS snapshot_date, coalesce(s.so_luong, 0) AS stock_qty, s.row_key AS row_key FROM (SELECT 'Nhựa'::text AS stock_type, ma_kho AS ma_kho, ''::text AS ma_vi_tri, ma_vt AS ma_vt, ten_vt AS ten_vt, model AS model, ten_ncc AS ten_ncc, ma_lo AS ma_lo, date0 AS date0, so_luong AS so_luong, ('NH|' || id || '|' || stt) AS row_key FROM public.mfkhsx_ton_nhua WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_nhua) UNION ALL SELECT 'Linh kiện'::text, ma_kho, ''::text, ma_vt, ten_vt, model, ten_ncc, ''::text, date0, so_luong, ('LK|' || id || '|' || stt) FROM public.mfkhsx_ton_linhkien WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_linhkien) UNION ALL SELECT 'Kho OK'::text, ma_kho, ma_vi_tri, ma_vt, ten_vt, model, ''::text, ''::text, date0, so_luong, ('OK|' || id || '|' || stt) FROM public.mfkhsx_ton_kho_ok WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_kho_ok) UNION ALL SELECT 'Kho NG'::text, ma_kho, ma_vi_tri, ma_vt, ten_vt, model, ''::text, ''::text, date0, so_luong, ('NG|' || id || '|' || stt) FROM public.mfkhsx_ton_kho_ng WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_kho_ng)) s LEFT JOIN public.dmkho w ON w.ma_kho = s.ma_kho JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_stocks, '') = '' OR coalesce(s.ma_kho, '') = '' OR s.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))",
       "dimensions": {
         "stock_type": "stock_type",
         "warehouse": "warehouse",
@@ -5339,19 +5351,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "ton nhua",
-        "ton linh kien",
-        "ton kho khsx",
-        "kho ng",
-        "kho ok"
-      ],
-      "secondary_cues": [
-        "linh kien",
-        "nhua",
-        "ton ke hoach"
-      ]
+      }
     },
     "production_orders": {
       "status": "approved",
@@ -5367,6 +5367,16 @@
       "alternate_date_field": "delivery_date",
       "alternate_date_label": "ngày hoàn thành (ngay_ht)",
       "require_bounded_date": true,
+      "cues": [
+        "lenh san xuat erp",
+        "pd1",
+        "phieu lenh san xuat",
+        "lenh san xuat"
+      ],
+      "secondary_cues": [
+        "lsx",
+        "ke hoach san xuat"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT h.so_ct AS doc_no, coalesce(nullif(d.so_ct_so1, ''), h.so_ct_so1, '') AS so_no, coalesce(nullif(d.ma_kh, ''), h.ma_kh, '') AS customer, coalesce(k.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(d.ma_kho, '') AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(h.ma_bp, '') AS department, coalesce(h.ma_phan_xuong, '') AS work_center, coalesce(tt.statusname, h.status::text, '') AS status_name, coalesce(d.dvt, v.dvt, '') AS unit, h.ngay_ct AS day, coalesce(d.ngay_ht, h.ngay_ht) AS delivery_date, coalesce(d.so_luong, 0) AS planned_qty, h.stt_rec AS doc_id FROM public.phlsx h JOIN public.ctlsx d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = coalesce(nullif(d.ma_kh, ''), h.ma_kh) LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'PD1' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -5475,17 +5485,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "lenh san xuat erp",
-        "pd1",
-        "phieu lenh san xuat",
-        "lenh san xuat"
-      ],
-      "secondary_cues": [
-        "lsx",
-        "ke hoach san xuat"
-      ]
+      }
     },
     "bom_materials": {
       "status": "approved",
@@ -5495,8 +5495,20 @@
       "notes": "Mối quan hệ BOM đang hiệu lực (mfbom status='1'): cho phép tra xuôi từ sản phẩm sang NVL hoặc tra ngược 1 NVL dùng cho các sản phẩm nào. Không bắt buộc lọc ngày.",
       "date_field": "valid_from",
       "require_bounded_date": false,
+      "cues": [
+        "cau truc bom",
+        "nguyen lieu dung cho",
+        "bom dung cho",
+        "dinh muc nvl",
+        "tra nguoc bom"
+      ],
+      "secondary_cues": [
+        "bom",
+        "dinh muc",
+        "hao hut"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT h.bom_code, coalesce(h.bom_version, '') AS bom_version, h.product_code AS product, coalesce(vp.ten_vt, '') AS product_name, d.material_code AS material, coalesce(vm.ten_vt, '') AS material_name, coalesce(d.operation_code, '') AS step, coalesce(d.uom, vm.dvt, '') AS unit, coalesce(h.ma_ecn, '') AS ecn_no, coalesce(d.quantity, 0) AS bom_qty, coalesce(d.loss_ratio_allowed, 0) AS loss_pct, (h.bom_code || '|' || coalesce(h.bom_version, '') || '|' || d.material_code || '|' || coalesce(d.ln::text, '0')) AS row_key FROM public.mfbom h JOIN public.mfbom_material d ON d.bom_code = h.bom_code AND coalesce(d.bom_version, '') = coalesce(h.bom_version, '') LEFT JOIN public.dmvt vp ON vp.ma_vt = h.product_code LEFT JOIN public.dmvt vm ON vm.ma_vt = d.material_code JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text = '1'",
+      "source_sql": "SELECT h.bom_code AS bom_code, coalesce(h.bom_version, '') AS bom_version, h.product_code AS product, coalesce(vp.ten_vt, '') AS product_name, d.material_code AS material, coalesce(vm.ten_vt, '') AS material_name, coalesce(d.operation_code, '') AS step, coalesce(d.uom, vm.dvt, '') AS unit, coalesce(h.ma_ecn, '') AS ecn_no, coalesce(d.quantity, 0) AS bom_qty, coalesce(d.loss_ratio_allowed, 0) AS loss_pct, (h.bom_code || '|' || coalesce(h.bom_version, '') || '|' || d.material_code || '|' || coalesce(d.ln::text, '0')) AS row_key FROM public.mfbom h JOIN public.mfbom_material d ON d.bom_code = h.bom_code AND coalesce(d.bom_version, '') = coalesce(h.bom_version, '') LEFT JOIN public.dmvt vp ON vp.ma_vt = h.product_code LEFT JOIN public.dmvt vm ON vm.ma_vt = d.material_code CROSS JOIN public.userinfo u WHERE h.status::text = '1' AND u.user_id = %s",
       "dimensions": {
         "bom_code": "bom_code",
         "bom_version": "bom_version",
@@ -5588,19 +5600,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "cau truc bom",
-        "nguyen lieu dung cho",
-        "bom dung cho",
-        "dinh muc nvl",
-        "tra nguoc bom"
-      ],
-      "secondary_cues": [
-        "bom",
-        "dinh muc",
-        "hao hut"
-      ]
+      }
     },
     "ecn_and_bom_changes": {
       "status": "approved",
@@ -5610,6 +5610,17 @@
       "notes": "Gộp phiếu ECN kỹ thuật (phecn/ctecn) và lịch sử thay đổi BOM (history_bom_change). Không bắt buộc lọc ngày.",
       "date_field": "day",
       "require_bounded_date": false,
+      "cues": [
+        "ecn",
+        "thay doi bom",
+        "lich su bom",
+        "sua bom",
+        "cap nhat bom"
+      ],
+      "secondary_cues": [
+        "thay doi ky thuat",
+        "tien do ecn"
+      ],
       "user_param_count": 2,
       "source_sql": "SELECT 'ECN'::text AS change_type, h.so_ct AS doc_no, coalesce(h.so_ecn_kh, '') AS ecn_no, coalesce(h.ma_kh, '') AS customer, coalesce(k.ten_kh, '') AS customer_name, coalesce(d.ma_sp, '') AS product, coalesce(v.ten_vt, '') AS product_name, coalesce(d.ma_khuon, '') AS mold, coalesce(d.model, '') AS model, ''::text AS bom_code, ''::text AS bom_version, ''::text AS employee_name, coalesce(tt.statusname, h.status::text, '') AS status_name, h.ngay_ct AS day, ('ECN|' || h.stt_rec || '|' || coalesce(d.ln::text, '0')) AS row_key FROM public.phecn h JOIN public.ctecn d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_sp LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'ECN' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ','))) UNION ALL SELECT ('BOM: ' || coalesce(b.type_change::text, 'Cập nhật'))::text, coalesce(b.bom_code, ''), ''::text, ''::text, ''::text, coalesce(b.product_code, ''), coalesce(v.ten_vt, ''), ''::text, ''::text, coalesce(b.bom_code, ''), coalesce(b.ver, ''), coalesce(b.user_change, ''), coalesce(b.content_change, ''), b.date_change, ('BOM|' || coalesce(b.product_code, '') || '|' || coalesce(b.bom_code, '') || '|' || coalesce(b.date_change::text, '') || '|' || coalesce(b.time_change::text, '')) FROM public.history_bom_change b LEFT JOIN public.dmvt v ON v.ma_vt = b.product_code CROSS JOIN public.userinfo u WHERE u.user_id = %s",
       "dimensions": {
@@ -5707,18 +5718,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "ecn",
-        "thay doi bom",
-        "lich su bom",
-        "sua bom",
-        "cap nhat bom"
-      ],
-      "secondary_cues": [
-        "thay doi ky thuat",
-        "tien do ecn"
-      ]
+      }
     },
     "mes_setup_and_mold_ops": {
       "status": "approved",
@@ -5728,8 +5728,19 @@
       "notes": "Gộp dữ liệu setup máy (mes_oi_setup_may) và lên/xuống khuôn (mes_oi_van_hanh_khuon). setup_minutes làm tròn >= 0 từ thời điểm bắt đầu tới kết thúc.",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "setup may",
+        "van hanh khuon",
+        "len khuon",
+        "xuong khuon",
+        "chinh may"
+      ],
+      "secondary_cues": [
+        "setup",
+        "thay khuon"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT o.op_type, o.machine_code AS machine, coalesce(o.mold_code, '') AS mold, coalesce(m.ten_khuon, '') AS mold_name, coalesce(o.material_code, '') AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(o.employee_code, '') AS employee_code, coalesce(o.station_code, '') AS station, coalesce(o.mes_scheduling_code, '') AS schedule_code, coalesce(o.error_code, '') AS defect_code, coalesce(o.status_name, '') AS status_name, o.day, coalesce(o.setup_minutes, 0) AS setup_minutes, coalesce(o.skip_shots, 0) AS skip_shots, o.row_key FROM (  SELECT 'Setup máy'::text AS op_type, machine_code, ma_khuon AS mold_code, ma_sp AS material_code, employee_code, station_code, mes_scheduling_code, error_code, status::text AS status_name, create_date AS day,   CASE WHEN end_date IS NOT NULL AND end_time IS NOT NULL AND create_date IS NOT NULL AND create_time IS NOT NULL THEN round(GREATEST(EXTRACT(EPOCH FROM ((end_date::timestamp + end_time::time) - (create_date::timestamp + create_time::time))) / 60.0, 0)::numeric, 2) ELSE 0 END AS setup_minutes,   coalesce(number_shot, 0) AS skip_shots, ('SU|' || id_setup) AS row_key FROM public.mes_oi_setup_may   UNION ALL   SELECT 'Vận hành khuôn'::text, machine_code, coalesce(nullif(ma_khuon_len, ''), ma_khuon_xuong, ''), ''::text, employee_code, station_code, mes_scheduling_code, error_code, status::text, create_date,   CASE WHEN end_date IS NOT NULL AND end_time IS NOT NULL AND create_date IS NOT NULL AND create_time IS NOT NULL THEN round(GREATEST(EXTRACT(EPOCH FROM ((end_date::timestamp + end_time::time) - (create_date::timestamp + create_time::time))) / 60.0, 0)::numeric, 2) ELSE 0 END,   0::numeric, ('VH|' || id_vh) FROM public.mes_oi_van_hanh_khuon) o LEFT JOIN public.dmhosokhuon m ON m.ma_khuon = o.mold_code LEFT JOIN public.dmvt v ON v.ma_vt = o.material_code CROSS JOIN public.userinfo u WHERE u.user_id = %s",
+      "source_sql": "SELECT o.op_type AS op_type, o.machine_code AS machine, coalesce(o.mold_code, '') AS mold, coalesce(m.ten_khuon, '') AS mold_name, coalesce(o.material_code, '') AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(o.employee_code, '') AS employee_code, coalesce(o.station_code, '') AS station, coalesce(o.mes_scheduling_code, '') AS schedule_code, coalesce(o.error_code, '') AS defect_code, coalesce(o.status_name, '') AS status_name, o.day AS day, coalesce(o.setup_minutes, 0) AS setup_minutes, coalesce(o.skip_shots, 0) AS skip_shots, o.row_key AS row_key FROM (SELECT 'Setup máy'::text AS op_type, machine_code AS machine_code, ma_khuon AS mold_code, ma_sp AS material_code, employee_code AS employee_code, station_code AS station_code, mes_scheduling_code AS mes_scheduling_code, error_code AS error_code, status::text AS status_name, create_date AS day, CASE WHEN end_date IS NOT NULL AND end_time IS NOT NULL AND create_date IS NOT NULL AND create_time IS NOT NULL THEN round(GREATEST(EXTRACT(EPOCH FROM ((end_date::timestamp + end_time::time) - (create_date::timestamp + create_time::time))) / 60.0, 0)::numeric, 2) ELSE 0 END AS setup_minutes, coalesce(number_shot, 0) AS skip_shots, ('SU|' || id_setup) AS row_key FROM public.mes_oi_setup_may UNION ALL SELECT 'Vận hành khuôn'::text, machine_code, coalesce(nullif(ma_khuon_len, ''), ma_khuon_xuong, ''), ''::text, employee_code, station_code, mes_scheduling_code, error_code, status::text, create_date, CASE WHEN end_date IS NOT NULL AND end_time IS NOT NULL AND create_date IS NOT NULL AND create_time IS NOT NULL THEN round(GREATEST(EXTRACT(EPOCH FROM ((end_date::timestamp + end_time::time) - (create_date::timestamp + create_time::time))) / 60.0, 0)::numeric, 2) ELSE 0 END, 0::numeric, ('VH|' || id_vh) FROM public.mes_oi_van_hanh_khuon) o LEFT JOIN public.dmhosokhuon m ON m.ma_khuon = o.mold_code LEFT JOIN public.dmvt v ON v.ma_vt = o.material_code CROSS JOIN public.userinfo u WHERE u.user_id = %s",
       "dimensions": {
         "op_type": "op_type",
         "machine": "machine",
@@ -5821,18 +5832,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "setup may",
-        "van hanh khuon",
-        "len khuon",
-        "xuong khuon",
-        "chinh may"
-      ],
-      "secondary_cues": [
-        "setup",
-        "thay khuon"
-      ]
+      }
     },
     "mes_operators_output": {
       "status": "approved",
@@ -5842,6 +5842,16 @@
       "notes": "Ghi nhận công nhân vận hành đứng máy và sản lượng thực hiện (sl_th) theo phiên.",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "nhan su dung may",
+        "cong nhan dung may",
+        "nguoi van hanh",
+        "nhan vien dung may"
+      ],
+      "secondary_cues": [
+        "dung may",
+        "san luong nhan vien"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT coalesce(a.staff_code, '') AS employee_code, coalesce(a.staff_name, '') AS employee_name, coalesce(a.ma_sp, '') AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(a.step_code, '') AS step, coalesce(a.mes_scheduling_code, '') AS schedule_code, coalesce(a.ten_ly_do, '') AS reason_text, a.date0 AS day, coalesce(a.sl_th, 0) AS actual_qty, (coalesce(a.id_oi, '') || '|' || coalesce(a.ln::text, '0') || '|' || coalesce(a.stt::text, '0')) AS row_key FROM public.mes_oi_nv_dung_may a LEFT JOIN public.dmvt v ON v.ma_vt = a.ma_sp JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(a.branch_code, '001') = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -5923,17 +5933,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "nhan su dung may",
-        "cong nhan dung may",
-        "nguoi van hanh",
-        "nhan vien dung may"
-      ],
-      "secondary_cues": [
-        "dung may",
-        "san luong nhan vien"
-      ]
+      }
     },
     "mes_carton_packing": {
       "status": "approved",
@@ -5943,6 +5943,16 @@
       "notes": "Ghi nhận chi tiết đóng thùng (tem thùng, mã thùng, số lượng sản phẩm, lô) tại xưởng.",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "dong thung",
+        "san luong dong thung",
+        "tem thung mes",
+        "carton mes"
+      ],
+      "secondary_cues": [
+        "thung",
+        "dong goi mes"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT coalesce(a.station_code, '') AS station, coalesce(a.production_order, '') AS work_order, coalesce(a.mes_scheduling_code, '') AS schedule_code, coalesce(a.product_code, '') AS material, coalesce(a.product_name, '') AS material_name, coalesce(a.ma_lo, '') AS lot_no, coalesce(a.ma_thung, '') AS box_code, coalesce(a.status::text, '') AS status_name, a.create_date AS day, coalesce(a.quantity, 0) AS packing_qty, (coalesce(a.id_thung::text, '0') || '|' || coalesce(a.serial_tem_thung, '') || '|' || coalesce(a.stt::text, '0') || '|' || coalesce(a.ln::text, '0')) AS row_key FROM public.mes_oi_dong_thung a CROSS JOIN public.userinfo u WHERE u.user_id = %s",
       "dimensions": {
@@ -6014,17 +6024,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "dong thung",
-        "san luong dong thung",
-        "tem thung mes",
-        "carton mes"
-      ],
-      "secondary_cues": [
-        "thung",
-        "dong goi mes"
-      ]
+      }
     },
     "mes_shot_rejections": {
       "status": "approved",
@@ -6034,6 +6034,15 @@
       "notes": "Ghi nhận số lượng shot bỏ và sản phẩm quy đổi trong quá trình ép/xả máy.",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "bo shot",
+        "xa may",
+        "shot bo",
+        "phe lieu ep"
+      ],
+      "secondary_cues": [
+        "shot"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT coalesce(a.machine_code, '') AS machine, coalesce(a.station_code, '') AS station, coalesce(a.production_order, '') AS work_order, coalesce(a.mes_scheduling_code, '') AS schedule_code, coalesce(a.product_code, '') AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(a.staff_code, '') AS employee_code, coalesce(a.error_code, '') AS defect_code, a.date0 AS day, coalesce(a.quantity, 0) AS skip_shots, coalesce(a.quantity_product, 0) AS skip_qty, (coalesce(a.id_oi, '') || '|' || coalesce(a.machine_code, '') || '|' || coalesce(a.time0::text, '')) AS row_key FROM public.mes_oi_bo_shot a LEFT JOIN public.dmvt v ON v.ma_vt = a.product_code CROSS JOIN public.userinfo u WHERE u.user_id = %s",
       "dimensions": {
@@ -6108,16 +6117,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "bo shot",
-        "xa may",
-        "shot bo",
-        "phe lieu ep"
-      ],
-      "secondary_cues": [
-        "shot"
-      ]
+      }
     },
     "mes_scheduling_plan": {
       "status": "approved",
@@ -6131,6 +6131,18 @@
         "delivery_date"
       ],
       "require_bounded_date": true,
+      "cues": [
+        "lich dieu do",
+        "lich san xuat",
+        "dieu do may",
+        "ke hoach chay may",
+        "scheduling"
+      ],
+      "secondary_cues": [
+        "lich chay",
+        "wo1",
+        "wo2"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT d.mes_scheduling_code AS schedule_code, coalesce(d.machine_code, '') AS machine, coalesce(d.production_order, '') AS work_order, coalesce(d.sale_order, '') AS so_no, d.product_code AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(d.mold_code, '') AS mold, coalesce(d.step_code, '') AS step, coalesce(d.work_center_code, h.work_center_code, '') AS work_center, coalesce(d.uom, v.dvt, 'PCS') AS unit, d.start_date AS day, d.delivery_date AS delivery_date, coalesce(d.quantity, 0) AS schedule_qty, coalesce(d.efficiency, 0) AS efficiency, coalesce(d.cycle_time, 0) AS cycle_sec FROM public.mes_scheduling h JOIN public.mes_scheduling_output d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmvt v ON v.ma_vt = d.product_code JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(h.ma_dvcs, d.factory_code, '001') = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -6240,19 +6252,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "lich dieu do",
-        "lich san xuat",
-        "dieu do may",
-        "ke hoach chay may",
-        "scheduling"
-      ],
-      "secondary_cues": [
-        "lich chay",
-        "wo1",
-        "wo2"
-      ]
+      }
     },
     "qc_pqc_lines": {
       "status": "approved",
@@ -6262,6 +6262,16 @@
       "notes": "Phiếu kiểm tra chất lượng trong công đoạn sản xuất (phpqc). Không bắt buộc lọc ngày.",
       "date_field": "day",
       "require_bounded_date": false,
+      "cues": [
+        "pqc",
+        "ipqc",
+        "kiem tra cong doan",
+        "chat luong cong doan"
+      ],
+      "secondary_cues": [
+        "qc san xuat",
+        "ket qua pqc"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT h.so_ct AS doc_no, coalesce(h.ma_sp, h.ma_vt, '') AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(h.ma_may, '') AS machine, coalesce(h.ma_day_chuyen, '') AS line_group, coalesce(h.ma_khuon, '') AS mold, coalesce(h.so_ct_pd1, '') AS work_order, coalesce(h.ket_qua::text, '') AS qc_result, coalesce(tt.statusname, h.status::text, '') AS status_name, h.ngay_ct AS day, coalesce(h.so_luong, 0) AS lot_qty, coalesce(h.so_luong_ok, 0) AS ok_qty, coalesce(h.so_luong_ng, 0) AS ng_qty, h.stt_rec AS doc_id FROM public.phpqc h LEFT JOIN public.dmvt v ON v.ma_vt = coalesce(h.ma_sp, h.ma_vt) LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'PQC' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -6341,17 +6351,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "pqc",
-        "ipqc",
-        "kiem tra cong doan",
-        "chat luong cong doan"
-      ],
-      "secondary_cues": [
-        "qc san xuat",
-        "ket qua pqc"
-      ]
+      }
     },
     "mold_incident_status": {
       "status": "approved",
@@ -6361,6 +6361,18 @@
       "notes": "Ảnh chụp snapshot mới nhất thông tin trạng thái khuôn, loại sự cố (Sửa chữa/Bảo dưỡng), kho/vị trí và ngày bảo dưỡng cuối. Không bắt buộc lọc ngày.",
       "date_field": "last_maint_date",
       "require_bounded_date": false,
+      "cues": [
+        "su co khuon",
+        "sua chua khuon",
+        "bao duong khuon",
+        "tinh trang khuon",
+        "vi tri khuon"
+      ],
+      "secondary_cues": [
+        "khuon hong",
+        "khuon dung",
+        "khuon"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT t.ma_khuon AS mold, coalesce(nullif(t.ten_khuon, ''), h.ten_khuon, '') AS mold_name, coalesce(t.ma_kh, '') AS customer, coalesce(t.ten_kh, '') AS customer_name, coalesce(t.loai_su_co, '') AS incident_type, coalesce(t.chi_tiet_su_co_khuon, t.tinh_trang_khuon, '') AS incident_detail, coalesce(t.trang_thai, '') AS status_name, coalesce(t.ma_kho, '') AS warehouse, coalesce(t.ma_vi_tri, '') AS location, t.ngay_bd_cuoi AS last_maint_date, coalesce(t.total_shot, h.tong_so_shot, 0) AS total_shots, coalesce(t.shot_bao_hanh, h.so_shot_bh, 0) AS warranty_shots FROM public.mfkhsx_thongtin_khuon t LEFT JOIN public.dmhosokhuon h ON h.ma_khuon = t.ma_khuon JOIN public.userinfo u ON u.user_id = %s WHERE t.date0 = (SELECT max(date0) FROM public.mfkhsx_thongtin_khuon) AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(h.branch_code, '001') = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -6455,19 +6467,7 @@
             "lte"
           ]
         }
-      },
-      "cues": [
-        "su co khuon",
-        "sua chua khuon",
-        "bao duong khuon",
-        "tinh trang khuon",
-        "vi tri khuon"
-      ],
-      "secondary_cues": [
-        "khuon hong",
-        "khuon dung",
-        "khuon"
-      ]
+      }
     },
     "purchase_receipt_requests": {
       "status": "approved",
@@ -6889,8 +6889,20 @@
       "notes": "Gộp Lệnh sản xuất công đoạn trộn (PD2: phlsxtron/ctlsxtron) và Phiếu quản lý trộn NVL (QLT: phqlt/ctqltnvl). Tập nhỏ, không bắt buộc lọc ngày.",
       "date_field": "day",
       "require_bounded_date": false,
+      "cues": [
+        "tron nhua",
+        "cong doan tron",
+        "lenh tron",
+        "pd2",
+        "qlt",
+        "quan ly tron"
+      ],
+      "secondary_cues": [
+        "tron nvl",
+        "lsx tron"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT doc_type, doc_no, department, material, coalesce(v.ten_vt, '') AS material_name, product_code, lot_no, warehouse, shift, status_name, unit, day, mixing_ratio, quantity, packed_qty, row_key FROM (  SELECT 'PD2'::text AS doc_type, h.so_ct AS doc_no, coalesce(h.ma_bp, h.ma_phan_xuong, '') AS department,          d.ma_vt AS material, coalesce(d.ma_vt_chinh, '') AS product_code, ''::text AS lot_no,          coalesce(d.ma_kho, '') AS warehouse, coalesce(d.ca_sx, '') AS shift,          coalesce(h.status::text, '') AS status_name, coalesce(nullif(d.dvt, ''), 'KG') AS unit,          h.ngay_ct AS day, coalesce(d.ty_le_tron, 0) AS mixing_ratio, coalesce(d.so_luong, 0) AS quantity,          0::numeric AS packed_qty, (h.stt_rec || '|PD2|' || d.ln::text) AS row_key, h.ma_dvcs AS branch   FROM public.phlsxtron h JOIN public.ctlsxtron d ON d.stt_rec = h.stt_rec WHERE h.status::text <> '15'   UNION ALL   SELECT 'QLT'::text AS doc_type, h.so_ct AS doc_no, coalesce(h.nv_thuc_hien, '') AS department,          d.ma_vt AS material, coalesce(h.ma_vt, '') AS product_code, coalesce(d.ma_lo, '') AS lot_no,          coalesce(h.ma_kho, '') AS warehouse, ''::text AS shift,          coalesce(h.status::text, '') AS status_name, 'KG'::text AS unit,          h.ngay_ct AS day, coalesce(h.ty_le_tron, 0) AS mixing_ratio, coalesce(d.so_luong, 0) AS quantity,          coalesce(d.sl_da_dong_goi, 0) AS packed_qty, (h.stt_rec || '|QLT|' || d.ln::text) AS row_key, h.ma_dvcs AS branch   FROM public.phqlt h JOIN public.ctqltnvl d ON d.stt_rec = h.stt_rec WHERE h.status::text <> '15') m LEFT JOIN public.dmvt v ON v.ma_vt = m.material JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR m.branch = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "source_sql": "SELECT doc_type AS doc_type, doc_no AS doc_no, department AS department, material AS material, coalesce(v.ten_vt, '') AS material_name, product_code AS product_code, lot_no AS lot_no, warehouse AS warehouse, shift AS shift, status_name AS status_name, unit AS unit, day AS day, mixing_ratio AS mixing_ratio, quantity AS quantity, packed_qty AS packed_qty, row_key AS row_key FROM (SELECT 'PD2'::text AS doc_type, h.so_ct AS doc_no, coalesce(h.ma_bp, h.ma_phan_xuong, '') AS department, d.ma_vt AS material, coalesce(d.ma_vt_chinh, '') AS product_code, ''::text AS lot_no, coalesce(d.ma_kho, '') AS warehouse, coalesce(d.ca_sx, '') AS shift, coalesce(h.status::text, '') AS status_name, coalesce(nullif(d.dvt, ''), 'KG') AS unit, h.ngay_ct AS day, coalesce(d.ty_le_tron, 0) AS mixing_ratio, coalesce(d.so_luong, 0) AS quantity, 0::numeric AS packed_qty, (h.stt_rec || '|PD2|' || d.ln::text) AS row_key, h.ma_dvcs AS branch FROM public.phlsxtron h JOIN public.ctlsxtron d ON d.stt_rec = h.stt_rec WHERE h.status::text <> '15' UNION ALL SELECT 'QLT'::text AS doc_type, h.so_ct AS doc_no, coalesce(h.nv_thuc_hien, '') AS department, d.ma_vt AS material, coalesce(h.ma_vt, '') AS product_code, coalesce(d.ma_lo, '') AS lot_no, coalesce(h.ma_kho, '') AS warehouse, ''::text AS shift, coalesce(h.status::text, '') AS status_name, 'KG'::text AS unit, h.ngay_ct AS day, coalesce(h.ty_le_tron, 0) AS mixing_ratio, coalesce(d.so_luong, 0) AS quantity, coalesce(d.sl_da_dong_goi, 0) AS packed_qty, (h.stt_rec || '|QLT|' || d.ln::text) AS row_key, h.ma_dvcs AS branch FROM public.phqlt h JOIN public.ctqltnvl d ON d.stt_rec = h.stt_rec WHERE h.status::text <> '15') m LEFT JOIN public.dmvt v ON v.ma_vt = m.material JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR m.branch = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
         "doc_type": "doc_type",
         "doc_no": "doc_no",
@@ -6981,19 +6993,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "tron nhua",
-        "cong doan tron",
-        "lenh tron",
-        "pd2",
-        "qlt",
-        "quan ly tron"
-      ],
-      "secondary_cues": [
-        "tron nvl",
-        "lsx tron"
-      ]
+      }
     },
     "purchase_delivery_schedules": {
       "status": "approved",
@@ -7010,6 +7010,18 @@
       "alternate_date_field": "promise_date",
       "alternate_date_label": "ngày NCC hứa giao (ngay_hua_nh)",
       "require_bounded_date": true,
+      "cues": [
+        "ke hoach nhan hang",
+        "lich hen giao hang ncc",
+        "ngay hua giao po",
+        "ctkhnh",
+        "lich giao ncc",
+        "lich nhan hang"
+      ],
+      "secondary_cues": [
+        "lich nhan po",
+        "ngay hua nhap po"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT h.so_ct AS po_no, coalesce(d.so_ct_pr0, '') AS pr_no, h.ma_kh AS supplier, coalesce(nullif(k.ten_kh, ''), h.ten_kh, '') AS supplier_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(d.ma_bp, '') AS department, d.ngay_ct AS day, d.ngay_de_nghi_nh AS requested_date, d.ngay_hua_nh AS promise_date, coalesce(nullif(d.dvt_yc, ''), v.dvt, 'PCS') AS unit, coalesce(d.so_luong_yc, 0) AS needed_qty, coalesce(d.so_luong, 0) AS quantity, coalesce(d.so_luong1, 0) AS actual_qty, (h.stt_rec || '|' || d.ln::text) AS row_key FROM public.ph94 h JOIN public.ctkhnh d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -7127,19 +7139,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "ke hoach nhan hang",
-        "lich hen giao hang ncc",
-        "ngay hua giao po",
-        "ctkhnh",
-        "lich giao ncc",
-        "lich nhan hang"
-      ],
-      "secondary_cues": [
-        "lich nhan po",
-        "ngay hua nhap po"
-      ]
+      }
     },
     "warehouse_stock_detail_ledger": {
       "status": "approved",
@@ -7149,6 +7149,17 @@
       "notes": "Bảng phát sinh chi tiết kho theo vị trí (location), số lô (lot_no), mã nhập xuất (txn_code) và đối tác (ct70bsp).",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "so chi tiet nhap xuat",
+        "nhap xuat theo lo",
+        "nhap xuat vi tri",
+        "ct70bsp",
+        "ma nhap xuat"
+      ],
+      "secondary_cues": [
+        "the kho lo",
+        "phat sinh kho lo"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT c.ma_kho AS warehouse, coalesce((SELECT w.ten_kho FROM public.dmkho w WHERE w.ma_kho = c.ma_kho LIMIT 1), '') AS warehouse_name, coalesce(c.ma_vi_tri, '') AS location, coalesce(c.ma_lo, '') AS lot_no, coalesce(c.ma_nx, '') AS txn_code, coalesce(c.ma_kh, '') AS customer, coalesce((SELECT k.ten_kh FROM public.dmkh k WHERE k.ma_kh = c.ma_kh LIMIT 1), '') AS customer_name, c.ma_vt AS material, coalesce((SELECT v.ten_vt FROM public.dmvt v WHERE v.ma_vt = c.ma_vt LIMIT 1), '') AS material_name, coalesce(nullif(c.dvt, ''), (SELECT v.dvt FROM public.dmvt v WHERE v.ma_vt = c.ma_vt LIMIT 1), '') AS unit, trim(coalesce(c.ma_ct, '')) AS doc_type, c.so_ct AS doc_no, c.ngay_ct AS day, coalesce(c.sl_nhap, 0) AS in_qty, coalesce(c.sl_xuat, 0) AS out_qty, coalesce(c.tien_nhap, 0) AS in_amount_vnd, coalesce(c.tien_xuat, 0) AS out_amount_vnd, (c.stt_rec || '|' || c.ln::text) AS row_key FROM public.ct70bsp c JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_stocks, '') = '' OR c.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))",
       "dimensions": {
@@ -7275,18 +7286,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "so chi tiet nhap xuat",
-        "nhap xuat theo lo",
-        "nhap xuat vi tri",
-        "ct70bsp",
-        "ma nhap xuat"
-      ],
-      "secondary_cues": [
-        "the kho lo",
-        "phat sinh kho lo"
-      ]
+      }
     },
     "warehouse_pallet_packing": {
       "status": "approved",
@@ -7301,8 +7301,20 @@
         "expiry_date"
       ],
       "require_bounded_date": true,
+      "cues": [
+        "dong pallet",
+        "chi tiet pallet",
+        "ma pallet",
+        "id_pallet",
+        "palletct",
+        "pallet"
+      ],
+      "secondary_cues": [
+        "thung tren pallet",
+        "serial pallet"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT p.id_pallet AS pallet_id, coalesce(p.serial_tem, '') AS pallet_serial, coalesce(c.serial_carton, '') AS carton_serial, coalesce(c.ma_vt, '') AS material, coalesce((SELECT v.ten_vt FROM public.dmvt v WHERE v.ma_vt = c.ma_vt LIMIT 1), '') AS material_name, coalesce(nullif(c.ma_lo, ''), p.ma_lo, '') AS lot_no, coalesce(nullif(c.dvt, ''), (SELECT v.dvt FROM public.dmvt v WHERE v.ma_vt = c.ma_vt LIMIT 1), 'PCS') AS unit, p.date0 AS day, p.ngay_sx AS mfg_date, p.ngay_hsd AS expiry_date, coalesce(c.so_luong, 0) AS packing_qty, (p.id_pallet || '|' || c.id_carton) AS row_key FROM public.pallet p JOIN public.palletct c ON c.id_pallet = p.id_pallet CROSS JOIN public.userinfo u WHERE u.user_id = %s AND coalesce(p.status::text, '') <> '15'",
+      "source_sql": "SELECT p.id_pallet AS pallet_id, coalesce(p.serial_tem, '') AS pallet_serial, coalesce(c.serial_carton, '') AS carton_serial, coalesce(c.ma_vt, '') AS material, coalesce((SELECT v.ten_vt FROM public.dmvt v WHERE v.ma_vt = c.ma_vt LIMIT 1), '') AS material_name, coalesce(nullif(c.ma_lo, ''), p.ma_lo, '') AS lot_no, coalesce(nullif(c.dvt, ''), (SELECT v.dvt FROM public.dmvt v WHERE v.ma_vt = c.ma_vt LIMIT 1), 'PCS') AS unit, p.date0 AS day, p.ngay_sx AS mfg_date, p.ngay_hsd AS expiry_date, coalesce(c.so_luong, 0) AS packing_qty, (p.id_pallet || '|' || c.id_carton) AS row_key FROM public.pallet p JOIN public.palletct c ON c.id_pallet = p.id_pallet CROSS JOIN public.userinfo u WHERE coalesce(p.status::text, '') <> '15' AND u.user_id = %s",
       "dimensions": {
         "pallet_id": "pallet_id",
         "pallet_serial": "pallet_serial",
@@ -7404,19 +7416,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "dong pallet",
-        "chi tiet pallet",
-        "ma pallet",
-        "id_pallet",
-        "palletct",
-        "pallet"
-      ],
-      "secondary_cues": [
-        "thung tren pallet",
-        "serial pallet"
-      ]
+      }
     },
     "sales_delivery_lots": {
       "status": "approved",
@@ -7426,6 +7426,15 @@
       "notes": "Chi tiết chỉ định số lô (lot_no), lô NCC và vị trí kho (location) gắn Lệnh giao hàng TO2 (ph96/ct96lo).",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "chi thi lo",
+        "chi thi lo xuat",
+        "lo xuat to2",
+        "ct96lo"
+      ],
+      "secondary_cues": [
+        "xuat theo lo to2"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT h.so_ct AS doc_no, h.ma_kh AS customer, coalesce((SELECT k.ten_kh FROM public.dmkh k WHERE k.ma_kh = h.ma_kh LIMIT 1), h.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce((SELECT v.ten_vt FROM public.dmvt v WHERE v.ma_vt = d.ma_vt LIMIT 1), '') AS material_name, coalesce(d.ma_kho, '') AS warehouse, coalesce((SELECT w.ten_kho FROM public.dmkho w WHERE w.ma_kho = d.ma_kho LIMIT 1), '') AS warehouse_name, coalesce(d.ma_vi_tri, '') AS location, coalesce(d.ma_lo, '') AS lot_no, coalesce(nullif(d.dvt, ''), (SELECT v.dvt FROM public.dmvt v WHERE v.ma_vt = d.ma_vt LIMIT 1), 'PCS') AS unit, h.ngay_ct AS day, coalesce(d.so_luong, 0) AS quantity, (h.stt_rec || '|' || d.ln_item::text || '|' || d.ln::text) AS row_key FROM public.ph96 h JOIN public.ct96lo d ON d.stt_rec = h.stt_rec JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR coalesce(d.ma_kho, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
       "dimensions": {
@@ -7522,16 +7531,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "chi thi lo",
-        "chi thi lo xuat",
-        "lo xuat to2",
-        "ct96lo"
-      ],
-      "secondary_cues": [
-        "xuat theo lo to2"
-      ]
+      }
     },
     "sales_delivery_serials": {
       "status": "approved",
@@ -7541,6 +7541,15 @@
       "notes": "Ghi nhận chi tiết serial tem gắn từng phiếu xuất kho bán hàng HDA (ph81/ct81tem) và số lệnh giao hàng TO2.",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "tem xuat ban",
+        "serial xuat kho",
+        "serial tem hda",
+        "ct81tem"
+      ],
+      "secondary_cues": [
+        "tem ban hang"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT h.so_ct AS doc_no, coalesce(d.so_ct_to2, '') AS order_no, h.ma_kh AS customer, coalesce((SELECT k.ten_kh FROM public.dmkh k WHERE k.ma_kh = h.ma_kh LIMIT 1), h.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce((SELECT v.ten_vt FROM public.dmvt v WHERE v.ma_vt = d.ma_vt LIMIT 1), '') AS material_name, coalesce(d.ma_kho, '') AS warehouse, coalesce((SELECT w.ten_kho FROM public.dmkho w WHERE w.ma_kho = d.ma_kho LIMIT 1), '') AS warehouse_name, coalesce(d.ma_vi_tri, '') AS location, coalesce(d.serial_tem, '') AS serial_tem, coalesce((SELECT v.dvt FROM public.dmvt v WHERE v.ma_vt = d.ma_vt LIMIT 1), 'PCS') AS unit, h.ngay_ct AS day, CASE WHEN trim(coalesce(d.so_luong, '')) ~ '^[0-9]+(\\.[0-9]+)?$' THEN trim(d.so_luong)::numeric ELSE 0::numeric END AS quantity, (h.stt_rec || '|' || d.ln::text) AS row_key FROM public.ph81 h JOIN public.ct81tem d ON d.stt_rec = h.stt_rec JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR coalesce(d.ma_kho, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
       "dimensions": {
@@ -7639,16 +7648,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "tem xuat ban",
-        "serial xuat kho",
-        "serial tem hda",
-        "ct81tem"
-      ],
-      "secondary_cues": [
-        "tem ban hang"
-      ]
+      }
     },
     "sales_delivery_tools": {
       "status": "approved",
@@ -7658,6 +7658,16 @@
       "notes": "Ghi nhận số lượng CCDC/khay/pallet luân chuyển xuất kèm phiếu giao hàng bán HDA (ph81/ct81ccdc).",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "xuat kem ccdc",
+        "cong cu dung cu giao hang",
+        "khay pallet theo don",
+        "ct81ccdc"
+      ],
+      "secondary_cues": [
+        "khay ccdc",
+        "pallet kem giao hang"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT h.so_ct AS doc_no, h.ma_kh AS customer, coalesce(nullif(k.ten_kh, ''), h.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(d.ma_kho, '') AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(d.dvt, v.dvt, 'PCS') AS unit, h.ngay_ct AS day, coalesce(d.so_luong, 0) AS quantity, (h.stt_rec || '|' || d.ln::text) AS row_key FROM public.ph81 h JOIN public.ct81ccdc d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR coalesce(d.ma_kho, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
       "dimensions": {
@@ -7737,17 +7747,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "xuat kem ccdc",
-        "cong cu dung cu giao hang",
-        "khay pallet theo don",
-        "ct81ccdc"
-      ],
-      "secondary_cues": [
-        "khay ccdc",
-        "pallet kem giao hang"
-      ]
+      }
     },
     "sales_quotation_costings": {
       "status": "approved",
@@ -7757,6 +7757,17 @@
       "notes": "Chứa thông số chiết tính giá thành trên báo giá SQ1: cavity, cycle_time, part_weight, chi phí NVL, khuôn, tổng giá thành và đơn giá USD/VND.",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "chiet tinh gia",
+        "cau thanh gia thanh bao gia",
+        "gia thanh sq1",
+        "ct61tg",
+        "part weight"
+      ],
+      "secondary_cues": [
+        "tinh gia sq1",
+        "cau thanh bao gia"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT h.so_ct AS doc_no, coalesce(nullif(d.ma_kh, ''), h.ma_kh, '') AS customer, coalesce(k.ten_kh, h.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(nullif(d.ten_vt, ''), v.ten_vt, '') AS material_name, coalesce(d.model, '') AS model, coalesce(d.machine, '') AS machine, d.ngay_ct AS day, coalesce(d.cavity, 0) AS cavity, coalesce(d.cycle_time, 0) AS cycle_time, coalesce(d.part_weight, 0) AS part_weight, coalesce(d.t_cost_vt, 0) AS material_cost, coalesce(d.t_cost_khuon, 0) AS mold_cost, coalesce(d.total_cost, 0) AS cost_vnd, coalesce(d.unit_price_usd, 0) AS unit_price_usd, coalesce(d.unit_price_vnd, 0) AS unit_price_vnd, (h.stt_rec || '|' || d.ln::text) AS row_key FROM public.ph61 h JOIN public.ct61tg d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = coalesce(nullif(d.ma_kh, ''), h.ma_kh) LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -7871,18 +7882,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "chiet tinh gia",
-        "cau thanh gia thanh bao gia",
-        "gia thanh sq1",
-        "ct61tg",
-        "part weight"
-      ],
-      "secondary_cues": [
-        "tinh gia sq1",
-        "cau thanh bao gia"
-      ]
+      }
     },
     "planning_btp_forecast": {
       "status": "approved",
@@ -7892,8 +7892,20 @@
       "notes": "Chỉ lấy snapshot mới nhất max(date0) của mfkhsx_po_fc_btp; hỗ trợ công đoạn (step_code) và demand_type ('FC'=FCST, 'PO'=DO).",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "fcst btp",
+        "nhu cau btp",
+        "du bao btp",
+        "ke hoach ban thanh pham",
+        "po fc btp",
+        "mfkhsx_po_fc_btp"
+      ],
+      "secondary_cues": [
+        "nhu cau ban thanh pham",
+        "btp po fc"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT f.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(f.ma_kh, '') AS customer, coalesce(k.ten_kh, '') AS customer_name, coalesce(f.ma_cong_doan, '') AS step_code, coalesce(f.loai_du_lieu, '') AS demand_type, coalesce(f.nguon_du_lieu, '') AS data_source, coalesce(f.model, '') AS model, f.ngay_giao_hang AS day, coalesce(v.dvt, 'PCS') AS unit, coalesce(f.so_luong, 0) AS quantity, f.id AS line_id FROM public.mfkhsx_po_fc_btp f LEFT JOIN public.dmkh k ON k.ma_kh = f.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = f.ma_vt CROSS JOIN public.userinfo u WHERE u.user_id = %s AND f.date0 = (SELECT max(date0) FROM public.mfkhsx_po_fc_btp)",
+      "source_sql": "SELECT f.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(f.ma_kh, '') AS customer, coalesce(k.ten_kh, '') AS customer_name, coalesce(f.ma_cong_doan, '') AS step_code, coalesce(f.loai_du_lieu, '') AS demand_type, coalesce(f.nguon_du_lieu, '') AS data_source, coalesce(f.model, '') AS model, f.ngay_giao_hang AS day, coalesce(v.dvt, 'PCS') AS unit, coalesce(f.so_luong, 0) AS quantity, f.id AS line_id FROM public.mfkhsx_po_fc_btp f LEFT JOIN public.dmkh k ON k.ma_kh = f.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = f.ma_vt CROSS JOIN public.userinfo u WHERE f.date0 = (SELECT max(date0) FROM public.mfkhsx_po_fc_btp) AND u.user_id = %s",
       "dimensions": {
         "material": "material",
         "material_name": "material_name",
@@ -7990,19 +8002,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "fcst btp",
-        "nhu cau btp",
-        "du bao btp",
-        "ke hoach ban thanh pham",
-        "po fc btp",
-        "mfkhsx_po_fc_btp"
-      ],
-      "secondary_cues": [
-        "nhu cau ban thanh pham",
-        "btp po fc"
-      ]
+      }
     },
     "planning_customer_forecast_headers": {
       "status": "approved",
@@ -8016,6 +8016,16 @@
         "valid_to"
       ],
       "require_bounded_date": false,
+      "cues": [
+        "ho so forecast",
+        "ma fc",
+        "mfdmfc",
+        "bang forecast khach hang",
+        "dot fc"
+      ],
+      "secondary_cues": [
+        "forecast goc khach hang"
+      ],
       "user_param_count": 1,
       "source_sql": "SELECT m.ma_fc AS fc_code, coalesce(m.ma_kh, '') AS customer, coalesce(k.ten_kh, '') AS customer_name, coalesce(m.kieu_fc::text, '') AS fc_type, coalesce(m.period_type, '') AS period_type, coalesce(m.status::text, '') AS status_name, m.ngay_ct1 AS day, m.ngay_ct2 AS valid_to, coalesce(m.t_so_luong, 0) AS quantity FROM public.mfdmfc m LEFT JOIN public.dmkh k ON k.ma_kh = m.ma_kh JOIN public.userinfo u ON u.user_id = %s WHERE coalesce(m.status::text, '') <> '15' AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR m.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
@@ -8087,17 +8097,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "ho so forecast",
-        "ma fc",
-        "mfdmfc",
-        "bang forecast khach hang",
-        "dot fc"
-      ],
-      "secondary_cues": [
-        "forecast goc khach hang"
-      ]
+      }
     },
     "planning_material_leadtime_moq": {
       "status": "approved",
@@ -8107,8 +8107,20 @@
       "notes": "Ảnh chụp mới nhất (max date0) bảng tham số KHSX cho Nhựa (mfkhsx_nhua) và Linh kiện (mfkhsx_linh_kien). Không bắt buộc lọc ngày.",
       "date_field": "day",
       "require_bounded_date": false,
+      "cues": [
+        "leadtime",
+        "leadtime kfc",
+        "ty le tai sinh",
+        "moq nhua",
+        "moq linh kien",
+        "khsx nhua"
+      ],
+      "secondary_cues": [
+        "thoi gian giao hang nhua",
+        "tham so khsx"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT item_type, material, material_name, supplier, supplier_short, leadtime, leadtime_kfc, moq, regen_ratio, day, row_key FROM (  SELECT 'Nhựa'::text AS item_type, n.ma_vt AS material, coalesce(n.ten_vt, '') AS material_name,          coalesce(n.ma_ncc, '') AS supplier, coalesce(n.ten_viet_tat, '') AS supplier_short,          coalesce(n.leadtime, 0) AS leadtime, coalesce(n.leadtime_kfc, 0) AS leadtime_kfc,          coalesce(n.moq, 0) AS moq, coalesce(n.ty_le_tai_sinh, 0) AS regen_ratio,          n.date0 AS day, ('NH|' || n.id || '|' || n.stt::text) AS row_key   FROM public.mfkhsx_nhua n WHERE n.date0 = (SELECT max(date0) FROM public.mfkhsx_nhua)   UNION ALL   SELECT 'Linh kiện'::text AS item_type, l.ma_vt AS material, coalesce(l.ten_vt, '') AS material_name,          coalesce(l.ma_ncc, '') AS supplier, coalesce(l.ten_viet_tat, '') AS supplier_short,          coalesce(l.leadtime, 0) AS leadtime, coalesce(l.leadtime_kfc, 0) AS leadtime_kfc,          coalesce(l.moq, 0) AS moq, 0::numeric AS regen_ratio,          l.date0 AS day, ('LK|' || l.id || '|' || l.stt::text) AS row_key   FROM public.mfkhsx_linh_kien l WHERE l.date0 = (SELECT max(date0) FROM public.mfkhsx_linh_kien)) p CROSS JOIN public.userinfo u WHERE u.user_id = %s",
+      "source_sql": "SELECT item_type AS item_type, material AS material, material_name AS material_name, supplier AS supplier, supplier_short AS supplier_short, leadtime AS leadtime, leadtime_kfc AS leadtime_kfc, moq AS moq, regen_ratio AS regen_ratio, day AS day, row_key AS row_key FROM (SELECT 'Nhựa'::text AS item_type, n.ma_vt AS material, coalesce(n.ten_vt, '') AS material_name, coalesce(n.ma_ncc, '') AS supplier, coalesce(n.ten_viet_tat, '') AS supplier_short, coalesce(n.leadtime, 0) AS leadtime, coalesce(n.leadtime_kfc, 0) AS leadtime_kfc, coalesce(n.moq, 0) AS moq, coalesce(n.ty_le_tai_sinh, 0) AS regen_ratio, n.date0 AS day, ('NH|' || n.id || '|' || n.stt::text) AS row_key FROM public.mfkhsx_nhua n WHERE n.date0 = (SELECT max(date0) FROM public.mfkhsx_nhua) UNION ALL SELECT 'Linh kiện'::text AS item_type, l.ma_vt AS material, coalesce(l.ten_vt, '') AS material_name, coalesce(l.ma_ncc, '') AS supplier, coalesce(l.ten_viet_tat, '') AS supplier_short, coalesce(l.leadtime, 0) AS leadtime, coalesce(l.leadtime_kfc, 0) AS leadtime_kfc, coalesce(l.moq, 0) AS moq, 0::numeric AS regen_ratio, l.date0 AS day, ('LK|' || l.id || '|' || l.stt::text) AS row_key FROM public.mfkhsx_linh_kien l WHERE l.date0 = (SELECT max(date0) FROM public.mfkhsx_linh_kien)) p CROSS JOIN public.userinfo u WHERE u.user_id = %s",
       "dimensions": {
         "item_type": "item_type",
         "material": "material",
@@ -8182,19 +8194,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "leadtime",
-        "leadtime kfc",
-        "ty le tai sinh",
-        "moq nhua",
-        "moq linh kien",
-        "khsx nhua"
-      ],
-      "secondary_cues": [
-        "thoi gian giao hang nhua",
-        "tham so khsx"
-      ]
+      }
     },
     "planning_machine_and_resin_stock": {
       "status": "approved",
@@ -8204,8 +8204,20 @@
       "notes": "Gộp 6 ảnh chụp snapshot mới nhất max(date0) của KHSX: tồn tại máy (mfkhsx_ton_tai_may, nhua/linhkien tai may), nhựa yêu cầu (ton_nhua_yc) và tồn NG/tạp chất theo kho (nhua/linhkien theokho). Không bắt buộc lọc ngày.",
       "date_field": "day",
       "require_bounded_date": false,
+      "cues": [
+        "ton tai may",
+        "nhua tai may",
+        "linh kien tai may",
+        "ton nhua yeu cau",
+        "tap chat",
+        "nhua ng theo kho"
+      ],
+      "secondary_cues": [
+        "ton khsx tai may",
+        "linh kien ng theo kho"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT stock_type, machine, location, warehouse, model, material, material_name, stock_qty, shortage_qty, ng_stock_qty, impurity_qty, day, row_key FROM (  SELECT 'Tồn tại máy'::text AS stock_type, coalesce(machine_code, '') AS machine, coalesce(ma_vi_tri, '') AS location, ''::text AS warehouse, ''::text AS model,          ma_vt AS material, coalesce(ten_vt, '') AS material_name, coalesce(so_luong, 0) AS stock_qty, 0::numeric AS shortage_qty, 0::numeric AS ng_stock_qty, 0::numeric AS impurity_qty, date0 AS day, ('TM|' || id || '|' || stt::text) AS row_key   FROM public.mfkhsx_ton_tai_may WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_tai_may)   UNION ALL   SELECT 'Nhựa tại máy'::text, ''::text, ''::text, ''::text, ''::text, ma_vt, coalesce(ten_vt, ''), coalesce(so_luong, 0), 0::numeric, 0::numeric, 0::numeric, date0, ('NTM|' || id || '|' || stt::text)   FROM public.mfkhsx_ton_nhua_tai_may WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_nhua_tai_may)   UNION ALL   SELECT 'Linh kiện tại máy'::text, ''::text, ''::text, ''::text, ''::text, ma_vt, coalesce(ten_vt, ''), coalesce(so_luong, 0), 0::numeric, 0::numeric, 0::numeric, date0, ('LTM|' || id || '|' || stt::text)   FROM public.mfkhsx_ton_linhkien_tai_may WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_linhkien_tai_may)   UNION ALL   SELECT 'Nhựa yêu cầu'::text, ''::text, ''::text, coalesce(ma_kho, ''), coalesce(model, ''), ma_vt, coalesce(ten_vt, ''), coalesce(ts_dung, 0), coalesce(tong, 0), 0::numeric, 0::numeric, date0, ('NYC|' || id || '|' || stt::text)   FROM public.mfkhsx_ton_nhua_yc WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_nhua_yc)   UNION ALL   SELECT 'Nhựa NG theo kho'::text, ''::text, ''::text, coalesce(ma_kho, ''), coalesce(model, ''), ma_vt, coalesce(ten_vt, ''), 0::numeric, 0::numeric, coalesce(so_luong_ng, 0), coalesce(sl_tap_chat, 0), date0, ('NK|' || id || '|' || stt::text)   FROM public.mfkhsx_ton_nhua_theokho WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_nhua_theokho)   UNION ALL   SELECT 'Linh kiện NG theo kho'::text, ''::text, ''::text, coalesce(ma_kho, ''), coalesce(model, ''), ma_vt, coalesce(ten_vt, ''), 0::numeric, 0::numeric, coalesce(so_luong_ng, 0), 0::numeric, date0, ('LK|' || id || '|' || stt::text)   FROM public.mfkhsx_ton_linhkien_theokho WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_linhkien_theokho)) s CROSS JOIN public.userinfo u WHERE u.user_id = %s",
+      "source_sql": "SELECT stock_type AS stock_type, machine AS machine, location AS location, warehouse AS warehouse, model AS model, material AS material, material_name AS material_name, stock_qty AS stock_qty, shortage_qty AS shortage_qty, ng_stock_qty AS ng_stock_qty, impurity_qty AS impurity_qty, day AS day, row_key AS row_key FROM (SELECT 'Tồn tại máy'::text AS stock_type, coalesce(machine_code, '') AS machine, coalesce(ma_vi_tri, '') AS location, ''::text AS warehouse, ''::text AS model, ma_vt AS material, coalesce(ten_vt, '') AS material_name, coalesce(so_luong, 0) AS stock_qty, 0::numeric AS shortage_qty, 0::numeric AS ng_stock_qty, 0::numeric AS impurity_qty, date0 AS day, ('TM|' || id || '|' || stt::text) AS row_key FROM public.mfkhsx_ton_tai_may WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_tai_may) UNION ALL SELECT 'Nhựa tại máy'::text, ''::text, ''::text, ''::text, ''::text, ma_vt, coalesce(ten_vt, ''), coalesce(so_luong, 0), 0::numeric, 0::numeric, 0::numeric, date0, ('NTM|' || id || '|' || stt::text) FROM public.mfkhsx_ton_nhua_tai_may WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_nhua_tai_may) UNION ALL SELECT 'Linh kiện tại máy'::text, ''::text, ''::text, ''::text, ''::text, ma_vt, coalesce(ten_vt, ''), coalesce(so_luong, 0), 0::numeric, 0::numeric, 0::numeric, date0, ('LTM|' || id || '|' || stt::text) FROM public.mfkhsx_ton_linhkien_tai_may WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_linhkien_tai_may) UNION ALL SELECT 'Nhựa yêu cầu'::text, ''::text, ''::text, coalesce(ma_kho, ''), coalesce(model, ''), ma_vt, coalesce(ten_vt, ''), coalesce(ts_dung, 0), coalesce(tong, 0), 0::numeric, 0::numeric, date0, ('NYC|' || id || '|' || stt::text) FROM public.mfkhsx_ton_nhua_yc WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_nhua_yc) UNION ALL SELECT 'Nhựa NG theo kho'::text, ''::text, ''::text, coalesce(ma_kho, ''), coalesce(model, ''), ma_vt, coalesce(ten_vt, ''), 0::numeric, 0::numeric, coalesce(so_luong_ng, 0), coalesce(sl_tap_chat, 0), date0, ('NK|' || id || '|' || stt::text) FROM public.mfkhsx_ton_nhua_theokho WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_nhua_theokho) UNION ALL SELECT 'Linh kiện NG theo kho'::text, ''::text, ''::text, coalesce(ma_kho, ''), coalesce(model, ''), ma_vt, coalesce(ten_vt, ''), 0::numeric, 0::numeric, coalesce(so_luong_ng, 0), 0::numeric, date0, ('LK|' || id || '|' || stt::text) FROM public.mfkhsx_ton_linhkien_theokho WHERE date0 = (SELECT max(date0) FROM public.mfkhsx_ton_linhkien_theokho)) s CROSS JOIN public.userinfo u WHERE u.user_id = %s",
       "dimensions": {
         "stock_type": "stock_type",
         "machine": "machine",
@@ -8284,19 +8296,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "ton tai may",
-        "nhua tai may",
-        "linh kien tai may",
-        "ton nhua yeu cau",
-        "tap chat",
-        "nhua ng theo kho"
-      ],
-      "secondary_cues": [
-        "ton khsx tai may",
-        "linh kien ng theo kho"
-      ]
+      }
     },
     "planning_bom_and_alternatives": {
       "status": "approved",
@@ -8306,8 +8306,21 @@
       "notes": "Tổng hợp BOM chạy KHSX (mfkhsx_bom, bom_vat_tu_phu, bom_nhua_tron) và danh mục vật tư/nhựa thay thế (mfbom_material_replace, mfkhsx_nhua_thay_the). Không bắt buộc lọc ngày.",
       "date_field": "bom_version",
       "require_bounded_date": false,
+      "cues": [
+        "vat tu thay the",
+        "nhua thay the",
+        "ty le hao hut",
+        "ty le tron",
+        "gate runner",
+        "bom khsx",
+        "dinh muc gian tiep"
+      ],
+      "secondary_cues": [
+        "nhua tron",
+        "vtp bom"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT bom_source, product_code, product_name, material, material_name, alt_material, bom_version, step_code, bom_qty, gate_runner_qty, loss_pct, mixing_ratio, row_key FROM (  SELECT 'KHSX_BOM'::text AS bom_source, b.ma_sp AS product_code, coalesce(b.ten_sp, '') AS product_name,          b.ma_vt AS material, coalesce(b.ten_vt, '') AS material_name, ''::text AS alt_material,          coalesce(b.bom_version, '') AS bom_version, coalesce(b.ma_cong_doan, '') AS step_code,          coalesce(b.so_luong_dm, 0) AS bom_qty, coalesce(b.so_luong_gate_runner, 0) AS gate_runner_qty,          coalesce(b.ty_le_hao_hut, 0) AS loss_pct, coalesce(b.ty_le_tron, 0) AS mixing_ratio, ('KB|' || b.id || '|' || b.stt::text) AS row_key   FROM public.mfkhsx_bom b WHERE b.date0 = (SELECT max(date0) FROM public.mfkhsx_bom)   UNION ALL   SELECT 'BOM_NHUA_TRON'::text, t.ma_sp, coalesce(t.ten_sp, ''), t.ma_vt, coalesce(t.ten_vt, ''), ''::text,          coalesce(t.bom_version, ''), ''::text, coalesce(t.so_luong_dm, 0), coalesce(t.so_luong_gate_runner, 0),          coalesce(t.ty_le_hao_hut, 0), coalesce(t.ty_le_tron, 0), ('BT|' || t.id || '|' || t.stt::text)   FROM public.mfkhsx_bom_nhua_tron t WHERE t.date0 = (SELECT max(date0) FROM public.mfkhsx_bom_nhua_tron)   UNION ALL   SELECT 'BOM_VTP'::text, p.ma_sp, coalesce(p.ten_sp, ''), p.ma_vt, coalesce(p.ten_vt, ''), ''::text,          coalesce(p.bom_version, ''), ''::text, coalesce(p.so_luong_dm, 0), 0::numeric, 0::numeric, 0::numeric, ('VP|' || p.id || '|' || p.stt::text)   FROM public.mfkhsx_bom_vat_tu_phu p WHERE p.date0 = (SELECT max(date0) FROM public.mfkhsx_bom_vat_tu_phu)   UNION ALL   SELECT 'NHUA_THAY_THE'::text, n.ma_sp, ''::text, n.ma_vt, ''::text, coalesce(n.ma_vt_thay_the, ''),          ''::text, ''::text, coalesce(n.so_luong, 0), coalesce(n.sl_gate_runner, 0), 0::numeric, 0::numeric, ('NT|' || n.id || '|' || n.stt::text)   FROM public.mfkhsx_nhua_thay_the n WHERE n.date0 = (SELECT max(date0) FROM public.mfkhsx_nhua_thay_the)   UNION ALL   SELECT 'BOM_THAY_THE'::text, r.product_code, ''::text, r.main_material_code, ''::text, coalesce(r.material_code, ''),          coalesce(r.bom_code, ''), coalesce(r.operation_code, ''), coalesce(r.quantity, 0), coalesce(r.sl_gate_runner, 0), coalesce(r.loss_ratio_allowed, 0), 0::numeric,          ('BR|' || r.product_code || '|' || r.main_material_code || '|' || r.material_code || '|' || r.valid_from::text)   FROM public.mfbom_material_replace r WHERE coalesce(r.status::text, '1') <> '15'   UNION ALL   SELECT 'BOM_GIAN_TIEP'::text, i.product_code, ''::text, i.material_code, ''::text, ''::text,          coalesce(i.bom_version, ''), coalesce(i.operation_code, ''), coalesce(i.quantity, 0), coalesce(i.sl_gate_runner, 0), coalesce(i.loss_ratio_allowed, 0), coalesce(i.ty_le_tron, 0),          ('BI|' || i.bom_code || '|' || i.material_code || '|' || i.ln::text)   FROM public.mfbom_material_indirect i) bm CROSS JOIN public.userinfo u WHERE u.user_id = %s",
+      "source_sql": "SELECT bom_source AS bom_source, product_code AS product_code, product_name AS product_name, material AS material, material_name AS material_name, alt_material AS alt_material, bom_version AS bom_version, step_code AS step_code, bom_qty AS bom_qty, gate_runner_qty AS gate_runner_qty, loss_pct AS loss_pct, mixing_ratio AS mixing_ratio, row_key AS row_key FROM (SELECT 'KHSX_BOM'::text AS bom_source, b.ma_sp AS product_code, coalesce(b.ten_sp, '') AS product_name, b.ma_vt AS material, coalesce(b.ten_vt, '') AS material_name, ''::text AS alt_material, coalesce(b.bom_version, '') AS bom_version, coalesce(b.ma_cong_doan, '') AS step_code, coalesce(b.so_luong_dm, 0) AS bom_qty, coalesce(b.so_luong_gate_runner, 0) AS gate_runner_qty, coalesce(b.ty_le_hao_hut, 0) AS loss_pct, coalesce(b.ty_le_tron, 0) AS mixing_ratio, ('KB|' || b.id || '|' || b.stt::text) AS row_key FROM public.mfkhsx_bom b WHERE b.date0 = (SELECT max(date0) FROM public.mfkhsx_bom) UNION ALL SELECT 'BOM_NHUA_TRON'::text, t.ma_sp, coalesce(t.ten_sp, ''), t.ma_vt, coalesce(t.ten_vt, ''), ''::text, coalesce(t.bom_version, ''), ''::text, coalesce(t.so_luong_dm, 0), coalesce(t.so_luong_gate_runner, 0), coalesce(t.ty_le_hao_hut, 0), coalesce(t.ty_le_tron, 0), ('BT|' || t.id || '|' || t.stt::text) FROM public.mfkhsx_bom_nhua_tron t WHERE t.date0 = (SELECT max(date0) FROM public.mfkhsx_bom_nhua_tron) UNION ALL SELECT 'BOM_VTP'::text, p.ma_sp, coalesce(p.ten_sp, ''), p.ma_vt, coalesce(p.ten_vt, ''), ''::text, coalesce(p.bom_version, ''), ''::text, coalesce(p.so_luong_dm, 0), 0::numeric, 0::numeric, 0::numeric, ('VP|' || p.id || '|' || p.stt::text) FROM public.mfkhsx_bom_vat_tu_phu p WHERE p.date0 = (SELECT max(date0) FROM public.mfkhsx_bom_vat_tu_phu) UNION ALL SELECT 'NHUA_THAY_THE'::text, n.ma_sp, ''::text, n.ma_vt, ''::text, coalesce(n.ma_vt_thay_the, ''), ''::text, ''::text, coalesce(n.so_luong, 0), coalesce(n.sl_gate_runner, 0), 0::numeric, 0::numeric, ('NT|' || n.id || '|' || n.stt::text) FROM public.mfkhsx_nhua_thay_the n WHERE n.date0 = (SELECT max(date0) FROM public.mfkhsx_nhua_thay_the) UNION ALL SELECT 'BOM_THAY_THE'::text, r.product_code, ''::text, r.main_material_code, ''::text, coalesce(r.material_code, ''), coalesce(r.bom_code, ''), coalesce(r.operation_code, ''), coalesce(r.quantity, 0), coalesce(r.sl_gate_runner, 0), coalesce(r.loss_ratio_allowed, 0), 0::numeric, ('BR|' || r.product_code || '|' || r.main_material_code || '|' || r.material_code || '|' || r.valid_from::text) FROM public.mfbom_material_replace r WHERE coalesce(r.status::text, '1') <> '15' UNION ALL SELECT 'BOM_GIAN_TIEP'::text, i.product_code, ''::text, i.material_code, ''::text, ''::text, coalesce(i.bom_version, ''), coalesce(i.operation_code, ''), coalesce(i.quantity, 0), coalesce(i.sl_gate_runner, 0), coalesce(i.loss_ratio_allowed, 0), coalesce(i.ty_le_tron, 0), ('BI|' || i.bom_code || '|' || i.material_code || '|' || i.ln::text) FROM public.mfbom_material_indirect i) bm CROSS JOIN public.userinfo u WHERE u.user_id = %s",
       "dimensions": {
         "bom_source": "bom_source",
         "product_code": "product_code",
@@ -8377,20 +8390,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "vat tu thay the",
-        "nhua thay the",
-        "ty le hao hut",
-        "ty le tron",
-        "gate runner",
-        "bom khsx",
-        "dinh muc gian tiep"
-      ],
-      "secondary_cues": [
-        "nhua tron",
-        "vtp bom"
-      ]
+      }
     },
     "production_order_materials_and_steps": {
       "status": "approved",
@@ -8400,8 +8400,19 @@
       "notes": "Chi tiết vật tư cấp (ctlsxvt) và công đoạn sản xuất/nguồn lực (ctlsxqt) trên Lệnh sản xuất ERP (PD1).",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "vat tu lenh san xuat",
+        "cong doan lenh san xuat",
+        "ctlsxvt",
+        "ctlsxqt",
+        "dinh muc lsx"
+      ],
+      "secondary_cues": [
+        "nvl pd1",
+        "quy trinh lsx"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT entry_type, doc_no, product_code, material, coalesce(v.ten_vt, '') AS material_name, step_code, department, warehouse, unit, day, bom_qty, planned_qty, loss_pct, row_key FROM (  SELECT 'NVL_LSX'::text AS entry_type, h.so_ct AS doc_no, coalesce(d.ma_sp, '') AS product_code,          d.ma_vt AS material, coalesce(d.ma_cong_doan, '') AS step_code, coalesce(h.ma_bp, '') AS department,          coalesce(d.ma_kho, '') AS warehouse, coalesce(d.dvt, 'PCS') AS unit, h.ngay_ct AS day,          coalesce(d.so_luong_dm, 0) AS bom_qty, coalesce(d.so_luong, 0) AS planned_qty, coalesce(d.ty_le_hao_hut, 0) AS loss_pct,          (h.stt_rec || '|VT|' || d.ma_sp || '|' || d.ln::text) AS row_key, h.ma_dvcs AS branch   FROM public.phlsx h JOIN public.ctlsxvt d ON d.stt_rec = h.stt_rec WHERE h.status::text <> '15'   UNION ALL   SELECT 'CONG_DOAN_LSX'::text, h.so_ct, coalesce(q.ma_sp, ''), coalesce(q.ma_sp, ''), coalesce(q.ma_cong_doan, ''),          coalesce(q.ma_bp, h.ma_bp, ''), ''::text, ''::text, h.ngay_ct, 0::numeric, coalesce(q.ty_le_ht, 0), 0::numeric,          (h.stt_rec || '|QT|' || q.ma_cong_doan || '|' || q.ln::text), h.ma_dvcs   FROM public.phlsx h JOIN public.ctlsxqt q ON q.stt_rec = h.stt_rec WHERE h.status::text <> '15') p LEFT JOIN public.dmvt v ON v.ma_vt = p.material JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR p.branch = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "source_sql": "SELECT entry_type AS entry_type, doc_no AS doc_no, product_code AS product_code, material AS material, coalesce(v.ten_vt, '') AS material_name, step_code AS step_code, department AS department, warehouse AS warehouse, unit AS unit, day AS day, bom_qty AS bom_qty, planned_qty AS planned_qty, loss_pct AS loss_pct, row_key AS row_key FROM (SELECT 'NVL_LSX'::text AS entry_type, h.so_ct AS doc_no, coalesce(d.ma_sp, '') AS product_code, d.ma_vt AS material, coalesce(d.ma_cong_doan, '') AS step_code, coalesce(h.ma_bp, '') AS department, coalesce(d.ma_kho, '') AS warehouse, coalesce(d.dvt, 'PCS') AS unit, h.ngay_ct AS day, coalesce(d.so_luong_dm, 0) AS bom_qty, coalesce(d.so_luong, 0) AS planned_qty, coalesce(d.ty_le_hao_hut, 0) AS loss_pct, (h.stt_rec || '|VT|' || d.ma_sp || '|' || d.ln::text) AS row_key, h.ma_dvcs AS branch FROM public.phlsx h JOIN public.ctlsxvt d ON d.stt_rec = h.stt_rec WHERE h.status::text <> '15' UNION ALL SELECT 'CONG_DOAN_LSX'::text, h.so_ct, coalesce(q.ma_sp, ''), coalesce(q.ma_sp, ''), coalesce(q.ma_cong_doan, ''), coalesce(q.ma_bp, h.ma_bp, ''), ''::text, ''::text, h.ngay_ct, 0::numeric, coalesce(q.ty_le_ht, 0), 0::numeric, (h.stt_rec || '|QT|' || q.ma_cong_doan || '|' || q.ln::text), h.ma_dvcs FROM public.phlsx h JOIN public.ctlsxqt q ON q.stt_rec = h.stt_rec WHERE h.status::text <> '15') p LEFT JOIN public.dmvt v ON v.ma_vt = p.material JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR p.branch = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
         "entry_type": "entry_type",
         "doc_no": "doc_no",
@@ -8489,18 +8500,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "vat tu lenh san xuat",
-        "cong doan lenh san xuat",
-        "ctlsxvt",
-        "ctlsxqt",
-        "dinh muc lsx"
-      ],
-      "secondary_cues": [
-        "nvl pd1",
-        "quy trinh lsx"
-      ]
+      }
     },
     "mes_preproduction_prep": {
       "status": "approved",
@@ -8510,8 +8510,18 @@
       "notes": "Gộp phiếu chuẩn bị sản xuất (new_oi_cbsx) và cấp NVL chuẩn bị trước ca (mes_oi_material_prepare).",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "chuan bi san xuat",
+        "cbsx",
+        "cap nvl chuan bi",
+        "material prepare",
+        "lan cap nvl"
+      ],
+      "secondary_cues": [
+        "new_oi_cbsx"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT event_type, schedule_code, work_order, station, machine, product_code, material, lot_no, status_name, day, prepare_qty, needed_qty, feed_round, row_key FROM (  SELECT 'CBSX'::text AS event_type, coalesce(c.mes_scheduling_code, '') AS schedule_code, ''::text AS work_order,          ''::text AS station, coalesce(c.line_code, '') AS machine, ''::text AS product_code, ''::text AS material, ''::text AS lot_no,          coalesce(c.status::text, '') AS status_name, c.date0 AS day, 0::numeric AS prepare_qty, 0::numeric AS needed_qty,          coalesce(c.chuyen_buoc_yn, 0)::numeric AS feed_round, ('CB|' || c.id_cbsx) AS row_key   FROM public.new_oi_cbsx c   UNION ALL   SELECT 'CAP_CHUAN_BI_NVL'::text, coalesce(m.mes_scheduling_code, ''), coalesce(m.production_order, ''),          coalesce(m.station_code, ''), coalesce(m.machine_code, ''), coalesce(m.product_code, ''), coalesce(m.material_code, ''), coalesce(m.ma_lo, ''),          coalesce(m.status::text, ''), m.create_date, coalesce(m.so_luong, 0), coalesce(m.so_luong_can_cap, 0),          coalesce(m.lan_cap, 0)::numeric, ('MP|' || m.id_material)   FROM public.mes_oi_material_prepare m) p CROSS JOIN public.userinfo u WHERE u.user_id = %s",
+      "source_sql": "SELECT event_type AS event_type, schedule_code AS schedule_code, work_order AS work_order, station AS station, machine AS machine, product_code AS product_code, material AS material, lot_no AS lot_no, status_name AS status_name, day AS day, prepare_qty AS prepare_qty, needed_qty AS needed_qty, feed_round AS feed_round, row_key AS row_key FROM (SELECT 'CBSX'::text AS event_type, coalesce(c.mes_scheduling_code, '') AS schedule_code, ''::text AS work_order, ''::text AS station, coalesce(c.line_code, '') AS machine, ''::text AS product_code, ''::text AS material, ''::text AS lot_no, coalesce(c.status::text, '') AS status_name, c.date0 AS day, 0::numeric AS prepare_qty, 0::numeric AS needed_qty, coalesce(c.chuyen_buoc_yn, 0)::numeric AS feed_round, ('CB|' || c.id_cbsx) AS row_key FROM public.new_oi_cbsx c UNION ALL SELECT 'CAP_CHUAN_BI_NVL'::text, coalesce(m.mes_scheduling_code, ''), coalesce(m.production_order, ''), coalesce(m.station_code, ''), coalesce(m.machine_code, ''), coalesce(m.product_code, ''), coalesce(m.material_code, ''), coalesce(m.ma_lo, ''), coalesce(m.status::text, ''), m.create_date, coalesce(m.so_luong, 0), coalesce(m.so_luong_can_cap, 0), coalesce(m.lan_cap, 0)::numeric, ('MP|' || m.id_material) FROM public.mes_oi_material_prepare m) p CROSS JOIN public.userinfo u WHERE u.user_id = %s",
       "dimensions": {
         "event_type": "event_type",
         "schedule_code": "schedule_code",
@@ -8598,17 +8608,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "chuan bi san xuat",
-        "cbsx",
-        "cap nvl chuan bi",
-        "material prepare",
-        "lan cap nvl"
-      ],
-      "secondary_cues": [
-        "new_oi_cbsx"
-      ]
+      }
     },
     "mes_machine_logs_and_cavity": {
       "status": "approved",
@@ -8618,8 +8618,21 @@
       "notes": "Gộp thay đổi cavity (mes_oi_change_cativity), tắt đèn tháp (towerlightoff), tạm dừng setup (setup_may_pause), tạm dừng vận hành khuôn (van_hanh_khuon_pause) và trạng thái máy.",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "doi cavity",
+        "thay doi cavity",
+        "tam dung setup",
+        "tam dung khuon",
+        "den thap",
+        "towerlight",
+        "trang thai may mes"
+      ],
+      "secondary_cues": [
+        "pause setup",
+        "pause khuon"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT event_type, machine, station, mold, material, defect_code, employee_code, day, cavity, cycle_sec, row_key FROM (  SELECT 'DOI_CAVITY'::text AS event_type, ''::text AS machine, ''::text AS station, coalesce(ma_khuon, '') AS mold,          coalesce(ma_sp, '') AS material, ''::text AS defect_code, ''::text AS employee_code, date0 AS day,          coalesce(cavity, 0) AS cavity, coalesce(chu_ky, 0) AS cycle_sec,          ('DC|' || id_oi || '|' || id_change_cavity || '|' || ma_khuon || '|' || ma_sp || '|' || date0::text || '|' || time0::text) AS row_key   FROM public.mes_oi_change_cativity   UNION ALL   SELECT 'TAT_DEN_THAP'::text, coalesce(machine_code, ''), ''::text, ''::text, ''::text, coalesce(ghi_chu, ''), coalesce(ma_nv, ''), date0, 0::numeric, 0::numeric,          ('TL|' || id_oi || '|' || date0::text || '|' || time0::text)   FROM public.mes_oi_towerlightoff   UNION ALL   SELECT 'TAM_DUNG_SETUP'::text, coalesce(machine_code, ''), coalesce(station_code, ''), coalesce(ma_khuon, ''), coalesce(ma_sp, ''), coalesce(error_code, ''), coalesce(employee_code, ''), create_date, 0::numeric, coalesce(chu_ky_tt, 0),          ('SP|' || id_pause)   FROM public.mes_oi_setup_may_pause   UNION ALL   SELECT 'TAM_DUNG_KHUON'::text, coalesce(machine_code, ''), coalesce(station_code, ''), ''::text, ''::text, coalesce(error_code, ''), coalesce(ma_nv_xu_ly, ''), create_date, 0::numeric, 0::numeric,          ('KP|' || id_pause)   FROM public.mes_oi_van_hanh_khuon_pause   UNION ALL   SELECT 'TRANG_THAI_MAY'::text, coalesce(machine_code, ''), coalesce(station_code, ''), coalesce(mold_code, ''), ''::text, coalesce(error_code, ''), coalesce(employee_code, ''), create_date, 0::numeric, 0::numeric,          ('MC|' || id)   FROM public.mes_oi_machine WHERE create_date BETWEEN '2020-01-01' AND CURRENT_DATE + 1) l CROSS JOIN public.userinfo u WHERE u.user_id = %s",
+      "source_sql": "SELECT event_type AS event_type, machine AS machine, station AS station, mold AS mold, material AS material, defect_code AS defect_code, employee_code AS employee_code, day AS day, cavity AS cavity, cycle_sec AS cycle_sec, row_key AS row_key FROM (SELECT 'DOI_CAVITY'::text AS event_type, ''::text AS machine, ''::text AS station, coalesce(ma_khuon, '') AS mold, coalesce(ma_sp, '') AS material, ''::text AS defect_code, ''::text AS employee_code, date0 AS day, coalesce(cavity, 0) AS cavity, coalesce(chu_ky, 0) AS cycle_sec, ('DC|' || id_oi || '|' || id_change_cavity || '|' || ma_khuon || '|' || ma_sp || '|' || date0::text || '|' || time0::text) AS row_key FROM public.mes_oi_change_cativity UNION ALL SELECT 'TAT_DEN_THAP'::text, coalesce(machine_code, ''), ''::text, ''::text, ''::text, coalesce(ghi_chu, ''), coalesce(ma_nv, ''), date0, 0::numeric, 0::numeric, ('TL|' || id_oi || '|' || date0::text || '|' || time0::text) FROM public.mes_oi_towerlightoff UNION ALL SELECT 'TAM_DUNG_SETUP'::text, coalesce(machine_code, ''), coalesce(station_code, ''), coalesce(ma_khuon, ''), coalesce(ma_sp, ''), coalesce(error_code, ''), coalesce(employee_code, ''), create_date, 0::numeric, coalesce(chu_ky_tt, 0), ('SP|' || id_pause) FROM public.mes_oi_setup_may_pause UNION ALL SELECT 'TAM_DUNG_KHUON'::text, coalesce(machine_code, ''), coalesce(station_code, ''), ''::text, ''::text, coalesce(error_code, ''), coalesce(ma_nv_xu_ly, ''), create_date, 0::numeric, 0::numeric, ('KP|' || id_pause) FROM public.mes_oi_van_hanh_khuon_pause UNION ALL SELECT 'TRANG_THAI_MAY'::text, coalesce(machine_code, ''), coalesce(station_code, ''), coalesce(mold_code, ''), ''::text, coalesce(error_code, ''), coalesce(employee_code, ''), create_date, 0::numeric, 0::numeric, ('MC|' || id) FROM public.mes_oi_machine WHERE create_date BETWEEN '2020-01-01' AND CURRENT_DATE + 1) l CROSS JOIN public.userinfo u WHERE u.user_id = %s",
       "dimensions": {
         "event_type": "event_type",
         "machine": "machine",
@@ -8695,20 +8708,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "doi cavity",
-        "thay doi cavity",
-        "tam dung setup",
-        "tam dung khuon",
-        "den thap",
-        "towerlight",
-        "trang thai may mes"
-      ],
-      "secondary_cues": [
-        "pause setup",
-        "pause khuon"
-      ]
+      }
     },
     "mes_material_ng_and_adjustments": {
       "status": "approved",
@@ -8718,8 +8718,22 @@
       "notes": "Gộp NG nguyên vật liệu (mes_oi_ng_materrial), bù/điều chỉnh sản lượng (mes_oi_add_quantity), bàn giao inbound (mes_oi_inbound) và đối soát thu hồi/chênh lệch NVL (mes_oi_material_history).",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "ng nguyen vat lieu",
+        "loi nvl",
+        "bu san luong",
+        "them san luong",
+        "inbound mes",
+        "ban giao cong doan",
+        "thu hoi nvl"
+      ],
+      "secondary_cues": [
+        "mes_oi_inbound",
+        "mes_oi_add_quantity",
+        "chenh lech thu hoi"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT event_type, machine, station, work_order, schedule_code, material, defect_code, step_code, day, ng_qty, add_qty, inbound_qty, variance_qty, row_key FROM (  SELECT 'NG_NVL'::text AS event_type, coalesce(machine_code, '') AS machine, coalesce(station_code, '') AS station,          coalesce(production_order, '') AS work_order, coalesce(mes_scheduling_code, '') AS schedule_code,          coalesce(nullif(material_code, ''), product_code, '') AS material, coalesce(error_code, '') AS defect_code,          coalesce(step_code, '') AS step_code, create_date AS day, coalesce(ng_qty, 0) AS ng_qty, 0::numeric AS add_qty, 0::numeric AS inbound_qty, 0::numeric AS variance_qty,          ('NM|' || id_oi_ng::text) AS row_key   FROM public.mes_oi_ng_materrial   UNION ALL   SELECT 'BU_SAN_LUONG'::text, coalesce(line_code, ''), ''::text, ''::text, coalesce(mes_scheduling_code, ''), coalesce(product_code, ''), coalesce(ghi_chu, ''), ''::text,          date0, 0::numeric, coalesce(quantity, 0), 0::numeric, 0::numeric, ('AQ|' || id_add)   FROM public.mes_oi_add_quantity   UNION ALL   SELECT 'BAN_GIAO_INBOUND'::text, coalesce(machine_code, ''), coalesce(station_code, ''), coalesce(production_order, ''), coalesce(mes_scheduling_code, ''), coalesce(product_code, ''), ''::text, coalesce(step_code, ''),          create_date, 0::numeric, 0::numeric, coalesce(inbound, 0), 0::numeric, ('IB|' || id_inbound)   FROM public.mes_oi_inbound   UNION ALL   SELECT 'DOI_SOAT_NVL'::text, coalesce(o.machine_code, ''), coalesce(o.station_code, ''), coalesce(o.production_order, ''), coalesce(o.mes_scheduling_code, ''), h.ma_vt, ''::text, ''::text,          o.create_date, 0::numeric, 0::numeric, 0::numeric, coalesce(h.sl_chenh_lech, 0), ('MH|' || h.id_oi || '|' || h.ma_vt || '|' || h.date0::text || '|' || h.time0::text)   FROM public.mes_oi_material_history h JOIN public.mes_oi_confirm o ON o.id_oi = h.id_oi) m CROSS JOIN public.userinfo u WHERE u.user_id = %s",
+      "source_sql": "SELECT event_type AS event_type, machine AS machine, station AS station, work_order AS work_order, schedule_code AS schedule_code, material AS material, defect_code AS defect_code, step_code AS step_code, day AS day, ng_qty AS ng_qty, add_qty AS add_qty, inbound_qty AS inbound_qty, variance_qty AS variance_qty, row_key AS row_key FROM (SELECT 'NG_NVL'::text AS event_type, coalesce(machine_code, '') AS machine, coalesce(station_code, '') AS station, coalesce(production_order, '') AS work_order, coalesce(mes_scheduling_code, '') AS schedule_code, coalesce(nullif(material_code, ''), product_code, '') AS material, coalesce(error_code, '') AS defect_code, coalesce(step_code, '') AS step_code, create_date AS day, coalesce(ng_qty, 0) AS ng_qty, 0::numeric AS add_qty, 0::numeric AS inbound_qty, 0::numeric AS variance_qty, ('NM|' || id_oi_ng::text) AS row_key FROM public.mes_oi_ng_materrial UNION ALL SELECT 'BU_SAN_LUONG'::text, coalesce(line_code, ''), ''::text, ''::text, coalesce(mes_scheduling_code, ''), coalesce(product_code, ''), coalesce(ghi_chu, ''), ''::text, date0, 0::numeric, coalesce(quantity, 0), 0::numeric, 0::numeric, ('AQ|' || id_add) FROM public.mes_oi_add_quantity UNION ALL SELECT 'BAN_GIAO_INBOUND'::text, coalesce(machine_code, ''), coalesce(station_code, ''), coalesce(production_order, ''), coalesce(mes_scheduling_code, ''), coalesce(product_code, ''), ''::text, coalesce(step_code, ''), create_date, 0::numeric, 0::numeric, coalesce(inbound, 0), 0::numeric, ('IB|' || id_inbound) FROM public.mes_oi_inbound UNION ALL SELECT 'DOI_SOAT_NVL'::text, coalesce(o.machine_code, ''), coalesce(o.station_code, ''), coalesce(o.production_order, ''), coalesce(o.mes_scheduling_code, ''), h.ma_vt, ''::text, ''::text, o.create_date, 0::numeric, 0::numeric, 0::numeric, coalesce(h.sl_chenh_lech, 0), ('MH|' || h.id_oi || '|' || h.ma_vt || '|' || h.date0::text || '|' || h.time0::text) FROM public.mes_oi_material_history h JOIN public.mes_oi_confirm o ON o.id_oi = h.id_oi) m CROSS JOIN public.userinfo u WHERE u.user_id = %s",
       "dimensions": {
         "event_type": "event_type",
         "machine": "machine",
@@ -8801,21 +8815,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "ng nguyen vat lieu",
-        "loi nvl",
-        "bu san luong",
-        "them san luong",
-        "inbound mes",
-        "ban giao cong doan",
-        "thu hoi nvl"
-      ],
-      "secondary_cues": [
-        "mes_oi_inbound",
-        "mes_oi_add_quantity",
-        "chenh lech thu hoi"
-      ]
+      }
     },
     "qc_inspection_criteria_lines": {
       "status": "approved",
@@ -8825,8 +8825,20 @@
       "notes": "Chi tiết các tiêu chí đo lường và đánh giá trong phiếu kiểm tra IQC (ctiqc) và PQC (ctpqc).",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "chi tieu kiem tra",
+        "chi tieu iqc",
+        "chi tieu pqc",
+        "ket qua do",
+        "khoang fa",
+        "ctiqc",
+        "ctpqc"
+      ],
+      "secondary_cues": [
+        "tieu chi do luong qc"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT c.qc_doc_type, c.doc_no, c.material, coalesce(v.ten_vt, '') AS material_name, c.criterion_code, coalesce(q.ten_chi_tieu, '') AS criterion_name, c.eval_result, c.cavity, c.day, c.row_key FROM (  SELECT 'IQC'::text AS qc_doc_type, h.so_ct AS doc_no, h.ma_vt AS material, coalesce(d.ma_chi_tieu, '') AS criterion_code,          coalesce(nullif(d.kq_danh_gia, ''), d.ket_qua, '') AS eval_result, ''::text AS cavity, d.ngay_ct AS day,          ('IQ|' || d.stt_rec || '|' || d.ln::text) AS row_key, coalesce(h.ma_dvcs, '001') AS branch   FROM public.phiqc h JOIN public.ctiqc d ON d.stt_rec = h.stt_rec WHERE h.status::text <> '15'   UNION ALL   SELECT 'PQC'::text, h.so_ct, coalesce(h.ma_sp, h.ma_vt, ''), coalesce(d.ma_chi_tieu, ''),          coalesce(nullif(d.kq_danh_gia, ''), d.ket_qua, ''), coalesce(d.cavity, ''), d.ngay_ct,          ('PQ|' || d.stt_rec || '|' || d.ln::text), coalesce(h.ma_dvcs, '001')   FROM public.phpqc h JOIN public.ctpqc d ON d.stt_rec = h.stt_rec WHERE h.status::text <> '15') c LEFT JOIN public.dmvt v ON v.ma_vt = c.material LEFT JOIN public.qcdmchitieu q ON q.ma_chi_tieu = c.criterion_code JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR c.branch = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "source_sql": "SELECT c.qc_doc_type AS qc_doc_type, c.doc_no AS doc_no, c.material AS material, coalesce(v.ten_vt, '') AS material_name, c.criterion_code AS criterion_code, coalesce(q.ten_chi_tieu, '') AS criterion_name, c.eval_result AS eval_result, c.cavity AS cavity, c.day AS day, c.row_key AS row_key FROM (SELECT 'IQC'::text AS qc_doc_type, h.so_ct AS doc_no, h.ma_vt AS material, coalesce(d.ma_chi_tieu, '') AS criterion_code, coalesce(nullif(d.kq_danh_gia, ''), d.ket_qua, '') AS eval_result, ''::text AS cavity, d.ngay_ct AS day, ('IQ|' || d.stt_rec || '|' || d.ln::text) AS row_key, coalesce(h.ma_dvcs, '001') AS branch FROM public.phiqc h JOIN public.ctiqc d ON d.stt_rec = h.stt_rec WHERE h.status::text <> '15' UNION ALL SELECT 'PQC'::text, h.so_ct, coalesce(h.ma_sp, h.ma_vt, ''), coalesce(d.ma_chi_tieu, ''), coalesce(nullif(d.kq_danh_gia, ''), d.ket_qua, ''), coalesce(d.cavity, ''), d.ngay_ct, ('PQ|' || d.stt_rec || '|' || d.ln::text), coalesce(h.ma_dvcs, '001') FROM public.phpqc h JOIN public.ctpqc d ON d.stt_rec = h.stt_rec WHERE h.status::text <> '15') c LEFT JOIN public.dmvt v ON v.ma_vt = c.material LEFT JOIN public.qcdmchitieu q ON q.ma_chi_tieu = c.criterion_code JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR c.branch = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
         "qc_doc_type": "qc_doc_type",
         "doc_no": "doc_no",
@@ -8899,19 +8911,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "chi tieu kiem tra",
-        "chi tieu iqc",
-        "chi tieu pqc",
-        "ket qua do",
-        "khoang fa",
-        "ctiqc",
-        "ctpqc"
-      ],
-      "secondary_cues": [
-        "tieu chi do luong qc"
-      ]
+      }
     },
     "label_eero_print_logs": {
       "status": "approved",
@@ -8923,10 +8923,20 @@
       "bounded_date_fields": [
         "mfg_date"
       ],
-      "max_date_span_days": 14,
       "require_bounded_date": true,
+      "max_date_span_days": 14,
+      "cues": [
+        "in tem eero",
+        "tem eero",
+        "intemeerolog",
+        "nhat ky tem eero",
+        "ma ban ve tem"
+      ],
+      "secondary_cues": [
+        "san luong tem eero"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT coalesce(e.ma_kh, '') AS customer, coalesce(e.ma_vt, '') AS material, coalesce(e.ten_vt, '') AS material_name, coalesce(e.ma_ban_ve, '') AS drawing_code, coalesce(e.mold, '') AS mold, coalesce(e.dvt, 'PCS') AS unit, coalesce(e.cavity, 0) AS cavity, e.ngay_sx AS mfg_date, e.qrcode AS row_key FROM public.intemeerolog e CROSS JOIN public.userinfo u WHERE u.user_id = %s AND e.ngay_sx IS NOT NULL",
+      "source_sql": "SELECT coalesce(e.ma_kh, '') AS customer, coalesce(e.ma_vt, '') AS material, coalesce(e.ten_vt, '') AS material_name, coalesce(e.ma_ban_ve, '') AS drawing_code, coalesce(e.mold, '') AS mold, coalesce(e.dvt, 'PCS') AS unit, coalesce(e.cavity, 0) AS cavity, e.ngay_sx AS mfg_date, e.qrcode AS row_key FROM public.intemeerolog e CROSS JOIN public.userinfo u WHERE e.ngay_sx IS NOT NULL AND u.user_id = %s",
       "dimensions": {
         "customer": "customer",
         "material": "material",
@@ -8997,17 +9007,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "in tem eero",
-        "tem eero",
-        "intemeerolog",
-        "nhat ky tem eero",
-        "ma ban ve tem"
-      ],
-      "secondary_cues": [
-        "san luong tem eero"
-      ]
+      }
     }
   },
   "person_cues": [
