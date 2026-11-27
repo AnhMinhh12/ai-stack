@@ -128,7 +128,8 @@ def main() -> int:
         return 1
     if args.check:
         roles = profiles.get("roles", {})
-        print(f"OK: validated {len(roles)} role profiles against 62 semantic datasets and {len(config['reports'])} reports.")
+        ds_count = sum(1 for v in (config.get("semantic_contracts") or {}).values() if isinstance(v, dict) and v.get("status") == "approved")
+        print(f"OK: validated {len(roles)} role profiles against {ds_count} semantic datasets and {len(config['reports'])} reports.")
         return 0
     if args.example:
         sample = compile_user_grants(

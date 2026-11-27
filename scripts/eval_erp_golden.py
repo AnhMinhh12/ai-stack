@@ -743,6 +743,94 @@ def build_holdout_cases() -> list[GoldenCase]:
             expected_statuses=("answered", "partial"),
             expected_tools=("query_semantic_join", "query_semantic_plan"),
         ),
+        GoldenCase(
+            case_id="holdout_material_master_h131_after_bom_history",
+            question="mã H131-TBT-H612 có tên vật tư là gì",
+            history=(
+                {"role": "user", "content": "Cho xem cấu trúc BOM và định mức nguyên vật liệu của sản phẩm DB2-F174B-10-00-80TG hiệu lực ngày 2026-11-25"},
+                {"role": "assistant", "content": "Đã hiển thị cấu trúc BOM."},
+            ),
+            user=user_ok,
+            expected_statuses=("answered",),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="material_master",
+            reconcile_sql="SELECT ten_vt FROM public.dmvt WHERE ma_vt = 'H131-TBT-H612'",
+            reconcile_check=lambda res, db_rows: (
+                bool(res.get("verified_results"))
+                and all(v.get("tool") != "query_bom_structure" for v in res["verified_results"])
+                and any(
+                    (not db_rows or str(db_rows[0]["ten_vt"]) in str(r.get("material_name") or ""))
+                    and (
+                        str(r.get("material") or "").strip().upper() == "H131-TBT-H612"
+                        or any(
+                            f.get("field") == "material" and "H131-TBT-H612" in str(f.get("value") or "").upper()
+                            for f in (v.get("result", {}).get("applied_filters") or ())
+                        )
+                    )
+                    for v in res["verified_results"]
+                    for r in (v.get("result", {}).get("rows") or [])
+                ),
+                "H131-TBT-H612 material_name matches dmvt.ten_vt without BOM leak",
+            ),
+        ),
+        GoldenCase(
+            case_id="holdout_warehouse_master_khotp02",
+            question="Kho KHOTP02 có tên gì và có phải kho hàng NG không?",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered",),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="warehouse_master",
+            reconcile_sql="SELECT ten_kho, ng_yn FROM public.dmkho WHERE ma_kho = 'KHOTP02'",
+            reconcile_check=lambda res, db_rows: (
+                bool(res.get("verified_results"))
+                and any(
+                    (not db_rows or str(db_rows[0]["ten_kho"]) in str(r.get("warehouse_name") or ""))
+                    for v in res["verified_results"]
+                    for r in (v.get("result", {}).get("rows") or [])
+                ),
+                "KHOTP02 warehouse_name matches dmkho.ten_kho",
+            ),
+        ),
+        GoldenCase(
+            case_id="holdout_machine_master_duc0065",
+            question="Máy DUC-0065 thuộc nhóm máy nào và tên máy là gì?",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered",),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="machine_master",
+            reconcile_sql="SELECT line_name, line_group_code3 FROM public.mflist_line WHERE line_code = 'DUC-0065'",
+            reconcile_check=lambda res, db_rows: (
+                bool(res.get("verified_results"))
+                and any(
+                    (not db_rows or str(db_rows[0]["line_group_code3"]) == str(r.get("line_group") or ""))
+                    for v in res["verified_results"]
+                    for r in (v.get("result", {}).get("rows") or [])
+                ),
+                "DUC-0065 line_group matches mflist_line.line_group_code3",
+            ),
+        ),
+        GoldenCase(
+            case_id="holdout_mes_defect_and_reason_catalog",
+            question="Danh mục nguyên nhân dừng máy trong MES gồm những mã nào? Cho xem 5 dòng đầu",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered",),
+            expected_tools=("query_semantic_plan",),
+            expected_dataset="mes_defect_and_reason_catalog",
+            reconcile_sql="SELECT count(*) AS cnt FROM public.dmnndungmay",
+            reconcile_check=lambda res, db_rows: (
+                bool(res.get("verified_results"))
+                and any(
+                    # Accept any non-empty row: may include reason_code+reason_name or just catalog_type aggregate
+                    bool(v.get("result", {}).get("rows"))
+                    and bool(v.get("result", {}).get("contract_id") == "mes_defect_and_reason_catalog")
+                    for v in res["verified_results"]
+                ),
+                "mes_defect_and_reason_catalog query executed and returned rows",
+            ),
+        ),
     ]
 
 

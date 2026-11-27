@@ -998,6 +998,66 @@
     "supplier_short": {
       "label": "NCC viết tắt",
       "type": "text"
+    },
+    "material_name_en": {
+      "label": "Tên vật tư (EN / phụ)",
+      "type": "text"
+    },
+    "raw_material": {
+      "label": "Mã NVL chính",
+      "type": "text"
+    },
+    "material_count": {
+      "label": "Số lượng mã vật tư",
+      "type": "number"
+    },
+    "warehouse_name_en": {
+      "label": "Tên kho (EN / phụ)",
+      "type": "text"
+    },
+    "branch": {
+      "label": "Đơn vị cơ sở",
+      "type": "text"
+    },
+    "location_managed": {
+      "label": "Quản lý vị trí",
+      "type": "text"
+    },
+    "ng_flag": {
+      "label": "Kho hàng NG",
+      "type": "text"
+    },
+    "qc_flag": {
+      "label": "Kho chờ QC",
+      "type": "text"
+    },
+    "warehouse_count": {
+      "label": "Số lượng kho",
+      "type": "number"
+    },
+    "machine_name": {
+      "label": "Tên máy / chuyền",
+      "type": "text"
+    },
+    "machine_name_en": {
+      "label": "Tên máy (EN / phụ)",
+      "type": "text"
+    },
+    "machine_count": {
+      "label": "Số lượng máy / chuyền",
+      "type": "number"
+    },
+    "catalog_type": {
+      "label": "Loại danh mục",
+      "type": "text"
+    },
+    "reason_name_en": {
+      "label": "Tên lỗi / nguyên nhân (EN / phụ)",
+      "type": "text"
+    },
+    "catalog_count": {
+      "label": "Số lượng mã lỗi / nguyên nhân",
+      "type": "number"
     }
   },
   "facts": {
@@ -10522,6 +10582,595 @@
             "eq",
             "contains"
           ]
+        }
+      }
+    },
+    "material_master": {
+      "version": "2026-11-27-v1",
+      "title": "Danh mục vật tư & sản phẩm gốc (dmvt)",
+      "require_bounded_date": false,
+      "cues": [
+        "ten vat tu",
+        "vat tu la gi",
+        "ten hang",
+        "ten san pham",
+        "ten sp",
+        "danh muc vat tu",
+        "thong tin vat tu",
+        "thong tin ma",
+        "ma nay la gi",
+        "don vi tinh",
+        "dvt",
+        "ten tieng anh",
+        "dmvt"
+      ],
+      "secondary_cues": [
+        "ma vat tu",
+        "vat tu",
+        "nhom vat tu",
+        "model",
+        "ban ve"
+      ],
+      "default_metrics": [
+        "material_count"
+      ],
+      "default_dimensions": [
+        "material",
+        "material_name",
+        "material_name_en",
+        "unit",
+        "item_type",
+        "customer_name"
+      ],
+      "notes": "Danh mục vật tư/sản phẩm gốc (dmvt). Dùng tra tên vật tư tiếng Việt (material_name), tên tiếng Anh (material_name_en), ĐVT (unit), loại/nhóm vật tư (item_type), model, bản vẽ, khuôn, khách hàng; không cần lọc ngày.",
+      "entity_bindings": [
+        {
+          "entity": "customer",
+          "key_expr": "v.ma_kh",
+          "coalesce_code": true
+        }
+      ],
+      "base_from": "public.dmvt v",
+      "base_select": {
+        "material": "v.ma_vt",
+        "material_name": "coalesce(v.ten_vt, '')",
+        "material_name_en": "coalesce(v.ten_vt2, '')",
+        "unit": "coalesce(v.dvt, '')",
+        "item_type": "coalesce(nullif(v.nh_vt1, ''), v.ma_loai_vt, '')",
+        "model": "coalesce(v.model, '')",
+        "drawing_code": "coalesce(v.ma_ban_ve, '')",
+        "mold": "coalesce(v.mold, '')",
+        "raw_material": "coalesce(v.ma_nvl, '')",
+        "status_name": "CASE WHEN coalesce(v.status, '1') = '1' THEN 'Đang dùng' ELSE v.status END"
+      },
+      "rls": {
+        "mode": "custom",
+        "clause": "(coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(v.ds_ma_dvcs, '') = '' OR string_to_array(coalesce(v.ds_ma_dvcs, ''), ',') && string_to_array(coalesce(u.ds_branchs, ''), ','))"
+      },
+      "own_dimensions": {
+        "material": "material",
+        "material_name": "material_name",
+        "material_name_en": "material_name_en",
+        "unit": "unit",
+        "item_type": "item_type",
+        "model": "model",
+        "drawing_code": "drawing_code",
+        "mold": "mold",
+        "raw_material": "raw_material",
+        "customer": "customer",
+        "customer_name": "customer_name",
+        "status_name": "status_name"
+      },
+      "measures": {
+        "material_count": {
+          "aggregate": "count_distinct",
+          "column": "material"
+        }
+      },
+      "own_filters": {
+        "material": {
+          "column": "material",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains",
+            "in"
+          ]
+        },
+        "material_name": {
+          "column": "material_name",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "material_name_en": {
+          "column": "material_name_en",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "item_type": {
+          "column": "item_type",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "model": {
+          "column": "model",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "drawing_code": {
+          "column": "drawing_code",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "mold": {
+          "column": "mold",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "raw_material": {
+          "column": "raw_material",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "customer": {
+          "column": "customer",
+          "type": "text",
+          "ops": [
+            "eq",
+            "in"
+          ]
+        },
+        "customer_name": {
+          "column": "customer_name",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        }
+      }
+    },
+    "warehouse_master": {
+      "version": "2026-11-27-v1",
+      "title": "Danh mục kho hàng (dmkho)",
+      "require_bounded_date": false,
+      "cues": [
+        "danh muc kho",
+        "danh sach kho",
+        "ten kho",
+        "kho nao",
+        "thong tin kho",
+        "kho ng",
+        "kho qc",
+        "quan ly vi tri",
+        "dmkho",
+        "loai kho"
+      ],
+      "secondary_cues": [
+        "ma kho",
+        "kho",
+        "vi tri kho",
+        "chi nhanh"
+      ],
+      "default_metrics": [
+        "warehouse_count"
+      ],
+      "default_dimensions": [
+        "warehouse",
+        "warehouse_name",
+        "warehouse_name_en",
+        "ng_flag",
+        "qc_flag",
+        "location_managed",
+        "branch"
+      ],
+      "notes": "Danh mục kho ERP (dmkho). Tra tên kho tiếng Việt/Anh (warehouse_name, warehouse_name_en), đơn vị cơ sở (branch), cờ kho NG (ng_flag), kho chờ QC (qc_flag), quản lý vị trí (location_managed); không cần lọc ngày.",
+      "base_from": "public.dmkho k",
+      "base_select": {
+        "warehouse": "k.ma_kho",
+        "warehouse_name": "coalesce(k.ten_kho, '')",
+        "warehouse_name_en": "coalesce(k.ten_kho2, '')",
+        "branch": "coalesce(k.ma_dvcs, '')",
+        "ng_flag": "CASE WHEN coalesce(k.ng_yn, false) THEN 'Có' ELSE 'Không' END",
+        "qc_flag": "CASE WHEN coalesce(k.qc_yn, false) THEN 'Có' ELSE 'Không' END",
+        "location_managed": "CASE WHEN coalesce(k.ql_vi_tri_yn, false) THEN 'Có' ELSE 'Không' END",
+        "status_name": "CASE WHEN coalesce(k.status, '1') = '1' THEN 'Đang dùng' ELSE k.status END"
+      },
+      "rls": {
+        "mode": "custom",
+        "clause": "(coalesce(u.is_super, 0) = 1 OR ((coalesce(u.ds_branchs, '') = '' OR string_to_array(coalesce(nullif(k.ds_ma_dvcs, ''), k.ma_dvcs, '001'), ',') && string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR k.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))"
+      },
+      "own_dimensions": {
+        "warehouse": "warehouse",
+        "warehouse_name": "warehouse_name",
+        "warehouse_name_en": "warehouse_name_en",
+        "branch": "branch",
+        "ng_flag": "ng_flag",
+        "qc_flag": "qc_flag",
+        "location_managed": "location_managed",
+        "status_name": "status_name"
+      },
+      "measures": {
+        "warehouse_count": {
+          "aggregate": "count_distinct",
+          "column": "warehouse"
+        }
+      },
+      "own_filters": {
+        "warehouse": {
+          "column": "warehouse",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains",
+            "in"
+          ]
+        },
+        "warehouse_name": {
+          "column": "warehouse_name",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "warehouse_name_en": {
+          "column": "warehouse_name_en",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "branch": {
+          "column": "branch",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "ng_flag": {
+          "column": "ng_flag",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "qc_flag": {
+          "column": "qc_flag",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "location_managed": {
+          "column": "location_managed",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "status_name": {
+          "column": "status_name",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "value_aliases": {
+        "ng_flag": {
+          "co": "Có",
+          "yes": "Có",
+          "1": "Có",
+          "true": "Có",
+          "khong": "Không",
+          "no": "Không",
+          "0": "Không",
+          "false": "Không"
+        },
+        "qc_flag": {
+          "co": "Có",
+          "yes": "Có",
+          "1": "Có",
+          "true": "Có",
+          "khong": "Không",
+          "no": "Không",
+          "0": "Không",
+          "false": "Không"
+        },
+        "location_managed": {
+          "co": "Có",
+          "yes": "Có",
+          "1": "Có",
+          "true": "Có",
+          "khong": "Không",
+          "no": "Không",
+          "0": "Không",
+          "false": "Không"
+        }
+      }
+    },
+    "machine_master": {
+      "version": "2026-11-27-v1",
+      "title": "Danh mục máy & dây chuyền sản xuất (mflist_line)",
+      "require_bounded_date": false,
+      "cues": [
+        "danh muc may",
+        "danh sach may",
+        "ten may",
+        "nhom may",
+        "thong tin may",
+        "day chuyen",
+        "mflist_line",
+        "may nao",
+        "ma may",
+        "line san xuat"
+      ],
+      "secondary_cues": [
+        "may",
+        "line",
+        "line_group",
+        "nhom chuyen"
+      ],
+      "default_metrics": [
+        "machine_count"
+      ],
+      "default_dimensions": [
+        "machine",
+        "machine_name",
+        "machine_name_en",
+        "line_group",
+        "branch",
+        "status_name"
+      ],
+      "notes": "Danh mục máy/dây chuyền MES (mflist_line). Tra tên máy tiếng Việt/Anh (machine_name, machine_name_en), nhóm máy/dây chuyền (line_group từ line_group_code3), đơn vị cơ sở (branch); không cần lọc ngày.",
+      "base_from": "public.mflist_line l",
+      "base_select": {
+        "machine": "l.line_code",
+        "machine_name": "coalesce(l.line_name, '')",
+        "machine_name_en": "coalesce(l.line_name2, '')",
+        "line_group": "coalesce(l.line_group_code3, '')",
+        "branch": "coalesce(l.branch_code, '')",
+        "status_name": "CASE WHEN coalesce(l.status, '1') = '1' THEN 'Đang dùng' ELSE l.status END"
+      },
+      "rls": {
+        "mode": "branch_optional",
+        "branch_expr": "l.branch_code",
+        "default_branch": "001"
+      },
+      "own_dimensions": {
+        "machine": "machine",
+        "machine_name": "machine_name",
+        "machine_name_en": "machine_name_en",
+        "line_group": "line_group",
+        "branch": "branch",
+        "status_name": "status_name"
+      },
+      "measures": {
+        "machine_count": {
+          "aggregate": "count_distinct",
+          "column": "machine"
+        }
+      },
+      "own_filters": {
+        "machine": {
+          "column": "machine",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains",
+            "in"
+          ]
+        },
+        "machine_name": {
+          "column": "machine_name",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "machine_name_en": {
+          "column": "machine_name_en",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "line_group": {
+          "column": "line_group",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "branch": {
+          "column": "branch",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "status_name": {
+          "column": "status_name",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      }
+    },
+    "mes_defect_and_reason_catalog": {
+      "version": "2026-11-27-v1",
+      "title": "Danh mục mã lỗi & nguyên nhân dừng máy MES (dmloi + dmnndungmay)",
+      "require_bounded_date": false,
+      "cues": [
+        "danh muc loi",
+        "danh muc ma loi",
+        "danh muc nguyen nhan",
+        "nguyen nhan dung may",
+        "ma loi la gi",
+        "ten loi",
+        "dmloi",
+        "dmnndungmay",
+        "nhom loi",
+        "nhom nguyen nhan"
+      ],
+      "secondary_cues": [
+        "ma loi",
+        "loi ng",
+        "dung may",
+        "ma nguyen nhan"
+      ],
+      "default_metrics": [
+        "catalog_count"
+      ],
+      "default_dimensions": [
+        "catalog_type",
+        "reason_code",
+        "reason_name",
+        "reason_name_en",
+        "reason_group",
+        "status_name"
+      ],
+      "notes": "Danh mục hợp nhất mã lỗi QC/SX (dmloi) và nguyên nhân dừng máy (dmnndungmay). Dùng filter catalog_type ('Lỗi QC/SX' hoặc 'Nguyên nhân dừng máy'), mã lỗi/nguyên nhân (reason_code), tên tiếng Việt/Anh (reason_name, reason_name_en), nhóm (reason_group); không cần lọc ngày.",
+      "union_legs": [
+        {
+          "base_from": "public.dmloi x",
+          "base_select": {
+            "catalog_type": "'Lỗi QC/SX'::text",
+            "reason_code": "x.ma_loi",
+            "reason_name": "coalesce(x.ten_loi, '')",
+            "reason_name_en": "coalesce(x.ten_loi2, '')",
+            "reason_group": "coalesce(x.nh_loi1, '')",
+            "status_name": "CASE WHEN coalesce(x.status, '1') = '1' THEN 'Đang dùng' ELSE x.status END",
+            "catalog_key": "('dmloi:' || x.ma_loi)"
+          },
+          "rls": {
+            "mode": "custom",
+            "clause": "(coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(x.ds_ma_dvcs, '') = '' OR string_to_array(coalesce(x.ds_ma_dvcs, ''), ',') && string_to_array(coalesce(u.ds_branchs, ''), ','))"
+          }
+        },
+        {
+          "base_from": "public.dmnndungmay x",
+          "base_select": {
+            "catalog_type": "'Nguyên nhân dừng máy'::text",
+            "reason_code": "x.ma_loi",
+            "reason_name": "coalesce(x.ten_loi, '')",
+            "reason_name_en": "coalesce(x.ten_loi2, '')",
+            "reason_group": "coalesce(x.nh_nndungmay1, '')",
+            "status_name": "CASE WHEN coalesce(x.status, '1') = '1' THEN 'Đang dùng' ELSE x.status END",
+            "catalog_key": "('dmnndungmay:' || x.ma_loi)"
+          },
+          "rls": {
+            "mode": "custom",
+            "clause": "(coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(x.ds_ma_dvcs, '') = '' OR string_to_array(coalesce(x.ds_ma_dvcs, ''), ',') && string_to_array(coalesce(u.ds_branchs, ''), ','))"
+          }
+        }
+      ],
+      "own_dimensions": {
+        "catalog_type": "catalog_type",
+        "reason_code": "reason_code",
+        "reason_name": "reason_name",
+        "reason_name_en": "reason_name_en",
+        "reason_group": "reason_group",
+        "status_name": "status_name"
+      },
+      "measures": {
+        "catalog_count": {
+          "aggregate": "count_distinct",
+          "column": "catalog_key"
+        }
+      },
+      "own_filters": {
+        "catalog_type": {
+          "column": "catalog_type",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "reason_code": {
+          "column": "reason_code",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains",
+            "in"
+          ]
+        },
+        "reason_name": {
+          "column": "reason_name",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "reason_name_en": {
+          "column": "reason_name_en",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "reason_group": {
+          "column": "reason_group",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "status_name": {
+          "column": "status_name",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      },
+      "value_aliases": {
+        "catalog_type": {
+          "loi": "Lỗi QC/SX",
+          "dmloi": "Lỗi QC/SX",
+          "ma loi": "Lỗi QC/SX",
+          "dung may": "Nguyên nhân dừng máy",
+          "nguyen nhan dung may": "Nguyên nhân dừng máy",
+          "dmnndungmay": "Nguyên nhân dừng máy"
         }
       }
     }

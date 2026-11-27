@@ -577,9 +577,9 @@ class CanonicalArchitectureTests(unittest.IsolatedAsyncioTestCase):
         top_ids = [ds["id"] for _, ds in ranked[:5]]
         self.assertIn("purchase_delivery_schedules", top_ids[:2])
 
-    async def test_all_62_facts_in_semantic_model_and_multi_dim_guard_and_grant_profiles(self):
+    async def test_all_facts_in_semantic_model_and_multi_dim_guard_and_grant_profiles(self):
         model_raw = json.loads((ROOT / "config/erp-semantic-model.json").read_text())
-        self.assertEqual(len(model_raw["facts"]), 62)
+        self.assertEqual(len(model_raw["facts"]), 66)
         compiled_facts, _ = compile_semantic_model(model_raw)
         self.assertEqual(set(compiled_facts), {k for k, v in CONFIG["semantic_contracts"].items() if v.get("status") == "approved"})
 
@@ -639,6 +639,120 @@ class CanonicalArchitectureTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(sales_grant["erp_user_id"], 42)
         self.assertIn("sales_order_lines", sales_grant["semantic_datasets"])
         self.assertNotIn("gl_account_movements", sales_grant["semantic_datasets"])
+
+    async def test_material_master_lookup_and_no_stale_bom_history_leak(self):
+        loaded = load_erp_config(ROOT)
+        async def mock_dmvt_db(*_):
+            return [{
+                "material": "H131-TBT-H612",
+                "material_name": "Tay nắm cần sang số ô tô bằng nhựa",
+                "material_name_en": "KNOB,SELECT",
+                "unit": "PCS",
+                "item_type": "TP",
+                "material_count": 1,
+                "__total_rows": 1,
+            }]
+
+        backend = ReportBackend(
+            ROOT,
+            loaded,
+            {"u": {"erp_user_id": 11, "reports": [r["id"] for r in loaded["reports"]], "semantic_datasets": list(loaded["semantic_contracts"])}},
+            mock_dmvt_db,
+        )
+        prior_history = [
+            {"role": "user", "content": "Cho xem cấu trúc BOM và định mức nguyên vật liệu của sản phẩm DB2-F174B-10-00-80TG hiệu lực ngày 2026-11-25"},
+            {"role": "assistant", "content": "Đã tra cấu trúc BOM."},
+            {"role": "user", "content": "Kiểm tra các mã hàng bị thiếu giá chuẩn trong đơn hàng bán của khách KH0047 tháng 10/2026"},
+            {"role": "assistant", "content": "Đã liệt kê."},
+        ]
+        q = "mã H131-TBT-H612 có tên vật tư là gì"
+        specs = backend.model_specs(q, history=prior_history, user={"id": "u"})
+        names = [s["function"]["name"] for s in specs]
+        self.assertNotIn("query_bom_structure", names)
+
+        seed = backend.retrieve(q, {"id": "u"}, history=prior_history)
+        rec_ids = [d["id"] for d in seed["context_hints"]["recommended_datasets"]]
+        self.assertEqual(rec_ids[0], "material_master")
+
+        res = await backend.execute(
+            "query_semantic_plan",
+            {
+                "dataset": "material_master",
+                "dimensions": ["material", "material_name", "material_name_en", "unit", "item_type"],
+                "metrics": ["material_count"],
+                "filters": [{"field": "material", "op": "eq", "value": "H131-TBT-H612"}],
+            },
+            {"id": "u"},
+            Limits(),
+        )
+        self.assertEqual(res["rows"][0]["material_name"], "Tay nắm cần sang số ô tô bằng nhựa")
+        blocks = receipt_blocks(
+            q,
+            [{"tool": "query_semantic_plan", "arguments": {"dataset": "material_master", "dimensions": ["material", "material_name", "material_name_en", "unit", "item_type"], "metrics": ["material_count"]}, "result": res}],
+            "answered",
+            config=loaded,
+        )
+        tbl = next(b for b in blocks if b["type"] == "table")
+        col_labels = {c["key"]: c["label"] for c in tbl["columns"]}
+        self.assertEqual(col_labels["material_name"], "Tên vật tư")
+        self.assertEqual(col_labels["material_name_en"], "Tên vật tư (EN / phụ)")
+
+    def test_resolve_turn_context_and_operational_masters(self):
+        from erp_ai.context_hints import resolve_turn_context
+        from erp_ai.entities import extract_entities
+        from erp_ai.semantic_query import compile_query
+
+        loaded = load_erp_config(ROOT)
+        prior_history = [
+            {"role": "user", "content": "Cho xem cấu trúc BOM và định mức nguyên vật liệu của sản phẩm DB2-F174B-10-00-80TG hiệu lực ngày 2026-11-25"},
+            {"role": "assistant", "content": "Đã hiển thị BOM."},
+            {"role": "user", "content": "Kiểm tra các mã hàng bị thiếu giá chuẩn của khách KH0047 tháng 10/2026"},
+            {"role": "assistant", "content": "Đã liệt kê."},
+        ]
+        # Explicit new entity + new question resets stale BOM / KH0047 / date context without phrase lists.
+        fresh_ctx = resolve_turn_context("mã H131-TBT-H612 có tên vật tư là gì", prior_history)
+        self.assertFalse(fresh_ctx["inherits_prior_topic"])
+        self.assertEqual(fresh_ctx["topic_history"], [])
+        self.assertEqual(fresh_ctx["detected_entities"].get("ma_vt"), "H131-TBT-H612")
+        self.assertNotIn("ma_kh", fresh_ctx["detected_entities"])
+        self.assertEqual(fresh_ctx["detected_dates_iso"], [])
+
+        # Minimal entity substitution inherits the immediately relevant topic/date cleanly.
+        bom_history = prior_history[:2]
+        swap_ctx = resolve_turn_context("còn mã H131-TBT-H612?", bom_history)
+        self.assertTrue(swap_ctx["inherits_prior_topic"])
+        self.assertEqual(swap_ctx["topic_history"], [bom_history[0]["content"]])
+        self.assertEqual(swap_ctx["detected_dates_iso"], ["2026-11-25"])
+
+        # Machine prefix separates machine codes from material codes.
+        ent_machine = extract_entities("Máy DUC-0065 thuộc nhóm máy nào?")
+        self.assertEqual(ent_machine.get("ma_may"), "DUC-0065")
+        self.assertEqual(ent_machine.get("ma_vt"), "")
+
+        # Retired report stays hidden when semantic contracts are granted; operational masters compile cleanly.
+        backend = ReportBackend(
+            ROOT,
+            loaded,
+            {"u": {"erp_user_id": 11, "reports": [r["id"] for r in loaded["reports"]], "semantic_datasets": ["warehouse_master", "machine_master", "mes_defect_and_reason_catalog"]}},
+            lambda *_: [],
+        )
+        spec_names = {s["function"]["name"] for s in backend.model_specs("tên vật tư của mã H131-TBT-H612", user={"id": "u"})}
+        self.assertNotIn("query_material_customer", spec_names)
+
+        for ds_id, dim, metric in (
+            ("warehouse_master", "warehouse", "warehouse_count"),
+            ("machine_master", "machine", "machine_count"),
+            ("mes_defect_and_reason_catalog", "catalog_type", "catalog_count"),
+        ):
+            contract = loaded["semantic_contracts"][ds_id]
+            self.assertFalse(contract.get("require_bounded_date", True))
+            compiled = compile_query(
+                {"dataset": ds_id, "dimensions": [dim], "metrics": [metric], "filters": [], "order_by": [{"field": dim, "direction": "asc"}], "limit": 5},
+                loaded["semantic_contracts"],
+                {ds_id},
+                11,
+            )
+            self.assertEqual(compiled.sql.count("u.user_id = %s"), contract.get("user_param_count", 1))
 
 
 if __name__ == "__main__":

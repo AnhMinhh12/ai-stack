@@ -9,8 +9,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 from .validator import validate_inventory_balance_result
-from .context_hints import _norm as _norm_hint_text, extract_context_hints, score_datasets
-from .entities import extract_entities
+from .context_hints import _norm as _norm_hint_text, extract_context_hints, resolve_turn_context, score_datasets
 from .semantic_executor import execute_joined_plan, execute_plan
 from .semantic_model import load_erp_config
 from .semantic_normalizer import normalize_joined_plan, normalize_semantic_plan, parse_plan_arguments
@@ -443,20 +442,9 @@ class ReportBackend:
 
         core_names = {"search_semantic_datasets", "search_knowledge"}
         retired_when_semantic = {"search_schema", "describe_table"}
-        user_msgs = [
-            str(m.get("content") or "")
-            for m in (history or ())[-4:]
-            if isinstance(m, dict) and m.get("role") == "user" and isinstance(m.get("content"), str)
-        ]
-        history_text = " ".join(user_msgs)
-        text = _norm_hint_text(f"{history_text} {question}")
-        detected_keys = {
-            k
-            for msg in (*user_msgs, question or "")
-            if msg
-            for k, v in extract_entities(msg).items()
-            if v
-        }
+        turn_ctx = resolve_turn_context(question, history)
+        text = _norm_hint_text(" ".join([*turn_ctx["topic_history"], question]))
+        detected_keys = set(turn_ctx["detected_entities"])
         selected_lookups = set()
 
         for report in self.reports.values():

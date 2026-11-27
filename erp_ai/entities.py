@@ -17,6 +17,10 @@ MOLD = re.compile(
     r"|(?:khuôn|khuon|mã\s*khuôn|ma\s*khuon|mold)\s*[:#-]?\s*(?=[a-z0-9_/-]*\d)([a-z0-9][a-z0-9_/-]{2,})\b",
     re.I,
 )
+MACHINE = re.compile(
+    r"\b(?:máy(?:\s+(?:ép|ep|đúc|duc|in|hàn|han|trộn|tron|dán|dan)(?=\s))?|may|dây\s*chuyền|day\s*chuyen|chuyền|chuyen|mã\s*máy|ma\s*may|machine|line)\s*[:#-]?\s*(?=[a-z0-9_/-]*\d)([a-z0-9][a-z0-9_/-]{1,})\b",
+    re.I,
+)
 NUMERIC_MATERIAL = re.compile(
     # Users commonly shorten "mã vật tư" to just "mã" or use "mã hàng", "mã sản phẩm".
     r"(?:mã|ma)(?:\s*(?:vật\s*tư|vat\s*tu|vt|hàng|hang|sản\s*phẩm|san\s*pham|sp))?\s*[:#-]?\s*(\d{6,})\b"
@@ -62,16 +66,26 @@ def extract_entities(text: str) -> dict[str, str]:
     customer_code = (customer.group(1) or customer.group(2)).upper() if customer else ""
     mold_match = MOLD.search(value)
     mold_code = (mold_match.group(1) or mold_match.group(2)).upper() if mold_match else ""
+    machine_match = MACHINE.search(value)
+    machine_code = machine_match.group(1).upper() if machine_match else ""
 
     warehouse_code = ""
     material = None
     for m in MATERIAL.finditer(value):
         candidate = m.group(0).upper()
-        if (customer_code and candidate == customer_code) or (mold_code and candidate == mold_code):
+        if (
+            (customer_code and candidate == customer_code)
+            or (mold_code and candidate == mold_code)
+            or (machine_code and candidate == machine_code)
+        ):
             continue
         if re.search(r"\b(?:khuôn|khuon|mold)\s*[:#-]?\s*$", value[:m.start()], re.I):
             if not mold_code:
                 mold_code = candidate
+            continue
+        if re.search(r"\b(?:máy(?:\s+(?:ép|ep|đúc|duc|in|hàn|han|trộn|tron|dán|dan)(?=\s))?|may|dây\s*chuyền|day\s*chuyen|chuyền|chuyen|machine|line)\s*[:#-]?\s*$", value[:m.start()], re.I):
+            if not machine_code:
+                machine_code = candidate
             continue
         # Warehouse check: if code starts with KHO or is a known warehouse code, it is ma_kho
         if candidate.startswith("KHO") or candidate in KNOWN_WAREHOUSES or re.search(r"\b(?:kho|o\s*kho|ở\s*kho|tai\s*kho|tại\s*kho|ở|tai|tại)\s*[:#-]?\s*$", value[:m.start()], re.I):
@@ -116,6 +130,7 @@ def extract_entities(text: str) -> dict[str, str]:
     return {
         "ma_vt": matched_ma_vt,
         "ma_khuon": mold_code,
+        "ma_may": machine_code,
         "ma_kh": customer_code,
         "ma_kho": warehouse_code,
         "so_ct": document.group(0) if document else "",
@@ -128,5 +143,5 @@ def merge_filters(current: Mapping[str, str], previous: Mapping[str, str]) -> di
     """Current-turn explicit values override state; missing values inherit state."""
     return {
         key: current.get(key) or previous.get(key) or ""
-        for key in ("ma_vt", "ma_khuon", "ma_kh", "ma_kho", "so_ct", "ngay_ct", "ma_gd")
+        for key in ("ma_vt", "ma_khuon", "ma_may", "ma_kh", "ma_kho", "so_ct", "ngay_ct", "ma_gd")
     }
