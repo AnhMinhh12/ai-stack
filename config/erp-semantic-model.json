@@ -1,0 +1,3332 @@
+{
+  "version": "2026-11-27",
+  "entities": {
+    "customer": {
+      "table": "public.dmkh",
+      "default_alias": "k",
+      "table_key": "ma_kh",
+      "table_name_col": "ten_kh",
+      "code_output": "customer",
+      "name_output": "customer_name",
+      "code_ops": [
+        "eq"
+      ]
+    },
+    "supplier": {
+      "table": "public.dmkh",
+      "default_alias": "k",
+      "table_key": "ma_kh",
+      "table_name_col": "ten_kh",
+      "code_output": "supplier",
+      "name_output": "supplier_name",
+      "code_ops": [
+        "eq"
+      ]
+    },
+    "material": {
+      "table": "public.dmvt",
+      "default_alias": "v",
+      "table_key": "ma_vt",
+      "table_name_col": "ten_vt",
+      "code_output": "material",
+      "name_output": "material_name",
+      "code_ops": [
+        "eq"
+      ]
+    },
+    "warehouse": {
+      "table": "public.dmkho",
+      "default_alias": "w",
+      "table_key": "ma_kho",
+      "table_name_col": "ten_kho",
+      "code_output": "warehouse",
+      "name_output": "warehouse_name",
+      "code_ops": [
+        "eq"
+      ]
+    },
+    "employee": {
+      "table": "public.dmkh",
+      "default_alias": "k",
+      "table_key": "ma_kh",
+      "table_name_col": "ten_kh",
+      "code_output": "employee_code",
+      "name_output": "employee_name",
+      "code_ops": [
+        "eq"
+      ]
+    },
+    "status": {
+      "table": "public.sys_dmtt",
+      "default_alias": "tt",
+      "table_key": "status",
+      "table_name_col": "statusname"
+    },
+    "downtime_reason": {
+      "table": "public.dmnndungmay",
+      "default_alias": "d",
+      "table_key": "ma_loi",
+      "table_name_col": "ten_loi",
+      "code_output": "reason_code",
+      "name_output": "reason_name",
+      "code_ops": [
+        "eq"
+      ]
+    },
+    "defect": {
+      "table": "public.dmloi",
+      "default_alias": "l",
+      "table_key": "ma_loi",
+      "table_name_col": "ten_loi",
+      "code_output": "defect_code",
+      "name_output": "defect_name",
+      "code_ops": [
+        "eq"
+      ]
+    }
+  },
+  "field_catalog": {
+    "customer": {
+      "label": "Mã KH",
+      "type": "text"
+    },
+    "customer_name": {
+      "label": "Tên khách hàng",
+      "type": "text"
+    },
+    "supplier": {
+      "label": "Mã NCC",
+      "type": "text"
+    },
+    "supplier_name": {
+      "label": "Tên nhà cung cấp",
+      "type": "text"
+    },
+    "po_no": {
+      "label": "Số đơn PO",
+      "type": "text"
+    },
+    "pr_no": {
+      "label": "Số phiếu ĐNMH",
+      "type": "text"
+    },
+    "department": {
+      "label": "Bộ phận",
+      "type": "text"
+    },
+    "requester": {
+      "label": "Mã người đề nghị",
+      "type": "text"
+    },
+    "requester_name": {
+      "label": "Người đề nghị",
+      "type": "text"
+    },
+    "in_charge": {
+      "label": "Mã người phụ trách",
+      "type": "text"
+    },
+    "in_charge_name": {
+      "label": "Người phụ trách",
+      "type": "text"
+    },
+    "creator_user": {
+      "label": "User tạo phiếu",
+      "type": "text"
+    },
+    "creator_name": {
+      "label": "Tên người tạo",
+      "type": "text"
+    },
+    "status": {
+      "label": "Trạng thái",
+      "type": "text"
+    },
+    "material": {
+      "label": "Mã vật tư",
+      "type": "text"
+    },
+    "material_name": {
+      "label": "Tên vật tư",
+      "type": "text"
+    },
+    "product": {
+      "label": "Mã thành phẩm",
+      "type": "text"
+    },
+    "product_name": {
+      "label": "Tên thành phẩm",
+      "type": "text"
+    },
+    "warehouse": {
+      "label": "Mã kho",
+      "type": "text"
+    },
+    "warehouse_name": {
+      "label": "Tên kho",
+      "type": "text"
+    },
+    "machine": {
+      "label": "Mã máy",
+      "type": "text"
+    },
+    "line_group": {
+      "label": "Nhóm máy",
+      "type": "text"
+    },
+    "shift": {
+      "label": "Ca SX",
+      "type": "text"
+    },
+    "work_order": {
+      "label": "Lệnh SX (WO)",
+      "type": "text"
+    },
+    "schedule_code": {
+      "label": "Mã lịch SX",
+      "type": "text"
+    },
+    "mold": {
+      "label": "Mã khuôn",
+      "type": "text"
+    },
+    "mold_name": {
+      "label": "Tên khuôn",
+      "type": "text"
+    },
+    "wo_status": {
+      "label": "Trạng thái WO",
+      "type": "text"
+    },
+    "work_center": {
+      "label": "Phân xưởng",
+      "type": "text"
+    },
+    "step": {
+      "label": "Công đoạn",
+      "type": "text"
+    },
+    "station": {
+      "label": "Trạm SX",
+      "type": "text"
+    },
+    "cavity_group": {
+      "label": "Nhóm cavity",
+      "type": "text"
+    },
+    "primary_flag": {
+      "label": "Chính/Phụ",
+      "type": "text"
+    },
+    "demand_type": {
+      "label": "Loại nhu cầu",
+      "type": "text"
+    },
+    "data_source": {
+      "label": "Nguồn dữ liệu",
+      "type": "text"
+    },
+    "model": {
+      "label": "Model",
+      "type": "text"
+    },
+    "account": {
+      "label": "Tài khoản",
+      "type": "text"
+    },
+    "account_name": {
+      "label": "Tên tài khoản",
+      "type": "text"
+    },
+    "offset_account": {
+      "label": "TK đối ứng",
+      "type": "text"
+    },
+    "partner": {
+      "label": "Mã đối tượng",
+      "type": "text"
+    },
+    "partner_name": {
+      "label": "Tên đối tượng",
+      "type": "text"
+    },
+    "reason_code": {
+      "label": "Mã nguyên nhân",
+      "type": "text"
+    },
+    "reason_name": {
+      "label": "Nguyên nhân dừng máy",
+      "type": "text"
+    },
+    "reason_group": {
+      "label": "Nhóm nguyên nhân",
+      "type": "text"
+    },
+    "defect_code": {
+      "label": "Mã lỗi",
+      "type": "text"
+    },
+    "defect_name": {
+      "label": "Tên lỗi NG",
+      "type": "text"
+    },
+    "qc_result": {
+      "label": "Kết quả IQC",
+      "type": "text"
+    },
+    "doc_type": {
+      "label": "Loại chứng từ",
+      "type": "text"
+    },
+    "currency": {
+      "label": "Loại tiền",
+      "type": "text"
+    },
+    "unit": {
+      "label": "ĐVT",
+      "type": "text"
+    },
+    "day": {
+      "label": "Ngày",
+      "type": "date"
+    },
+    "required_date": {
+      "label": "Ngày nhận hàng",
+      "type": "date"
+    },
+    "quantity": {
+      "label": "Số lượng",
+      "type": "number"
+    },
+    "revenue_vnd": {
+      "label": "Doanh thu (VND)",
+      "type": "number"
+    },
+    "revenue_orig": {
+      "label": "Doanh thu (NT)",
+      "type": "number"
+    },
+    "delivery_count": {
+      "label": "Số phiếu xuất",
+      "type": "number"
+    },
+    "amount_vnd": {
+      "label": "Thành tiền (VND)",
+      "type": "number"
+    },
+    "amount_orig": {
+      "label": "Thành tiền (NT)",
+      "type": "number"
+    },
+    "avg_price_vnd": {
+      "label": "Đơn giá TB (VND)",
+      "type": "number"
+    },
+    "order_count": {
+      "label": "Số đơn hàng",
+      "type": "number"
+    },
+    "orders": {
+      "label": "Số đơn",
+      "type": "number"
+    },
+    "po_count": {
+      "label": "Số đơn PO",
+      "type": "number"
+    },
+    "pr_count": {
+      "label": "Số phiếu ĐNMH",
+      "type": "number"
+    },
+    "receipt_count": {
+      "label": "Số phiếu nhập",
+      "type": "number"
+    },
+    "in_qty": {
+      "label": "SL nhập",
+      "type": "number"
+    },
+    "out_qty": {
+      "label": "SL xuất",
+      "type": "number"
+    },
+    "in_amount_vnd": {
+      "label": "Tiền nhập (VND)",
+      "type": "number"
+    },
+    "out_amount_vnd": {
+      "label": "Tiền xuất (VND)",
+      "type": "number"
+    },
+    "tx_count": {
+      "label": "Số giao dịch",
+      "type": "number"
+    },
+    "stop_minutes": {
+      "label": "Thời gian dừng (phút)",
+      "type": "number"
+    },
+    "avg_stop_minutes": {
+      "label": "TB dừng (phút)",
+      "type": "number"
+    },
+    "stop_count": {
+      "label": "Số lần dừng",
+      "type": "number"
+    },
+    "ng_qty": {
+      "label": "Số lượng NG",
+      "type": "number"
+    },
+    "defect_events": {
+      "label": "Số lượt lỗi",
+      "type": "number"
+    },
+    "inspection_count": {
+      "label": "Số lượt kiểm tra",
+      "type": "number"
+    },
+    "lot_qty": {
+      "label": "Tổng SL lô",
+      "type": "number"
+    },
+    "ok_qty": {
+      "label": "SL đạt",
+      "type": "number"
+    },
+    "planned_qty": {
+      "label": "SL kế hoạch",
+      "type": "number"
+    },
+    "complete_qty": {
+      "label": "SL hoàn thành",
+      "type": "number"
+    },
+    "packing_qty": {
+      "label": "SL đóng gói",
+      "type": "number"
+    },
+    "skip_shot": {
+      "label": "SL bỏ shot",
+      "type": "number"
+    },
+    "run_minutes": {
+      "label": "Thời gian chạy (phút)",
+      "type": "number"
+    },
+    "run_count": {
+      "label": "Số phiên chạy",
+      "type": "number"
+    },
+    "wo_count": {
+      "label": "Số lệnh WO",
+      "type": "number"
+    },
+    "cavity": {
+      "label": "Số cavity",
+      "type": "number"
+    },
+    "cycle_time": {
+      "label": "Chu kỳ KH (giây)",
+      "type": "number"
+    },
+    "cycle_sec": {
+      "label": "Chu kỳ khuôn (giây)",
+      "type": "number"
+    },
+    "efficiency": {
+      "label": "Hiệu suất (%)",
+      "type": "number"
+    },
+    "net_minutes": {
+      "label": "Thời gian chạy thực (phút)",
+      "type": "number"
+    },
+    "standard_minutes": {
+      "label": "Thời gian chuẩn (phút)",
+      "type": "number"
+    },
+    "availability_pct": {
+      "label": "Khả dụng A (%)",
+      "type": "number"
+    },
+    "performance_pct": {
+      "label": "Hiệu suất P (%)",
+      "type": "number"
+    },
+    "quality_pct": {
+      "label": "Chất lượng Q (%)",
+      "type": "number"
+    },
+    "oee_pct": {
+      "label": "OEE (%)",
+      "type": "number"
+    },
+    "line_days": {
+      "label": "Số ngày máy",
+      "type": "number"
+    },
+    "required_qty": {
+      "label": "SL cần cấp",
+      "type": "number"
+    },
+    "issued_qty": {
+      "label": "SL đã cấp",
+      "type": "number"
+    },
+    "used_qty": {
+      "label": "SL sử dụng",
+      "type": "number"
+    },
+    "remaining_qty": {
+      "label": "SL còn lại",
+      "type": "number"
+    },
+    "variance_qty": {
+      "label": "SL chênh lệch",
+      "type": "number"
+    },
+    "feed_count": {
+      "label": "Số lần cấp NVL",
+      "type": "number"
+    },
+    "total_shots": {
+      "label": "Tổng số shot đã chạy",
+      "type": "number"
+    },
+    "warranty_shots": {
+      "label": "Shot định mức BH",
+      "type": "number"
+    },
+    "remaining_warranty_shots": {
+      "label": "Shot BH còn lại",
+      "type": "number"
+    },
+    "product_links": {
+      "label": "Số mã SP gắn khuôn",
+      "type": "number"
+    },
+    "line_count": {
+      "label": "Số dòng KH",
+      "type": "number"
+    },
+    "debit_vnd": {
+      "label": "Phát sinh Nợ (VND)",
+      "type": "number"
+    },
+    "credit_vnd": {
+      "label": "Phát sinh Có (VND)",
+      "type": "number"
+    },
+    "debit_orig": {
+      "label": "Phát sinh Nợ (NT)",
+      "type": "number"
+    },
+    "credit_orig": {
+      "label": "Phát sinh Có (NT)",
+      "type": "number"
+    },
+    "voucher_count": {
+      "label": "Số chứng từ",
+      "type": "number"
+    },
+    "doc_no": {
+      "label": "Số chứng từ",
+      "type": "text"
+    },
+    "status_name": {
+      "label": "Trạng thái",
+      "type": "text"
+    },
+    "delivery_date": {
+      "label": "Ngày giao hàng",
+      "type": "date"
+    },
+    "expiry_date": {
+      "label": "Hạn sử dụng",
+      "type": "date"
+    },
+    "mfg_date": {
+      "label": "Ngày sản xuất",
+      "type": "date"
+    },
+    "valid_from": {
+      "label": "Hiệu lực từ",
+      "type": "date"
+    },
+    "valid_to": {
+      "label": "Hiệu lực đến",
+      "type": "date"
+    },
+    "last_maint_date": {
+      "label": "Ngày bảo dưỡng cuối",
+      "type": "date"
+    },
+    "so_no": {
+      "label": "Số đơn bán (SO)",
+      "type": "text"
+    },
+    "po_kh": {
+      "label": "Số PO khách hàng",
+      "type": "text"
+    },
+    "lot_no": {
+      "label": "Số lô",
+      "type": "text"
+    },
+    "location": {
+      "label": "Vị trí kho",
+      "type": "text"
+    },
+    "target_warehouse": {
+      "label": "Kho nhận",
+      "type": "text"
+    },
+    "target_warehouse_name": {
+      "label": "Tên kho nhận",
+      "type": "text"
+    },
+    "stock_qty": {
+      "label": "SL tồn kho",
+      "type": "number"
+    },
+    "return_qty": {
+      "label": "SL trả lại",
+      "type": "number"
+    },
+    "transfer_qty": {
+      "label": "SL điều chuyển",
+      "type": "number"
+    },
+    "pending_qty": {
+      "label": "SL còn pending",
+      "type": "number"
+    },
+    "bom_qty": {
+      "label": "Định mức BOM",
+      "type": "number"
+    },
+    "loss_pct": {
+      "label": "Tỷ lệ hao hụt (%)",
+      "type": "number"
+    },
+    "unit_price_vnd": {
+      "label": "Đơn giá (VND)",
+      "type": "number"
+    },
+    "unit_price_orig": {
+      "label": "Đơn giá (NT)",
+      "type": "number"
+    },
+    "moq": {
+      "label": "SL tối thiểu (MOQ)",
+      "type": "number"
+    },
+    "bom_code": {
+      "label": "Mã BOM",
+      "type": "text"
+    },
+    "bom_version": {
+      "label": "Phiên bản BOM",
+      "type": "text"
+    },
+    "change_type": {
+      "label": "Loại thay đổi",
+      "type": "text"
+    },
+    "change_count": {
+      "label": "Số lần thay đổi",
+      "type": "number"
+    },
+    "ecn_no": {
+      "label": "Số ECN",
+      "type": "text"
+    },
+    "setup_minutes": {
+      "label": "Thời gian setup (phút)",
+      "type": "number"
+    },
+    "setup_count": {
+      "label": "Số lượt setup",
+      "type": "number"
+    },
+    "mold_op_count": {
+      "label": "Số lượt lên/xuống khuôn",
+      "type": "number"
+    },
+    "employee_code": {
+      "label": "Mã nhân viên",
+      "type": "text"
+    },
+    "employee_name": {
+      "label": "Tên nhân viên",
+      "type": "text"
+    },
+    "actual_qty": {
+      "label": "SL thực hiện",
+      "type": "number"
+    },
+    "operator_count": {
+      "label": "Số nhân sự",
+      "type": "number"
+    },
+    "carton_count": {
+      "label": "Số thùng đóng gói",
+      "type": "number"
+    },
+    "box_code": {
+      "label": "Mã thùng",
+      "type": "text"
+    },
+    "skip_shots": {
+      "label": "Số shot bỏ",
+      "type": "number"
+    },
+    "skip_qty": {
+      "label": "SL sản phẩm bỏ shot",
+      "type": "number"
+    },
+    "schedule_qty": {
+      "label": "SL kế hoạch điều độ",
+      "type": "number"
+    },
+    "pqc_count": {
+      "label": "Số phiếu PQC",
+      "type": "number"
+    },
+    "incident_type": {
+      "label": "Loại sự cố khuôn",
+      "type": "text"
+    },
+    "incident_detail": {
+      "label": "Chi tiết sự cố",
+      "type": "text"
+    },
+    "mold_count": {
+      "label": "Số khuôn",
+      "type": "number"
+    },
+    "stock_type": {
+      "label": "Loại tồn kho",
+      "type": "text"
+    },
+    "pending_type": {
+      "label": "Nhóm vật tư pending",
+      "type": "text"
+    },
+    "request_type": {
+      "label": "Loại phiếu YC",
+      "type": "text"
+    },
+    "confirmed_delivery_date": {
+      "label": "Ngày NCC xác nhận giao",
+      "type": "date"
+    },
+    "requested_date": {
+      "label": "Ngày đề nghị nhận hàng",
+      "type": "date"
+    },
+    "promise_date": {
+      "label": "Ngày NCC hứa giao",
+      "type": "date"
+    },
+    "price_list_id": {
+      "label": "Mã bảng giá",
+      "type": "text"
+    },
+    "price_list_name": {
+      "label": "Tên bảng giá",
+      "type": "text"
+    },
+    "pallet_id": {
+      "label": "Mã Pallet",
+      "type": "text"
+    },
+    "pallet_serial": {
+      "label": "Serial tem Pallet",
+      "type": "text"
+    },
+    "carton_serial": {
+      "label": "Serial tem thùng",
+      "type": "text"
+    },
+    "pallet_count": {
+      "label": "Số Pallet",
+      "type": "number"
+    },
+    "packed_qty": {
+      "label": "SL đã đóng gói",
+      "type": "number"
+    },
+    "serial_tem": {
+      "label": "Serial tem",
+      "type": "text"
+    },
+    "label_count": {
+      "label": "Số tem/serial",
+      "type": "number"
+    },
+    "entry_type": {
+      "label": "Loại giao dịch/ghi nhận",
+      "type": "text"
+    },
+    "txn_code": {
+      "label": "Mã nhập xuất (NX)",
+      "type": "text"
+    },
+    "drawing_code": {
+      "label": "Mã bản vẽ",
+      "type": "text"
+    },
+    "part_weight": {
+      "label": "Trọng lượng SP",
+      "type": "number"
+    },
+    "runner_weight": {
+      "label": "Trọng lượng runner",
+      "type": "number"
+    },
+    "tooling_life": {
+      "label": "Tuổi thọ khuôn",
+      "type": "number"
+    },
+    "cost_vnd": {
+      "label": "Tổng chi phí (VND)",
+      "type": "number"
+    },
+    "material_cost": {
+      "label": "Chi phí NVL",
+      "type": "number"
+    },
+    "mold_cost": {
+      "label": "Chi phí khuôn",
+      "type": "number"
+    },
+    "unit_price_usd": {
+      "label": "Đơn giá (USD)",
+      "type": "number"
+    },
+    "leadtime": {
+      "label": "Leadtime chuẩn (ngày)",
+      "type": "number"
+    },
+    "leadtime_kfc": {
+      "label": "Leadtime KFC (ngày)",
+      "type": "number"
+    },
+    "regen_ratio": {
+      "label": "Tỷ lệ tái sinh (%)",
+      "type": "number"
+    },
+    "mixing_ratio": {
+      "label": "Tỷ lệ trộn (%)",
+      "type": "number"
+    },
+    "gate_runner_qty": {
+      "label": "SL gate/runner",
+      "type": "number"
+    },
+    "alt_material": {
+      "label": "Vật tư thay thế",
+      "type": "text"
+    },
+    "operation_code": {
+      "label": "Mã nguyên công",
+      "type": "text"
+    },
+    "item_type": {
+      "label": "Nhóm vật tư",
+      "type": "text"
+    },
+    "shortage_qty": {
+      "label": "SL thiếu/yêu cầu",
+      "type": "number"
+    },
+    "ng_stock_qty": {
+      "label": "SL tồn NG",
+      "type": "number"
+    },
+    "impurity_qty": {
+      "label": "SL tạp chất",
+      "type": "number"
+    },
+    "prepare_qty": {
+      "label": "SL NVL chuẩn bị",
+      "type": "number"
+    },
+    "needed_qty": {
+      "label": "SL cần cấp",
+      "type": "number"
+    },
+    "feed_round": {
+      "label": "Lần cấp",
+      "type": "number"
+    },
+    "inbound_qty": {
+      "label": "SL bàn giao công đoạn",
+      "type": "number"
+    },
+    "add_qty": {
+      "label": "SL bù/điều chỉnh",
+      "type": "number"
+    },
+    "inbound_count": {
+      "label": "Số lượt bàn giao",
+      "type": "number"
+    },
+    "pause_count": {
+      "label": "Số lần tạm dừng",
+      "type": "number"
+    },
+    "cavity_changes": {
+      "label": "Số lần đổi cavity",
+      "type": "number"
+    },
+    "event_type": {
+      "label": "Loại sự kiện MES",
+      "type": "text"
+    },
+    "criterion_code": {
+      "label": "Mã chỉ tiêu QC",
+      "type": "text"
+    },
+    "criterion_name": {
+      "label": "Tên chỉ tiêu QC",
+      "type": "text"
+    },
+    "eval_result": {
+      "label": "Đánh giá chỉ tiêu",
+      "type": "text"
+    },
+    "qc_doc_type": {
+      "label": "Loại kiểm tra (IQC/PQC)",
+      "type": "text"
+    },
+    "check_count": {
+      "label": "Số lượt đo kiểm",
+      "type": "number"
+    },
+    "fc_code": {
+      "label": "Mã đợt Forecast",
+      "type": "text"
+    },
+    "fc_type": {
+      "label": "Kiểu Forecast",
+      "type": "text"
+    },
+    "period_type": {
+      "label": "Chu kỳ Forecast",
+      "type": "text"
+    },
+    "supplier_short": {
+      "label": "NCC viết tắt",
+      "type": "text"
+    }
+  },
+  "facts": {
+    "sales_order_lines": {
+      "version": "2026-11-25-v1",
+      "title": "Tổng hợp đơn đặt hàng bán (SO1: ph64/ct64)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "cues": [
+        "don hang ban",
+        "don ban",
+        "so1"
+      ],
+      "secondary_cues": [
+        "doanh thu",
+        "xuat ban",
+        "xuat kho ban",
+        "hda"
+      ],
+      "dimension_order": [
+        "customer",
+        "customer_name",
+        "material",
+        "material_name",
+        "warehouse",
+        "currency",
+        "day",
+        "unit",
+        "warehouse_name",
+        "doc_no",
+        "po_kh",
+        "status_name"
+      ],
+      "filter_order": [
+        "day",
+        "customer",
+        "material",
+        "warehouse",
+        "currency",
+        "unit",
+        "customer_name",
+        "material_name",
+        "warehouse_name",
+        "doc_no",
+        "po_kh",
+        "status_name"
+      ],
+      "base_from": "public.ph64 h JOIN public.ct64 d ON d.stt_rec = h.stt_rec",
+      "base_where": [
+        "h.status::text NOT IN ('14', '15')"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "customer",
+          "key_expr": "h.ma_kh"
+        },
+        {
+          "entity": "material",
+          "key_expr": "d.ma_vt"
+        },
+        {
+          "entity": "warehouse",
+          "key_expr": "d.ma_kho"
+        },
+        {
+          "entity": "status",
+          "key_expr": "h.status",
+          "ma_ct": "SO1",
+          "include_status_col": true
+        }
+      ],
+      "base_select": {
+        "doc_no": "h.so_ct",
+        "po_kh": "coalesce(nullif(d.so_po, ''), '')",
+        "currency": "trim(coalesce(h.ma_nt, ''))",
+        "day": "h.ngay_ct",
+        "unit": "coalesce(d.dvt, v.dvt, '')",
+        "quantity": "d.so_luong",
+        "amount_vnd": "d.tien2",
+        "amount_orig": "d.tien_nt2",
+        "order_id": "h.stt_rec"
+      },
+      "rls": {
+        "mode": "branch_stock",
+        "branch_expr": "h.ma_dvcs",
+        "stock_expr": "d.ma_kho"
+      },
+      "own_dimensions": {
+        "currency": "currency",
+        "day": "day",
+        "unit": "unit",
+        "doc_no": "doc_no",
+        "po_kh": "po_kh"
+      },
+      "measures": {
+        "quantity": {
+          "aggregate": "sum",
+          "column": "quantity",
+          "unit_dimension": "unit"
+        },
+        "amount_vnd": {
+          "aggregate": "sum",
+          "column": "amount_vnd"
+        },
+        "amount_orig": {
+          "aggregate": "sum",
+          "column": "amount_orig",
+          "unit_dimension": "currency"
+        },
+        "order_count": {
+          "aggregate": "count_distinct",
+          "column": "order_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "doc_no": {
+          "column": "doc_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "po_kh": {
+          "column": "po_kh",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        }
+      }
+    },
+    "sales_delivery_lines": {
+      "version": "2026-11-25-v1",
+      "title": "Tổng hợp xuất kho bán hàng (HDA: ph81/ct81)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "cues": [
+        "doanh thu",
+        "xuat ban",
+        "xuat kho ban",
+        "hda"
+      ],
+      "secondary_cues": [
+        "don hang ban",
+        "don ban",
+        "so1"
+      ],
+      "dimension_order": [
+        "customer",
+        "customer_name",
+        "material",
+        "material_name",
+        "warehouse",
+        "currency",
+        "day",
+        "unit",
+        "warehouse_name",
+        "doc_no",
+        "status_name"
+      ],
+      "filter_order": [
+        "day",
+        "customer",
+        "material",
+        "warehouse",
+        "currency",
+        "unit",
+        "customer_name",
+        "material_name",
+        "warehouse_name",
+        "doc_no",
+        "status_name"
+      ],
+      "base_from": "public.ph81 h JOIN public.ct81 d ON d.stt_rec = h.stt_rec",
+      "base_where": [
+        "h.ma_gd <> 4",
+        "h.status::text IN ('1', '2')"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "customer",
+          "key_expr": "h.ma_kh"
+        },
+        {
+          "entity": "material",
+          "key_expr": "d.ma_vt"
+        },
+        {
+          "entity": "warehouse",
+          "key_expr": "d.ma_kho"
+        },
+        {
+          "entity": "status",
+          "key_expr": "h.status",
+          "ma_ct": "HDA",
+          "include_status_col": true
+        }
+      ],
+      "base_select": {
+        "doc_no": "h.so_ct",
+        "currency": "trim(coalesce(h.ma_nt, ''))",
+        "day": "h.ngay_ct",
+        "unit": "coalesce(d.dvt, v.dvt, '')",
+        "quantity": "d.so_luong",
+        "revenue_vnd": "d.tien2",
+        "revenue_orig": "d.tien_nt2",
+        "doc_id": "h.stt_rec"
+      },
+      "rls": {
+        "mode": "branch_stock",
+        "branch_expr": "h.ma_dvcs",
+        "stock_expr": "d.ma_kho"
+      },
+      "own_dimensions": {
+        "currency": "currency",
+        "day": "day",
+        "unit": "unit",
+        "doc_no": "doc_no"
+      },
+      "measures": {
+        "quantity": {
+          "aggregate": "sum",
+          "column": "quantity",
+          "unit_dimension": "unit"
+        },
+        "revenue_vnd": {
+          "aggregate": "sum",
+          "column": "revenue_vnd"
+        },
+        "revenue_orig": {
+          "aggregate": "sum",
+          "column": "revenue_orig",
+          "unit_dimension": "currency"
+        },
+        "delivery_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "doc_no": {
+          "column": "doc_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        }
+      }
+    },
+    "sales_delivery_orders": {
+      "version": "2026-11-26-v1",
+      "title": "Lệnh giao hàng bán (TO2)",
+      "notes": "day (ngay_ct) là ngày lập lệnh TO2; delivery_date (ngay_gh) là ngày giao hàng dự kiến. Lọc theo tên KH không dấu với customer_name hoặc số PO KH với po_kh.",
+      "date_field": "day",
+      "bounded_date_fields": [
+        "day",
+        "delivery_date"
+      ],
+      "alternate_date_field": "delivery_date",
+      "alternate_date_label": "ngày giao hàng (ngay_gh)",
+      "require_bounded_date": true,
+      "cues": [
+        "lenh giao hang",
+        "to2",
+        "ke hoach giao",
+        "giao hang",
+        "so_do"
+      ],
+      "secondary_cues": [
+        "khach hang",
+        "ngay giao",
+        "po khach"
+      ],
+      "dimension_order": [
+        "doc_no",
+        "so_no",
+        "po_kh",
+        "customer",
+        "customer_name",
+        "material",
+        "material_name",
+        "warehouse",
+        "warehouse_name",
+        "status_name",
+        "currency",
+        "unit",
+        "day",
+        "delivery_date"
+      ],
+      "filter_order": [
+        "day",
+        "delivery_date",
+        "doc_no",
+        "so_no",
+        "po_kh",
+        "customer",
+        "customer_name",
+        "material",
+        "material_name",
+        "warehouse",
+        "warehouse_name",
+        "status_name",
+        "currency",
+        "unit"
+      ],
+      "base_from": "public.ph96 h JOIN public.ct96 d ON d.stt_rec = h.stt_rec",
+      "base_where": [
+        "h.status::text NOT IN ('14', '15')"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "customer",
+          "key_expr": "h.ma_kh",
+          "fallback_name_expr": "h.ten_kh"
+        },
+        {
+          "entity": "material",
+          "key_expr": "d.ma_vt"
+        },
+        {
+          "entity": "warehouse",
+          "key_expr": "d.ma_kho"
+        },
+        {
+          "entity": "status",
+          "key_expr": "h.status",
+          "ma_ct": "TO2"
+        }
+      ],
+      "base_select": {
+        "doc_no": "h.so_ct",
+        "so_no": "coalesce(nullif(d.so_ct_so1, ''), '')",
+        "po_kh": "coalesce(nullif(d.so_po, ''), '')",
+        "currency": "trim(coalesce(h.ma_nt, ''))",
+        "day": "h.ngay_ct",
+        "delivery_date": "coalesce(d.ngay_gh, h.ngay_gh)",
+        "unit": "coalesce(d.dvt, v.dvt, '')",
+        "quantity": "coalesce(d.so_luong, 0)",
+        "revenue_vnd": "coalesce(d.tien2, 0)",
+        "revenue_orig": "coalesce(d.tien_nt2, 0)",
+        "doc_id": "h.stt_rec"
+      },
+      "rls": {
+        "mode": "branch_stock",
+        "branch_expr": "h.ma_dvcs",
+        "stock_expr": "d.ma_kho"
+      },
+      "own_dimensions": {
+        "doc_no": "doc_no",
+        "so_no": "so_no",
+        "po_kh": "po_kh",
+        "currency": "currency",
+        "unit": "unit",
+        "day": "day",
+        "delivery_date": "delivery_date"
+      },
+      "measures": {
+        "quantity": {
+          "aggregate": "sum",
+          "column": "quantity",
+          "unit_dimension": "unit"
+        },
+        "revenue_vnd": {
+          "aggregate": "sum",
+          "column": "revenue_vnd"
+        },
+        "revenue_orig": {
+          "aggregate": "sum",
+          "column": "revenue_orig",
+          "unit_dimension": "currency"
+        },
+        "order_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "delivery_date": {
+          "column": "delivery_date",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "doc_no": {
+          "column": "doc_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "so_no": {
+          "column": "so_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "po_kh": {
+          "column": "po_kh",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      }
+    },
+    "sales_quotations": {
+      "version": "2026-11-26-v1",
+      "title": "Giấy báo giá bán hàng (SQ1)",
+      "notes": "Lưu giá chào bán và trạng thái duyệt của báo giá gửi khách hàng.",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "cues": [
+        "bao gia ban",
+        "giay bao gia",
+        "sq1",
+        "chao gia khach"
+      ],
+      "secondary_cues": [
+        "bao gia",
+        "khach hang"
+      ],
+      "dimension_order": [
+        "doc_no",
+        "customer",
+        "customer_name",
+        "material",
+        "material_name",
+        "status_name",
+        "currency",
+        "unit",
+        "day"
+      ],
+      "filter_order": [
+        "day",
+        "doc_no",
+        "customer",
+        "customer_name",
+        "material",
+        "material_name",
+        "status_name",
+        "currency",
+        "unit"
+      ],
+      "base_from": "public.ph61 h JOIN public.ct61 d ON d.stt_rec = h.stt_rec",
+      "base_where": [
+        "h.status::text NOT IN ('14', '15')"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "customer",
+          "key_expr": "h.ma_kh",
+          "fallback_name_expr": "h.ten_kh"
+        },
+        {
+          "entity": "material",
+          "key_expr": "d.ma_vt"
+        },
+        {
+          "entity": "status",
+          "key_expr": "h.status",
+          "ma_ct": "SQ1"
+        }
+      ],
+      "base_select": {
+        "doc_no": "h.so_ct",
+        "currency": "trim(coalesce(h.ma_nt, ''))",
+        "day": "h.ngay_ct",
+        "unit": "coalesce(d.dvt, v.dvt, '')",
+        "quantity": "coalesce(d.so_luong, 0)",
+        "unit_price_vnd": "coalesce(d.gia2, 0)",
+        "amount_vnd": "coalesce(d.tien2, 0)",
+        "amount_orig": "coalesce(d.tien_nt2, 0)",
+        "doc_id": "h.stt_rec"
+      },
+      "rls": {
+        "mode": "branch_optional",
+        "branch_expr": "h.ma_dvcs"
+      },
+      "own_dimensions": {
+        "doc_no": "doc_no",
+        "currency": "currency",
+        "unit": "unit",
+        "day": "day"
+      },
+      "measures": {
+        "quantity": {
+          "aggregate": "sum",
+          "column": "quantity",
+          "unit_dimension": "unit"
+        },
+        "unit_price_vnd": {
+          "aggregate": "avg",
+          "column": "unit_price_vnd",
+          "non_summable": true
+        },
+        "amount_vnd": {
+          "aggregate": "sum",
+          "column": "amount_vnd"
+        },
+        "amount_orig": {
+          "aggregate": "sum",
+          "column": "amount_orig",
+          "unit_dimension": "currency"
+        },
+        "voucher_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "doc_no": {
+          "column": "doc_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      }
+    },
+    "sales_returns": {
+      "version": "2026-11-26-v1",
+      "title": "Hàng bán bị trả lại (HDF)",
+      "notes": "Phiếu nhập lại hàng bán bị trả về từ khách hàng (HDF).",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "cues": [
+        "hang ban tra lai",
+        "hang tra lai",
+        "tra lai hang ban",
+        "hdf"
+      ],
+      "secondary_cues": [
+        "tra lai",
+        "doi tra"
+      ],
+      "dimension_order": [
+        "doc_no",
+        "so_no",
+        "customer",
+        "customer_name",
+        "material",
+        "material_name",
+        "warehouse",
+        "warehouse_name",
+        "status_name",
+        "currency",
+        "unit",
+        "day"
+      ],
+      "filter_order": [
+        "day",
+        "doc_no",
+        "customer",
+        "customer_name",
+        "material",
+        "material_name",
+        "warehouse",
+        "warehouse_name",
+        "currency",
+        "unit"
+      ],
+      "base_from": "public.ph76 h JOIN public.ct76 d ON d.stt_rec = h.stt_rec",
+      "base_where": [
+        "h.status::text NOT IN ('14', '15')"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "customer",
+          "key_expr": "h.ma_kh",
+          "fallback_name_expr": "h.ten_kh"
+        },
+        {
+          "entity": "material",
+          "key_expr": "d.ma_vt"
+        },
+        {
+          "entity": "warehouse",
+          "key_expr": "d.ma_kho"
+        },
+        {
+          "entity": "status",
+          "key_expr": "h.status",
+          "ma_ct": "HDF",
+          "expose_name_filter": false
+        }
+      ],
+      "base_select": {
+        "doc_no": "h.so_ct",
+        "so_no": "coalesce(d.so_ct_so1, '')",
+        "currency": "trim(coalesce(h.ma_nt, ''))",
+        "day": "h.ngay_ct",
+        "unit": "coalesce(d.dvt, v.dvt, '')",
+        "return_qty": "coalesce(d.so_luong, 0)",
+        "amount_vnd": "coalesce(d.tien2, 0)",
+        "amount_orig": "coalesce(d.tien_nt2, 0)",
+        "doc_id": "h.stt_rec"
+      },
+      "rls": {
+        "mode": "branch_stock",
+        "branch_expr": "h.ma_dvcs",
+        "stock_expr": "d.ma_kho"
+      },
+      "own_dimensions": {
+        "doc_no": "doc_no",
+        "so_no": "so_no",
+        "currency": "currency",
+        "unit": "unit",
+        "day": "day"
+      },
+      "measures": {
+        "return_qty": {
+          "aggregate": "sum",
+          "column": "return_qty",
+          "unit_dimension": "unit"
+        },
+        "amount_vnd": {
+          "aggregate": "sum",
+          "column": "amount_vnd"
+        },
+        "amount_orig": {
+          "aggregate": "sum",
+          "column": "amount_orig",
+          "unit_dimension": "currency"
+        },
+        "voucher_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "doc_no": {
+          "column": "doc_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      }
+    },
+    "sales_return_requests": {
+      "version": "2026-11-26-v1",
+      "title": "Phiếu yêu cầu đổi trả hàng bán (RQ1)",
+      "notes": "Theo dõi phiếu đề nghị đổi/trả hàng từ khách hàng (RQ1).",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "cues": [
+        "yeu cau doi tra",
+        "doi tra hang ban",
+        "rq1"
+      ],
+      "secondary_cues": [
+        "doi tra",
+        "tra hang"
+      ],
+      "dimension_order": [
+        "doc_no",
+        "so_no",
+        "customer",
+        "customer_name",
+        "material",
+        "material_name",
+        "warehouse",
+        "warehouse_name",
+        "status_name",
+        "currency",
+        "unit",
+        "day"
+      ],
+      "filter_order": [
+        "day",
+        "doc_no",
+        "customer",
+        "customer_name",
+        "material",
+        "material_name",
+        "currency",
+        "unit"
+      ],
+      "base_from": "public.ph66 h JOIN public.ct66 d ON d.stt_rec = h.stt_rec",
+      "base_where": [
+        "h.status::text NOT IN ('14', '15')"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "customer",
+          "key_expr": "h.ma_kh",
+          "fallback_name_expr": "h.ten_kh"
+        },
+        {
+          "entity": "material",
+          "key_expr": "d.ma_vt"
+        },
+        {
+          "entity": "warehouse",
+          "key_expr": "d.ma_kho",
+          "expose_code_filter": false,
+          "expose_name_filter": false
+        },
+        {
+          "entity": "status",
+          "key_expr": "h.status",
+          "ma_ct": "RQ1",
+          "expose_name_filter": false
+        }
+      ],
+      "base_select": {
+        "doc_no": "h.so_ct",
+        "so_no": "coalesce(d.so_ct_dh, '')",
+        "currency": "trim(coalesce(h.ma_nt, ''))",
+        "day": "h.ngay_ct",
+        "unit": "coalesce(d.dvt, v.dvt, '')",
+        "return_qty": "coalesce(d.so_luong, 0)",
+        "amount_vnd": "coalesce(d.tien2, 0)",
+        "amount_orig": "coalesce(d.tien_nt2, 0)",
+        "doc_id": "h.stt_rec"
+      },
+      "rls": {
+        "mode": "branch_stock",
+        "branch_expr": "h.ma_dvcs",
+        "stock_expr": "d.ma_kho"
+      },
+      "own_dimensions": {
+        "doc_no": "doc_no",
+        "so_no": "so_no",
+        "currency": "currency",
+        "unit": "unit",
+        "day": "day"
+      },
+      "measures": {
+        "return_qty": {
+          "aggregate": "sum",
+          "column": "return_qty",
+          "unit_dimension": "unit"
+        },
+        "amount_vnd": {
+          "aggregate": "sum",
+          "column": "amount_vnd"
+        },
+        "amount_orig": {
+          "aggregate": "sum",
+          "column": "amount_orig",
+          "unit_dimension": "currency"
+        },
+        "voucher_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "doc_no": {
+          "column": "doc_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      }
+    },
+    "purchase_receipt_lines": {
+      "version": "2026-11-25-v1",
+      "title": "Tổng hợp phiếu nhập mua hàng từ NCC (PR1: ph77/ct77)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "cues": [
+        "nhap mua",
+        "phieu nhap mua"
+      ],
+      "dimension_order": [
+        "supplier",
+        "supplier_name",
+        "material",
+        "material_name",
+        "warehouse",
+        "currency",
+        "day",
+        "unit",
+        "warehouse_name",
+        "doc_no",
+        "po_no",
+        "status_name"
+      ],
+      "filter_order": [
+        "day",
+        "supplier",
+        "material",
+        "warehouse",
+        "currency",
+        "unit",
+        "supplier_name",
+        "material_name",
+        "warehouse_name",
+        "doc_no",
+        "po_no",
+        "status_name"
+      ],
+      "base_from": "public.ph77 h JOIN public.ct77 d ON d.stt_rec = h.stt_rec",
+      "base_where": [
+        "h.status::text IN ('1', '11', '12')"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "supplier",
+          "key_expr": "h.ma_kh"
+        },
+        {
+          "entity": "material",
+          "key_expr": "d.ma_vt"
+        },
+        {
+          "entity": "warehouse",
+          "key_expr": "d.ma_kho"
+        },
+        {
+          "entity": "status",
+          "key_expr": "h.status",
+          "ma_ct": "PR1"
+        }
+      ],
+      "base_select": {
+        "doc_no": "h.so_ct",
+        "po_no": "coalesce(d.so_ct_po1, '')",
+        "currency": "trim(coalesce(h.ma_nt, ''))",
+        "day": "h.ngay_ct",
+        "unit": "coalesce(d.dvt, v.dvt, '')",
+        "quantity": "d.so_luong",
+        "amount_vnd": "d.tien",
+        "amount_orig": "d.tien_nt",
+        "doc_id": "h.stt_rec"
+      },
+      "rls": {
+        "mode": "branch_stock",
+        "branch_expr": "h.ma_dvcs",
+        "stock_expr": "d.ma_kho"
+      },
+      "own_dimensions": {
+        "currency": "currency",
+        "day": "day",
+        "unit": "unit",
+        "doc_no": "doc_no",
+        "po_no": "po_no"
+      },
+      "measures": {
+        "quantity": {
+          "aggregate": "sum",
+          "column": "quantity",
+          "unit_dimension": "unit"
+        },
+        "amount_vnd": {
+          "aggregate": "sum",
+          "column": "amount_vnd"
+        },
+        "amount_orig": {
+          "aggregate": "sum",
+          "column": "amount_orig",
+          "unit_dimension": "currency"
+        },
+        "receipt_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "doc_no": {
+          "column": "doc_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "po_no": {
+          "column": "po_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        }
+      }
+    },
+    "purchase_receipt_requests": {
+      "version": "2026-11-26-v1",
+      "title": "Phiếu yêu cầu nhập hàng mua (YCN)",
+      "notes": "day (ngay_ct) là ngày lập phiếu YCN; requested_date là ngày đề nghị nhập (ngay_de_nghi_nh); promise_date là ngày hứa nhập (ngay_hua_nh).",
+      "date_field": "day",
+      "bounded_date_fields": [
+        "day",
+        "requested_date",
+        "promise_date"
+      ],
+      "alternate_date_field": "requested_date",
+      "alternate_date_label": "ngày đề nghị nhập (ngay_de_nghi_nh)",
+      "require_bounded_date": true,
+      "cues": [
+        "yeu cau nhap hang",
+        "phieu ycn",
+        "ycn",
+        "de nghi nhap hang mua"
+      ],
+      "secondary_cues": [
+        "nhap hang mua",
+        "ngay hua nhap"
+      ],
+      "dimension_order": [
+        "doc_no",
+        "po_no",
+        "supplier",
+        "supplier_name",
+        "material",
+        "material_name",
+        "warehouse",
+        "warehouse_name",
+        "department",
+        "status_name",
+        "currency",
+        "unit",
+        "day",
+        "requested_date",
+        "promise_date"
+      ],
+      "filter_order": [
+        "day",
+        "requested_date",
+        "promise_date",
+        "doc_no",
+        "po_no",
+        "supplier",
+        "supplier_name",
+        "material",
+        "material_name",
+        "warehouse",
+        "warehouse_name",
+        "status_name",
+        "currency",
+        "unit"
+      ],
+      "base_from": "public.phycn h JOIN public.ctycn d ON d.stt_rec = h.stt_rec",
+      "base_where": [
+        "h.status::text <> '15'"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "supplier",
+          "key_expr": "h.ma_kh",
+          "fallback_name_expr": "h.ten_kh",
+          "prefer_nonempty_entity_name": true
+        },
+        {
+          "entity": "material",
+          "key_expr": "d.ma_vt"
+        },
+        {
+          "entity": "warehouse",
+          "key_expr": "coalesce(d.ma_kho, h.ma_kho, '')",
+          "join_key_expr": "coalesce(d.ma_kho, h.ma_kho)"
+        },
+        {
+          "entity": "status",
+          "key_expr": "h.status",
+          "ma_ct": "YCN",
+          "status_mode": "scalar_subquery"
+        }
+      ],
+      "base_select": {
+        "doc_no": "h.so_ct",
+        "po_no": "coalesce(d.so_ct_po1, '')",
+        "department": "coalesce(h.ma_bp, d.ma_bp, '')",
+        "currency": "trim(coalesce(h.ma_nt, ''))",
+        "day": "h.ngay_ct",
+        "requested_date": "d.ngay_de_nghi_nh",
+        "promise_date": "d.ngay_hua_nh",
+        "unit": "coalesce(d.dvt, v.dvt, '')",
+        "quantity": "coalesce(d.so_luong, 0)",
+        "amount_vnd": "coalesce(d.tien, 0)",
+        "amount_orig": "coalesce(d.tien_nt, 0)",
+        "doc_id": "h.stt_rec"
+      },
+      "rls": {
+        "mode": "branch_stock_nullable",
+        "branch_expr": "h.ma_dvcs",
+        "stock_expr": "coalesce(d.ma_kho, h.ma_kho)"
+      },
+      "own_dimensions": {
+        "doc_no": "doc_no",
+        "po_no": "po_no",
+        "department": "department",
+        "currency": "currency",
+        "unit": "unit",
+        "day": "day",
+        "requested_date": "requested_date",
+        "promise_date": "promise_date"
+      },
+      "measures": {
+        "quantity": {
+          "aggregate": "sum",
+          "column": "quantity",
+          "unit_dimension": "unit"
+        },
+        "amount_vnd": {
+          "aggregate": "sum",
+          "column": "amount_vnd"
+        },
+        "amount_orig": {
+          "aggregate": "sum",
+          "column": "amount_orig",
+          "unit_dimension": "currency"
+        },
+        "voucher_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "requested_date": {
+          "column": "requested_date",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "promise_date": {
+          "column": "promise_date",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "doc_no": {
+          "column": "doc_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "po_no": {
+          "column": "po_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      }
+    },
+    "purchase_returns": {
+      "version": "2026-11-26-v1",
+      "title": "Phiếu xuất trả lại nhà cung cấp (PXC)",
+      "notes": "Chứng từ xuất kho trả lại hàng mua cho nhà cung cấp (ph86/ct86). Tập dữ liệu ít dòng, không bắt buộc lọc ngày.",
+      "date_field": "day",
+      "require_bounded_date": false,
+      "cues": [
+        "xuat tra ncc",
+        "tra lai nha cung cap",
+        "phieu pxc",
+        "pxc",
+        "tra hang mua"
+      ],
+      "secondary_cues": [
+        "xuat tra nha cung cap"
+      ],
+      "dimension_order": [
+        "doc_no",
+        "rq_no",
+        "supplier",
+        "supplier_name",
+        "material",
+        "material_name",
+        "warehouse",
+        "warehouse_name",
+        "lot_no",
+        "status_name",
+        "currency",
+        "unit",
+        "day"
+      ],
+      "filter_order": [
+        "day",
+        "doc_no",
+        "supplier",
+        "supplier_name",
+        "material",
+        "material_name",
+        "status_name",
+        "unit"
+      ],
+      "base_from": "public.ph86 h JOIN public.ct86 d ON d.stt_rec = h.stt_rec",
+      "base_where": [
+        "h.status::text <> '15'"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "supplier",
+          "key_expr": "h.ma_kh",
+          "fallback_name_expr": "h.ten_kh",
+          "prefer_nonempty_entity_name": true
+        },
+        {
+          "entity": "material",
+          "key_expr": "d.ma_vt"
+        },
+        {
+          "entity": "warehouse",
+          "key_expr": "coalesce(d.ma_kho, h.ma_kho, '')",
+          "join_key_expr": "coalesce(d.ma_kho, h.ma_kho)",
+          "expose_code_filter": false,
+          "expose_name_filter": false
+        },
+        {
+          "entity": "status",
+          "key_expr": "h.status",
+          "ma_ct": "PXC",
+          "status_mode": "scalar_subquery"
+        }
+      ],
+      "base_select": {
+        "doc_no": "h.so_ct",
+        "rq_no": "coalesce(d.so_ct_rq2, '')",
+        "lot_no": "coalesce(d.ma_lo, '')",
+        "currency": "trim(coalesce(h.ma_nt, ''))",
+        "day": "h.ngay_ct",
+        "unit": "coalesce(d.dvt, v.dvt, '')",
+        "return_qty": "coalesce(d.so_luong, 0)",
+        "amount_vnd": "coalesce(d.tien, 0)",
+        "amount_orig": "coalesce(d.tien_nt, 0)",
+        "doc_id": "h.stt_rec"
+      },
+      "rls": {
+        "mode": "branch_optional",
+        "branch_expr": "h.ma_dvcs"
+      },
+      "own_dimensions": {
+        "doc_no": "doc_no",
+        "rq_no": "rq_no",
+        "lot_no": "lot_no",
+        "currency": "currency",
+        "unit": "unit",
+        "day": "day"
+      },
+      "measures": {
+        "return_qty": {
+          "aggregate": "sum",
+          "column": "return_qty",
+          "unit_dimension": "unit"
+        },
+        "amount_vnd": {
+          "aggregate": "sum",
+          "column": "amount_vnd"
+        },
+        "amount_orig": {
+          "aggregate": "sum",
+          "column": "amount_orig",
+          "unit_dimension": "currency"
+        },
+        "voucher_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "doc_no": {
+          "column": "doc_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      }
+    },
+    "purchase_return_requests": {
+      "version": "2026-11-26-v1",
+      "title": "Phiếu yêu cầu đổi / trả hàng mua (RQ2)",
+      "notes": "Phiếu đề nghị đổi trả hàng cho nhà cung cấp (ph67/ct67), ghi nhận lý do lỗi và số lượng duyệt trả. Không bắt buộc lọc ngày.",
+      "date_field": "day",
+      "require_bounded_date": false,
+      "cues": [
+        "yeu cau doi tra hang mua",
+        "yeu cau tra ncc",
+        "rq2",
+        "doi tra mua hang"
+      ],
+      "secondary_cues": [
+        "yeu cau tra nha cung cap"
+      ],
+      "dimension_order": [
+        "doc_no",
+        "pr1_no",
+        "supplier",
+        "supplier_name",
+        "material",
+        "material_name",
+        "warehouse",
+        "warehouse_name",
+        "reason_name",
+        "status_name",
+        "currency",
+        "unit",
+        "day",
+        "delivery_date"
+      ],
+      "filter_order": [
+        "day",
+        "doc_no",
+        "supplier",
+        "supplier_name",
+        "material",
+        "material_name",
+        "reason_name",
+        "unit"
+      ],
+      "base_from": "public.ph67 h JOIN public.ct67 d ON d.stt_rec = h.stt_rec",
+      "base_where": [
+        "h.status::text <> '15'"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "supplier",
+          "key_expr": "h.ma_kh",
+          "fallback_name_expr": "h.ten_kh",
+          "prefer_nonempty_entity_name": true
+        },
+        {
+          "entity": "material",
+          "key_expr": "d.ma_vt"
+        },
+        {
+          "entity": "warehouse",
+          "key_expr": "coalesce(d.ma_kho, '')",
+          "join_key_expr": "d.ma_kho",
+          "expose_code_filter": false,
+          "expose_name_filter": false
+        },
+        {
+          "entity": "status",
+          "key_expr": "h.status",
+          "ma_ct": "RQ2",
+          "status_mode": "scalar_subquery",
+          "expose_name_filter": false
+        }
+      ],
+      "base_select": {
+        "doc_no": "h.so_ct",
+        "pr1_no": "coalesce(d.so_ct_pr1, '')",
+        "reason_name": "coalesce(d.ten_loi, '')",
+        "currency": "trim(coalesce(h.ma_nt, ''))",
+        "day": "h.ngay_ct",
+        "delivery_date": "d.ngay_tra_hang",
+        "unit": "coalesce(d.dvt, v.dvt, '')",
+        "return_qty": "coalesce(d.so_luong, 0)",
+        "amount_vnd": "coalesce(d.tien, 0)",
+        "doc_id": "h.stt_rec"
+      },
+      "rls": {
+        "mode": "branch_optional",
+        "branch_expr": "h.ma_dvcs"
+      },
+      "own_dimensions": {
+        "doc_no": "doc_no",
+        "pr1_no": "pr1_no",
+        "reason_name": "reason_name",
+        "currency": "currency",
+        "unit": "unit",
+        "day": "day",
+        "delivery_date": "delivery_date"
+      },
+      "measures": {
+        "return_qty": {
+          "aggregate": "sum",
+          "column": "return_qty",
+          "unit_dimension": "unit"
+        },
+        "amount_vnd": {
+          "aggregate": "sum",
+          "column": "amount_vnd"
+        },
+        "voucher_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "doc_no": {
+          "column": "doc_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "reason_name": {
+          "column": "reason_name",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      }
+    },
+    "purchase_prices_current": {
+      "version": "2026-11-26-v1",
+      "title": "Bảng giá mua nhà cung cấp hiện hành",
+      "notes": "Bảng danh mục giá mua đang có hiệu lực theo NCC và vật tư (dmgiamuact, status='1'). Không bắt buộc lọc ngày.",
+      "date_field": "valid_from",
+      "require_bounded_date": false,
+      "cues": [
+        "gia mua",
+        "bang gia mua",
+        "gia ncc",
+        "dmgiamua"
+      ],
+      "secondary_cues": [
+        "moq mua",
+        "don gia mua",
+        "nha cung cap"
+      ],
+      "dimension_order": [
+        "supplier",
+        "supplier_name",
+        "material",
+        "material_name",
+        "currency",
+        "unit",
+        "valid_from",
+        "valid_to"
+      ],
+      "filter_order": [
+        "supplier",
+        "supplier_name",
+        "material",
+        "material_name",
+        "currency",
+        "valid_from",
+        "valid_to"
+      ],
+      "base_from": "public.dmgiamuact d",
+      "base_where": [
+        "d.status::text = '1'"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "supplier",
+          "key_expr": "d.ma_kh"
+        },
+        {
+          "entity": "material",
+          "key_expr": "d.ma_vt"
+        }
+      ],
+      "base_select": {
+        "currency": "trim(coalesce(d.ma_nt, ''))",
+        "unit": "coalesce(v.dvt, '')",
+        "valid_from": "d.ngay_bd",
+        "valid_to": "d.ngay_kt",
+        "unit_price_vnd": "coalesce(d.gia, 0)",
+        "moq": "coalesce(d.sl_min, 0)",
+        "line_id": "(coalesce(d.ma_kh, '') || '|' || coalesce(d.ma_vt, '') || '|' || coalesce(d.ngay_bd::text, ''))"
+      },
+      "rls": {
+        "mode": "open_user"
+      },
+      "own_dimensions": {
+        "currency": "currency",
+        "unit": "unit",
+        "valid_from": "valid_from",
+        "valid_to": "valid_to"
+      },
+      "measures": {
+        "unit_price_vnd": {
+          "aggregate": "avg",
+          "column": "unit_price_vnd",
+          "non_summable": true
+        },
+        "moq": {
+          "aggregate": "avg",
+          "column": "moq",
+          "non_summable": true
+        },
+        "line_count": {
+          "aggregate": "count",
+          "column": "line_id"
+        }
+      },
+      "own_filters": {
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "valid_from": {
+          "column": "valid_from",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "valid_to": {
+          "column": "valid_to",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        }
+      }
+    },
+    "sales_prices_current": {
+      "version": "2026-11-26-v1",
+      "title": "Danh mục bảng giá bán tổng hợp",
+      "notes": "Tổng hợp/so sánh giá bán và MOQ theo khách hàng, mã hàng, bảng giá đang hiệu lực. Nếu cần tra đúng mức giá áp dụng tại một ngày cụ thể cho 1 mã, có thể dùng thêm query_price_list.",
+      "date_field": "valid_from",
+      "require_bounded_date": false,
+      "cues": [
+        "bang gia ban",
+        "thong ke gia ban",
+        "danh sach gia ban",
+        "so sanh gia"
+      ],
+      "secondary_cues": [
+        "moq",
+        "gia ban",
+        "don gia"
+      ],
+      "dimension_order": [
+        "price_list_id",
+        "price_list_name",
+        "customer",
+        "customer_name",
+        "material",
+        "material_name",
+        "currency",
+        "unit",
+        "valid_from",
+        "valid_to"
+      ],
+      "filter_order": [
+        "price_list_id",
+        "customer",
+        "customer_name",
+        "material",
+        "material_name",
+        "currency",
+        "valid_from",
+        "valid_to"
+      ],
+      "base_from": "public.dmbanggiact d JOIN public.dmbanggia h ON h.ma_bang_gia = d.ma_bang_gia",
+      "base_where": [
+        "h.status::text = '1'"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "customer",
+          "key_expr": "coalesce(d.ma_kh, '')",
+          "join_key_expr": "d.ma_kh"
+        },
+        {
+          "entity": "material",
+          "key_expr": "d.ma_vt"
+        }
+      ],
+      "base_select": {
+        "price_list_id": "d.ma_bang_gia",
+        "price_list_name": "coalesce(h.ten_bang_gia, '')",
+        "currency": "trim(coalesce(d.ma_nt, ''))",
+        "unit": "coalesce(d.dvt, v.dvt, '')",
+        "valid_from": "coalesce(d.ngay_bd, h.ngay_bd)",
+        "valid_to": "coalesce(d.ngay_kt, h.ngay_kt)",
+        "unit_price_vnd": "coalesce(d.gia, 0)",
+        "unit_price_orig": "coalesce(d.gia_nt, 0)",
+        "moq": "coalesce(d.sl_min, 0)",
+        "line_id": "(coalesce(d.ma_bang_gia, '') || '|' || coalesce(d.ma_kh, '') || '|' || coalesce(d.ma_vt, '') || '|' || coalesce(d.sl_min::text, '0'))"
+      },
+      "rls": {
+        "mode": "branch_optional",
+        "branch_expr": "h.ma_dvcs",
+        "default_branch": "001"
+      },
+      "own_dimensions": {
+        "price_list_id": "price_list_id",
+        "price_list_name": "price_list_name",
+        "currency": "currency",
+        "unit": "unit",
+        "valid_from": "valid_from",
+        "valid_to": "valid_to"
+      },
+      "measures": {
+        "unit_price_vnd": {
+          "aggregate": "avg",
+          "column": "unit_price_vnd",
+          "non_summable": true
+        },
+        "unit_price_orig": {
+          "aggregate": "avg",
+          "column": "unit_price_orig",
+          "non_summable": true,
+          "unit_dimension": "currency"
+        },
+        "moq": {
+          "aggregate": "avg",
+          "column": "moq",
+          "non_summable": true
+        },
+        "line_count": {
+          "aggregate": "count",
+          "column": "line_id"
+        }
+      },
+      "own_filters": {
+        "price_list_id": {
+          "column": "price_list_id",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "currency": {
+          "column": "currency",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "valid_from": {
+          "column": "valid_from",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "valid_to": {
+          "column": "valid_to",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        }
+      }
+    },
+    "mes_downtime_lines": {
+      "version": "2026-11-25-v1",
+      "title": "Thống kê dừng máy / dừng chuyền MES (mes_oi_stop_line)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "cues": [
+        "dung may",
+        "downtime",
+        "su co may"
+      ],
+      "secondary_cues": [
+        "oee",
+        "hieu suat thiet bi",
+        "kha dung"
+      ],
+      "dimension_order": [
+        "machine",
+        "reason_code",
+        "reason_name",
+        "reason_group",
+        "day"
+      ],
+      "filter_order": [
+        "day",
+        "machine",
+        "reason_code",
+        "reason_group",
+        "reason_name"
+      ],
+      "base_from": "public.mes_oi_stop_line a",
+      "base_where": [
+        "a.end_date IS NOT NULL",
+        "a.end_date >= a.create_date",
+        "a.end_date > '1900-01-01'"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "downtime_reason",
+          "key_expr": "coalesce(a.error_code, '')",
+          "join_key_expr": "a.error_code",
+          "extra_select": {
+            "reason_group": "coalesce(d.nh_nndungmay1, '')"
+          },
+          "extra_filters": {
+            "reason_group": {
+              "column": "reason_group",
+              "type": "text",
+              "ops": [
+                "eq"
+              ]
+            }
+          }
+        }
+      ],
+      "base_select": {
+        "machine": "a.machine_code",
+        "day": "a.create_date",
+        "stop_minutes": "round((EXTRACT(EPOCH FROM (a.end_date::timestamp + a.end_time::time - a.create_date::timestamp - a.create_time::time)) / 60.0)::numeric, 2)",
+        "event_id": "a.id"
+      },
+      "rls": {
+        "mode": "open_user"
+      },
+      "own_dimensions": {
+        "machine": "machine",
+        "day": "day"
+      },
+      "measures": {
+        "stop_minutes": {
+          "aggregate": "sum",
+          "column": "stop_minutes"
+        },
+        "avg_stop_minutes": {
+          "aggregate": "avg",
+          "column": "stop_minutes",
+          "non_summable": true
+        },
+        "stop_count": {
+          "aggregate": "count",
+          "column": "event_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "machine": {
+          "column": "machine",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      }
+    },
+    "mes_ng_defects": {
+      "version": "2026-11-25-v1",
+      "title": "Thống kê phế phẩm / lỗi sản xuất NG MES (mes_oi_ng_confirm)",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "cues": [
+        "loi ng",
+        "phe pham",
+        "defect"
+      ],
+      "dimension_order": [
+        "machine",
+        "material",
+        "material_name",
+        "defect_code",
+        "defect_name",
+        "day"
+      ],
+      "filter_order": [
+        "day",
+        "machine",
+        "material",
+        "defect_code",
+        "material_name",
+        "defect_name"
+      ],
+      "base_from": "public.mes_oi_ng_confirm a",
+      "base_where": [],
+      "entity_bindings": [
+        {
+          "entity": "material",
+          "key_expr": "a.product_code"
+        },
+        {
+          "entity": "defect",
+          "key_expr": "coalesce(a.error_code, '')",
+          "join_key_expr": "a.error_code"
+        }
+      ],
+      "base_select": {
+        "machine": "a.machine_code",
+        "day": "a.create_date",
+        "ng_qty": "coalesce(a.ng_qty, 0)",
+        "record_id": "a.id_oi_ng"
+      },
+      "rls": {
+        "mode": "open_user"
+      },
+      "own_dimensions": {
+        "machine": "machine",
+        "day": "day"
+      },
+      "measures": {
+        "ng_qty": {
+          "aggregate": "sum",
+          "column": "ng_qty"
+        },
+        "defect_events": {
+          "aggregate": "count",
+          "column": "record_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "machine": {
+          "column": "machine",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      }
+    },
+    "warehouse_internal_issues": {
+      "version": "2026-11-26-v1",
+      "title": "Phiếu xuất kho nội bộ / xuất sản xuất (PXA)",
+      "notes": "Phiếu xuất kho nội bộ PXA gắn bộ phận (department), dây chuyền và lệnh sản xuất (PD1). PXA là loại chứng từ (doc_type='PXA'), KHÔNG phải mã bộ phận.",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "cues": [
+        "xuat kho noi bo",
+        "pxa",
+        "xuat san xuat",
+        "phieu xuat kho"
+      ],
+      "secondary_cues": [
+        "xuat kho",
+        "bo phan"
+      ],
+      "dimension_order": [
+        "doc_type",
+        "doc_no",
+        "warehouse",
+        "warehouse_name",
+        "department",
+        "material",
+        "material_name",
+        "work_order",
+        "status_name",
+        "unit",
+        "day"
+      ],
+      "filter_order": [
+        "day",
+        "doc_type",
+        "doc_no",
+        "warehouse",
+        "warehouse_name",
+        "department",
+        "material",
+        "material_name",
+        "work_order",
+        "unit"
+      ],
+      "base_from": "public.ph84 h JOIN public.ct84 d ON d.stt_rec = h.stt_rec",
+      "base_where": [
+        "h.status::text <> '15'"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "warehouse",
+          "key_expr": "d.ma_kho"
+        },
+        {
+          "entity": "material",
+          "key_expr": "d.ma_vt"
+        },
+        {
+          "entity": "status",
+          "key_expr": "h.status",
+          "ma_ct": "PXA",
+          "expose_name_filter": false
+        }
+      ],
+      "base_select": {
+        "doc_type": "trim(coalesce(h.ma_ct, ''))",
+        "doc_no": "h.so_ct",
+        "department": "coalesce(nullif(d.ma_bp, ''), h.ma_bp, '')",
+        "work_order": "coalesce(d.so_ct_pd1, '')",
+        "unit": "coalesce(d.dvt, v.dvt, '')",
+        "day": "h.ngay_ct",
+        "out_qty": "coalesce(d.so_luong, 0)",
+        "amount_vnd": "coalesce(d.tien, 0)",
+        "doc_id": "h.stt_rec"
+      },
+      "rls": {
+        "mode": "branch_stock",
+        "branch_expr": "h.ma_dvcs",
+        "stock_expr": "d.ma_kho"
+      },
+      "own_dimensions": {
+        "doc_type": "doc_type",
+        "doc_no": "doc_no",
+        "department": "department",
+        "work_order": "work_order",
+        "unit": "unit",
+        "day": "day"
+      },
+      "measures": {
+        "out_qty": {
+          "aggregate": "sum",
+          "column": "out_qty",
+          "unit_dimension": "unit"
+        },
+        "amount_vnd": {
+          "aggregate": "sum",
+          "column": "amount_vnd"
+        },
+        "voucher_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "doc_type": {
+          "column": "doc_type",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "doc_no": {
+          "column": "doc_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "department": {
+          "column": "department",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "work_order": {
+          "column": "work_order",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      }
+    },
+    "warehouse_internal_receipts": {
+      "version": "2026-11-26-v1",
+      "title": "Phiếu nhập kho nội bộ / nhập thành phẩm (PND)",
+      "notes": "Phiếu nhập kho nội bộ PND gắn kho nhận (warehouse), bộ phận (department) và lệnh sản xuất. PND là tên loại chứng từ (doc_type='PND'), KHÔNG truyền 'PND' vào department hay warehouse.",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "cues": [
+        "nhap kho noi bo",
+        "pnd",
+        "nhap thanh pham",
+        "phieu nhap kho"
+      ],
+      "secondary_cues": [
+        "nhap kho",
+        "thanh pham"
+      ],
+      "dimension_order": [
+        "doc_type",
+        "doc_no",
+        "warehouse",
+        "warehouse_name",
+        "department",
+        "material",
+        "material_name",
+        "work_order",
+        "status_name",
+        "unit",
+        "day"
+      ],
+      "filter_order": [
+        "day",
+        "doc_type",
+        "doc_no",
+        "warehouse",
+        "warehouse_name",
+        "department",
+        "material",
+        "material_name",
+        "work_order",
+        "unit"
+      ],
+      "base_from": "public.ph74 h JOIN public.ct74 d ON d.stt_rec = h.stt_rec",
+      "base_where": [
+        "h.status::text <> '15'"
+      ],
+      "entity_bindings": [
+        {
+          "entity": "warehouse",
+          "key_expr": "d.ma_kho"
+        },
+        {
+          "entity": "material",
+          "key_expr": "d.ma_vt"
+        },
+        {
+          "entity": "status",
+          "key_expr": "h.status",
+          "ma_ct": "PND",
+          "expose_name_filter": false
+        }
+      ],
+      "base_select": {
+        "doc_type": "trim(coalesce(h.ma_ct, ''))",
+        "doc_no": "h.so_ct",
+        "department": "coalesce(d.ma_bp, '')",
+        "work_order": "coalesce(d.so_ct_pd1, '')",
+        "unit": "coalesce(d.dvt, v.dvt, '')",
+        "day": "h.ngay_ct",
+        "in_qty": "coalesce(d.so_luong, 0)",
+        "amount_vnd": "coalesce(d.tien, 0)",
+        "doc_id": "h.stt_rec"
+      },
+      "rls": {
+        "mode": "branch_stock",
+        "branch_expr": "h.ma_dvcs",
+        "stock_expr": "d.ma_kho"
+      },
+      "own_dimensions": {
+        "doc_type": "doc_type",
+        "doc_no": "doc_no",
+        "department": "department",
+        "work_order": "work_order",
+        "unit": "unit",
+        "day": "day"
+      },
+      "measures": {
+        "in_qty": {
+          "aggregate": "sum",
+          "column": "in_qty",
+          "unit_dimension": "unit"
+        },
+        "amount_vnd": {
+          "aggregate": "sum",
+          "column": "amount_vnd"
+        },
+        "voucher_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "doc_type": {
+          "column": "doc_type",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "doc_no": {
+          "column": "doc_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "department": {
+          "column": "department",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "work_order": {
+          "column": "work_order",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      }
+    },
+    "warehouse_requests": {
+      "version": "2026-11-26-v1",
+      "title": "Phiếu yêu cầu nhập / xuất kho (DNV / DXV)",
+      "notes": "Gộp phiếu yêu cầu nhập kho (DNV) và phiếu yêu cầu xuất NVL/kho (DXV) theo bộ phận, nhân viên và lệnh sản xuất.",
+      "date_field": "day",
+      "require_bounded_date": true,
+      "cues": [
+        "yeu cau nhap kho",
+        "yeu cau xuat kho",
+        "dnv",
+        "dxv",
+        "yeu cau xuat nvl"
+      ],
+      "secondary_cues": [
+        "de nghi nhap",
+        "de nghi xuat"
+      ],
+      "dimension_order": [
+        "request_type",
+        "doc_no",
+        "warehouse",
+        "warehouse_name",
+        "department",
+        "employee_code",
+        "employee_name",
+        "material",
+        "material_name",
+        "work_order",
+        "status_name",
+        "unit",
+        "day"
+      ],
+      "filter_order": [
+        "day",
+        "request_type",
+        "doc_no",
+        "warehouse",
+        "warehouse_name",
+        "employee_code",
+        "employee_name",
+        "material",
+        "material_name",
+        "work_order",
+        "unit"
+      ],
+      "base_from": "(  SELECT 'DNV'::text AS request_type, h.ma_dvcs, h.so_ct, d.ma_kho, h.ma_bp, h.ma_nv, d.ma_vt, d.so_ct_pd1, h.status::text AS status, 'DNV'::text AS ma_ct, d.dvt, h.ngay_ct, d.so_luong, h.stt_rec   FROM public.phdnv h JOIN public.ctdnv d ON d.stt_rec = h.stt_rec WHERE h.status::text NOT IN ('14', '15')   UNION ALL   SELECT 'DXV'::text AS request_type, h.ma_dvcs, h.so_ct, d.ma_kho, h.ma_bp, h.ma_nv, d.ma_vt, d.so_ct_pd1, h.status::text AS status, 'DXV'::text AS ma_ct, d.dvt, h.ngay_ct, d.so_luong, h.stt_rec   FROM public.phdxnvl h JOIN public.ctdxnvl d ON d.stt_rec = h.stt_rec WHERE h.status::text NOT IN ('14', '15')) q",
+      "base_where": [],
+      "entity_bindings": [
+        {
+          "entity": "warehouse",
+          "key_expr": "q.ma_kho"
+        },
+        {
+          "entity": "employee",
+          "key_expr": "coalesce(q.ma_nv, '')",
+          "join_key_expr": "q.ma_nv",
+          "fallback_name_expr": "q.ma_nv"
+        },
+        {
+          "entity": "material",
+          "key_expr": "q.ma_vt"
+        },
+        {
+          "entity": "status",
+          "key_expr": "q.status",
+          "ma_ct": "q.ma_ct",
+          "ma_ct_is_expr": true,
+          "expose_name_filter": false
+        }
+      ],
+      "base_select": {
+        "request_type": "q.request_type",
+        "doc_no": "q.so_ct",
+        "department": "coalesce(q.ma_bp, '')",
+        "work_order": "coalesce(q.so_ct_pd1, '')",
+        "unit": "coalesce(q.dvt, v.dvt, '')",
+        "day": "q.ngay_ct",
+        "quantity": "coalesce(q.so_luong, 0)",
+        "doc_id": "q.stt_rec"
+      },
+      "rls": {
+        "mode": "branch_stock",
+        "branch_expr": "q.ma_dvcs",
+        "stock_expr": "q.ma_kho"
+      },
+      "own_dimensions": {
+        "request_type": "request_type",
+        "doc_no": "doc_no",
+        "department": "department",
+        "work_order": "work_order",
+        "unit": "unit",
+        "day": "day"
+      },
+      "measures": {
+        "quantity": {
+          "aggregate": "sum",
+          "column": "quantity",
+          "unit_dimension": "unit"
+        },
+        "voucher_count": {
+          "aggregate": "count_distinct",
+          "column": "doc_id"
+        }
+      },
+      "own_filters": {
+        "day": {
+          "column": "day",
+          "type": "date",
+          "ops": [
+            "eq",
+            "gte",
+            "lte"
+          ]
+        },
+        "request_type": {
+          "column": "request_type",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        },
+        "doc_no": {
+          "column": "doc_no",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "work_order": {
+          "column": "work_order",
+          "type": "text",
+          "ops": [
+            "eq",
+            "contains"
+          ]
+        },
+        "unit": {
+          "column": "unit",
+          "type": "text",
+          "ops": [
+            "eq"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -6,6 +6,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from html import escape
 import json
+from .semantic_query import build_join_output_layout
 from .system_dictionary import get_column_caption
 from .validator import validate_inventory_balance_result
 
@@ -686,7 +687,32 @@ def _generic_lookup_blocks(item, *, report=None, config=None):
     }]
 
 
-def _semantic_scope_suffix(applied_filters):
+def _semantic_field_info(field_key, *, custom_labels=None, config=None, sample_val=None):
+    """Resolve field (label, type) with precedence: contract override > field_catalog > SEMANTIC_FIELD_META > caption."""
+    catalog = config.get("field_catalog") if isinstance(config, dict) else None
+    cat_entry = catalog.get(field_key) if isinstance(catalog, dict) else None
+    cat_label = cat_entry.get("label") if isinstance(cat_entry, dict) else None
+    cat_type = cat_entry.get("type") if isinstance(cat_entry, dict) else None
+    fallback_meta = SEMANTIC_FIELD_META.get(field_key)
+    inferred_type = (
+        cat_type
+        or (fallback_meta[1] if fallback_meta else None)
+        or (
+            "date"
+            if (field_key == "day" or field_key.endswith("_date") or field_key in ("valid_from", "valid_to"))
+            else ("number" if isinstance(sample_val, (int, float, Decimal)) else "text")
+        )
+    )
+    if isinstance(custom_labels, dict) and field_key in custom_labels:
+        return custom_labels[field_key], inferred_type
+    if isinstance(cat_label, str) and cat_label:
+        return cat_label, inferred_type
+    if fallback_meta:
+        return fallback_meta
+    return get_column_caption(field_key), inferred_type
+
+
+def _semantic_scope_suffix(applied_filters, *, config=None):
     """Format applied semantic filters concisely for display headers."""
     day_from = day_to = day_eq = None
     extras = []
@@ -702,7 +728,7 @@ def _semantic_scope_suffix(applied_filters):
             elif op == "eq":
                 day_eq = val
         elif field and val not in (None, ""):
-            label = SEMANTIC_FIELD_META.get(field, (field,))[0]
+            label, _ = _semantic_field_info(field, config=config)
             if isinstance(val, (list, tuple)):
                 preview = ", ".join(str(x) for x in val[:5])
                 val_str = f"{preview} (+{len(val) - 5})" if len(val) > 5 else preview
@@ -730,11 +756,12 @@ _UNIT_METRIC_KEYS = frozenset({
 })
 
 
-def _semantic_chart_block(question, title, rows, columns, plan, has_more, source_ids):
+def _semantic_chart_block(question, title, rows, columns, plan, has_more, source_ids, *, config=None):
     """Build an optional chart block for uniform-unit semantic aggregates."""
     if not (2 <= len(rows) <= 20):
         return None
     col_types = {c["key"]: c["type"] for c in columns}
+    col_labels = {c["key"]: c["label"] for c in columns}
     num_cols = [c["key"] for c in columns if c["type"] == "number"]
     if not num_cols:
         return None
@@ -797,8 +824,8 @@ def _semantic_chart_block(question, title, rows, columns, plan, has_more, source
         unit = str(rows[0].get("unit") or "")
     elif "currency" in rows[0] and metric_key.endswith("_orig") and len({str(r.get("currency") or "") for r in rows}) == 1:
         unit = str(rows[0].get("currency") or "")
-    metric_label = SEMANTIC_FIELD_META.get(metric_key, (metric_key,))[0]
-    x_label = SEMANTIC_FIELD_META.get(primary_dim, (primary_dim,))[0]
+    metric_label = col_labels.get(metric_key) or _semantic_field_info(metric_key, config=config)[0]
+    x_label = col_labels.get(primary_dim) or _semantic_field_info(primary_dim, config=config)[0]
     is_date = col_types.get(primary_dim) == "date" and not name_dim
     vals = [p["quantity"] for p in points]
     pie_ok = (not has_more and 2 <= len(points) <= 8 and all(v >= 0 for v in vals) and sum(vals) > 0)
@@ -831,34 +858,57 @@ def _semantic_blocks(question, item, *, include_summary=True, config=None):
         join_args = item["arguments"]
         left_plan = join_args.get("left") or {}
         right_plan = join_args.get("right") or {}
-        left_c = contracts_map.get(left_plan.get("dataset") or "", {})
-        right_c = contracts_map.get(right_plan.get("dataset") or "", {})
+        extra_legs = [x for x in (join_args.get("extra_legs") or ()) if isinstance(x, dict)]
+        legs = [left_plan, right_plan, *extra_legs]
+        leg_contracts = [contracts_map.get(leg.get("dataset") or "", {}) for leg in legs]
+
         custom_labels = {}
-        if isinstance(right_c.get("field_labels"), dict):
-            custom_labels.update(right_c["field_labels"])
-        if isinstance(left_c.get("field_labels"), dict):
-            custom_labels.update(left_c["field_labels"])
+        for leg_c in reversed(leg_contracts):
+            if isinstance(leg_c.get("field_labels"), dict):
+                custom_labels.update(leg_c["field_labels"])
+
         metric_defs = {}
-        for k, v in (right_c.get("metrics") or {}).items():
-            metric_defs[k] = v
-            metric_defs[f"right_{k}"] = v
-        for k, v in (left_c.get("metrics") or {}).items():
-            metric_defs[k] = v
-            metric_defs[f"left_{k}"] = v
-        left_title = left_c.get("title") or SEMANTIC_DATASET_TITLES.get(left_plan.get("dataset") or "", left_plan.get("dataset") or "")
-        right_title = right_c.get("title") or SEMANTIC_DATASET_TITLES.get(right_plan.get("dataset") or "", right_plan.get("dataset") or "")
-        title = f"{left_title} + {right_title}" if left_title and right_title else f"Đối chiếu {contract_id}"
-        plan_dims = list(left_plan.get("dimensions") or ()) + [d for d in (right_plan.get("dimensions") or ()) if d != join_args.get("join_on")]
-        left_m = list(left_plan.get("metrics") or ())
-        right_m = list(right_plan.get("metrics") or ())
-        plan_metrics = [f"left_{m}" if m in right_m else m for m in left_m] + [f"right_{m}" if m in left_m else m for m in right_m]
+        for idx in range(len(legs) - 1, -1, -1):
+            leg_c = leg_contracts[idx]
+            prefix = ("left_" if idx == 0 else "right_") if len(legs) == 2 else f"leg{idx}_"
+            for k, v in (leg_c.get("metrics") or {}).items():
+                metric_defs[k] = v
+                metric_defs[f"{prefix}{k}"] = v
+                metric_defs[f"leg{idx}_{k}"] = v
+
+        join_on = join_args.get("join_on") or ""
+        if join_on:
+            layout = build_join_output_layout(legs, join_on)
+            for leg_idx, src_field, out_alias in (*layout["dim_sources"], *layout["metric_sources"]):
+                leg_c = leg_contracts[leg_idx] if leg_idx < len(leg_contracts) else {}
+                leg_fl = leg_c.get("field_labels") if isinstance(leg_c.get("field_labels"), dict) else {}
+                if src_field in leg_fl:
+                    custom_labels[out_alias] = leg_fl[src_field]
+                elif out_alias != src_field and src_field not in custom_labels:
+                    base_lbl, _ = _semantic_field_info(src_field, config=config)
+                    custom_labels[out_alias] = base_lbl
+                leg_metrics = leg_c.get("metrics") if isinstance(leg_c.get("metrics"), dict) else {}
+                if src_field in leg_metrics:
+                    metric_defs[out_alias] = leg_metrics[src_field]
+            plan_dims = [out_alias for _, _, out_alias in layout["dim_sources"]]
+            plan_metrics = [out_alias for _, _, out_alias in layout["metric_sources"]]
+        else:
+            plan_dims = list(left_plan.get("dimensions") or ())
+            plan_metrics = list(left_plan.get("metrics") or ())
+
+        leg_titles = [
+            c.get("title") or SEMANTIC_DATASET_TITLES.get(leg.get("dataset") or "", leg.get("dataset") or "")
+            for leg, c in zip(legs, leg_contracts)
+            if leg.get("dataset")
+        ]
+        title = " + ".join(t for t in leg_titles if t) or f"Đối chiếu {contract_id}"
         plan = {
             "dimensions": plan_dims,
             "metrics": plan_metrics,
             "filters": result.get("applied_filters") or [],
             "order_by": join_args.get("order_by") or left_plan.get("order_by") or [],
         }
-        contract = left_c
+        contract = leg_contracts[0] if leg_contracts else {}
     else:
         contract = contracts_map.get(contract_id) or {}
         custom_labels = contract.get("field_labels") if isinstance(contract.get("field_labels"), dict) else {}
@@ -871,7 +921,7 @@ def _semantic_blocks(question, item, *, include_summary=True, config=None):
         if not isinstance(plan, dict):
             plan = {}
         title = contract.get("title") or SEMANTIC_DATASET_TITLES.get(contract_id, f"Tổng hợp {contract_id or 'dữ liệu'}")
-    scope_suffix = _semantic_scope_suffix(result.get("applied_filters") or plan.get("filters"))
+    scope_suffix = _semantic_scope_suffix(result.get("applied_filters") or plan.get("filters"), config=config)
     total_rows = result.get("total_rows") if isinstance(result.get("total_rows"), int) else None
     if not rows:
         label = f"{title}{scope_suffix}: không tìm thấy dòng phù hợp với điều kiện và quyền truy cập."
@@ -900,7 +950,7 @@ def _semantic_blocks(question, item, *, include_summary=True, config=None):
                 if (mdef.get("unit_dimension") == "currency" or m.endswith("_orig")) and not curr_single:
                     continue
                 total_val = sum(float(r[m]) for r in rows)
-                lbl = custom_labels.get(m) or SEMANTIC_FIELD_META.get(m, (m,))[0]
+                lbl, _ = _semantic_field_info(m, custom_labels=custom_labels, config=config, sample_val=rows[0].get(m))
                 fmt = f"{int(total_val):,}" if float(total_val).is_integer() else f"{total_val:,.2f}"
                 unit_lbl = f" {rows[0]['unit']}" if ("unit" in rows[0] and unit_single and (mdef.get("unit_dimension") == "unit" or m in _UNIT_METRIC_KEYS)) else ""
                 sum_parts.append(f"{lbl}: {fmt}{unit_lbl}")
@@ -919,14 +969,7 @@ def _semantic_blocks(question, item, *, include_summary=True, config=None):
             ordered_keys.append(k)
     columns = []
     for key in ordered_keys:
-        if key in custom_labels:
-            col_type = "date" if (key == "day" or key.endswith("_date") or key in ("valid_from", "valid_to")) else ("number" if isinstance(rows[0].get(key), (int, float, Decimal)) else "text")
-            lbl = custom_labels[key]
-        elif key in SEMANTIC_FIELD_META:
-            lbl, col_type = SEMANTIC_FIELD_META[key]
-        else:
-            col_type = "date" if (key == "day" or key.endswith("_date") or key in ("valid_from", "valid_to")) else ("number" if isinstance(rows[0].get(key), (int, float, Decimal)) else "text")
-            lbl = get_column_caption(key)
+        lbl, col_type = _semantic_field_info(key, custom_labels=custom_labels, config=config, sample_val=rows[0].get(key))
         columns.append({"key": key, "label": lbl, "type": col_type})
     out.append({
         "type": "table",
@@ -939,7 +982,7 @@ def _semantic_blocks(question, item, *, include_summary=True, config=None):
         "filters": result.get("applied_filters") or [],
         "source_ids": source_ids,
     })
-    chart = _semantic_chart_block(question, title, rows, columns, plan, has_more, source_ids)
+    chart = _semantic_chart_block(question, title, rows, columns, plan, has_more, source_ids, config=config)
     if chart:
         out.append(chart)
     return out

@@ -1,11 +1,15 @@
 """Hybrid BM25 + 3SERP metadata + multi-clause dataset retriever (no per-question hacks)."""
 from __future__ import annotations
 
+import glob
 import math
 import os
 import re
+import threading
+import time
 import unicodedata
 from collections import Counter
+from pathlib import Path
 from typing import Any
 
 from .semantic_catalog import build_3serp_table_catalog, enrich_contract_from_dictionary
@@ -158,8 +162,145 @@ def _dataset_field_names(ds: dict[str, Any]) -> list[str]:
     return out
 
 
+def _build_document_parts(
+    ds: dict[str, Any],
+    *,
+    contract: dict[str, Any] | None = None,
+    table_catalog: dict[str, dict[str, list[str]]] | None = None,
+    field_catalog: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Assemble shared semantic document fields/3SERP metadata once for both BM25 and dense vectors."""
+    ds_id = str(ds["id"])
+    c = contract if isinstance(contract, dict) else {}
+    title = str(ds.get("title") or c.get("title") or ds_id)
+    notes = str(ds.get("notes") or c.get("notes") or "")
+    cues = [str(x) for x in (ds.get("cues") or c.get("cues") or ()) if isinstance(x, str) and x]
+    sec_cues = [str(x) for x in (ds.get("secondary_cues") or c.get("secondary_cues") or ()) if isinstance(x, str) and x]
+    cat = table_catalog if table_catalog is not None else build_3serp_table_catalog()
+    enriched = enrich_contract_from_dictionary(c, cat) if c else {"tables": [], "report_titles": [], "captions": []}
+
+    field_labels = ds.get("field_labels") or c.get("field_labels") or {}
+    fcat = field_catalog if isinstance(field_catalog, dict) else {}
+    field_parts: list[str] = []
+    for fname in _dataset_field_names(ds):
+        field_parts.append(fname.replace("_", " "))
+        if isinstance(field_labels, dict) and fname in field_labels:
+            field_parts.append(str(field_labels[fname]))
+        elif fname in fcat and isinstance(fcat[fname], dict) and fcat[fname].get("label"):
+            field_parts.append(str(fcat[fname]["label"]))
+        if fname in _COMMON_FIELD_SYNONYMS:
+            field_parts.append(_COMMON_FIELD_SYNONYMS[fname])
+
+    return {
+        "ds_id": ds_id,
+        "title": title,
+        "notes": notes,
+        "cues": cues,
+        "sec_cues": sec_cues,
+        "enriched": enriched,
+        "field_parts": field_parts,
+    }
+
+
+def document_text_for_dataset(
+    ds: dict[str, Any],
+    *,
+    contract: dict[str, Any] | None = None,
+    table_catalog: dict[str, dict[str, list[str]]] | None = None,
+    field_catalog: dict[str, Any] | None = None,
+) -> str:
+    """Build canonical Vietnamese + technical text representation of a semantic dataset for BGE-M3 / Qdrant."""
+    parts = _build_document_parts(
+        ds,
+        contract=contract,
+        table_catalog=table_catalog,
+        field_catalog=field_catalog,
+    )
+    enriched = parts["enriched"]
+    lines = [
+        f"Dataset: {parts['ds_id']} ({parts['ds_id'].replace('_', ' ')})",
+        f"Tiêu đề: {parts['title']}",
+    ]
+    if enriched["report_titles"]:
+        lines.append("Màn hình/Báo cáo 3SERP: " + "; ".join(enriched["report_titles"]))
+    if parts["cues"]:
+        lines.append("Từ khóa chính: " + ", ".join(parts["cues"]))
+    if parts["sec_cues"]:
+        lines.append("Từ khóa phụ: " + ", ".join(parts["sec_cues"]))
+    if parts["field_parts"]:
+        unique_fields = list(dict.fromkeys(parts["field_parts"]))
+        lines.append("Trường dữ liệu & chỉ tiêu: " + ", ".join(unique_fields[:60]))
+    if enriched["captions"]:
+        lines.append("Cột lưới ERP/MES: " + ", ".join(enriched["captions"][:40]))
+    if enriched["tables"]:
+        lines.append("Bảng nguồn: " + ", ".join(enriched["tables"]))
+    if parts["notes"]:
+        lines.append("Ghi chú nghiệp vụ: " + parts["notes"])
+    return "\n".join(lines)
+
+
+def catalog_documents_for_indexing(
+    config: dict[str, Any],
+    *,
+    table_catalog: dict[str, dict[str, list[str]]] | None = None,
+) -> list[dict[str, str]]:
+    """Return approved semantic contract documents formatted for Qdrant vector indexing."""
+    contracts = config.get("semantic_contracts") or {}
+    field_catalog = config.get("field_catalog") if isinstance(config.get("field_catalog"), dict) else {}
+    cat = table_catalog if table_catalog is not None else build_3serp_table_catalog()
+    docs: list[dict[str, str]] = []
+    for ds_id in sorted(contracts):
+        contract = contracts.get(ds_id)
+        if not isinstance(contract, dict) or contract.get("status") != "approved":
+            continue
+        ds = {
+            "id": ds_id,
+            "title": contract.get("title") or ds_id,
+            "dimensions": sorted(contract.get("dimensions") or ()),
+            "metrics": sorted(contract.get("metrics") or ()),
+            "filters": sorted(contract.get("filters") or ()),
+            "cues": contract.get("cues") or (),
+            "secondary_cues": contract.get("secondary_cues") or (),
+            "field_labels": contract.get("field_labels") or {},
+            "notes": contract.get("notes") or "",
+        }
+        docs.append({
+            "dataset_id": ds_id,
+            "title": str(ds["title"]),
+            "version": str(contract.get("version") or ""),
+            "text": document_text_for_dataset(
+                ds,
+                contract=contract,
+                table_catalog=cat,
+                field_catalog=field_catalog,
+            ),
+        })
+    return docs
+
+
+def fuse_rrf_scores(
+    bm25_ranked_ids: list[str] | tuple[str, ...],
+    vector_ranked_ids: list[str] | tuple[str, ...],
+    *,
+    k: int = 60,
+    bm25_weight: float = 1.0,
+    vector_weight: float = 1.0,
+) -> dict[str, float]:
+    """Compute Reciprocal Rank Fusion (RRF) scores across lexical BM25 and dense vector rankings."""
+    scores: dict[str, float] = {}
+    if bm25_weight:
+        for rank_idx, ds_id in enumerate(bm25_ranked_ids, start=1):
+            if ds_id:
+                scores[ds_id] = scores.get(ds_id, 0.0) + bm25_weight / float(k + rank_idx)
+    if vector_weight:
+        for rank_idx, ds_id in enumerate(vector_ranked_ids, start=1):
+            if ds_id:
+                scores[ds_id] = scores.get(ds_id, 0.0) + vector_weight / float(k + rank_idx)
+    return scores
+
+
 class HybridMetadataRetriever:
-    """Zero-dependency BM25 + 3SERP UI metadata + field/cue retriever over semantic datasets."""
+    """BM25 + 3SERP metadata + optional BGE-M3/Qdrant RRF hybrid retriever over semantic datasets."""
 
     def __init__(
         self,
@@ -167,10 +308,12 @@ class HybridMetadataRetriever:
         *,
         contracts: dict[str, Any] | None = None,
         table_catalog: dict[str, dict[str, list[str]]] | None = None,
+        field_catalog: dict[str, Any] | None = None,
     ) -> None:
         self.datasets = [ds for ds in datasets if isinstance(ds, dict) and ds.get("id")]
         self._contracts = contracts or {}
         self._table_catalog = table_catalog if table_catalog is not None else build_3serp_table_catalog()
+        self._field_catalog = field_catalog or {}
         self._docs_tf: list[Counter[str]] = []
         self._doc_lens: list[int] = []
         self._df: Counter[str] = Counter()
@@ -179,24 +322,19 @@ class HybridMetadataRetriever:
         self._build_index()
 
     def _build_document_tokens(self, ds: dict[str, Any]) -> tuple[list[str], dict[str, Any]]:
-        ds_id = str(ds["id"])
-        contract = self._contracts.get(ds_id) if isinstance(self._contracts.get(ds_id), dict) else {}
-        title = str(ds.get("title") or contract.get("title") or ds_id)
-        notes = str(ds.get("notes") or contract.get("notes") or "")
-        cues = [str(c) for c in (ds.get("cues") or contract.get("cues") or ()) if isinstance(c, str) and c]
-        sec_cues = [str(c) for c in (ds.get("secondary_cues") or contract.get("secondary_cues") or ()) if isinstance(c, str) and c]
-
-        enriched = enrich_contract_from_dictionary(contract, self._table_catalog) if contract else {"tables": [], "report_titles": [], "captions": []}
-
-        # Build field text from declared field_labels + common semantic labels.
-        field_labels = (ds.get("field_labels") or contract.get("field_labels") or {})
-        field_parts: list[str] = []
-        for fname in _dataset_field_names(ds):
-            field_parts.append(fname.replace("_", " "))
-            if isinstance(field_labels, dict) and fname in field_labels:
-                field_parts.append(str(field_labels[fname]))
-            if fname in _COMMON_FIELD_SYNONYMS:
-                field_parts.append(_COMMON_FIELD_SYNONYMS[fname])
+        parts = _build_document_parts(
+            ds,
+            contract=self._contracts.get(str(ds["id"])),
+            table_catalog=self._table_catalog,
+            field_catalog=self._field_catalog,
+        )
+        ds_id = parts["ds_id"]
+        title = parts["title"]
+        notes = parts["notes"]
+        cues = parts["cues"]
+        sec_cues = parts["sec_cues"]
+        enriched = parts["enriched"]
+        field_parts = parts["field_parts"]
 
         # Weighted token bag (deduplicated per section so length normalization works cleanly):
         # title + 3SERP report titles (2x), cues + captions + fields (1-2x), notes + tables (1x).
@@ -276,8 +414,10 @@ class HybridMetadataRetriever:
         self,
         question: str,
         history: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
+        *,
+        vector_hits: list[str] | tuple[str, ...] | None = None,
     ) -> list[tuple[float, dict[str, Any]]]:
-        """Rank datasets using BM25 + 3SERP metadata + multi-clause boosting."""
+        """Rank datasets using BM25 + 3SERP metadata + multi-clause boosting + optional BGE-M3 Qdrant RRF."""
         user_history = [
             str(m.get("content") or "")
             for m in history
@@ -306,21 +446,101 @@ class HybridMetadataRetriever:
                 if best_idx >= 0 and best_score > 0.5:
                     clause_winners[best_idx] = max(clause_winners.get(best_idx, 0.0), best_score * 0.65)
 
-        scored: list[tuple[float, dict[str, Any]]] = []
-        for idx, ds in enumerate(self.datasets):
+        raw_scores: list[tuple[int, float]] = []
+        for idx in range(len(self.datasets)):
             bm25_q = self._bm25_score(idx, q_tokens)
             bm25_hist = 0.35 * self._bm25_score(idx, hist_tokens) if hist_tokens else 0.0
             cue_bonus = self._exact_cue_bonus(idx, q_norm, combined_norm)
             clause_bonus = clause_winners.get(idx, 0.0)
-            total = bm25_q + bm25_hist + cue_bonus + clause_bonus
-            # Suppress faint single-stopword noise when no strong cue/phrase matched.
-            scored.append((round(total, 4), ds))
+            raw_scores.append((idx, bm25_q + bm25_hist + cue_bonus + clause_bonus))
+
+        vec_ids = (
+            [str(v) for v in vector_hits if v]
+            if vector_hits is not None
+            else optional_qdrant_dataset_hints(question, limit=12)
+        )
+        rrf_vec: dict[str, float] = {}
+        if vec_ids:
+            allowed_ids = {str(ds["id"]) for ds in self.datasets}
+            filtered_vec_ids = [vid for vid in vec_ids if vid in allowed_ids]
+            if filtered_vec_ids:
+                rrf_vec = fuse_rrf_scores([], filtered_vec_ids, k=60, bm25_weight=0.0, vector_weight=1.0)
+
+        scored: list[tuple[float, dict[str, Any]]] = []
+        for idx, base_total in raw_scores:
+            ds = self.datasets[idx]
+            vec_boost = 450.0 * rrf_vec.get(str(ds["id"]), 0.0) if rrf_vec else 0.0
+            scored.append((round(base_total + vec_boost, 4), ds))
 
         scored.sort(key=lambda pair: (-pair[0], pair[1]["id"]))
         return scored
 
 
 _INDEX_CACHE: dict[tuple[str, ...], HybridMetadataRetriever] = {}
+_EMBEDDER_LOCK = threading.Lock()
+_EMBEDDER_INSTANCE: Any = None
+_EMBEDDER_FAILED_AT: float = 0.0
+_QDRANT_UNAVAILABLE_UNTIL: float = 0.0
+
+
+def resolve_local_embedding_model_path() -> str | None:
+    """Locate cached local BGE-M3 / RAG embedding snapshot without network downloads."""
+    explicit = os.getenv("HTMP_SEMANTIC_EMBEDDING_MODEL_PATH", "").strip()
+    if explicit and Path(explicit).exists():
+        return explicit
+    model_name = os.getenv("RAG_EMBEDDING_MODEL", "BAAI/bge-m3").strip() or "BAAI/bge-m3"
+    repo_dir = f"models--{model_name.replace('/', '--')}"
+    roots = [
+        "/app/backend/data/cache/embedding/models",
+        os.path.expanduser("~/.cache/huggingface/hub"),
+    ]
+    for root in roots:
+        snaps = sorted(glob.glob(f"{root}/{repo_dir}/snapshots/*"))
+        if snaps:
+            return snaps[-1]
+    return None
+
+
+def _get_local_embedder() -> Any:
+    """Lazily initialize CPU SentenceTransformer once from local cache only."""
+    global _EMBEDDER_INSTANCE, _EMBEDDER_FAILED_AT
+    if _EMBEDDER_INSTANCE is not None:
+        return _EMBEDDER_INSTANCE
+    if time.monotonic() - _EMBEDDER_FAILED_AT < 60.0:
+        return None
+    with _EMBEDDER_LOCK:
+        if _EMBEDDER_INSTANCE is not None:
+            return _EMBEDDER_INSTANCE
+        model_path = resolve_local_embedding_model_path()
+        if not model_path:
+            _EMBEDDER_FAILED_AT = time.monotonic()
+            return None
+        try:
+            from sentence_transformers import SentenceTransformer
+
+            _EMBEDDER_INSTANCE = SentenceTransformer(
+                model_path,
+                device="cpu",
+                local_files_only=True,
+            )
+            return _EMBEDDER_INSTANCE
+        except Exception:
+            _EMBEDDER_FAILED_AT = time.monotonic()
+            return None
+
+
+def encode_texts_bge_m3(texts: list[str] | tuple[str, ...]) -> list[list[float]]:
+    """Encode texts locally with cached BAAI/bge-m3 when available; return [] on error."""
+    if not texts:
+        return []
+    embedder = _get_local_embedder()
+    if embedder is None:
+        return []
+    try:
+        vecs = embedder.encode(list(texts), normalize_embeddings=True, show_progress_bar=False)
+        return [vec.tolist() if hasattr(vec, "tolist") else [float(x) for x in vec] for vec in vecs]
+    except Exception:
+        return []
 
 
 def rank_datasets(
@@ -329,6 +549,8 @@ def rank_datasets(
     datasets: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
     *,
     contracts: dict[str, Any] | None = None,
+    field_catalog: dict[str, Any] | None = None,
+    vector_hits: list[str] | tuple[str, ...] | None = None,
 ) -> list[tuple[float, dict[str, Any]]]:
     """Cached entry point for hybrid ranking of semantic datasets."""
     valid = [ds for ds in datasets if isinstance(ds, dict) and ds.get("id")]
@@ -342,33 +564,50 @@ def rank_datasets(
     if retriever is None:
         if len(_INDEX_CACHE) > 16:
             _INDEX_CACHE.clear()
-        retriever = HybridMetadataRetriever(valid, contracts=contracts)
+        retriever = HybridMetadataRetriever(valid, contracts=contracts, field_catalog=field_catalog)
         _INDEX_CACHE[cache_key] = retriever
-    return retriever.rank(question, history=history)
+    return retriever.rank(question, history=history, vector_hits=vector_hits)
 
 
-def optional_qdrant_dataset_hints(question: str) -> list[str]:
-    """Optional Qdrant vector lookup when HTMP_SEMANTIC_QDRANT_COLLECTION is enabled."""
-    collection = os.getenv("HTMP_SEMANTIC_QDRANT_COLLECTION", "").strip()
+def optional_qdrant_dataset_hints(question: str, *, limit: int = 10) -> list[str]:
+    """Fail-open dense BGE-M3 + Qdrant vector lookup when QDRANT_URI and collection exist."""
+    global _QDRANT_UNAVAILABLE_UNTIL
+    if os.getenv("HTMP_SEMANTIC_VECTOR_ENABLED", "1").strip().lower() in ("0", "false", "off", "disabled"):
+        return []
     qdrant_uri = os.getenv("QDRANT_URI", "").strip()
-    embed_url = os.getenv("HTMP_SEMANTIC_EMBEDDING_URL", "").strip()
-    if not (collection and qdrant_uri and embed_url):
+    collection = os.getenv("HTMP_SEMANTIC_QDRANT_COLLECTION", "htmp_erp_semantic_catalog").strip()
+    if not (collection and qdrant_uri) or not (question or "").strip():
+        return []
+    if time.monotonic() < _QDRANT_UNAVAILABLE_UNTIL:
         return []
     try:
         import httpx
+
         headers = {}
         api_key = os.getenv("QDRANT_API_KEY", "").strip()
         if api_key:
             headers["api-key"] = api_key
+        embed_url = os.getenv("HTMP_SEMANTIC_EMBEDDING_URL", "").strip()
+        min_score = float(os.getenv("HTMP_SEMANTIC_VECTOR_MIN_SCORE", "0.38"))
+        vector: list[float] | None = None
         with httpx.Client(timeout=2.0, trust_env=False) as client:
-            emb_resp = client.post(embed_url, json={"input": question})
-            emb_resp.raise_for_status()
-            vector = emb_resp.json()["data"][0]["embedding"]
+            if embed_url:
+                emb_resp = client.post(embed_url, json={"input": question})
+                emb_resp.raise_for_status()
+                vector = emb_resp.json()["data"][0]["embedding"]
+            else:
+                vecs = encode_texts_bge_m3([question])
+                vector = vecs[0] if vecs else None
+            if not vector:
+                return []
             search_resp = client.post(
                 f"{qdrant_uri.rstrip('/')}/collections/{collection}/points/search",
                 headers=headers,
-                json={"vector": vector, "limit": 5, "with_payload": True},
+                json={"vector": vector, "limit": limit, "score_threshold": min_score, "with_payload": True},
             )
+            if search_resp.status_code == 404:
+                _QDRANT_UNAVAILABLE_UNTIL = time.monotonic() + 60.0
+                return []
             search_resp.raise_for_status()
             return [
                 str(pt.get("payload", {}).get("dataset_id"))
@@ -376,4 +615,5 @@ def optional_qdrant_dataset_hints(question: str) -> list[str]:
                 if isinstance(pt, dict) and pt.get("payload", {}).get("dataset_id")
             ]
     except Exception:
+        _QDRANT_UNAVAILABLE_UNTIL = time.monotonic() + 60.0
         return []

@@ -26,6 +26,7 @@ sys.path.insert(0, str(ROOT))
 from erp_ai.agent import Limits, run_agent
 from erp_ai.agent_backend import ReportBackend
 from erp_ai.agent_runtime import QwenClient
+from erp_ai.semantic_model import load_erp_config
 
 
 @dataclass(frozen=True)
@@ -734,11 +735,19 @@ def build_holdout_cases() -> list[GoldenCase]:
             expected_tools=("query_semantic_plan",),
             expected_dataset="mes_machine_logs_and_cavity",
         ),
+        GoldenCase(
+            case_id="holdout_3way_join_machine_stop_output_oee_oct2026",
+            question="Top 5 máy dừng lâu nhất tháng 10/2026 kèm sản lượng hoàn thành thực tế và OEE từng máy",
+            history=(),
+            user=user_ok,
+            expected_statuses=("answered", "partial"),
+            expected_tools=("query_semantic_join", "query_semantic_plan"),
+        ),
     ]
 
 
 async def _run_dry_eval(cases: list[GoldenCase]) -> list[dict[str, Any]]:
-    cfg = json.loads((ROOT / "config/erp-agent.json").read_text())
+    cfg = load_erp_config(ROOT)
     all_reports = [r["id"] for r in cfg["reports"]]
     all_datasets = list(cfg["semantic_contracts"])
     grants = {"golden-eval": {"erp_user_id": 11, "reports": all_reports, "semantic_datasets": all_datasets}}
@@ -746,10 +755,15 @@ async def _run_dry_eval(cases: list[GoldenCase]) -> list[dict[str, Any]]:
     async def dry_db(sql, params, limits):
         if "AS _probe" in sql:
             return []
-        if "WITH _left AS (" in sql or ("FROM (" in sql and "AS scoped_dataset" in sql):
+        if "WITH _left AS (" in sql or "WITH _leg0 AS (" in sql or ("FROM (" in sql and "AS scoped_dataset" in sql):
             # Parse outer SELECT col AS "alias" list from compiled semantic query or join for synthetic dry-run.
             import re
-            head = sql.rsplit(" FROM _left ", 1)[0].rsplit("SELECT ", 1)[-1] if "WITH _left AS (" in sql else sql.split(" FROM ", 1)[0]
+            if "WITH _left AS (" in sql:
+                head = sql.rsplit(" FROM _left ", 1)[0].rsplit("SELECT ", 1)[-1]
+            elif "WITH _leg0 AS (" in sql:
+                head = sql.rsplit(" FROM _leg0 ", 1)[0].rsplit("SELECT ", 1)[-1]
+            else:
+                head = sql.split(" FROM ", 1)[0]
             aliases = re.findall(r'AS "([^"]+)"', head)
             if "2026-08-13" in str(params) or "public.ct00" in sql:
                 return []
@@ -766,7 +780,7 @@ async def _run_dry_eval(cases: list[GoldenCase]) -> list[dict[str, Any]]:
                     row[col] = "VND"
                 elif col in ("day", "delivery_date", "expiry_date", "mfg_date", "valid_from", "valid_to", "last_maint_date", "required_date", "confirmed_delivery_date"):
                     row[col] = "2026-10-15"
-                elif col in numeric_cols or col.startswith(("left_", "right_")):
+                elif col in numeric_cols or col.startswith(("left_", "right_", "leg0_", "leg1_", "leg2_")):
                     row[col] = 10
                 else:
                     row[col] = f"SYNTH-{col}"
@@ -801,6 +815,8 @@ async def _run_dry_eval(cases: list[GoldenCase]) -> list[dict[str, Any]]:
                 return {"tool_calls": [{"id": "c1", "type": "function", "function": {"name": "query_semantic_join", "arguments": json.dumps({"left": {"dataset": "purchase_prices_current", "dimensions": ["material", "supplier_name", "currency", "unit"], "metrics": ["unit_price_vnd"], "filters": [{"field": "material", "op": "eq", "value": "ABS014B"}]}, "right": {"dataset": "purchase_order_lines", "dimensions": ["material"], "metrics": ["quantity", "avg_price_vnd"], "filters": [{"field": "material", "op": "eq", "value": "ABS014B"}, {"field": "day", "op": "gte", "value": "2026-01-01"}, {"field": "day", "op": "lte", "value": "2026-11-26"}]}, "join_on": "material", "join_type": "left"})}}]}
             if case.case_id == "holdout_join_downtime_and_oee_oct2026":
                 return {"tool_calls": [{"id": "c1", "type": "function", "function": {"name": "query_semantic_join", "arguments": json.dumps({"left": {"dataset": "mes_downtime_lines", "dimensions": ["machine"], "metrics": ["stop_minutes"], "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}], "limit": 5}, "right": {"dataset": "mes_oee_daily", "dimensions": ["machine"], "metrics": ["oee_pct", "availability_pct"], "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}]}, "join_on": "machine", "join_type": "left"})}}]}
+            if case.case_id == "holdout_3way_join_machine_stop_output_oee_oct2026":
+                return {"tool_calls": [{"id": "c1", "type": "function", "function": {"name": "query_semantic_join", "arguments": json.dumps({"left": {"dataset": "mes_downtime_lines", "dimensions": ["machine"], "metrics": ["stop_minutes"], "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}], "limit": 5}, "right": {"dataset": "mes_production_output", "dimensions": ["machine", "unit"], "metrics": ["complete_qty"], "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}]}, "extra_legs": [{"dataset": "mes_oee_daily", "dimensions": ["machine"], "metrics": ["oee_pct"], "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}]}], "join_on": "machine", "join_type": "left"})}}]}
             if case.expected_dataset:
                 from erp_ai.context_hints import extract_context_hints
                 ds = case.expected_dataset
@@ -851,7 +867,7 @@ async def _run_live_eval(cases: list[GoldenCase], model_name: str, model_url: st
     dsn = _resolve_dsn()
     if not dsn:
         raise RuntimeError("Missing HTMP_AGENT_DB_DSN or HTMP_DB_* configuration for --live mode")
-    cfg = json.loads((ROOT / "config/erp-agent.json").read_text())
+    cfg = load_erp_config(ROOT)
     all_reports = [r["id"] for r in cfg["reports"]]
     all_datasets = [k for k, v in cfg["semantic_contracts"].items() if isinstance(v, dict) and v.get("status") == "approved"]
     grants = {"golden-eval": {"erp_user_id": 11, "reports": all_reports, "semantic_datasets": all_datasets}}

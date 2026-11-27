@@ -7,12 +7,15 @@ import re
 import unicodedata
 from datetime import date
 from pathlib import Path
+from typing import Any
 from .validator import validate_inventory_balance_result
 from .context_hints import _norm as _norm_hint_text, extract_context_hints, score_datasets
+from .entities import extract_entities
 from .semantic_executor import execute_joined_plan, execute_plan
+from .semantic_model import load_erp_config
 from .semantic_normalizer import normalize_joined_plan, normalize_semantic_plan, parse_plan_arguments
 from .semantic_query import PlanError, _VN_DST, _VN_SRC, identifier
-from .semantic_retriever import has_word_cue, normalize_text
+from .semantic_retriever import has_word_cue, normalize_text, rank_datasets
 
 
 def tokens(value):
@@ -96,8 +99,8 @@ def _semantic_leg_schema() -> dict:
                     "type": "object",
                     "properties": {
                         "field": {"type": "string"},
-                        "op": {"type": "string", "enum": ["eq", "gte", "lte", "contains"]},
-                        "value": {"type": "string"},
+                        "op": {"type": "string", "enum": ["eq", "gte", "lte", "contains", "in"]},
+                        "value": {"description": "Giá trị lọc (với op='in', dùng chuỗi ngăn cách bởi dấu phẩy hoặc mảng)."},
                     },
                     "required": ["field", "op", "value"],
                 },
@@ -125,15 +128,21 @@ STRUCTURED_SEMANTIC_JOIN_SPEC = {
     "function": {
         "name": "query_semantic_join",
         "description": (
-            "Ghép nối an toàn hai tập dữ liệu semantic có chung khóa thực thể trong `available_joins` "
+            "Ghép nối an toàn 2 hoặc 3 tập dữ liệu semantic có chung khóa thực thể trong `available_joins` "
             "(tổng hợp từng vế trước rồi nối theo `join_on`, tránh nhân bản dòng). "
-            "Chỉ dùng khi câu hỏi đòi hỏi kết hợp chỉ tiêu từ 2 dataset."
+            "Dùng khi câu hỏi đòi hỏi kết hợp chỉ tiêu từ 2-3 dataset (truyền vế thứ 3 vào `extra_legs` nếu cần)."
         ),
         "parameters": {
             "type": "object",
             "properties": {
                 "left": _semantic_leg_schema(),
                 "right": _semantic_leg_schema(),
+                "extra_legs": {
+                    "type": "array",
+                    "maxItems": 1,
+                    "items": _semantic_leg_schema(),
+                    "description": "Tùy chọn tối đa 1 tập dữ liệu thứ 3 có chung khóa `join_on` để đối chiếu 3 chiều.",
+                },
                 "join_on": {"type": "string"},
                 "join_type": {"type": "string", "enum": ["left", "inner"]},
                 "order_by": {
@@ -216,6 +225,11 @@ class ReportBackend:
                 report_specs.append(tool_spec)
         self.specs = list(BASE_SPECS) + report_specs
         self.names = {s["function"]["name"] for s in self.specs}
+
+    @classmethod
+    def from_root(cls, root, grants, db):
+        """Construct ReportBackend loading unified config + Entity-Fact semantic model."""
+        return cls(root, load_erp_config(root), grants, db)
 
     def grant(self, user):
         # user is injected by the server, not accepted in tool arguments.
@@ -429,12 +443,20 @@ class ReportBackend:
 
         core_names = {"search_semantic_datasets", "search_knowledge"}
         retired_when_semantic = {"search_schema", "describe_table"}
-        history_text = " ".join(
+        user_msgs = [
             str(m.get("content") or "")
             for m in (history or ())[-4:]
-            if isinstance(m, dict) and m.get("role") == "user"
-        )
+            if isinstance(m, dict) and m.get("role") == "user" and isinstance(m.get("content"), str)
+        ]
+        history_text = " ".join(user_msgs)
         text = _norm_hint_text(f"{history_text} {question}")
+        detected_keys = {
+            k
+            for msg in (*user_msgs, question or "")
+            if msg
+            for k, v in extract_entities(msg).items()
+            if v
+        }
         selected_lookups = set()
 
         for report in self.reports.values():
@@ -445,6 +467,9 @@ class ReportBackend:
                 core_names.add(tool_name)
             if report.get("retired_when_semantic"):
                 retired_when_semantic.add(tool_name)
+            req_entities = report.get("require_detected_entities") or ()
+            if req_entities and not all(ent in detected_keys for ent in req_entities):
+                continue
             cues = report.get("cues") or ()
             exclude_cues = report.get("exclude_cues") or ()
             matched_cue = any(
@@ -478,11 +503,15 @@ class ReportBackend:
         if name == "query_semantic_join":
             if not isinstance(args, dict):
                 raise ValueError("arguments")
-            allowed_keys = {"left", "right", "join_on", "join_type", "order_by", "limit"}
+            allowed_keys = {"left", "right", "extra_legs", "join_on", "join_type", "order_by", "limit"}
             if not {"left", "right", "join_on"}.issubset(set(args)) or not set(args).issubset(allowed_keys):
                 raise ValueError("arguments")
             if not isinstance(args.get("left"), dict) or not isinstance(args.get("right"), dict):
                 raise ValueError("arguments")
+            if "extra_legs" in args and args["extra_legs"] is not None:
+                extra = args["extra_legs"]
+                if not isinstance(extra, list) or len(extra) > 1 or any(not isinstance(x, dict) for x in extra):
+                    raise ValueError("arguments")
             if not isinstance(args.get("join_on"), str) or not args["join_on"].strip():
                 raise ValueError("arguments")
             return
@@ -603,6 +632,75 @@ class ReportBackend:
             f"Không có dữ liệu khớp '{fname}={fval}'. Giá trị thực tế hiện có cho '{fname}' trong phạm vi này: "
             f"{', '.join(vals[:12])}. Hãy gọi lại query_semantic_plan với giá trị khớp chính xác hoặc bỏ bộ lọc '{fname}' nếu muốn xem toàn bộ."
         )
+
+    def _suggest_datasets_for_error(
+        self,
+        user,
+        *,
+        ds_id: str | None = None,
+        parsed_plan: dict | None = None,
+    ) -> tuple[list[dict], str]:
+        scoring = self.semantic_datasets_for(user, include_cues=True)
+        contracts = self.config.get("semantic_contracts", {})
+        parts = [str(ds_id or "").replace("_", " ")]
+        if isinstance(parsed_plan, dict):
+            for k in ("dimensions", "metrics"):
+                vals = parsed_plan.get(k)
+                if isinstance(vals, list):
+                    parts.extend(str(v).replace("_", " ") for v in vals)
+            for f in parsed_plan.get("filters") or ():
+                if isinstance(f, dict) and f.get("field"):
+                    parts.append(str(f["field"]).replace("_", " "))
+        query_text = " ".join(p for p in parts if p).strip() or "tong hop erp mes"
+        ranked = rank_datasets(
+            query_text,
+            datasets=scoring,
+            contracts=contracts,
+            field_catalog=self.config.get("field_catalog"),
+        )
+        suggestions = []
+        for score, ds in ranked[:6]:
+            if score <= 0 and suggestions:
+                break
+            suggestions.append({
+                "id": ds["id"],
+                "title": ds.get("title", ds["id"]),
+                "dimensions": ds.get("dimensions", ())[:12],
+                "metrics": ds.get("metrics", ()),
+                "filters": ds.get("filters", ())[:12],
+                "require_bounded_date": ds.get("require_bounded_date", True),
+            })
+        if not suggestions and scoring:
+            suggestions = [
+                {
+                    "id": ds["id"],
+                    "title": ds.get("title", ds["id"]),
+                    "dimensions": ds.get("dimensions", ())[:12],
+                    "metrics": ds.get("metrics", ()),
+                    "filters": ds.get("filters", ())[:12],
+                    "require_bounded_date": ds.get("require_bounded_date", True),
+                }
+                for ds in scoring[:6]
+            ]
+        allowed_reports = self.allowed(user)
+        clean_id = (ds_id or "").strip().removeprefix("query_")
+        matched_report = allowed_reports.get(clean_id)
+        if not matched_report:
+            matched_report = next(
+                (r for r in allowed_reports.values() if r.get("tool_name") in (ds_id, f"query_{clean_id}")),
+                None,
+            )
+        extra_note = ""
+        if matched_report and not matched_report.get("retired_when_semantic") and not matched_report.get("require_detected_entities"):
+            extra_note = f" ('{ds_id}' là tên báo cáo `{matched_report.get('tool_name')}`, không phải dataset semantic)"
+        elif matched_report:
+            extra_note = f" ('{ds_id}' là báo cáo tra cứu đơn lẻ theo mã cụ thể, KHÔNG phải dataset tổng hợp semantic)"
+        hint = (
+            f"Dataset '{ds_id}' không hợp lệ hoặc không được phép{extra_note}. "
+            "KHÔNG tự bịa tên dataset; hãy chọn ĐÚNG một `id` trong `suggested_datasets` "
+            "(hoặc gọi `search_semantic_datasets`) và GỌI LẠI NGAY `query_semantic_plan`."
+        )
+        return suggestions, hint
 
     async def execute(self, name, args, user, limits):
         if not self.authorized(user):
@@ -797,6 +895,13 @@ class ReportBackend:
                         )
                     if c_meta.get("notes"):
                         err["notes"] = c_meta["notes"]
+                elif str(exc) == "dataset_forbidden" or not isinstance(c_meta, dict):
+                    suggestions, disambig_hint = self._suggest_datasets_for_error(
+                        user, ds_id=ds_id, parsed_plan=parsed_plan
+                    )
+                    err["hint"] = disambig_hint
+                    if suggestions:
+                        err["suggested_datasets"] = suggestions
                 return err
             except (ValueError, TypeError):
                 return {"error": "invalid_semantic_plan", "error_code": "invalid_json"}
@@ -813,11 +918,25 @@ class ReportBackend:
                     limits=limits,
                 )
             except PlanError as exc:
-                return {
+                err_join: dict[str, Any] = {
                     "error": "invalid_semantic_plan",
                     "error_code": str(exc),
-                    "hint": f"Lỗi kế hoạch ghép nối ({exc}). Kiểm tra left/right dataset, join_on nằm trong dimensions cả hai vế và khoảng ngày bắt buộc; hoặc gọi tuần tự query_semantic_plan.",
+                    "hint": f"Lỗi kế hoạch ghép nối ({exc}). Kiểm tra left/right/extra_legs dataset, join_on nằm trong dimensions mọi vế và khoảng ngày bắt buộc; hoặc gọi tuần tự query_semantic_plan.",
                 }
+                if str(exc) == "dataset_forbidden" and isinstance(args, dict):
+                    contracts = self.config.get("semantic_contracts", {})
+                    for leg_candidate in (args.get("left"), args.get("right"), *(args.get("extra_legs") or ())):
+                        if isinstance(leg_candidate, dict):
+                            leg_ds = leg_candidate.get("dataset")
+                            if not isinstance(contracts.get(leg_ds or ""), dict):
+                                suggestions, disambig_hint = self._suggest_datasets_for_error(
+                                    user, ds_id=leg_ds, parsed_plan=leg_candidate
+                                )
+                                err_join["hint"] = disambig_hint
+                                if suggestions:
+                                    err_join["suggested_datasets"] = suggestions
+                                break
+                return err_join
             except (ValueError, TypeError):
                 return {"error": "invalid_semantic_plan", "error_code": "invalid_json"}
         if name in ("search_knowledge", "search_schema"):

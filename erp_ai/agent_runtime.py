@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .agent import Limits, run_agent
 from .agent_backend import ReportBackend
+from .semantic_model import load_erp_config
 
 
 def _extract_inline_tool_calls(message, tools):
@@ -96,7 +97,7 @@ async def answer(question, user, history=(), on_status=None):
     if not dsn:
         return {"status": "configuration_error", "answer": "Chưa cấu hình kết nối ERP staging chỉ đọc."}
     root = Path(os.environ.get("HTMP_AGENT_ROOT", "/app/backend" if Path("/app/backend/config/erp-agent.json").exists() else Path(__file__).resolve().parents[1]))
-    config = json.loads((root / "config/erp-agent.json").read_text())
+    config = load_erp_config(root)
     grants = json.loads(os.getenv("HTMP_AGENT_GRANTS", "{}"))
     if not grants:
         all_reports = [r["id"] for r in config.get("reports", [])]

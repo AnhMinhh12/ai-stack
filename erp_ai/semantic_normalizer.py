@@ -397,18 +397,23 @@ def normalize_joined_plan(
     max_rows: int = 50,
     question: str = "",
 ) -> dict[str, Any]:
-    """Normalize both legs of a semantic join plan and ensure the join key is grouped."""
+    """Normalize 2 or 3 legs of a semantic join plan and ensure the join key is grouped."""
     if not isinstance(join_plan, dict):
         raise PlanError("invalid_plan")
     left_raw = join_plan.get("left")
     right_raw = join_plan.get("right")
+    extra_raw = join_plan.get("extra_legs")
     join_on = join_plan.get("join_on")
     if not isinstance(left_raw, dict) or not isinstance(right_raw, dict) or not isinstance(join_on, str) or not join_on:
         raise PlanError("invalid_plan")
+    if extra_raw is not None:
+        if not isinstance(extra_raw, list) or len(extra_raw) > 1 or any(not isinstance(x, dict) for x in extra_raw):
+            raise PlanError("invalid_plan")
 
     left_copy = copy.deepcopy(left_raw)
     right_copy = copy.deepcopy(right_raw)
-    for leg in (left_copy, right_copy):
+    extra_copies = [copy.deepcopy(x) for x in (extra_raw or ())]
+    for leg in (left_copy, right_copy, *extra_copies):
         dims = leg.get("dimensions")
         if dims is None:
             leg["dimensions"] = [join_on]
@@ -417,12 +422,15 @@ def normalize_joined_plan(
 
     left_norm = normalize_semantic_plan(left_copy, contracts, max_rows=max_rows, question=question)
     right_norm = normalize_semantic_plan(right_copy, contracts, max_rows=200, question="")
+    extra_norms = [normalize_semantic_plan(leg, contracts, max_rows=200, question="") for leg in extra_copies]
     out: dict[str, Any] = {
         "left": left_norm,
         "right": right_norm,
         "join_on": join_on,
         "join_type": str(join_plan.get("join_type") or "left").strip().lower(),
     }
+    if extra_norms:
+        out["extra_legs"] = extra_norms
     if join_plan.get("order_by") is not None:
         out["order_by"] = _coerce_order_by(join_plan["order_by"])
     raw_limit = join_plan.get("limit")

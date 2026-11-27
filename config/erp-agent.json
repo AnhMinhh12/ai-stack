@@ -46,11 +46,15 @@
       ],
       "tool_name": "query_allowed_records",
       "tool_description": "Đọc chi tiết và tổng hợp dòng phiếu xuất kho bán hàng (ph81/ct81). BẮT BUỘC có mã vật tư (material) và khoảng ngày ISO (tối đa 31 ngày). Chỉ dùng cho xuất kho bán hàng; KHÔNG dùng cho tồn kho, BOM, bảng giá/MOQ, QC, đơn hàng hay master khách hàng. Sử dụng trường summary trong kết quả để lấy tổng số lượng và số dòng toàn kỳ.",
+      "retired_when_semantic": true,
       "cues": [
         "xuat ban",
         "xuat kho ban",
         "hda",
         "lot"
+      ],
+      "require_detected_entities": [
+        "ma_vt"
       ],
       "param_schema": {
         "report_id": {
@@ -190,6 +194,9 @@
         "ncc",
         "dmgiamua"
       ],
+      "require_detected_entities": [
+        "ma_vt"
+      ],
       "param_schema": {
         "material": {
           "type": "identifier",
@@ -240,6 +247,9 @@
         "loai nhua",
         "hat nhua",
         "cau truc"
+      ],
+      "require_detected_entities": [
+        "ma_vt"
       ],
       "param_schema": {
         "material": {
@@ -372,6 +382,9 @@
         "khach hang",
         "thuoc khach"
       ],
+      "require_detected_entities": [
+        "ma_vt"
+      ],
       "param_schema": {
         "material": {
           "type": "identifier",
@@ -416,6 +429,9 @@
         "con bao nhieu",
         "kho nao",
         "tung kho"
+      ],
+      "require_detected_entities": [
+        "ma_vt"
       ],
       "param_schema": {
         "material": {
@@ -473,6 +489,9 @@
         "con bao nhieu",
         "kho nao",
         "tung kho"
+      ],
+      "require_detected_entities": [
+        "ma_vt"
       ],
       "param_schema": {
         "material": {
@@ -557,6 +576,9 @@
         "nhap kho",
         "phieu nhap",
         "dieu chuyen"
+      ],
+      "require_detected_entities": [
+        "ma_vt"
       ],
       "param_schema": {
         "material": {
@@ -726,6 +748,9 @@
         "pallet",
         "packs0"
       ],
+      "require_detected_entities": [
+        "ma_vt"
+      ],
       "param_schema": {
         "material": {
           "type": "identifier",
@@ -812,6 +837,9 @@
         "ton khuon",
         "ton kho theo khuon"
       ],
+      "require_detected_entities": [
+        "ma_vt"
+      ],
       "param_schema": {
         "material": {
           "type": "identifier",
@@ -857,6 +885,7 @@
       ],
       "tool_name": "query_sales_orders",
       "tool_description": "Tra cứu đơn hàng bán (SO) trong kỳ theo mã khách hàng (customer: ví dụ KH0015) và khoảng ngày (date_from, date_to). Dùng để lấy data đơn hàng hoặc kiểm tra mã chưa link giá chuẩn (gia_chuan = 0).",
+      "retired_when_semantic": true,
       "cues": [
         "khach hang",
         "thuoc khach",
@@ -997,6 +1026,9 @@
         "ncc",
         "dmgiamua"
       ],
+      "require_detected_entities": [
+        "ma_vt"
+      ],
       "param_schema": {
         "customer": {
           "type": "identifier",
@@ -1040,10 +1072,14 @@
       ],
       "tool_name": "query_delivery_order",
       "tool_description": "Tra cứu trạng thái lệnh giao hàng (delivery_code: số chứng từ TO2, ví dụ 001-2610-001811) và thời điểm tạo lập.",
+      "retired_when_semantic": true,
       "cues": [
         "lenh giao",
         "to2",
         "giao hang"
+      ],
+      "require_detected_entities": [
+        "so_ct"
       ],
       "param_schema": {
         "delivery_code": {
@@ -1082,6 +1118,9 @@
         "tem",
         "oqc",
         "khoa lo"
+      ],
+      "require_detected_entities": [
+        "ma_vt"
       ],
       "param_schema": {
         "material": {
@@ -1123,6 +1162,7 @@
       ],
       "tool_name": "query_replacement_orders",
       "tool_description": "Tra cứu lệnh giao hàng giao bù NG (mã giao dịch 10) theo mã vật tư (material) và khoảng ngày (date_from, date_to).",
+      "retired_when_semantic": true,
       "cues": [
         "giao bu",
         "doi tra",
@@ -1539,8 +1579,19 @@
       "title": "Tổng hợp xuất kho bán hàng (HDA: ph81/ct81)",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "doanh thu",
+        "xuat ban",
+        "xuat kho ban",
+        "hda"
+      ],
+      "secondary_cues": [
+        "don hang ban",
+        "don ban",
+        "so1"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT h.ma_kh AS customer, coalesce(k.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, h.so_ct AS doc_no, h.status::text AS status, coalesce(tt.statusname, h.status::text, '') AS status_name, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, d.so_luong AS quantity, d.tien2 AS revenue_vnd, d.tien_nt2 AS revenue_orig, h.stt_rec AS doc_id FROM public.ph81 h JOIN public.ct81 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'HDA' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.ma_gd <> 4 AND h.status::text IN ('1', '2') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
+      "source_sql": "SELECT h.ma_kh AS customer, coalesce(k.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, h.status::text AS status, coalesce(tt.statusname, h.status::text, '') AS status_name, h.so_ct AS doc_no, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, d.so_luong AS quantity, d.tien2 AS revenue_vnd, d.tien_nt2 AS revenue_orig, h.stt_rec AS doc_id FROM public.ph81 h JOIN public.ct81 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'HDA' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.ma_gd <> 4 AND h.status::text IN ('1', '2') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
       "dimensions": {
         "customer": "customer",
         "customer_name": "customer_name",
@@ -1659,18 +1710,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "doanh thu",
-        "xuat ban",
-        "xuat kho ban",
-        "hda"
-      ],
-      "secondary_cues": [
-        "don hang ban",
-        "don ban",
-        "so1"
-      ]
+      }
     },
     "sales_order_lines": {
       "status": "approved",
@@ -1679,8 +1719,19 @@
       "title": "Tổng hợp đơn đặt hàng bán (SO1: ph64/ct64)",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "don hang ban",
+        "don ban",
+        "so1"
+      ],
+      "secondary_cues": [
+        "doanh thu",
+        "xuat ban",
+        "xuat kho ban",
+        "hda"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT h.ma_kh AS customer, coalesce(k.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, h.so_ct AS doc_no, coalesce(nullif(d.so_po, ''), '') AS po_kh, h.status::text AS status, coalesce(tt.statusname, h.status::text, '') AS status_name, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, d.so_luong AS quantity, d.tien2 AS amount_vnd, d.tien_nt2 AS amount_orig, h.stt_rec AS order_id FROM public.ph64 h JOIN public.ct64 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'SO1' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
+      "source_sql": "SELECT h.ma_kh AS customer, coalesce(k.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, h.status::text AS status, coalesce(tt.statusname, h.status::text, '') AS status_name, h.so_ct AS doc_no, coalesce(nullif(d.so_po, ''), '') AS po_kh, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, d.so_luong AS quantity, d.tien2 AS amount_vnd, d.tien_nt2 AS amount_orig, h.stt_rec AS order_id FROM public.ph64 h JOIN public.ct64 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'SO1' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
       "dimensions": {
         "customer": "customer",
         "customer_name": "customer_name",
@@ -1808,18 +1859,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "don hang ban",
-        "don ban",
-        "so1"
-      ],
-      "secondary_cues": [
-        "doanh thu",
-        "xuat ban",
-        "xuat kho ban",
-        "hda"
-      ]
+      }
     },
     "purchase_order_lines": {
       "status": "approved",
@@ -2250,8 +2290,12 @@
       "title": "Tổng hợp phiếu nhập mua hàng từ NCC (PR1: ph77/ct77)",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "nhap mua",
+        "phieu nhap mua"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT h.ma_kh AS supplier, coalesce(k.ten_kh, '') AS supplier_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, h.so_ct AS doc_no, coalesce(d.so_ct_po1, '') AS po_no, coalesce(tt.statusname, h.status::text, '') AS status_name, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, d.so_luong AS quantity, d.tien AS amount_vnd, d.tien_nt AS amount_orig, h.stt_rec AS doc_id FROM public.ph77 h JOIN public.ct77 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'PR1' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text IN ('1', '11', '12') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
+      "source_sql": "SELECT h.ma_kh AS supplier, coalesce(k.ten_kh, '') AS supplier_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(tt.statusname, h.status::text, '') AS status_name, h.so_ct AS doc_no, coalesce(d.so_ct_po1, '') AS po_no, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, d.so_luong AS quantity, d.tien AS amount_vnd, d.tien_nt AS amount_orig, h.stt_rec AS doc_id FROM public.ph77 h JOIN public.ct77 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'PR1' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text IN ('1', '11', '12') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
       "dimensions": {
         "supplier": "supplier",
         "supplier_name": "supplier_name",
@@ -2379,11 +2423,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "nhap mua",
-        "phieu nhap mua"
-      ]
+      }
     },
     "inventory_movements": {
       "status": "approved",
@@ -2508,8 +2548,18 @@
       "title": "Thống kê dừng máy / dừng chuyền MES (mes_oi_stop_line)",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "dung may",
+        "downtime",
+        "su co may"
+      ],
+      "secondary_cues": [
+        "oee",
+        "hieu suat thiet bi",
+        "kha dung"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT a.machine_code AS machine, coalesce(a.error_code, '') AS reason_code, coalesce(d.ten_loi, '') AS reason_name, coalesce(d.nh_nndungmay1, '') AS reason_group, a.create_date AS day, round((EXTRACT(EPOCH FROM (a.end_date::timestamp + a.end_time::time - a.create_date::timestamp - a.create_time::time)) / 60.0)::numeric, 2) AS stop_minutes, a.id AS event_id FROM public.mes_oi_stop_line a LEFT JOIN public.dmnndungmay d ON d.ma_loi = a.error_code CROSS JOIN public.userinfo u WHERE u.user_id = %s AND a.end_date IS NOT NULL AND a.end_date >= a.create_date AND a.end_date > '1900-01-01'",
+      "source_sql": "SELECT coalesce(a.error_code, '') AS reason_code, coalesce(d.ten_loi, '') AS reason_name, coalesce(d.nh_nndungmay1, '') AS reason_group, a.machine_code AS machine, a.create_date AS day, round((EXTRACT(EPOCH FROM (a.end_date::timestamp + a.end_time::time - a.create_date::timestamp - a.create_time::time)) / 60.0)::numeric, 2) AS stop_minutes, a.id AS event_id FROM public.mes_oi_stop_line a LEFT JOIN public.dmnndungmay d ON d.ma_loi = a.error_code CROSS JOIN public.userinfo u WHERE a.end_date IS NOT NULL AND a.end_date >= a.create_date AND a.end_date > '1900-01-01' AND u.user_id = %s",
       "dimensions": {
         "machine": "machine",
         "reason_code": "reason_code",
@@ -2571,17 +2621,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "dung may",
-        "downtime",
-        "su co may"
-      ],
-      "secondary_cues": [
-        "oee",
-        "hieu suat thiet bi",
-        "kha dung"
-      ]
+      }
     },
     "mes_ng_defects": {
       "status": "approved",
@@ -2590,8 +2630,13 @@
       "title": "Thống kê phế phẩm / lỗi sản xuất NG MES (mes_oi_ng_confirm)",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "loi ng",
+        "phe pham",
+        "defect"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT a.machine_code AS machine, a.product_code AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(a.error_code, '') AS defect_code, coalesce(l.ten_loi, '') AS defect_name, a.create_date AS day, coalesce(a.ng_qty, 0) AS ng_qty, a.id_oi_ng AS record_id FROM public.mes_oi_ng_confirm a LEFT JOIN public.dmloi l ON l.ma_loi = a.error_code LEFT JOIN public.dmvt v ON v.ma_vt = a.product_code CROSS JOIN public.userinfo u WHERE u.user_id = %s",
+      "source_sql": "SELECT a.product_code AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(a.error_code, '') AS defect_code, coalesce(l.ten_loi, '') AS defect_name, a.machine_code AS machine, a.create_date AS day, coalesce(a.ng_qty, 0) AS ng_qty, a.id_oi_ng AS record_id FROM public.mes_oi_ng_confirm a LEFT JOIN public.dmvt v ON v.ma_vt = a.product_code LEFT JOIN public.dmloi l ON l.ma_loi = a.error_code CROSS JOIN public.userinfo u WHERE u.user_id = %s",
       "dimensions": {
         "machine": "machine",
         "material": "material",
@@ -2657,12 +2702,7 @@
             "contains"
           ]
         }
-      },
-      "cues": [
-        "loi ng",
-        "phe pham",
-        "defect"
-      ]
+      }
     },
     "qc_iqc_lines": {
       "status": "approved",
@@ -3563,8 +3603,20 @@
       "alternate_date_field": "delivery_date",
       "alternate_date_label": "ngày giao hàng (ngay_gh)",
       "require_bounded_date": true,
+      "cues": [
+        "lenh giao hang",
+        "to2",
+        "ke hoach giao",
+        "giao hang",
+        "so_do"
+      ],
+      "secondary_cues": [
+        "khach hang",
+        "ngay giao",
+        "po khach"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT h.so_ct AS doc_no, coalesce(nullif(d.so_ct_so1, ''), '') AS so_no, coalesce(nullif(d.so_po, ''), '') AS po_kh, h.ma_kh AS customer, coalesce(k.ten_kh, h.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(tt.statusname, h.status::text, '') AS status_name, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.ngay_gh, h.ngay_gh) AS delivery_date, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS quantity, coalesce(d.tien2, 0) AS revenue_vnd, coalesce(d.tien_nt2, 0) AS revenue_orig, h.stt_rec AS doc_id FROM public.ph96 h JOIN public.ct96 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'TO2' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
+      "source_sql": "SELECT h.ma_kh AS customer, coalesce(k.ten_kh, h.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(tt.statusname, h.status::text, '') AS status_name, h.so_ct AS doc_no, coalesce(nullif(d.so_ct_so1, ''), '') AS so_no, coalesce(nullif(d.so_po, ''), '') AS po_kh, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.ngay_gh, h.ngay_gh) AS delivery_date, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS quantity, coalesce(d.tien2, 0) AS revenue_vnd, coalesce(d.tien_nt2, 0) AS revenue_orig, h.stt_rec AS doc_id FROM public.ph96 h JOIN public.ct96 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'TO2' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
       "dimensions": {
         "doc_no": "doc_no",
         "so_no": "so_no",
@@ -3711,19 +3763,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "lenh giao hang",
-        "to2",
-        "ke hoach giao",
-        "giao hang",
-        "so_do"
-      ],
-      "secondary_cues": [
-        "khach hang",
-        "ngay giao",
-        "po khach"
-      ]
+      }
     },
     "sales_quotations": {
       "status": "approved",
@@ -3733,8 +3773,18 @@
       "notes": "Lưu giá chào bán và trạng thái duyệt của báo giá gửi khách hàng.",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "bao gia ban",
+        "giay bao gia",
+        "sq1",
+        "chao gia khach"
+      ],
+      "secondary_cues": [
+        "bao gia",
+        "khach hang"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT h.so_ct AS doc_no, h.ma_kh AS customer, coalesce(k.ten_kh, h.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(tt.statusname, h.status::text, '') AS status_name, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS quantity, coalesce(d.gia2, 0) AS unit_price_vnd, coalesce(d.tien2, 0) AS amount_vnd, coalesce(d.tien_nt2, 0) AS amount_orig, h.stt_rec AS doc_id FROM public.ph61 h JOIN public.ct61 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'SQ1' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "source_sql": "SELECT h.ma_kh AS customer, coalesce(k.ten_kh, h.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(tt.statusname, h.status::text, '') AS status_name, h.so_ct AS doc_no, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS quantity, coalesce(d.gia2, 0) AS unit_price_vnd, coalesce(d.tien2, 0) AS amount_vnd, coalesce(d.tien_nt2, 0) AS amount_orig, h.stt_rec AS doc_id FROM public.ph61 h JOIN public.ct61 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'SQ1' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
         "doc_no": "doc_no",
         "customer": "customer",
@@ -3841,17 +3891,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "bao gia ban",
-        "giay bao gia",
-        "sq1",
-        "chao gia khach"
-      ],
-      "secondary_cues": [
-        "bao gia",
-        "khach hang"
-      ]
+      }
     },
     "sales_returns": {
       "status": "approved",
@@ -3861,8 +3901,18 @@
       "notes": "Phiếu nhập lại hàng bán bị trả về từ khách hàng (HDF).",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "hang ban tra lai",
+        "hang tra lai",
+        "tra lai hang ban",
+        "hdf"
+      ],
+      "secondary_cues": [
+        "tra lai",
+        "doi tra"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT h.so_ct AS doc_no, coalesce(d.so_ct_so1, '') AS so_no, h.ma_kh AS customer, coalesce(k.ten_kh, h.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(tt.statusname, h.status::text, '') AS status_name, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS return_qty, coalesce(d.tien2, 0) AS amount_vnd, coalesce(d.tien_nt2, 0) AS amount_orig, h.stt_rec AS doc_id FROM public.ph76 h JOIN public.ct76 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'HDF' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
+      "source_sql": "SELECT h.ma_kh AS customer, coalesce(k.ten_kh, h.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(tt.statusname, h.status::text, '') AS status_name, h.so_ct AS doc_no, coalesce(d.so_ct_so1, '') AS so_no, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS return_qty, coalesce(d.tien2, 0) AS amount_vnd, coalesce(d.tien_nt2, 0) AS amount_orig, h.stt_rec AS doc_id FROM public.ph76 h JOIN public.ct76 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'HDF' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
       "dimensions": {
         "doc_no": "doc_no",
         "so_no": "so_no",
@@ -3974,17 +4024,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "hang ban tra lai",
-        "hang tra lai",
-        "tra lai hang ban",
-        "hdf"
-      ],
-      "secondary_cues": [
-        "tra lai",
-        "doi tra"
-      ]
+      }
     },
     "sales_return_requests": {
       "status": "approved",
@@ -3994,8 +4034,17 @@
       "notes": "Theo dõi phiếu đề nghị đổi/trả hàng từ khách hàng (RQ1).",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "yeu cau doi tra",
+        "doi tra hang ban",
+        "rq1"
+      ],
+      "secondary_cues": [
+        "doi tra",
+        "tra hang"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT h.so_ct AS doc_no, coalesce(d.so_ct_dh, '') AS so_no, h.ma_kh AS customer, coalesce(k.ten_kh, h.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(tt.statusname, h.status::text, '') AS status_name, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS return_qty, coalesce(d.tien2, 0) AS amount_vnd, coalesce(d.tien_nt2, 0) AS amount_orig, h.stt_rec AS doc_id FROM public.ph66 h JOIN public.ct66 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'RQ1' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
+      "source_sql": "SELECT h.ma_kh AS customer, coalesce(k.ten_kh, h.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(tt.statusname, h.status::text, '') AS status_name, h.so_ct AS doc_no, coalesce(d.so_ct_dh, '') AS so_no, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS return_qty, coalesce(d.tien2, 0) AS amount_vnd, coalesce(d.tien_nt2, 0) AS amount_orig, h.stt_rec AS doc_id FROM public.ph66 h JOIN public.ct66 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'RQ1' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text NOT IN ('14', '15') AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
       "dimensions": {
         "doc_no": "doc_no",
         "so_no": "so_no",
@@ -4092,16 +4141,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "yeu cau doi tra",
-        "doi tra hang ban",
-        "rq1"
-      ],
-      "secondary_cues": [
-        "doi tra",
-        "tra hang"
-      ]
+      }
     },
     "supplier_quotations": {
       "status": "approved",
@@ -4233,8 +4273,19 @@
       "notes": "Bảng danh mục giá mua đang có hiệu lực theo NCC và vật tư (dmgiamuact, status='1'). Không bắt buộc lọc ngày.",
       "date_field": "valid_from",
       "require_bounded_date": false,
+      "cues": [
+        "gia mua",
+        "bang gia mua",
+        "gia ncc",
+        "dmgiamua"
+      ],
+      "secondary_cues": [
+        "moq mua",
+        "don gia mua",
+        "nha cung cap"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT d.ma_kh AS supplier, coalesce(k.ten_kh, '') AS supplier_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, trim(coalesce(d.ma_nt, '')) AS currency, coalesce(v.dvt, '') AS unit, d.ngay_bd AS valid_from, d.ngay_kt AS valid_to, coalesce(d.gia, 0) AS unit_price_vnd, coalesce(d.sl_min, 0) AS moq, (coalesce(d.ma_kh, '') || '|' || coalesce(d.ma_vt, '') || '|' || coalesce(d.ngay_bd::text, '')) AS line_id FROM public.dmgiamuact d LEFT JOIN public.dmkh k ON k.ma_kh = d.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt JOIN public.userinfo u ON u.user_id = %s WHERE d.status::text = '1'",
+      "source_sql": "SELECT d.ma_kh AS supplier, coalesce(k.ten_kh, '') AS supplier_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, trim(coalesce(d.ma_nt, '')) AS currency, coalesce(v.dvt, '') AS unit, d.ngay_bd AS valid_from, d.ngay_kt AS valid_to, coalesce(d.gia, 0) AS unit_price_vnd, coalesce(d.sl_min, 0) AS moq, (coalesce(d.ma_kh, '') || '|' || coalesce(d.ma_vt, '') || '|' || coalesce(d.ngay_bd::text, '')) AS line_id FROM public.dmgiamuact d LEFT JOIN public.dmkh k ON k.ma_kh = d.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt CROSS JOIN public.userinfo u WHERE d.status::text = '1' AND u.user_id = %s",
       "dimensions": {
         "supplier": "supplier",
         "supplier_name": "supplier_name",
@@ -4317,18 +4368,7 @@
             "lte"
           ]
         }
-      },
-      "cues": [
-        "gia mua",
-        "bang gia mua",
-        "gia ncc",
-        "dmgiamua"
-      ],
-      "secondary_cues": [
-        "moq mua",
-        "don gia mua",
-        "nha cung cap"
-      ]
+      }
     },
     "sales_prices_current": {
       "status": "approved",
@@ -4338,8 +4378,19 @@
       "notes": "Tổng hợp/so sánh giá bán và MOQ theo khách hàng, mã hàng, bảng giá đang hiệu lực. Nếu cần tra đúng mức giá áp dụng tại một ngày cụ thể cho 1 mã, có thể dùng thêm query_price_list.",
       "date_field": "valid_from",
       "require_bounded_date": false,
+      "cues": [
+        "bang gia ban",
+        "thong ke gia ban",
+        "danh sach gia ban",
+        "so sanh gia"
+      ],
+      "secondary_cues": [
+        "moq",
+        "gia ban",
+        "don gia"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT d.ma_bang_gia AS price_list_id, coalesce(h.ten_bang_gia, '') AS price_list_name, coalesce(d.ma_kh, '') AS customer, coalesce(k.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, trim(coalesce(d.ma_nt, '')) AS currency, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.ngay_bd, h.ngay_bd) AS valid_from, coalesce(d.ngay_kt, h.ngay_kt) AS valid_to, coalesce(d.gia, 0) AS unit_price_vnd, coalesce(d.gia_nt, 0) AS unit_price_orig, coalesce(d.sl_min, 0) AS moq, (coalesce(d.ma_bang_gia, '') || '|' || coalesce(d.ma_kh, '') || '|' || coalesce(d.ma_vt, '') || '|' || coalesce(d.sl_min::text, '0')) AS line_id FROM public.dmbanggiact d JOIN public.dmbanggia h ON h.ma_bang_gia = d.ma_bang_gia LEFT JOIN public.dmkh k ON k.ma_kh = d.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text = '1' AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(h.ma_dvcs, '001') = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "source_sql": "SELECT coalesce(d.ma_kh, '') AS customer, coalesce(k.ten_kh, '') AS customer_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, d.ma_bang_gia AS price_list_id, coalesce(h.ten_bang_gia, '') AS price_list_name, trim(coalesce(d.ma_nt, '')) AS currency, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.ngay_bd, h.ngay_bd) AS valid_from, coalesce(d.ngay_kt, h.ngay_kt) AS valid_to, coalesce(d.gia, 0) AS unit_price_vnd, coalesce(d.gia_nt, 0) AS unit_price_orig, coalesce(d.sl_min, 0) AS moq, (coalesce(d.ma_bang_gia, '') || '|' || coalesce(d.ma_kh, '') || '|' || coalesce(d.ma_vt, '') || '|' || coalesce(d.sl_min::text, '0')) AS line_id FROM public.dmbanggiact d JOIN public.dmbanggia h ON h.ma_bang_gia = d.ma_bang_gia LEFT JOIN public.dmkh k ON k.ma_kh = d.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text = '1' AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR coalesce(h.ma_dvcs, '001') = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
         "price_list_id": "price_list_id",
         "price_list_name": "price_list_name",
@@ -4437,18 +4488,7 @@
             "lte"
           ]
         }
-      },
-      "cues": [
-        "bang gia ban",
-        "thong ke gia ban",
-        "danh sach gia ban",
-        "so sanh gia"
-      ],
-      "secondary_cues": [
-        "moq",
-        "gia ban",
-        "don gia"
-      ]
+      }
     },
     "planning_pending_po": {
       "status": "approved",
@@ -4833,8 +4873,18 @@
       "notes": "Phiếu xuất kho nội bộ PXA gắn bộ phận (department), dây chuyền và lệnh sản xuất (PD1). PXA là loại chứng từ (doc_type='PXA'), KHÔNG phải mã bộ phận.",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "xuat kho noi bo",
+        "pxa",
+        "xuat san xuat",
+        "phieu xuat kho"
+      ],
+      "secondary_cues": [
+        "xuat kho",
+        "bo phan"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT trim(coalesce(h.ma_ct, '')) AS doc_type, h.so_ct AS doc_no, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(nullif(d.ma_bp, ''), h.ma_bp, '') AS department, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(d.so_ct_pd1, '') AS work_order, coalesce(tt.statusname, h.status::text, '') AS status_name, coalesce(d.dvt, v.dvt, '') AS unit, h.ngay_ct AS day, coalesce(d.so_luong, 0) AS out_qty, coalesce(d.tien, 0) AS amount_vnd, h.stt_rec AS doc_id FROM public.ph84 h JOIN public.ct84 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'PXA' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
+      "source_sql": "SELECT d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(tt.statusname, h.status::text, '') AS status_name, trim(coalesce(h.ma_ct, '')) AS doc_type, h.so_ct AS doc_no, coalesce(nullif(d.ma_bp, ''), h.ma_bp, '') AS department, coalesce(d.so_ct_pd1, '') AS work_order, coalesce(d.dvt, v.dvt, '') AS unit, h.ngay_ct AS day, coalesce(d.so_luong, 0) AS out_qty, coalesce(d.tien, 0) AS amount_vnd, h.stt_rec AS doc_id FROM public.ph84 h JOIN public.ct84 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'PXA' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
       "dimensions": {
         "doc_type": "doc_type",
         "doc_no": "doc_no",
@@ -4940,17 +4990,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "xuat kho noi bo",
-        "pxa",
-        "xuat san xuat",
-        "phieu xuat kho"
-      ],
-      "secondary_cues": [
-        "xuat kho",
-        "bo phan"
-      ]
+      }
     },
     "warehouse_internal_receipts": {
       "status": "approved",
@@ -4960,8 +5000,18 @@
       "notes": "Phiếu nhập kho nội bộ PND gắn kho nhận (warehouse), bộ phận (department) và lệnh sản xuất. PND là tên loại chứng từ (doc_type='PND'), KHÔNG truyền 'PND' vào department hay warehouse.",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "nhap kho noi bo",
+        "pnd",
+        "nhap thanh pham",
+        "phieu nhap kho"
+      ],
+      "secondary_cues": [
+        "nhap kho",
+        "thanh pham"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT trim(coalesce(h.ma_ct, '')) AS doc_type, h.so_ct AS doc_no, d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(d.ma_bp, '') AS department, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(d.so_ct_pd1, '') AS work_order, coalesce(tt.statusname, h.status::text, '') AS status_name, coalesce(d.dvt, v.dvt, '') AS unit, h.ngay_ct AS day, coalesce(d.so_luong, 0) AS in_qty, coalesce(d.tien, 0) AS amount_vnd, h.stt_rec AS doc_id FROM public.ph74 h JOIN public.ct74 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'PND' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
+      "source_sql": "SELECT d.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(tt.statusname, h.status::text, '') AS status_name, trim(coalesce(h.ma_ct, '')) AS doc_type, h.so_ct AS doc_no, coalesce(d.ma_bp, '') AS department, coalesce(d.so_ct_pd1, '') AS work_order, coalesce(d.dvt, v.dvt, '') AS unit, h.ngay_ct AS day, coalesce(d.so_luong, 0) AS in_qty, coalesce(d.tien, 0) AS amount_vnd, h.stt_rec AS doc_id FROM public.ph74 h JOIN public.ct74 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = 'PND' AND tt.status::text = h.status::text JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR d.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
       "dimensions": {
         "doc_type": "doc_type",
         "doc_no": "doc_no",
@@ -5067,17 +5117,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "nhap kho noi bo",
-        "pnd",
-        "nhap thanh pham",
-        "phieu nhap kho"
-      ],
-      "secondary_cues": [
-        "nhap kho",
-        "thanh pham"
-      ]
+      }
     },
     "warehouse_requests": {
       "status": "approved",
@@ -5087,8 +5127,19 @@
       "notes": "Gộp phiếu yêu cầu nhập kho (DNV) và phiếu yêu cầu xuất NVL/kho (DXV) theo bộ phận, nhân viên và lệnh sản xuất.",
       "date_field": "day",
       "require_bounded_date": true,
+      "cues": [
+        "yeu cau nhap kho",
+        "yeu cau xuat kho",
+        "dnv",
+        "dxv",
+        "yeu cau xuat nvl"
+      ],
+      "secondary_cues": [
+        "de nghi nhap",
+        "de nghi xuat"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT q.request_type, q.so_ct AS doc_no, q.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(q.ma_bp, '') AS department, coalesce(q.ma_nv, '') AS employee_code, coalesce(k.ten_kh, q.ma_nv, '') AS employee_name, q.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(q.so_ct_pd1, '') AS work_order, coalesce(tt.statusname, q.status, '') AS status_name, coalesce(q.dvt, v.dvt, '') AS unit, q.ngay_ct AS day, coalesce(q.so_luong, 0) AS quantity, q.stt_rec AS doc_id FROM (  SELECT 'DNV'::text AS request_type, h.ma_dvcs, h.so_ct, d.ma_kho, h.ma_bp, h.ma_nv, d.ma_vt, d.so_ct_pd1, h.status::text AS status, 'DNV'::text AS ma_ct, d.dvt, h.ngay_ct, d.so_luong, h.stt_rec   FROM public.phdnv h JOIN public.ctdnv d ON d.stt_rec = h.stt_rec WHERE h.status::text NOT IN ('14', '15')   UNION ALL   SELECT 'DXV'::text AS request_type, h.ma_dvcs, h.so_ct, d.ma_kho, h.ma_bp, h.ma_nv, d.ma_vt, d.so_ct_pd1, h.status::text AS status, 'DXV'::text AS ma_ct, d.dvt, h.ngay_ct, d.so_luong, h.stt_rec   FROM public.phdxnvl h JOIN public.ctdxnvl d ON d.stt_rec = h.stt_rec WHERE h.status::text NOT IN ('14', '15')) q LEFT JOIN public.dmkho w ON w.ma_kho = q.ma_kho LEFT JOIN public.dmvt v ON v.ma_vt = q.ma_vt LEFT JOIN public.dmkh k ON k.ma_kh = q.ma_nv LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = q.ma_ct AND tt.status::text = q.status JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR (q.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR q.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
+      "source_sql": "SELECT q.ma_kho AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(q.ma_nv, '') AS employee_code, coalesce(k.ten_kh, q.ma_nv, '') AS employee_name, q.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(tt.statusname, q.status::text, '') AS status_name, q.request_type AS request_type, q.so_ct AS doc_no, coalesce(q.ma_bp, '') AS department, coalesce(q.so_ct_pd1, '') AS work_order, coalesce(q.dvt, v.dvt, '') AS unit, q.ngay_ct AS day, coalesce(q.so_luong, 0) AS quantity, q.stt_rec AS doc_id FROM (  SELECT 'DNV'::text AS request_type, h.ma_dvcs, h.so_ct, d.ma_kho, h.ma_bp, h.ma_nv, d.ma_vt, d.so_ct_pd1, h.status::text AS status, 'DNV'::text AS ma_ct, d.dvt, h.ngay_ct, d.so_luong, h.stt_rec   FROM public.phdnv h JOIN public.ctdnv d ON d.stt_rec = h.stt_rec WHERE h.status::text NOT IN ('14', '15')   UNION ALL   SELECT 'DXV'::text AS request_type, h.ma_dvcs, h.so_ct, d.ma_kho, h.ma_bp, h.ma_nv, d.ma_vt, d.so_ct_pd1, h.status::text AS status, 'DXV'::text AS ma_ct, d.dvt, h.ngay_ct, d.so_luong, h.stt_rec   FROM public.phdxnvl h JOIN public.ctdxnvl d ON d.stt_rec = h.stt_rec WHERE h.status::text NOT IN ('14', '15')) q LEFT JOIN public.dmkho w ON w.ma_kho = q.ma_kho LEFT JOIN public.dmkh k ON k.ma_kh = q.ma_nv LEFT JOIN public.dmvt v ON v.ma_vt = q.ma_vt LEFT JOIN public.sys_dmtt tt ON tt.ma_ct = q.ma_ct AND tt.status::text = q.status::text JOIN public.userinfo u ON u.user_id = %s WHERE (coalesce(u.is_super, 0) = 1 OR (q.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR q.ma_kho = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
       "dimensions": {
         "request_type": "request_type",
         "doc_no": "doc_no",
@@ -5200,18 +5251,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "yeu cau nhap kho",
-        "yeu cau xuat kho",
-        "dnv",
-        "dxv",
-        "yeu cau xuat nvl"
-      ],
-      "secondary_cues": [
-        "de nghi nhap",
-        "de nghi xuat"
-      ]
+      }
     },
     "planning_stock_snapshot": {
       "status": "approved",
@@ -6444,8 +6484,18 @@
       "alternate_date_field": "requested_date",
       "alternate_date_label": "ngày đề nghị nhập (ngay_de_nghi_nh)",
       "require_bounded_date": true,
+      "cues": [
+        "yeu cau nhap hang",
+        "phieu ycn",
+        "ycn",
+        "de nghi nhap hang mua"
+      ],
+      "secondary_cues": [
+        "nhap hang mua",
+        "ngay hua nhap"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT h.so_ct AS doc_no, coalesce(d.so_ct_po1, '') AS po_no, h.ma_kh AS supplier, coalesce(nullif(k.ten_kh, ''), h.ten_kh, '') AS supplier_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(d.ma_kho, h.ma_kho, '') AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(h.ma_bp, d.ma_bp, '') AS department, coalesce((SELECT tt.statusname FROM public.sys_dmtt tt WHERE tt.ma_ct = 'YCN' AND tt.status::text = h.status::text LIMIT 1), h.status::text, '') AS status_name, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, d.ngay_de_nghi_nh AS requested_date, d.ngay_hua_nh AS promise_date, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS quantity, coalesce(d.tien, 0) AS amount_vnd, coalesce(d.tien_nt, 0) AS amount_orig, h.stt_rec AS doc_id FROM public.phycn h JOIN public.ctycn d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = coalesce(d.ma_kho, h.ma_kho) JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR coalesce(d.ma_kho, h.ma_kho, '') = '' OR coalesce(d.ma_kho, h.ma_kho) = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
+      "source_sql": "SELECT h.ma_kh AS supplier, coalesce(nullif(k.ten_kh, ''), h.ten_kh, '') AS supplier_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(d.ma_kho, h.ma_kho, '') AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce((SELECT tt.statusname FROM public.sys_dmtt tt WHERE tt.ma_ct = 'YCN' AND tt.status::text = h.status::text LIMIT 1), h.status::text, '') AS status_name, h.so_ct AS doc_no, coalesce(d.so_ct_po1, '') AS po_no, coalesce(h.ma_bp, d.ma_bp, '') AS department, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, d.ngay_de_nghi_nh AS requested_date, d.ngay_hua_nh AS promise_date, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS quantity, coalesce(d.tien, 0) AS amount_vnd, coalesce(d.tien_nt, 0) AS amount_orig, h.stt_rec AS doc_id FROM public.phycn h JOIN public.ctycn d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = coalesce(d.ma_kho, h.ma_kho) JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR (h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')) AND (coalesce(u.ds_stocks, '') = '' OR coalesce(coalesce(d.ma_kho, h.ma_kho), '') = '' OR coalesce(d.ma_kho, h.ma_kho) = ANY(string_to_array(coalesce(u.ds_stocks, ''), ',')))))",
       "dimensions": {
         "doc_no": "doc_no",
         "po_no": "po_no",
@@ -6594,17 +6644,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "yeu cau nhap hang",
-        "phieu ycn",
-        "ycn",
-        "de nghi nhap hang mua"
-      ],
-      "secondary_cues": [
-        "nhap hang mua",
-        "ngay hua nhap"
-      ]
+      }
     },
     "purchase_returns": {
       "status": "approved",
@@ -6614,8 +6654,18 @@
       "notes": "Chứng từ xuất kho trả lại hàng mua cho nhà cung cấp (ph86/ct86). Tập dữ liệu ít dòng, không bắt buộc lọc ngày.",
       "date_field": "day",
       "require_bounded_date": false,
+      "cues": [
+        "xuat tra ncc",
+        "tra lai nha cung cap",
+        "phieu pxc",
+        "pxc",
+        "tra hang mua"
+      ],
+      "secondary_cues": [
+        "xuat tra nha cung cap"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT h.so_ct AS doc_no, coalesce(d.so_ct_rq2, '') AS rq_no, h.ma_kh AS supplier, coalesce(nullif(k.ten_kh, ''), h.ten_kh, '') AS supplier_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(d.ma_kho, h.ma_kho, '') AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(d.ma_lo, '') AS lot_no, coalesce((SELECT tt.statusname FROM public.sys_dmtt tt WHERE tt.ma_ct = 'PXC' AND tt.status::text = h.status::text LIMIT 1), h.status::text, '') AS status_name, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS return_qty, coalesce(d.tien, 0) AS amount_vnd, coalesce(d.tien_nt, 0) AS amount_orig, h.stt_rec AS doc_id FROM public.ph86 h JOIN public.ct86 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = coalesce(d.ma_kho, h.ma_kho) JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "source_sql": "SELECT h.ma_kh AS supplier, coalesce(nullif(k.ten_kh, ''), h.ten_kh, '') AS supplier_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(d.ma_kho, h.ma_kho, '') AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce((SELECT tt.statusname FROM public.sys_dmtt tt WHERE tt.ma_ct = 'PXC' AND tt.status::text = h.status::text LIMIT 1), h.status::text, '') AS status_name, h.so_ct AS doc_no, coalesce(d.so_ct_rq2, '') AS rq_no, coalesce(d.ma_lo, '') AS lot_no, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS return_qty, coalesce(d.tien, 0) AS amount_vnd, coalesce(d.tien_nt, 0) AS amount_orig, h.stt_rec AS doc_id FROM public.ph86 h JOIN public.ct86 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = coalesce(d.ma_kho, h.ma_kho) JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
         "doc_no": "doc_no",
         "rq_no": "rq_no",
@@ -6714,17 +6764,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "xuat tra ncc",
-        "tra lai nha cung cap",
-        "phieu pxc",
-        "pxc",
-        "tra hang mua"
-      ],
-      "secondary_cues": [
-        "xuat tra nha cung cap"
-      ]
+      }
     },
     "purchase_return_requests": {
       "status": "approved",
@@ -6734,8 +6774,17 @@
       "notes": "Phiếu đề nghị đổi trả hàng cho nhà cung cấp (ph67/ct67), ghi nhận lý do lỗi và số lượng duyệt trả. Không bắt buộc lọc ngày.",
       "date_field": "day",
       "require_bounded_date": false,
+      "cues": [
+        "yeu cau doi tra hang mua",
+        "yeu cau tra ncc",
+        "rq2",
+        "doi tra mua hang"
+      ],
+      "secondary_cues": [
+        "yeu cau tra nha cung cap"
+      ],
       "user_param_count": 1,
-      "source_sql": "SELECT h.so_ct AS doc_no, coalesce(d.so_ct_pr1, '') AS pr1_no, h.ma_kh AS supplier, coalesce(nullif(k.ten_kh, ''), h.ten_kh, '') AS supplier_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(d.ma_kho, '') AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce(d.ten_loi, '') AS reason_name, coalesce((SELECT tt.statusname FROM public.sys_dmtt tt WHERE tt.ma_ct = 'RQ2' AND tt.status::text = h.status::text LIMIT 1), h.status::text, '') AS status_name, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, d.ngay_tra_hang AS delivery_date, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS return_qty, coalesce(d.tien, 0) AS amount_vnd, h.stt_rec AS doc_id FROM public.ph67 h JOIN public.ct67 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
+      "source_sql": "SELECT h.ma_kh AS supplier, coalesce(nullif(k.ten_kh, ''), h.ten_kh, '') AS supplier_name, d.ma_vt AS material, coalesce(v.ten_vt, '') AS material_name, coalesce(d.ma_kho, '') AS warehouse, coalesce(w.ten_kho, '') AS warehouse_name, coalesce((SELECT tt.statusname FROM public.sys_dmtt tt WHERE tt.ma_ct = 'RQ2' AND tt.status::text = h.status::text LIMIT 1), h.status::text, '') AS status_name, h.so_ct AS doc_no, coalesce(d.so_ct_pr1, '') AS pr1_no, coalesce(d.ten_loi, '') AS reason_name, trim(coalesce(h.ma_nt, '')) AS currency, h.ngay_ct AS day, d.ngay_tra_hang AS delivery_date, coalesce(d.dvt, v.dvt, '') AS unit, coalesce(d.so_luong, 0) AS return_qty, coalesce(d.tien, 0) AS amount_vnd, h.stt_rec AS doc_id FROM public.ph67 h JOIN public.ct67 d ON d.stt_rec = h.stt_rec LEFT JOIN public.dmkh k ON k.ma_kh = h.ma_kh LEFT JOIN public.dmvt v ON v.ma_vt = d.ma_vt LEFT JOIN public.dmkho w ON w.ma_kho = d.ma_kho JOIN public.userinfo u ON u.user_id = %s WHERE h.status::text <> '15' AND (coalesce(u.is_super, 0) = 1 OR coalesce(u.ds_branchs, '') = '' OR h.ma_dvcs = ANY(string_to_array(coalesce(u.ds_branchs, ''), ',')))",
       "dimensions": {
         "doc_no": "doc_no",
         "pr1_no": "pr1_no",
@@ -6830,16 +6879,7 @@
             "eq"
           ]
         }
-      },
-      "cues": [
-        "yeu cau doi tra hang mua",
-        "yeu cau tra ncc",
-        "rq2",
-        "doi tra mua hang"
-      ],
-      "secondary_cues": [
-        "yeu cau tra nha cung cap"
-      ]
+      }
     },
     "resin_mixing_operations": {
       "status": "approved",
@@ -8982,5 +9022,843 @@
     "cua ai",
     "user",
     "username"
-  ]
+  ],
+  "field_catalog": {
+    "customer": {
+      "label": "Mã KH",
+      "type": "text"
+    },
+    "customer_name": {
+      "label": "Tên khách hàng",
+      "type": "text"
+    },
+    "supplier": {
+      "label": "Mã NCC",
+      "type": "text"
+    },
+    "supplier_name": {
+      "label": "Tên nhà cung cấp",
+      "type": "text"
+    },
+    "po_no": {
+      "label": "Số đơn PO",
+      "type": "text"
+    },
+    "pr_no": {
+      "label": "Số phiếu ĐNMH",
+      "type": "text"
+    },
+    "department": {
+      "label": "Bộ phận",
+      "type": "text"
+    },
+    "requester": {
+      "label": "Mã người đề nghị",
+      "type": "text"
+    },
+    "requester_name": {
+      "label": "Người đề nghị",
+      "type": "text"
+    },
+    "in_charge": {
+      "label": "Mã người phụ trách",
+      "type": "text"
+    },
+    "in_charge_name": {
+      "label": "Người phụ trách",
+      "type": "text"
+    },
+    "creator_user": {
+      "label": "User tạo phiếu",
+      "type": "text"
+    },
+    "creator_name": {
+      "label": "Tên người tạo",
+      "type": "text"
+    },
+    "status": {
+      "label": "Trạng thái",
+      "type": "text"
+    },
+    "material": {
+      "label": "Mã vật tư",
+      "type": "text"
+    },
+    "material_name": {
+      "label": "Tên vật tư",
+      "type": "text"
+    },
+    "product": {
+      "label": "Mã thành phẩm",
+      "type": "text"
+    },
+    "product_name": {
+      "label": "Tên thành phẩm",
+      "type": "text"
+    },
+    "warehouse": {
+      "label": "Mã kho",
+      "type": "text"
+    },
+    "warehouse_name": {
+      "label": "Tên kho",
+      "type": "text"
+    },
+    "machine": {
+      "label": "Mã máy",
+      "type": "text"
+    },
+    "line_group": {
+      "label": "Nhóm máy",
+      "type": "text"
+    },
+    "shift": {
+      "label": "Ca SX",
+      "type": "text"
+    },
+    "work_order": {
+      "label": "Lệnh SX (WO)",
+      "type": "text"
+    },
+    "schedule_code": {
+      "label": "Mã lịch SX",
+      "type": "text"
+    },
+    "mold": {
+      "label": "Mã khuôn",
+      "type": "text"
+    },
+    "mold_name": {
+      "label": "Tên khuôn",
+      "type": "text"
+    },
+    "wo_status": {
+      "label": "Trạng thái WO",
+      "type": "text"
+    },
+    "work_center": {
+      "label": "Phân xưởng",
+      "type": "text"
+    },
+    "step": {
+      "label": "Công đoạn",
+      "type": "text"
+    },
+    "station": {
+      "label": "Trạm SX",
+      "type": "text"
+    },
+    "cavity_group": {
+      "label": "Nhóm cavity",
+      "type": "text"
+    },
+    "primary_flag": {
+      "label": "Chính/Phụ",
+      "type": "text"
+    },
+    "demand_type": {
+      "label": "Loại nhu cầu",
+      "type": "text"
+    },
+    "data_source": {
+      "label": "Nguồn dữ liệu",
+      "type": "text"
+    },
+    "model": {
+      "label": "Model",
+      "type": "text"
+    },
+    "account": {
+      "label": "Tài khoản",
+      "type": "text"
+    },
+    "account_name": {
+      "label": "Tên tài khoản",
+      "type": "text"
+    },
+    "offset_account": {
+      "label": "TK đối ứng",
+      "type": "text"
+    },
+    "partner": {
+      "label": "Mã đối tượng",
+      "type": "text"
+    },
+    "partner_name": {
+      "label": "Tên đối tượng",
+      "type": "text"
+    },
+    "reason_code": {
+      "label": "Mã nguyên nhân",
+      "type": "text"
+    },
+    "reason_name": {
+      "label": "Nguyên nhân dừng máy",
+      "type": "text"
+    },
+    "reason_group": {
+      "label": "Nhóm nguyên nhân",
+      "type": "text"
+    },
+    "defect_code": {
+      "label": "Mã lỗi",
+      "type": "text"
+    },
+    "defect_name": {
+      "label": "Tên lỗi NG",
+      "type": "text"
+    },
+    "qc_result": {
+      "label": "Kết quả IQC",
+      "type": "text"
+    },
+    "doc_type": {
+      "label": "Loại chứng từ",
+      "type": "text"
+    },
+    "currency": {
+      "label": "Loại tiền",
+      "type": "text"
+    },
+    "unit": {
+      "label": "ĐVT",
+      "type": "text"
+    },
+    "day": {
+      "label": "Ngày",
+      "type": "date"
+    },
+    "required_date": {
+      "label": "Ngày nhận hàng",
+      "type": "date"
+    },
+    "quantity": {
+      "label": "Số lượng",
+      "type": "number"
+    },
+    "revenue_vnd": {
+      "label": "Doanh thu (VND)",
+      "type": "number"
+    },
+    "revenue_orig": {
+      "label": "Doanh thu (NT)",
+      "type": "number"
+    },
+    "delivery_count": {
+      "label": "Số phiếu xuất",
+      "type": "number"
+    },
+    "amount_vnd": {
+      "label": "Thành tiền (VND)",
+      "type": "number"
+    },
+    "amount_orig": {
+      "label": "Thành tiền (NT)",
+      "type": "number"
+    },
+    "avg_price_vnd": {
+      "label": "Đơn giá TB (VND)",
+      "type": "number"
+    },
+    "order_count": {
+      "label": "Số đơn hàng",
+      "type": "number"
+    },
+    "orders": {
+      "label": "Số đơn",
+      "type": "number"
+    },
+    "po_count": {
+      "label": "Số đơn PO",
+      "type": "number"
+    },
+    "pr_count": {
+      "label": "Số phiếu ĐNMH",
+      "type": "number"
+    },
+    "receipt_count": {
+      "label": "Số phiếu nhập",
+      "type": "number"
+    },
+    "in_qty": {
+      "label": "SL nhập",
+      "type": "number"
+    },
+    "out_qty": {
+      "label": "SL xuất",
+      "type": "number"
+    },
+    "in_amount_vnd": {
+      "label": "Tiền nhập (VND)",
+      "type": "number"
+    },
+    "out_amount_vnd": {
+      "label": "Tiền xuất (VND)",
+      "type": "number"
+    },
+    "tx_count": {
+      "label": "Số giao dịch",
+      "type": "number"
+    },
+    "stop_minutes": {
+      "label": "Thời gian dừng (phút)",
+      "type": "number"
+    },
+    "avg_stop_minutes": {
+      "label": "TB dừng (phút)",
+      "type": "number"
+    },
+    "stop_count": {
+      "label": "Số lần dừng",
+      "type": "number"
+    },
+    "ng_qty": {
+      "label": "Số lượng NG",
+      "type": "number"
+    },
+    "defect_events": {
+      "label": "Số lượt lỗi",
+      "type": "number"
+    },
+    "inspection_count": {
+      "label": "Số lượt kiểm tra",
+      "type": "number"
+    },
+    "lot_qty": {
+      "label": "Tổng SL lô",
+      "type": "number"
+    },
+    "ok_qty": {
+      "label": "SL đạt",
+      "type": "number"
+    },
+    "planned_qty": {
+      "label": "SL kế hoạch",
+      "type": "number"
+    },
+    "complete_qty": {
+      "label": "SL hoàn thành",
+      "type": "number"
+    },
+    "packing_qty": {
+      "label": "SL đóng gói",
+      "type": "number"
+    },
+    "skip_shot": {
+      "label": "SL bỏ shot",
+      "type": "number"
+    },
+    "run_minutes": {
+      "label": "Thời gian chạy (phút)",
+      "type": "number"
+    },
+    "run_count": {
+      "label": "Số phiên chạy",
+      "type": "number"
+    },
+    "wo_count": {
+      "label": "Số lệnh WO",
+      "type": "number"
+    },
+    "cavity": {
+      "label": "Số cavity",
+      "type": "number"
+    },
+    "cycle_time": {
+      "label": "Chu kỳ KH (giây)",
+      "type": "number"
+    },
+    "cycle_sec": {
+      "label": "Chu kỳ khuôn (giây)",
+      "type": "number"
+    },
+    "efficiency": {
+      "label": "Hiệu suất (%)",
+      "type": "number"
+    },
+    "net_minutes": {
+      "label": "Thời gian chạy thực (phút)",
+      "type": "number"
+    },
+    "standard_minutes": {
+      "label": "Thời gian chuẩn (phút)",
+      "type": "number"
+    },
+    "availability_pct": {
+      "label": "Khả dụng A (%)",
+      "type": "number"
+    },
+    "performance_pct": {
+      "label": "Hiệu suất P (%)",
+      "type": "number"
+    },
+    "quality_pct": {
+      "label": "Chất lượng Q (%)",
+      "type": "number"
+    },
+    "oee_pct": {
+      "label": "OEE (%)",
+      "type": "number"
+    },
+    "line_days": {
+      "label": "Số ngày máy",
+      "type": "number"
+    },
+    "required_qty": {
+      "label": "SL cần cấp",
+      "type": "number"
+    },
+    "issued_qty": {
+      "label": "SL đã cấp",
+      "type": "number"
+    },
+    "used_qty": {
+      "label": "SL sử dụng",
+      "type": "number"
+    },
+    "remaining_qty": {
+      "label": "SL còn lại",
+      "type": "number"
+    },
+    "variance_qty": {
+      "label": "SL chênh lệch",
+      "type": "number"
+    },
+    "feed_count": {
+      "label": "Số lần cấp NVL",
+      "type": "number"
+    },
+    "total_shots": {
+      "label": "Tổng số shot đã chạy",
+      "type": "number"
+    },
+    "warranty_shots": {
+      "label": "Shot định mức BH",
+      "type": "number"
+    },
+    "remaining_warranty_shots": {
+      "label": "Shot BH còn lại",
+      "type": "number"
+    },
+    "product_links": {
+      "label": "Số mã SP gắn khuôn",
+      "type": "number"
+    },
+    "line_count": {
+      "label": "Số dòng KH",
+      "type": "number"
+    },
+    "debit_vnd": {
+      "label": "Phát sinh Nợ (VND)",
+      "type": "number"
+    },
+    "credit_vnd": {
+      "label": "Phát sinh Có (VND)",
+      "type": "number"
+    },
+    "debit_orig": {
+      "label": "Phát sinh Nợ (NT)",
+      "type": "number"
+    },
+    "credit_orig": {
+      "label": "Phát sinh Có (NT)",
+      "type": "number"
+    },
+    "voucher_count": {
+      "label": "Số chứng từ",
+      "type": "number"
+    },
+    "doc_no": {
+      "label": "Số chứng từ",
+      "type": "text"
+    },
+    "status_name": {
+      "label": "Trạng thái",
+      "type": "text"
+    },
+    "delivery_date": {
+      "label": "Ngày giao hàng",
+      "type": "date"
+    },
+    "expiry_date": {
+      "label": "Hạn sử dụng",
+      "type": "date"
+    },
+    "mfg_date": {
+      "label": "Ngày sản xuất",
+      "type": "date"
+    },
+    "valid_from": {
+      "label": "Hiệu lực từ",
+      "type": "date"
+    },
+    "valid_to": {
+      "label": "Hiệu lực đến",
+      "type": "date"
+    },
+    "last_maint_date": {
+      "label": "Ngày bảo dưỡng cuối",
+      "type": "date"
+    },
+    "so_no": {
+      "label": "Số đơn bán (SO)",
+      "type": "text"
+    },
+    "po_kh": {
+      "label": "Số PO khách hàng",
+      "type": "text"
+    },
+    "lot_no": {
+      "label": "Số lô",
+      "type": "text"
+    },
+    "location": {
+      "label": "Vị trí kho",
+      "type": "text"
+    },
+    "target_warehouse": {
+      "label": "Kho nhận",
+      "type": "text"
+    },
+    "target_warehouse_name": {
+      "label": "Tên kho nhận",
+      "type": "text"
+    },
+    "stock_qty": {
+      "label": "SL tồn kho",
+      "type": "number"
+    },
+    "return_qty": {
+      "label": "SL trả lại",
+      "type": "number"
+    },
+    "transfer_qty": {
+      "label": "SL điều chuyển",
+      "type": "number"
+    },
+    "pending_qty": {
+      "label": "SL còn pending",
+      "type": "number"
+    },
+    "bom_qty": {
+      "label": "Định mức BOM",
+      "type": "number"
+    },
+    "loss_pct": {
+      "label": "Tỷ lệ hao hụt (%)",
+      "type": "number"
+    },
+    "unit_price_vnd": {
+      "label": "Đơn giá (VND)",
+      "type": "number"
+    },
+    "unit_price_orig": {
+      "label": "Đơn giá (NT)",
+      "type": "number"
+    },
+    "moq": {
+      "label": "SL tối thiểu (MOQ)",
+      "type": "number"
+    },
+    "bom_code": {
+      "label": "Mã BOM",
+      "type": "text"
+    },
+    "bom_version": {
+      "label": "Phiên bản BOM",
+      "type": "text"
+    },
+    "change_type": {
+      "label": "Loại thay đổi",
+      "type": "text"
+    },
+    "change_count": {
+      "label": "Số lần thay đổi",
+      "type": "number"
+    },
+    "ecn_no": {
+      "label": "Số ECN",
+      "type": "text"
+    },
+    "setup_minutes": {
+      "label": "Thời gian setup (phút)",
+      "type": "number"
+    },
+    "setup_count": {
+      "label": "Số lượt setup",
+      "type": "number"
+    },
+    "mold_op_count": {
+      "label": "Số lượt lên/xuống khuôn",
+      "type": "number"
+    },
+    "employee_code": {
+      "label": "Mã nhân viên",
+      "type": "text"
+    },
+    "employee_name": {
+      "label": "Tên nhân viên",
+      "type": "text"
+    },
+    "actual_qty": {
+      "label": "SL thực hiện",
+      "type": "number"
+    },
+    "operator_count": {
+      "label": "Số nhân sự",
+      "type": "number"
+    },
+    "carton_count": {
+      "label": "Số thùng đóng gói",
+      "type": "number"
+    },
+    "box_code": {
+      "label": "Mã thùng",
+      "type": "text"
+    },
+    "skip_shots": {
+      "label": "Số shot bỏ",
+      "type": "number"
+    },
+    "skip_qty": {
+      "label": "SL sản phẩm bỏ shot",
+      "type": "number"
+    },
+    "schedule_qty": {
+      "label": "SL kế hoạch điều độ",
+      "type": "number"
+    },
+    "pqc_count": {
+      "label": "Số phiếu PQC",
+      "type": "number"
+    },
+    "incident_type": {
+      "label": "Loại sự cố khuôn",
+      "type": "text"
+    },
+    "incident_detail": {
+      "label": "Chi tiết sự cố",
+      "type": "text"
+    },
+    "mold_count": {
+      "label": "Số khuôn",
+      "type": "number"
+    },
+    "stock_type": {
+      "label": "Loại tồn kho",
+      "type": "text"
+    },
+    "pending_type": {
+      "label": "Nhóm vật tư pending",
+      "type": "text"
+    },
+    "request_type": {
+      "label": "Loại phiếu YC",
+      "type": "text"
+    },
+    "confirmed_delivery_date": {
+      "label": "Ngày NCC xác nhận giao",
+      "type": "date"
+    },
+    "requested_date": {
+      "label": "Ngày đề nghị nhận hàng",
+      "type": "date"
+    },
+    "promise_date": {
+      "label": "Ngày NCC hứa giao",
+      "type": "date"
+    },
+    "price_list_id": {
+      "label": "Mã bảng giá",
+      "type": "text"
+    },
+    "price_list_name": {
+      "label": "Tên bảng giá",
+      "type": "text"
+    },
+    "pallet_id": {
+      "label": "Mã Pallet",
+      "type": "text"
+    },
+    "pallet_serial": {
+      "label": "Serial tem Pallet",
+      "type": "text"
+    },
+    "carton_serial": {
+      "label": "Serial tem thùng",
+      "type": "text"
+    },
+    "pallet_count": {
+      "label": "Số Pallet",
+      "type": "number"
+    },
+    "packed_qty": {
+      "label": "SL đã đóng gói",
+      "type": "number"
+    },
+    "serial_tem": {
+      "label": "Serial tem",
+      "type": "text"
+    },
+    "label_count": {
+      "label": "Số tem/serial",
+      "type": "number"
+    },
+    "entry_type": {
+      "label": "Loại giao dịch/ghi nhận",
+      "type": "text"
+    },
+    "txn_code": {
+      "label": "Mã nhập xuất (NX)",
+      "type": "text"
+    },
+    "drawing_code": {
+      "label": "Mã bản vẽ",
+      "type": "text"
+    },
+    "part_weight": {
+      "label": "Trọng lượng SP",
+      "type": "number"
+    },
+    "runner_weight": {
+      "label": "Trọng lượng runner",
+      "type": "number"
+    },
+    "tooling_life": {
+      "label": "Tuổi thọ khuôn",
+      "type": "number"
+    },
+    "cost_vnd": {
+      "label": "Tổng chi phí (VND)",
+      "type": "number"
+    },
+    "material_cost": {
+      "label": "Chi phí NVL",
+      "type": "number"
+    },
+    "mold_cost": {
+      "label": "Chi phí khuôn",
+      "type": "number"
+    },
+    "unit_price_usd": {
+      "label": "Đơn giá (USD)",
+      "type": "number"
+    },
+    "leadtime": {
+      "label": "Leadtime chuẩn (ngày)",
+      "type": "number"
+    },
+    "leadtime_kfc": {
+      "label": "Leadtime KFC (ngày)",
+      "type": "number"
+    },
+    "regen_ratio": {
+      "label": "Tỷ lệ tái sinh (%)",
+      "type": "number"
+    },
+    "mixing_ratio": {
+      "label": "Tỷ lệ trộn (%)",
+      "type": "number"
+    },
+    "gate_runner_qty": {
+      "label": "SL gate/runner",
+      "type": "number"
+    },
+    "alt_material": {
+      "label": "Vật tư thay thế",
+      "type": "text"
+    },
+    "operation_code": {
+      "label": "Mã nguyên công",
+      "type": "text"
+    },
+    "item_type": {
+      "label": "Nhóm vật tư",
+      "type": "text"
+    },
+    "shortage_qty": {
+      "label": "SL thiếu/yêu cầu",
+      "type": "number"
+    },
+    "ng_stock_qty": {
+      "label": "SL tồn NG",
+      "type": "number"
+    },
+    "impurity_qty": {
+      "label": "SL tạp chất",
+      "type": "number"
+    },
+    "prepare_qty": {
+      "label": "SL NVL chuẩn bị",
+      "type": "number"
+    },
+    "needed_qty": {
+      "label": "SL cần cấp",
+      "type": "number"
+    },
+    "feed_round": {
+      "label": "Lần cấp",
+      "type": "number"
+    },
+    "inbound_qty": {
+      "label": "SL bàn giao công đoạn",
+      "type": "number"
+    },
+    "add_qty": {
+      "label": "SL bù/điều chỉnh",
+      "type": "number"
+    },
+    "inbound_count": {
+      "label": "Số lượt bàn giao",
+      "type": "number"
+    },
+    "pause_count": {
+      "label": "Số lần tạm dừng",
+      "type": "number"
+    },
+    "cavity_changes": {
+      "label": "Số lần đổi cavity",
+      "type": "number"
+    },
+    "event_type": {
+      "label": "Loại sự kiện MES",
+      "type": "text"
+    },
+    "criterion_code": {
+      "label": "Mã chỉ tiêu QC",
+      "type": "text"
+    },
+    "criterion_name": {
+      "label": "Tên chỉ tiêu QC",
+      "type": "text"
+    },
+    "eval_result": {
+      "label": "Đánh giá chỉ tiêu",
+      "type": "text"
+    },
+    "qc_doc_type": {
+      "label": "Loại kiểm tra (IQC/PQC)",
+      "type": "text"
+    },
+    "check_count": {
+      "label": "Số lượt đo kiểm",
+      "type": "number"
+    },
+    "fc_code": {
+      "label": "Mã đợt Forecast",
+      "type": "text"
+    },
+    "fc_type": {
+      "label": "Kiểu Forecast",
+      "type": "text"
+    },
+    "period_type": {
+      "label": "Chu kỳ Forecast",
+      "type": "text"
+    },
+    "supplier_short": {
+      "label": "NCC viết tắt",
+      "type": "text"
+    }
+  }
 }

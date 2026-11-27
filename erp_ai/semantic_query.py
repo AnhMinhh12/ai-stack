@@ -240,72 +240,129 @@ def compile_query(plan, contracts, allowed_contracts, erp_user_id, max_rows=100)
     return _compile_subplan(plan, contracts, allowed_contracts, erp_user_id, max_rows=max_rows)
 
 
+def build_join_output_layout(legs, join_on):
+    """Compute canonical CTE names, aliases, SELECT projections, and collision-free output columns for N-way joins."""
+    if not legs:
+        return {
+            'cte_names': [],
+            'cte_aliases': [],
+            'select_parts': [],
+            'output_cols': [],
+            'dim_sources': [],
+            'metric_sources': [],
+            'leg_metric_outputs': [],
+        }
+    is_two_way = (len(legs) == 2)
+    cte_names = ['_left', '_right'] if is_two_way else [f'_leg{i}' for i in range(len(legs))]
+    cte_aliases = ['l', 'r'] if is_two_way else [f'l{i}' for i in range(len(legs))]
+
+    select_parts = [f'{cte_aliases[0]}.{identifier(join_on)} AS {identifier(join_on)}']
+    output_cols = [join_on]
+    seen_cols = {join_on}
+    dim_sources = [(0, join_on, join_on)]
+
+    for leg_idx, leg in enumerate(legs):
+        cte_alias = cte_aliases[leg_idx]
+        for d in (leg.get('dimensions') or ()):
+            if d == join_on:
+                continue
+            if is_two_way and leg_idx == 0 and d in seen_cols:
+                continue
+            if d in seen_cols:
+                alias = f'r_{d}' if (is_two_way and leg_idx == 1) else f'leg{leg_idx}_{d}'
+            else:
+                alias = d
+            select_parts.append(f'{cte_alias}.{identifier(d)} AS {identifier(alias)}')
+            output_cols.append(alias)
+            seen_cols.add(alias)
+            dim_sources.append((leg_idx, d, alias))
+
+    metric_counts = {}
+    for leg in legs:
+        for m in (leg.get('metrics') or ()):
+            metric_counts[m] = metric_counts.get(m, 0) + 1
+
+    metric_sources = []
+    leg_metric_outputs = []
+    for leg_idx, leg in enumerate(legs):
+        cte_alias = cte_aliases[leg_idx]
+        cur_outputs = []
+        for m in (leg.get('metrics') or ()):
+            if metric_counts.get(m, 0) > 1 or m in seen_cols:
+                if is_two_way:
+                    alias = f'left_{m}' if leg_idx == 0 else f'right_{m}'
+                else:
+                    alias = f'leg{leg_idx}_{m}'
+            else:
+                alias = m
+            select_parts.append(f'{cte_alias}.{identifier(m)} AS {identifier(alias)}')
+            output_cols.append(alias)
+            seen_cols.add(alias)
+            metric_sources.append((leg_idx, m, alias))
+            cur_outputs.append(alias)
+        leg_metric_outputs.append(cur_outputs)
+
+    return {
+        'cte_names': cte_names,
+        'cte_aliases': cte_aliases,
+        'select_parts': select_parts,
+        'output_cols': output_cols,
+        'dim_sources': dim_sources,
+        'metric_sources': metric_sources,
+        'leg_metric_outputs': leg_metric_outputs,
+    }
+
+
 def compile_joined_query(join_plan, contracts, allowed_contracts, erp_user_id, max_rows=100):
-    """Compile a fanout-safe Aggregate-before-Join query over two approved contracts."""
-    if not isinstance(join_plan, dict) or set(join_plan) - {'left', 'right', 'join_on', 'join_type', 'order_by', 'limit'}:
+    """Compile a fanout-safe Aggregate-before-Join query over 2 or 3 approved contracts on a shared join_on key."""
+    allowed_keys = {'left', 'right', 'extra_legs', 'join_on', 'join_type', 'order_by', 'limit'}
+    if not isinstance(join_plan, dict) or set(join_plan) - allowed_keys:
         raise PlanError('invalid_plan')
     left = join_plan.get('left')
     right = join_plan.get('right')
+    extra_legs = join_plan.get('extra_legs')
     join_on = join_plan.get('join_on')
     join_type = join_plan.get('join_type', 'left')
     if not isinstance(left, dict) or not isinstance(right, dict):
         raise PlanError('invalid_plan')
+    if extra_legs is not None:
+        if not isinstance(extra_legs, list) or len(extra_legs) > 1 or any(not isinstance(x, dict) for x in extra_legs):
+            raise PlanError('invalid_plan')
+    legs = [left, right, *(extra_legs or ())]
     if not isinstance(join_on, str) or join_on not in CANONICAL_JOIN_ENTITIES:
         raise PlanError('invalid_join_key')
     if join_type not in ('left', 'inner'):
         raise PlanError('invalid_join_type')
-    if join_on not in (left.get('dimensions') or ()) or join_on not in (right.get('dimensions') or ()):
+    if any(join_on not in (leg.get('dimensions') or ()) for leg in legs):
         raise PlanError('join_key_not_in_dimensions')
     if type(max_rows) is not int or not 1 <= max_rows <= 200:
         raise PlanError('invalid_limit')
 
-    left_compiled = _compile_subplan(
-        left, contracts, allowed_contracts, erp_user_id,
-        max_rows=max_rows, include_total_rows=False, enforce_limit_clause=True, extra_truncation_row=False,
-    )
-    # In a LEFT JOIN, avoid truncating the right pre-aggregation unless an explicit limit is desired on INNER JOIN.
-    right_compiled = _compile_subplan(
-        right, contracts, allowed_contracts, erp_user_id,
-        max_rows=200, include_total_rows=False,
-        enforce_limit_clause=(join_type == 'inner' and 'limit' in right),
-        extra_truncation_row=False,
-    )
+    compiled_legs = [
+        _compile_subplan(
+            left, contracts, allowed_contracts, erp_user_id,
+            max_rows=max_rows, include_total_rows=False, enforce_limit_clause=True, extra_truncation_row=False,
+        )
+    ]
+    # On outer legs, avoid truncating pre-aggregations unless an explicit limit is supplied on INNER JOIN.
+    for leg in legs[1:]:
+        compiled_legs.append(
+            _compile_subplan(
+                leg, contracts, allowed_contracts, erp_user_id,
+                max_rows=200, include_total_rows=False,
+                enforce_limit_clause=(join_type == 'inner' and 'limit' in leg),
+                extra_truncation_row=False,
+            )
+        )
 
-    select_parts = [f'l.{identifier(join_on)} AS {identifier(join_on)}']
-    output_cols = [join_on]
-    left_dims = left.get('dimensions') or []
-    right_dims = right.get('dimensions') or []
-    left_metrics = left.get('metrics') or []
-    right_metrics = right.get('metrics') or []
-
-    for d in left_dims:
-        if d != join_on and d not in output_cols:
-            select_parts.append(f'l.{identifier(d)} AS {identifier(d)}')
-            output_cols.append(d)
-    for d in right_dims:
-        if d == join_on:
-            continue
-        alias = f'r_{d}' if d in output_cols else d
-        select_parts.append(f'r.{identifier(d)} AS {identifier(alias)}')
-        output_cols.append(alias)
-
-    # Disambiguate colliding metric names cleanly while preserving unique metric names.
-    right_metric_set = set(right_metrics)
-    left_metric_set = set(left_metrics)
-    for m in left_metrics:
-        alias = f'left_{m}' if (m in right_metric_set or m in output_cols) else m
-        select_parts.append(f'l.{identifier(m)} AS {identifier(alias)}')
-        output_cols.append(alias)
-    for m in right_metrics:
-        alias = f'right_{m}' if (m in left_metric_set or m in output_cols) else m
-        select_parts.append(f'r.{identifier(m)} AS {identifier(alias)}')
-        output_cols.append(alias)
-
-    select_parts.append('COUNT(*) OVER () AS "__total_rows"')
+    layout = build_join_output_layout(legs, join_on)
+    select_parts = [*layout['select_parts'], 'COUNT(*) OVER () AS "__total_rows"']
+    output_cols = layout['output_cols']
+    first_left_metric = layout['leg_metric_outputs'][0][0] if layout['leg_metric_outputs'] and layout['leg_metric_outputs'][0] else None
 
     ordering = join_plan.get('order_by')
     if ordering is None:
-        ordering = [{'field': output_cols[len(left_dims) + len([d for d in right_dims if d != join_on])], 'direction': 'desc'}] if left_metrics else []
+        ordering = [{'field': first_left_metric, 'direction': 'desc'}] if first_left_metric else []
     if not isinstance(ordering, list):
         raise PlanError('invalid_order')
     order_parts, seen_order = [], set()
@@ -326,19 +383,24 @@ def compile_joined_query(join_plan, contracts, allowed_contracts, erp_user_id, m
         raise PlanError('invalid_limit')
 
     join_kw = 'INNER JOIN' if join_type == 'inner' else 'LEFT JOIN'
-    sql = (
-        f"WITH _left AS ({left_compiled.sql}), _right AS ({right_compiled.sql}) "
-        f"SELECT {', '.join(select_parts)} "
-        f"FROM _left l {join_kw} _right r ON l.{identifier(join_on)} = r.{identifier(join_on)}"
-    )
+    cte_defs = [f"{layout['cte_names'][idx]} AS ({comp.sql})" for idx, comp in enumerate(compiled_legs)]
+    a0 = layout['cte_aliases'][0]
+    from_sql = f"{layout['cte_names'][0]} {a0}"
+    for idx in range(1, len(legs)):
+        ai = layout['cte_aliases'][idx]
+        from_sql += (
+            f" {join_kw} {layout['cte_names'][idx]} {ai} "
+            f"ON {a0}.{identifier(join_on)} = {ai}.{identifier(join_on)}"
+        )
+    sql = f"WITH {', '.join(cte_defs)} SELECT {', '.join(select_parts)} FROM {from_sql}"
     if order_parts:
         sql += ' ORDER BY ' + ', '.join(order_parts)
     sql += ' LIMIT %s'
-    params = left_compiled.parameters + right_compiled.parameters + (limit + 1,)
+    params = tuple(p for comp in compiled_legs for p in comp.parameters) + (limit + 1,)
     return CompiledQuery(
         sql,
         params,
-        f"{left_compiled.contract_id}+{right_compiled.contract_id}",
-        f"{left_compiled.contract_version}|{right_compiled.contract_version}",
+        '+'.join(comp.contract_id for comp in compiled_legs),
+        '|'.join(comp.contract_version for comp in compiled_legs),
         tuple(output_cols),
     )

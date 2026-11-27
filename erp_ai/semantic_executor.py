@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from .semantic_query import compile_joined_query, compile_query, PlanError
+from .semantic_query import build_join_output_layout, compile_joined_query, compile_query, PlanError
 
 
 def _clean_rows(rows, expected_cols):
@@ -53,7 +53,7 @@ async def execute_plan(plan, *, contracts, allowed_contracts, erp_user_id, db, l
 
 
 async def execute_joined_plan(join_plan, *, contracts, allowed_contracts, erp_user_id, db, limits):
-    """Execute a fanout-safe Aggregate-before-Join plan over two approved contracts."""
+    """Execute a fanout-safe Aggregate-before-Join plan over 2 or 3 approved contracts."""
     compiled = compile_joined_query(join_plan, contracts, allowed_contracts, erp_user_id, max_rows=limits.rows)
     rows = await db(compiled.sql, compiled.parameters, limits)
     expected = set(compiled.output_columns)
@@ -63,15 +63,13 @@ async def execute_joined_plan(join_plan, *, contracts, allowed_contracts, erp_us
     rows = rows[:limit]
     evidence = json.dumps([compiled.contract_id, compiled.contract_version, erp_user_id, join_plan],
                           sort_keys=True, ensure_ascii=False, default=str)
-    # On a LEFT JOIN, right-side metrics can be NULL when no matching right record exists.
-    left_metrics = join_plan['left']['metrics']
-    right_set = set(join_plan['right']['metrics'])
-    left_out_metrics = [
-        (f'left_{m}' if m in right_set else m) for m in left_metrics
-    ]
+    # On a LEFT JOIN, right/extra legs can be NULL when no matching record exists on those sides.
+    legs = [join_plan['left'], join_plan['right'], *(join_plan.get('extra_legs') or ())]
+    layout = build_join_output_layout(legs, join_plan['join_on'])
+    left_out_metrics = layout['leg_metric_outputs'][0]
     missing_left = any(row.get(m) is None for row in rows for m in left_out_metrics)
     status = 'partial' if has_more else ('empty' if not rows else ('missing' if missing_left else 'complete'))
-    combined_filters = list(join_plan['left'].get('filters') or []) + list(join_plan['right'].get('filters') or [])
+    combined_filters = [f for leg in legs for f in (leg.get('filters') or ())]
     return {'rows': rows, 'returned_rows': len(rows), 'total_rows': total_rows, 'has_more': has_more,
             'status': status,
             'contract_id': compiled.contract_id, 'contract_version': compiled.contract_version,

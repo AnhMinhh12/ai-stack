@@ -14,8 +14,15 @@ from erp_ai.semantic_catalog import (
     validate_semantic_contracts,
 )
 from erp_ai.semantic_executor import execute_joined_plan
+from erp_ai.semantic_model import compile_semantic_model, load_erp_config
 from erp_ai.semantic_normalizer import normalize_joined_plan, normalize_semantic_plan
 from erp_ai.semantic_query import PlanError, compile_joined_query, compile_query
+from erp_ai.semantic_retriever import (
+    catalog_documents_for_indexing,
+    document_text_for_dataset,
+    fuse_rrf_scores,
+    rank_datasets,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = json.loads((ROOT / "config/erp-agent.json").read_text())
@@ -400,6 +407,175 @@ class CanonicalArchitectureTests(unittest.IsolatedAsyncioTestCase):
 
         res = await run_agent("PO gần nhất tháng 10/2026", user={"id": "u"}, model=redirect_model, backend=backend)
         self.assertEqual(res["status"], "answered")
+
+    def test_semantic_model_sync_parity_and_field_catalog_presentation(self):
+        loaded = load_erp_config(ROOT)
+        model_raw = json.loads((ROOT / "config/erp-semantic-model.json").read_text())
+        compiled_facts, field_catalog = compile_semantic_model(model_raw)
+        self.assertGreater(len(field_catalog), 180)
+        self.assertEqual(validate_semantic_contracts(compiled_facts), [])
+        for fid, fc in compiled_facts.items():
+            self.assertEqual(loaded["semantic_contracts"][fid]["dimensions"], fc["dimensions"])
+            self.assertEqual(loaded["semantic_contracts"][fid]["metrics"], fc["metrics"])
+            self.assertEqual(loaded["semantic_contracts"][fid]["filters"], fc["filters"])
+            self.assertEqual(CONFIG["semantic_contracts"][fid]["source_sql"], fc["source_sql"])
+
+        # Centralized field_catalog should resolve column labels cleanly even when key is custom.
+        custom_cfg = copy.deepcopy(loaded)
+        custom_cfg.setdefault("field_catalog", {})["qty_test_custom"] = {"label": "SL tùy biến catalog", "type": "number"}
+        blocks = receipt_blocks(
+            "Thống kê custom",
+            [{
+                "tool": "query_semantic_plan",
+                "arguments": {"dataset": "mes_oee_daily", "dimensions": ["machine"], "metrics": ["oee_pct"]},
+                "result": {
+                    "rows": [{"machine": "DUC-01", "oee_pct": 88.5, "qty_test_custom": 42}],
+                    "returned_rows": 1,
+                    "has_more": False,
+                    "status": "complete",
+                    "contract_id": "mes_oee_daily",
+                    "sources": [{"id": "records:cat1"}],
+                },
+            }],
+            "answered",
+            config=custom_cfg,
+        )
+        tbl = next(b for b in blocks if b["type"] == "table")
+        labels = {c["key"]: c["label"] for c in tbl["columns"]}
+        self.assertEqual(labels["qty_test_custom"], "SL tùy biến catalog")
+
+    async def test_three_way_entity_join_compile_execute_and_present(self):
+        contracts = CONFIG["semantic_contracts"]
+        raw_join = {
+            "left": {
+                "dataset": "mes_downtime_lines",
+                "dimensions": ["machine"],
+                "metrics": ["stop_minutes"],
+                "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}],
+                "limit": 5,
+            },
+            "right": {
+                "dataset": "mes_production_output",
+                "dimensions": ["machine", "unit"],
+                "metrics": ["complete_qty"],
+                "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}],
+            },
+            "extra_legs": [{
+                "dataset": "mes_oee_daily",
+                "dimensions": ["machine"],
+                "metrics": ["oee_pct"],
+                "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}],
+            }],
+            "join_on": "machine",
+            "join_type": "left",
+        }
+        norm = normalize_joined_plan(raw_join, contracts, max_rows=50)
+        self.assertEqual(len(norm["extra_legs"]), 1)
+        compiled = compile_joined_query(norm, contracts, {"mes_downtime_lines", "mes_production_output", "mes_oee_daily"}, 11)
+        self.assertIn("WITH _leg0 AS (", compiled.sql)
+        self.assertIn("LEFT JOIN _leg1 l1 ON l0.\"machine\" = l1.\"machine\"", compiled.sql)
+        self.assertIn("LEFT JOIN _leg2 l2 ON l0.\"machine\" = l2.\"machine\"", compiled.sql)
+        self.assertEqual(compiled.output_columns, ("machine", "unit", "stop_minutes", "complete_qty", "oee_pct"))
+
+        async def mock_db(sql, params, limits):
+            return [{"machine": "DUC-0065", "unit": "PCS", "stop_minutes": 180.0, "complete_qty": 12500, "oee_pct": 91.2, "__total_rows": 1}]
+
+        res = await execute_joined_plan(
+            norm,
+            contracts=contracts,
+            allowed_contracts={"mes_downtime_lines", "mes_production_output", "mes_oee_daily"},
+            erp_user_id=11,
+            db=mock_db,
+            limits=Limits(),
+        )
+        self.assertEqual(res["status"], "complete")
+        blocks = receipt_blocks(
+            "Top 5 máy dừng kèm sản lượng và OEE",
+            [{"tool": "query_semantic_join", "arguments": norm, "result": res}],
+            "answered",
+            config=CONFIG,
+        )
+        tbl = next(b for b in blocks if b["type"] == "table")
+        self.assertEqual(len([c for c in tbl["columns"] if c["key"] in ("machine", "stop_minutes", "complete_qty", "oee_pct")]), 4)
+        self.assertIn("dừng máy", tbl["title"].lower())
+        self.assertIn("oee", tbl["title"].lower())
+
+        # Colliding metrics across 3 legs disambiguate via leg0_/leg1_/leg2_.
+        collide_join = normalize_joined_plan({
+            "left": {"dataset": "sales_order_lines", "dimensions": ["material"], "metrics": ["quantity"], "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}]},
+            "right": {"dataset": "sales_delivery_lines", "dimensions": ["material"], "metrics": ["quantity"], "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}]},
+            "extra_legs": [{"dataset": "purchase_order_lines", "dimensions": ["material"], "metrics": ["quantity"], "filters": [{"field": "day", "op": "gte", "value": "2026-10-01"}, {"field": "day", "op": "lte", "value": "2026-10-31"}]}],
+            "join_on": "material",
+        }, contracts)
+        cq_col = compile_joined_query(collide_join, contracts, {"sales_order_lines", "sales_delivery_lines", "purchase_order_lines"}, 11)
+        self.assertEqual(
+            cq_col.output_columns,
+            ("material", "unit", "leg1_unit", "leg2_unit", "leg0_quantity", "leg1_quantity", "leg2_quantity"),
+        )
+
+    async def test_dataset_forbidden_returns_suggestions_and_entity_gating(self):
+        backend = ReportBackend.from_root(
+            ROOT,
+            {"u": {"erp_user_id": 11, "reports": [r["id"] for r in CONFIG["reports"]], "semantic_datasets": list(CONFIG["semantic_contracts"])}},
+            lambda *_: [],
+        )
+        # No material entity -> single-material lookup tools stay gated out, preventing misrouting.
+        specs_no_entity = backend.model_specs("Top 5 kho đang tồn nhiều lô hàng nhất hiện nay", user={"id": "u"})
+        names_no_ent = [s["function"]["name"] for s in specs_no_entity]
+        self.assertNotIn("query_inventory_by_warehouse", names_no_ent)
+        self.assertNotIn("query_inventory_balance", names_no_ent)
+        self.assertNotIn("query_sales_orders", names_no_ent)
+
+        # With explicit material code QC7-5146-000 -> warehouse lookup tool appears cleanly.
+        specs_with_mat = backend.model_specs("Tồn kho của mã QC7-5146-000 ở từng kho ngày 20/10/2026", user={"id": "u"})
+        self.assertIn("query_inventory_by_warehouse", [s["function"]["name"] for s in specs_with_mat])
+
+        # Hallucinating a report ID into query_semantic_plan returns disambiguation hint + valid suggested_datasets.
+        err = await backend.execute(
+            "query_semantic_plan",
+            {"dataset": "inventory_by_warehouse", "dimensions": ["warehouse"], "metrics": ["stock_qty"]},
+            {"id": "u"},
+            Limits(),
+        )
+        self.assertEqual(err["error"], "invalid_semantic_plan")
+        self.assertEqual(err["error_code"], "dataset_forbidden")
+        self.assertIn("inventory_by_warehouse", err.get("hint", ""))
+        sugg_ids = [d["id"] for d in err.get("suggested_datasets", [])]
+        self.assertTrue(any("stock" in i or "warehouse" in i or "inventory" in i for i in sugg_ids))
+
+    def test_hybrid_retriever_qdrant_rrf_fusion_and_catalog_docs(self):
+        docs = catalog_documents_for_indexing(CONFIG)
+        self.assertGreaterEqual(len(docs), 62)
+        sample_doc = next(d for d in docs if d["dataset_id"] == "purchase_delivery_schedules")
+        self.assertIn("ctkhnh", sample_doc["text"])
+        self.assertIn("Trường dữ liệu", sample_doc["text"])
+
+        rrf = fuse_rrf_scores(["a", "b"], ["b", "c"])
+        self.assertAlmostEqual(rrf["b"], (1.0 / 62.0) + (1.0 / 61.0), places=6)
+        self.assertGreater(rrf["b"], rrf["a"])
+
+        datasets = [{"id": k, "title": v.get("title", k), "dimensions": list(v.get("dimensions", ())), "metrics": list(v.get("metrics", ())), "filters": list(v.get("filters", ()))} for k, v in CONFIG["semantic_contracts"].items() if v.get("status") == "approved"]
+        paraphrase_q = "đối tác hay chậm so với hẹn ban đầu"
+        baseline = rank_datasets(paraphrase_q, datasets=datasets, contracts=CONFIG["semantic_contracts"], vector_hits=[])
+        boosted = rank_datasets(
+            paraphrase_q,
+            datasets=datasets,
+            contracts=CONFIG["semantic_contracts"],
+            vector_hits=["purchase_delivery_schedules"],
+        )
+        base_score = dict((ds["id"], sc) for sc, ds in baseline)["purchase_delivery_schedules"]
+        boost_score = dict((ds["id"], sc) for sc, ds in boosted)["purchase_delivery_schedules"]
+        self.assertGreater(boost_score, base_score)
+        self.assertEqual(boosted[0][1]["id"], "purchase_delivery_schedules")
+
+        ranked = rank_datasets(
+            "nhà cung cấp nào hay trễ hẹn giao",
+            datasets=datasets,
+            contracts=CONFIG["semantic_contracts"],
+            vector_hits=["purchase_delivery_schedules", "purchase_order_lines"],
+        )
+        top_ids = [ds["id"] for _, ds in ranked[:5]]
+        self.assertIn("purchase_delivery_schedules", top_ids[:2])
 
 
 if __name__ == "__main__":
